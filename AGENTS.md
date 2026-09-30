@@ -115,6 +115,8 @@ Vitest 5, two projects (vite.config.ts), coverage via `@vitest/coverage-v8` (tex
 
 ## Visual Verification
 
+No `agent-browser`: every browser check (page render, screenshots, animation frames, DOM reads) goes through a Playwright `.mjs` script in `.local/` against the session dev-server port.
+
 To actually see a page (or animation) rendered in a browser:
 
 - Playwright + Chromium ship via `@vitest/browser-playwright` (chromium lives in `~/Library/Caches/ms-playwright`). Put a small `.mjs` script in `.local/` (gitignored, excluded from coverage) so `import { chromium } from "playwright"` resolves against the project's `node_modules`.
@@ -142,7 +144,7 @@ Agent implications:
 The user runs their own long-lived tmux session (`math-viz`) for manual work, and pi0 may drive additional agent sessions (`math-viz-<branch>`) at the same time. This is the normal state, not a conflict.
 
 - **Never assume port 5173.** Each session's dev server picks its own port — pick a free one (`lsof -nP -iTCP:<port> -sTCP:LISTEN`) and run vite with `--strictPort`; the chosen port prints in vite's `Local:` line. If you start a dev server yourself, pick a free port the same way.
-- **Agent/user split:** user live-edits via `websocket-text-relay` on their dev server port (unsaved buffers → vite memory, 30–60fps). Agent runs its own vite with `DISABLE_WTR=1` (disk-only) on a free session port and drives `agent-browser` against `http://localhost:<session-port>/#<route>`. Disk edits stay on the agent port, live buffers stay on the user's — no collision.
+- **Agent/user split:** user live-edits via `websocket-text-relay` on their dev server port (unsaved buffers → vite memory, 30–60fps). Agent runs its own vite with `DISABLE_WTR=1` (disk-only) on a free session port and drives Playwright `.mjs` scripts in `.local/` against `http://localhost:<session-port>/#<route>` (no `agent-browser`, see Visual Verification). Disk edits stay on the agent port, live buffers stay on the user's — no collision.
 - **Never kill tmux sessions, dev servers, or processes you did not start.** The user's session is their workspace.
 - Work in your own worktree/branch unless the user says otherwise; the user's checkout is often dirty with their in-progress work.
 
@@ -163,8 +165,8 @@ This project is young and grows by experimentation. The user teaches conventions
 - `npm run format` (oxfmt --write) formats the whole repo, not just the files you edited: it also reformats markdown tables (including this AGENTS.md) and CSS. Check `git status` after formatting; unrelated files may change.
 - **The user's checkout is often dirty with in-progress work.** Before running repo-wide commands like `npm run format`, run `git status` (and `git diff` if needed) to see what the user already has in flight. If formatting would touch files you did not edit, prefer `npx oxfmt --write <your-files>` instead. Never discard working-tree changes with `git checkout --` or similar without asking.
 - jsdom has no `requestAnimationFrame` (it exists only with `pretendToBeVisual: true`). Animated pages must guard their rAF effect with `if (typeof requestAnimationFrame !== "function") return`, or jsdom tests throw.
-- **Vite HMR vs `agent-browser reload` race**: right after a disk edit, `reload` can still serve the old module; identical pixel samples across two edits mean stale content. `eval` a DOM attribute (`circle r`, `stroke-width`) to confirm the change landed, or sleep 2s and reload again.
-- **Thin strokes at DPR 1 depend on sub-pixel placement**: a 1.5px vertical line centered at x=789.15 renders as one ~100% pixel plus one 65% pixel; widths below ~2px read thinner and darker than intended. Compare pixel rows against the reference, and design with DPR 2 in mind (`devicePixelRatio` via `agent-browser eval`).
+- **Vite HMR vs `page.reload()` race**: right after a disk edit, `reload` can still serve the old module; identical pixel samples across two edits mean stale content. Read back a DOM attribute (`circle r`, `stroke-width`) via `page.evaluate` to confirm the change landed, or sleep 2s and reload again.
+- **Thin strokes at DPR 1 depend on sub-pixel placement**: a 1.5px vertical line centered at x=789.15 renders as one ~100% pixel plus one 65% pixel; widths below ~2px read thinner and darker than intended. Compare pixel rows against the reference, and design with DPR 2 in mind (check `devicePixelRatio` via `page.evaluate`).
 - **Refactoring**: use `tslsp-cli` (skill `.pi/skills/tslsp/`) for any identifier/file move — `npx --no-install @0xdeafcafe/tslsp-cli rename-file OLD NEW --dry-run` then without, `rename --symbol OLD --new-name NEW`. Deterministic import rewrites via `tsgo` `workspace/willRenameFiles`. No manual `grep`/`edit`/`mv` for TS symbols.
 - `screen.getByTestId`/`getByText` are typed as `Locator` (from `vitest-browser-react`). To introspect DOM internals in jsdom tests, cast first, e.g. `screen.getByTestId("x") as unknown as SVGSVGElement`, then `querySelector`.
 - `noUncheckedIndexedAccess` shapes code: `arr[i]` is `T | undefined` — prefer `?? 0` / explicit `if (v===undefined) return` over `!`; `!` is banned by `no-non-null-assertion`.

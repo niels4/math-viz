@@ -41,18 +41,28 @@ python tools/color-compare/src/compare.py          # legacy fixed-point sampler 
 - Ad-hoc scans are fine too: a horizontal/vertical pixel scan through the center (`im.getpixel`) is the
   fastest way to read ring radius, ring width and transitions. Print `r_ref = dx / scale` next to each px.
 
-### Browser screenshot — `agent-browser`
+### Browser screenshot — Playwright script in `.local/`
 
-```
-export AGENT_BROWSER_SESSION="viz1-stylematch"
-agent-browser open "http://localhost:<port>/#svg/time-series1"   # ask the user / lsof for the port
-agent-browser reload && agent-browser wait --load networkidle && sleep 1 && agent-browser screenshot /tmp/shot.png
-agent-browser eval "Array.from(document.querySelectorAll('circle')).map(c => c.getAttribute('r')).join(' ')"
+No `agent-browser`: screenshots and DOM reads go through a Playwright `.mjs` script in `.local/`
+(see AGENTS.md Visual Verification), e.g. `.local/shot.mjs`:
+
+```js
+import { chromium } from "playwright";
+const port = process.argv[2] ?? "<port>"; // ask the user / lsof for the port
+const browser = await chromium.launch();
+const page = await browser.newPage();
+await page.goto(`http://localhost:${port}/#svg/time-series1`);
+await page.waitForLoadState("load");
+await page.waitForTimeout(1000);
+await page.screenshot({ path: ".local/shot.png" });
+console.log(await page.evaluate(() =>
+  Array.from(document.querySelectorAll("circle")).map((c) => c.getAttribute("r")).join(" ")));
+await browser.close();
 ```
 
 - Screenshots are device pixels; headless default is DPR 1, so 1 viewBox unit = 1 px on the 1000x500 chart.
-  Check `devicePixelRatio` via `eval` before reasoning about pixel counts.
-- After a disk edit, `reload` can race Vite's HMR: verify the DOM (`eval` an attribute) before sampling, or
+  Check `devicePixelRatio` via `page.evaluate` before reasoning about pixel counts.
+- After a disk edit, `page.reload()` can race Vite's HMR: verify the DOM (`page.evaluate` an attribute) before sampling, or
   sleep 2s and reload again. Identical sample output across two edits means the page did not update.
 - Stabilize the fixture first: `src/data/time-series/time-series1.ts` uses a seeded PRNG (mulberry32, seed 189) so point 36 (the tooltip's default `useState`) sits on a local peak like the reference. Change the seed
   or the `useState(points[36])` index when a different spot is needed.
@@ -107,4 +117,4 @@ recolors coherently. Keep the `.theme` wrapper, use `oklch` not hex, run `oxfmt`
   relative coordinates (`compare.py`'s `0.5,0.48` mixes chart and background).
 - SVG gradient stops with `var()` / relative colors need `style={{ stopColor }}` (see AGENTS.md gotcha).
 - Chrome resolves `oklch(from var(--x) calc(l - 0.046) ...)` and `color-mix()` in SVG `style` fine; verify
-  with `getComputedStyle(el).stroke` via `agent-browser eval` when in doubt.
+  with `getComputedStyle(el).stroke` via `page.evaluate` when in doubt.
