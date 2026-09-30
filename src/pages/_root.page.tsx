@@ -23,8 +23,8 @@ const TableOfContents = () => {
 
         <a href="#basics/font-demo">Font Demo</a>
         <p>
-          Scoped CSS Module fonts per page — no global pollution. Reference templates in src/style/fonts/ —
-          Inter + Fraunces + Bebas Neue with font-family
+          Scoped CSS Module fonts per page — no global pollution. Work Sans (UI), STIX Two Text (equations),
+          Roboto Mono (metrics) with font-family
         </p>
       </nav>
     </section>

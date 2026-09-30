@@ -31,7 +31,7 @@ src/
   style/                   # project-level styles (sibling dirs, not parent/child)
     global.css             # sensible defaults + app shell (html/body/#root)
     themes/                # CSS Module themes per page (default, neon_noir, fintech_dashes + 6 mathviz_*)
-    fonts/                 # CSS Module fonts per page (inter, fraunces, bebas_neue, atkinson_hyperlegible + work_sans, stix_two_text, roboto_mono) — local woff2, offline
+    fonts/                 # CSS Module fonts per page (work_sans, stix_two_text, roboto_mono) — local woff2, offline
   pages/                   # file-system routes (see Routing) — 6 routes: 4 basics + _root + _not_found
     basics/                # theme-demo, font-demo, counter, search-params
   components/router/       # Router + route state hooks
@@ -46,13 +46,13 @@ Import aliases (package.json `imports`): `#src/*` → `./src/*`, `#generated/*` 
 
 ## Imports — project vs relative
 
-- **Project-level imports** (styles, fonts, themes, utils, cross-feature code) **must use `#src/`** — e.g. `import styles from "#src/style/themes/neon_noir.module.css"`, `import fontStyles from "#src/style/fonts/inter/inter.module.css"`, `import "#src/style/global.css"`, `import { foo } from "#src/util/bar.ts"`. This keeps moves cheap and paths stable.
+- **Project-level imports** (styles, fonts, themes, utils, cross-feature code) **must use `#src/`** — e.g. `import styles from "#src/style/themes/neon_noir.module.css"`, `import fontStyles from "#src/style/fonts/work_sans/work_sans.module.css"`, `import "#src/style/global.css"`, `import { foo } from "#src/util/bar.ts"`. This keeps moves cheap and paths stable.
 - **Nearby/relative imports** (same dir or sibling, `*.module.css` next to its `.page.tsx`, `*.test.tsx` next to source) **use relative** — e.g. `import style from "./_root.page.module.css"` in `_root.page.tsx`, `import { helper } from "./helper.ts"`.
 - Do not use relative `../../style/...` for project-level styles — use `#src/style/...`.
 
 ## Style — layout, offline & galleries
 
-- **Canonical layout**: see `Layout` above — `src/style/{themes,fonts}` are **siblings** under `src/style` (not parent/child), `src/style/global.css` via `#src/style/global.css`. Do not nest `fonts` inside `themes`. No `html`/`body`/`:root` in modules, `_` not `-`, generic wrappers `.theme`/`.font` (file-hashed, import path switches theme/font — `styles.theme`/`fontStyles.font` uniform), oklch colors, `oxfmt` multi-line. Offline: fonts vendored woff2 (`Inter-Variable` 225KB, `Fraunces-Variable` 118KB, `BebasNeue` 13KB + `AtkinsonHyperlegible` 11k×4) — verify `grep -r fonts.googleapis src/style/fonts` empty and `dist/assets/*.woff2` after build. See `src/style/themes/README.md` + `src/style/fonts/README.md` (authoritative).
+- **Canonical layout**: see `Layout` above — `src/style/{themes,fonts}` are **siblings** under `src/style` (not parent/child), `src/style/global.css` via `#src/style/global.css`. Do not nest `fonts` inside `themes`. No `html`/`body`/`:root` in modules, `_` not `-`, generic wrappers `.theme`/`.font` (file-hashed, import path switches theme/font — `styles.theme`/`fontStyles.font` uniform), oklch colors, `oxfmt` multi-line. Offline: fonts vendored woff2 (`WorkSans-Variable` 50KB, `STIXTwoText-Variable` 28KB, `RobotoMono-Variable` 33KB + italics) — verify `grep -r fonts.googleapis src/style/fonts` empty and `dist/assets/*.woff2` after build. See `src/style/themes/README.md` + `src/style/fonts/README.md` (authoritative).
 - **Import alias**: project-level `→ #src/style/...` (e.g. `#src/style/themes/neon_noir.module.css`), nearby `→ ./_root.page.module.css` (see `Imports` above).
 - **Galleries & workspace** (static `python -m http.server 8787` main / `8788` worktree, headed `mastra0-collab`):
 
