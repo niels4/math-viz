@@ -1,6 +1,6 @@
-# Font Format Rules — viz1
+# Font Format Rules — math-viz
 
-Reference implementations: `inter/inter.module.css` (workhorse sans, variable 100-900), `fraunces/fraunces.module.css` (display serif, variable opsz/SOFT/WONK), `bebas_neue/bebas_neue.module.css` (brutalist display, derived from time-series 08). All use generic wrapper `.font` (file-hashed via CSS Modules, like themes use `.theme`).
+Reference implementations: `inter/inter.module.css` (workhorse sans, variable 100-900), `fraunces/fraunces.module.css` (display serif, variable opsz/SOFT/WONK), `bebas_neue/bebas_neue.module.css` (brutalist display), `work_sans/work_sans.module.css` (math-viz UI workhorse, variable 100-900 + italics), `stix_two_text/stix_two_text.module.css` (equations only, 400-700 + italics), `roboto_mono/roboto_mono.module.css` (metrics/HUD mono, variable 100-700 + italics). All use generic wrapper `.font` (file-hashed via CSS Modules, like themes use `.theme`).
 
 ## 1. File location and naming
 

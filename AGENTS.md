@@ -30,8 +30,8 @@ src/
   main.tsx                 # entry: renders <Router routes={routes} />
   style/                   # project-level styles (sibling dirs, not parent/child)
     global.css             # sensible defaults + app shell (html/body/#root)
-    themes/                # CSS Module themes per page (default, neon_noir, fintech_dashes)
-    fonts/                 # CSS Module fonts per page (inter, fraunces, bebas_neue, atkinson_hyperlegible) — local woff2, offline
+    themes/                # CSS Module themes per page (default, neon_noir, fintech_dashes + 6 mathviz_*)
+    fonts/                 # CSS Module fonts per page (inter, fraunces, bebas_neue, atkinson_hyperlegible + work_sans, stix_two_text, roboto_mono) — local woff2, offline
   pages/                   # file-system routes (see Routing) — 6 routes: 4 basics + _root + _not_found
     basics/                # theme-demo, font-demo, counter, search-params
   components/router/       # Router + route state hooks

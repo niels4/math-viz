@@ -1,0 +1,29 @@
+/* Font: Roboto Mono — monospace · Christian Robertson / Google · weights 100-700 · normal, italic · variable
+ * Family: "Roboto Mono" · id roboto-mono
+ * Source: Google Fonts (OFL) → local woff2, no CDN, works offline
+ * Files: ./RobotoMono-Variable.woff2 + ./RobotoMono-Italic-Variable.woff2 (woff2, OFL, latin) — local, no CDN, works offline
+ * Licensing: OFL (Open Font License) — free for commercial use · Cost: Free
+ * Usage: CSS Module, per-page. Import as `import fontStyles from "#src/style/fonts/roboto_mono/roboto_mono.module.css"` then wrap metric/HUD readouts with `className={fontStyles.font}`. File name provides uniqueness via CSS Modules hashing; wrapper is generic .font.
+ * Role: math-viz metrics/HUD — fixed-width digits hold position on live counters (X: 2.00 Y: 4.00, CURSOR: (2,4)). Footed 1 vs l/I.
+ * No global pollution — @font-face only loads when the page imports this module. No html/body/:root.
+ */
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("./RobotoMono-Variable.woff2") format("woff2");
+  font-weight: 100 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("./RobotoMono-Italic-Variable.woff2") format("woff2");
+  font-weight: 100 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+.font {
+  font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}

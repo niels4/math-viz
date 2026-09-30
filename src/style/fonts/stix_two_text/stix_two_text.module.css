@@ -1,0 +1,29 @@
+/* Font: STIX Two Text — serif · Tiro Typeworks / STI·X · weights 400-700 · normal, italic
+ * Family: "STIX Two Text" · id stix-two-text
+ * Source: Google Fonts (OFL) → local woff2, no CDN, works offline
+ * Files: ./STIXTwoText-Variable.woff2 + ./STIXTwoText-Italic-Variable.woff2 (woff2, OFL, latin) — local, no CDN, works offline
+ * Licensing: OFL (Open Font License) — free for commercial use · Cost: Free
+ * Usage: CSS Module, per-page. Import as `import fontStyles from "#src/style/fonts/stix_two_text/stix_two_text.module.css"` then wrap equation panels with `className={fontStyles.font}`. File name provides uniqueness via CSS Modules hashing; wrapper is generic .font.
+ * Role: math-viz equations ONLY — proper ∫ √ ² ¹ ³ glyphs drawn by type designers (not scaled-down 2). Use for y=x², f'(x)=2x, ∫x² dx panels — never axis ticks or UI.
+ * No global pollution — @font-face only loads when the page imports this module. No html/body/:root.
+ */
+
+@font-face {
+  font-family: "STIX Two Text";
+  src: url("./STIXTwoText-Variable.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "STIX Two Text";
+  src: url("./STIXTwoText-Italic-Variable.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+.font {
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+}

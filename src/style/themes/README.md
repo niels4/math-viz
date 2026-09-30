@@ -1,6 +1,6 @@
-# Theme Format Rules — viz1
+# Theme Format Rules — math-viz
 
-Reference implementations: `neon_noir.module.css` (derived from time-series dark neon) and `default.module.css` (neutral light, ships with template).
+Reference implementations: `neon_noir.module.css` (dark neon) and `default.module.css` (neutral light), plus the six `mathviz_*` themes (arctic-ice, clean-teal, educational-warm, midnight-violet, sage-editorial, tron-cyan).
 
 ## 1. File location and naming
 
