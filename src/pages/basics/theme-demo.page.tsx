@@ -30,7 +30,7 @@ export default function ThemeDemoPage() {
           <p style={{ color: "var(--foreground-muted)" }}>
             Achromatic ice precision + single mint signal · bg×fg 18.06:1 AAA
           </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
             <button className={arcticStyles.btn_primary}>Primary</button>
             <button className={arcticStyles.btn_secondary}>Secondary</button>
             <span className={arcticStyles.badge_accent}>Accent</span>
@@ -39,7 +39,7 @@ export default function ThemeDemoPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
             <div className={arcticStyles.card} style={{ padding: 12 }}>
               <div style={{ fontWeight: 700 }}>Card</div>
-              <div className={arcticStyles.text_muted} style={{ fontSize: 12 }}>
+              <div className={arcticStyles.text_muted} style={{ fontSize: 12, marginTop: 4 }}>
                 Dark dashboard shell, mint chart line
               </div>
             </div>
@@ -67,7 +67,7 @@ export default function ThemeDemoPage() {
           <p style={{ color: "var(--foreground-muted)" }}>
             Tron-lineage neon cyan on near-black void · glow chart accents
           </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
             <button className={tronStyles.btn_primary}>Primary</button>
             <button className={tronStyles.btn_secondary}>Secondary</button>
             <span className={tronStyles.badge_accent}>Accent</span>
@@ -76,7 +76,7 @@ export default function ThemeDemoPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
             <div className={tronStyles.card} style={{ padding: 12 }}>
               <div style={{ fontWeight: 700 }}>Card</div>
-              <div className={tronStyles.text_muted} style={{ fontSize: 12 }}>
+              <div className={tronStyles.text_muted} style={{ fontSize: 12, marginTop: 4 }}>
                 High-voltage dark shell for live canvases
               </div>
             </div>
@@ -104,7 +104,7 @@ export default function ThemeDemoPage() {
           <p style={{ color: "var(--foreground-muted)" }}>
             Violet-depth dark shell · primary just under 4.5, large-use accents
           </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
             <button className={midnightStyles.btn_primary}>Primary</button>
             <button className={midnightStyles.btn_secondary}>Secondary</button>
             <span className={midnightStyles.badge_accent}>Accent</span>
@@ -113,7 +113,7 @@ export default function ThemeDemoPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
             <div className={midnightStyles.card} style={{ padding: 12 }}>
               <div style={{ fontWeight: 700 }}>Card</div>
-              <div className={midnightStyles.text_muted} style={{ fontSize: 12 }}>
+              <div className={midnightStyles.text_muted} style={{ fontSize: 12, marginTop: 4 }}>
                 Violet primary line, warm supporting accents
               </div>
             </div>
@@ -141,7 +141,7 @@ export default function ThemeDemoPage() {
           <p style={{ color: "var(--foreground-muted)" }}>
             Chips + layer toggles on clean paper · teal signal, navy ink
           </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
             <button className={cleanTealStyles.btn_primary}>Primary</button>
             <button className={cleanTealStyles.btn_secondary}>Secondary</button>
             <span className={cleanTealStyles.badge_accent}>Accent</span>
@@ -150,7 +150,7 @@ export default function ThemeDemoPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
             <div className={cleanTealStyles.card} style={{ padding: 12 }}>
               <div style={{ fontWeight: 700 }}>Card</div>
-              <div className={cleanTealStyles.text_muted} style={{ fontSize: 12 }}>
+              <div className={cleanTealStyles.text_muted} style={{ fontSize: 12, marginTop: 4 }}>
                 Light classroom shell, teal chart line
               </div>
             </div>
@@ -178,7 +178,7 @@ export default function ThemeDemoPage() {
           <p style={{ color: "var(--foreground-muted)" }}>
             Warm paper educator voice · indigo parabola, coral tangent
           </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
             <button className={educationalStyles.btn_primary}>Primary</button>
             <button className={educationalStyles.btn_secondary}>Secondary</button>
             <span className={educationalStyles.badge_accent}>Accent</span>
@@ -187,7 +187,7 @@ export default function ThemeDemoPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
             <div className={educationalStyles.card} style={{ padding: 12 }}>
               <div style={{ fontWeight: 700 }}>Card</div>
-              <div className={educationalStyles.text_muted} style={{ fontSize: 12 }}>
+              <div className={educationalStyles.text_muted} style={{ fontSize: 12, marginTop: 4 }}>
                 Friendly warm shell for lesson pages
               </div>
             </div>
@@ -215,7 +215,7 @@ export default function ThemeDemoPage() {
           <p style={{ color: "var(--foreground-muted)" }}>
             Muted-by-design sage · serif function labels, calm cards
           </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
             <button className={sageStyles.btn_primary}>Primary</button>
             <button className={sageStyles.btn_secondary}>Secondary</button>
             <span className={sageStyles.badge_accent}>Accent</span>
@@ -224,7 +224,7 @@ export default function ThemeDemoPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
             <div className={sageStyles.card} style={{ padding: 12 }}>
               <div style={{ fontWeight: 700 }}>Card</div>
-              <div className={sageStyles.text_muted} style={{ fontSize: 12 }}>
+              <div className={sageStyles.text_muted} style={{ fontSize: 12, marginTop: 4 }}>
                 Editorial calm for reading-heavy pages
               </div>
             </div>
