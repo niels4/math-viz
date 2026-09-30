@@ -39,7 +39,7 @@ src/
   util/
 scripts/                   # node scripts; *.script.ts are entry points, *.test.ts run in node
 generated/routes.ts        # generated artifact, committed; never hand-edit
-.local/                    # gitignored scratch; generateRoutes tests write fixtures here
+.local/                    # gitignored agent scratch: one-off scripts, screenshots, test data — never committed (generateRoutes tests also write fixtures here)
 ```
 
 Import aliases (package.json `imports`): `#src/*` → `./src/*`, `#generated/*` → `./generated/*`, `#test` → `./src/test/includes.tsx`.
