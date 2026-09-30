@@ -6,7 +6,7 @@ description: Match web app colors and styles to a reference image using python c
 # style-match — reference image to SVG/CSS matching
 
 Consistent workflow to match a reference PNG to the running app. Uses `tools/color-compare` (Pillow),
-`agent-browser` screenshots, and `oklch` theme variables. Deterministic, offline-first: measure, encode,
+Playwright screenshot scripts in `.local/`, and `oklch` theme variables. Deterministic, offline-first: measure, encode,
 re-measure. Never tune by eyeballing alone.
 
 ## When to use
