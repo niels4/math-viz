@@ -16,7 +16,6 @@ const updateRoute = (route: string) => {
   const trimmedRoute = trimSlashes(route)
   if (route !== trimmedRoute) {
     window.location.hash = trimmedRoute
-    return
   }
 
   if (currentRoute === trimmedRoute) {
