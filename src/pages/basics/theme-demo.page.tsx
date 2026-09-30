@@ -102,7 +102,7 @@ export default function ThemeDemoPage() {
         <div style={{ padding: 16, background: "var(--background)", color: "var(--foreground)" }}>
           <h2 style={{ color: "var(--primary)" }}>MathViz Midnight Violet — dark depth</h2>
           <p style={{ color: "var(--foreground-muted)" }}>
-            Violet-depth dark shell · primary just under 4.5, large-use accents
+            Violet-depth dark shell · warm supporting accents
           </p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
             <button className={midnightStyles.btn_primary}>Primary</button>

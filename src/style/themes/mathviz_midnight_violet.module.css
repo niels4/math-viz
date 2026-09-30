@@ -1,7 +1,7 @@
 /* Theme: MathViz Midnight Violet — futuristic · dark · dashboard, app-shell
  * Palette mathviz-midnight-violet · generated 2026-09-28T17:56:21.034Z
  * Source: workspace/color-catalog.json → workspace/themes/mathviz_midnight_violet.module.css
- * Contrast: bg×fg 17.48:1 · primary 4.49:1 · accent 5.53:1
+ * Contrast: bg×fg 17.48:1 · primary 4.55:1 · accent 5.53:1
  * Colors: oklch — perceptually uniform, better for coherent palettes
  * Usage: CSS Module, per-page. Import as `import styles from "#src/style/themes/mathviz_midnight_violet.module.css"` then wrap page with `className={styles.theme}` and use `styles.bg_background`, `styles.text_foreground`, etc. No global pollution.
  */
@@ -13,7 +13,7 @@
   --foreground: oklch(0.96 0.019 276.35);
   --foreground-muted: oklch(0.7166 0.0559 276.73);
   --primary: oklch(0.6056 0.2189 292.72);
-  --primary-foreground: oklch(0.1803 0.0688 284.78);
+  --primary-foreground: oklch(0.1718 0.0688 284.78);
   --secondary: oklch(0.2778 0.1093 283.05);
   --secondary-foreground: oklch(0.9383 0.0299 279.62);
   --border: oklch(0.3327 0.0827 274.63);

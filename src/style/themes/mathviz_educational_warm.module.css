@@ -1,7 +1,7 @@
 /* Theme: MathViz Educational Warm — education · light · dashboard, app-shell
  * Palette mathviz-educational-warm · generated 2026-09-28T17:56:21.028Z
  * Source: workspace/color-catalog.json → workspace/themes/mathviz_educational_warm.module.css
- * Contrast: bg×fg 14.14:1 · primary 6.29:1 · accent 2.8:1
+ * Contrast: bg×fg 14.14:1 · primary 6.29:1 · accent 4.55:1
  * Colors: oklch — perceptually uniform, better for coherent palettes
  * Usage: CSS Module, per-page. Import as `import styles from "#src/style/themes/mathviz_educational_warm.module.css"` then wrap page with `className={styles.theme}` and use `styles.bg_background`, `styles.text_foreground`, etc. No global pollution.
  */
@@ -18,7 +18,7 @@
   --secondary-foreground: oklch(0.287 0.0419 281.49);
   --border: oklch(0.9095 0.0236 82.12);
   --accent: oklch(0.7049 0.1867 47.6);
-  --accent-foreground: oklch(1 0 0);
+  --accent-foreground: oklch(0.3239 0.06 47.6);
   --success: oklch(0.6002 0.1038 184.7);
   --warning: oklch(0.6658 0.1574 58.32);
   --destructive: oklch(0.5771 0.2152 27.33);
