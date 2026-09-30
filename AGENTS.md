@@ -39,7 +39,7 @@ src/
   util/
 scripts/                   # node scripts; *.script.ts are entry points, *.test.ts run in node
 generated/routes.ts        # generated artifact, committed; never hand-edit
-.local/                    # gitignored agent scratch: one-off scripts, screenshots, test data — never committed (generateRoutes tests also write fixtures here)
+.local/                    # gitignored agent scratch: one-off scripts, screenshots, test data — never committed (Playwright scripts live in `.local/playwright/`; generateRoutes tests also write fixtures here)
 ```
 
 Import aliases (package.json `imports`): `#src/*` → `./src/*`, `#generated/*` → `./generated/*`, `#test` → `./src/test/includes.tsx`.
@@ -115,19 +115,19 @@ Vitest 5, two projects (vite.config.ts), coverage via `@vitest/coverage-v8` (tex
 
 ## Visual Verification
 
-No `agent-browser`: every browser check (page render, screenshots, animation frames, DOM reads) goes through a Playwright `.mjs` script in `.local/` against the session dev-server port.
+No `agent-browser`: every browser check (page render, screenshots, animation frames, DOM reads) goes through a Playwright `.mjs` script in `.local/playwright/` against the session dev-server port.
 
 To actually see a page (or animation) rendered in a browser:
 
-- Playwright + Chromium ship via `@vitest/browser-playwright` (chromium lives in `~/Library/Caches/ms-playwright`). Put a small `.mjs` script in `.local/` (gitignored, excluded from coverage) so `import { chromium } from "playwright"` resolves against the project's `node_modules`.
+- Playwright + Chromium ship via `@vitest/browser-playwright` (chromium lives in `~/Library/Caches/ms-playwright`). Put a small `.mjs` script in `.local/playwright/` (gitignored, excluded from coverage) so `import { chromium } from "playwright"` resolves against the project's `node_modules`.
 - Find the dev server port with `ps aux | grep vite` + `lsof -nP -iTCP -sTCP:LISTEN`, matching the process whose cwd is this checkout. Never assume 5173. Navigate to `http://127.0.0.1:<port>/#<route>` (hash routing).
 - For animation, capture frames a couple seconds apart: `await page.waitForTimeout(2000)` between `page.screenshot()` calls.
 - You can view images: `read` on a screenshot PNG shows it to you. After capturing, look at the shot yourself and iterate on the scene (colors, layout, glow) before reporting done — visual review is part of every page task.
 
-Reference script: `.local/capture.mjs`.
+Reference script: `.local/playwright/capture.mjs`.
 
 - If `capture.mjs` fails with `browserType.launch: Executable doesn't exist at .../ms-playwright/chromium_headless_shell-NNNN/...`, the `playwright` npm package wants a newer headless shell than the cached one: run `npx playwright install chromium` and retry.
-- Drei `Text` (troika) keeps a `blob:` worker request open for the page lifetime, so `networkidle` never fires on Text pages: screenshot those with `CAPTURE_UNTIL=load node .local/capture.mjs ...`.
+- Drei `Text` (troika) keeps a `blob:` worker request open for the page lifetime, so `networkidle` never fires on Text pages: screenshot those with `CAPTURE_UNTIL=load node .local/playwright/capture.mjs ...`.
 
 ## Live Editing (user workflow)
 
@@ -144,7 +144,7 @@ Agent implications:
 The user runs their own long-lived tmux session (`math-viz`) for manual work, and pi0 may drive additional agent sessions (`math-viz-<branch>`) at the same time. This is the normal state, not a conflict.
 
 - **Never assume port 5173.** Each session's dev server picks its own port — pick a free one (`lsof -nP -iTCP:<port> -sTCP:LISTEN`) and run vite with `--strictPort`; the chosen port prints in vite's `Local:` line. If you start a dev server yourself, pick a free port the same way.
-- **Agent/user split:** user live-edits via `websocket-text-relay` on their dev server port (unsaved buffers → vite memory, 30–60fps). Agent runs its own vite with `DISABLE_WTR=1` (disk-only) on a free session port and drives Playwright `.mjs` scripts in `.local/` against `http://localhost:<session-port>/#<route>` (no `agent-browser`, see Visual Verification). Disk edits stay on the agent port, live buffers stay on the user's — no collision.
+- **Agent/user split:** user live-edits via `websocket-text-relay` on their dev server port (unsaved buffers → vite memory, 30–60fps). Agent runs its own vite with `DISABLE_WTR=1` (disk-only) on a free session port and drives Playwright `.mjs` scripts in `.local/playwright/` against `http://localhost:<session-port>/#<route>` (no `agent-browser`, see Visual Verification). Disk edits stay on the agent port, live buffers stay on the user's — no collision.
 - **Never kill tmux sessions, dev servers, or processes you did not start.** The user's session is their workspace.
 - Work in your own worktree/branch unless the user says otherwise; the user's checkout is often dirty with their in-progress work.
 

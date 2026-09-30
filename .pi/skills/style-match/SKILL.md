@@ -6,7 +6,7 @@ description: Match web app colors and styles to a reference image using python c
 # style-match — reference image to SVG/CSS matching
 
 Consistent workflow to match a reference PNG to the running app. Uses `tools/color-compare` (Pillow),
-Playwright screenshot scripts in `.local/`, and `oklch` theme variables. Deterministic, offline-first: measure, encode,
+Playwright screenshot scripts in `.local/playwright/`, and `oklch` theme variables. Deterministic, offline-first: measure, encode,
 re-measure. Never tune by eyeballing alone.
 
 ## When to use
@@ -41,10 +41,10 @@ python tools/color-compare/src/compare.py          # legacy fixed-point sampler 
 - Ad-hoc scans are fine too: a horizontal/vertical pixel scan through the center (`im.getpixel`) is the
   fastest way to read ring radius, ring width and transitions. Print `r_ref = dx / scale` next to each px.
 
-### Browser screenshot — Playwright script in `.local/`
+### Browser screenshot — Playwright script in `.local/playwright/`
 
-No `agent-browser`: screenshots and DOM reads go through a Playwright `.mjs` script in `.local/`
-(see AGENTS.md Visual Verification), e.g. `.local/shot.mjs`:
+No `agent-browser`: screenshots and DOM reads go through a Playwright `.mjs` script in `.local/playwright/`
+(see AGENTS.md Visual Verification), e.g. `.local/playwright/shot.mjs`:
 
 ```js
 import { chromium } from "playwright";
@@ -54,7 +54,7 @@ const page = await browser.newPage();
 await page.goto(`http://localhost:${port}/#svg/time-series1`);
 await page.waitForLoadState("load");
 await page.waitForTimeout(1000);
-await page.screenshot({ path: ".local/shot.png" });
+await page.screenshot({ path: ".local/playwright/shot.png" });
 console.log(await page.evaluate(() =>
   Array.from(document.querySelectorAll("circle")).map((c) => c.getAttribute("r")).join(" ")));
 await browser.close();
