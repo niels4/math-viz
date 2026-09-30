@@ -1,0 +1,8 @@
+.wrapper {
+  padding: 24px;
+  font-family: sans-serif;
+  display: flex;
+  gap: 24px;
+  flex-direction: column;
+  align-items: start;
+}

@@ -1,0 +1,38 @@
+[project]
+version = "1.0.0"
+name = "color-compare"
+requires-python = ">=3.11"
+dependencies = ["Pillow"]
+
+[project.optional-dependencies]
+dev = ["black", "isort", "ruff", "pyright"]
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+src_paths = ["src"]
+
+[tool.pyright]
+pythonVersion = "3.14"
+include = ["src"]
+typeCheckingMode = "strict"
+
+[tool.ruff]
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+  "F", # Pyflakes (real bugs)
+  "E", # Pycodestyle errors
+  "W", # Pycodestyle warnings
+  "B", # Bugbear (actual logic issues)
+  "ARG", # unused arguments
+  "N", # naming convention checks
+]
+
+# Let the formatter handle formatting
+ignore = [
+  "E501", # line length
+]

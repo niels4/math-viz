@@ -1,0 +1,54 @@
+/* More sensible defaults */
+
+html {
+  interpolate-size: allow-keywords;
+  transition-behavior: allow-descrete;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* *** */
+
+/* App takes up full screen */
+
+html {
+  min-height: 100dvh;
+  overscroll-behavior: none;
+  display: grid;
+}
+
+body {
+  background-color: hsl(212, 90%, 90%);
+  display: grid;
+  margin: 0;
+}
+
+#root {
+  display: grid;
+  position: relative;
+  font-family: sans-serif;
+}
+
+/* *** */

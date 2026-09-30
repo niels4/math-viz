@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Install dependencies into the project venv.
+# Run this after first clone, or whenever pyproject.toml changes.
+#
+# Output streams in real time — you'll see every download and compile step.
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+if [ ! -d "$SCRIPT_DIR/.venv" ]; then
+  echo "No .venv found — run 'cd $SCRIPT_DIR && direnv allow' first"
+  exit 1
+fi
+
+source "$SCRIPT_DIR/.venv/bin/activate"
+
+echo "Installing dependencies..."
+pip install -e ".[dev]"
+
+# update the marker so .envrc doesn't re-install on next entry
+touch "$SCRIPT_DIR/.venv/.setup-done"
+
+echo ""
+echo "Done."

@@ -1,0 +1,34 @@
+.root_page {
+  padding: 24px;
+
+  h1 {
+    color: hsl(320 90% 40%);
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    margin-bottom: 8px;
+  }
+
+  p {
+    margin-top: 6px;
+    margin-bottom: 18px;
+  }
+
+  a {
+    font-weight: 600;
+    font-size: 1.1em;
+  }
+
+  section {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  nav {
+    display: flex;
+    flex-direction: column;
+  }
+}

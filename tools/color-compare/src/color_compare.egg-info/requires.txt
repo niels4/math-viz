@@ -1,0 +1,7 @@
+Pillow
+
+[dev]
+black
+isort
+ruff
+pyright

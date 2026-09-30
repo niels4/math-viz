@@ -1,0 +1,192 @@
+/* Theme: Fintech Dashes — corporate · light · dashboard
+ * Palette fintech-dashes · generated 2026-09-02T22:54:24.965Z
+ * Source: workspace/color-catalog.json → workspace/themes/fintech_dashes.module.css
+ * Contrast: bg×fg 17.85:1 · primary 16.65:1 · accent 2.26:1
+ * Colors: oklch — perceptually uniform, better for coherent palettes
+ * Usage: CSS Module, per-page. Import as `import styles from "#src/style/themes/fintech_dashes.module.css"` then wrap page with `className={styles.theme}` and use `styles.bg_background`, `styles.text_foreground`, etc. No global pollution.
+ */
+
+.theme {
+  --background: oklch(1 0 0);
+  --background-muted: oklch(0.9842 0.0034 247.86);
+  --card: oklch(1 0 0);
+  --foreground: oklch(0.2077 0.0398 265.75);
+  --foreground-muted: oklch(0.5544 0.0407 257.42);
+  --primary: oklch(0.2365 0.0595 258.13);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.9683 0.0069 247.9);
+  --secondary-foreground: oklch(0.2077 0.0398 265.75);
+  --border: oklch(0.9288 0.0126 255.51);
+  --accent: oklch(0.7286 0.1336 178.49);
+  --accent-foreground: oklch(1 0 0);
+  --success: oklch(0.6959 0.1491 162.48);
+  --warning: oklch(0.7686 0.1647 70.08);
+  --destructive: oklch(0.6368 0.2078 25.33);
+  --radius: 0.6rem;
+  --chart-grid: oklch(0.9288 0.0126 255.51);
+  --chart-line: oklch(0.2365 0.0595 258.13);
+  --chart-accent: oklch(0.7286 0.1336 178.49);
+  --chart-glow: oklch(0.2365 0.0595 258.13 / 0.4);
+  --gradient-primary: linear-gradient(
+    135deg,
+    oklch(0.2365 0.0595 258.13) 0%,
+    oklch(0.7286 0.1336 178.49) 100%
+  );
+  --gradient-accent: linear-gradient(90deg, oklch(0.7286 0.1336 178.49) 0%, oklch(0.2365 0.0595 258.13) 100%);
+  --gradient-muted: linear-gradient(180deg, oklch(1 0 0) 0%, oklch(0.9842 0.0034 247.86) 100%);
+  --gradient-glow: radial-gradient(
+    600px 300px at 50% 0%,
+    oklch(0.2365 0.0595 258.13 / 0.2) 0%,
+    transparent 60%
+  );
+  --gradient-text: linear-gradient(90deg, oklch(0.2365 0.0595 258.13) 0%, oklch(0.7286 0.1336 178.49) 100%);
+  --gradient-mesh:
+    radial-gradient(800px 400px at 20% 0%, oklch(0.2365 0.0595 258.13 / 0.149) 0%, transparent 55%),
+    radial-gradient(600px 300px at 90% 30%, oklch(0.7286 0.1336 178.49 / 0.133) 0%, transparent 60%),
+    linear-gradient(180deg, oklch(1 0 0) 0%, oklch(0.9842 0.0034 247.86) 100%);
+
+  .bg_background {
+    background: var(--background);
+  }
+  .bg_muted {
+    background: var(--background-muted);
+  }
+  .bg_card {
+    background: var(--card);
+  }
+  .bg_primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+  .bg_secondary {
+    background: var(--secondary);
+    color: var(--secondary-foreground);
+  }
+  .bg_accent {
+    background: var(--accent);
+    color: var(--accent-foreground);
+  }
+  .text_foreground {
+    color: var(--foreground);
+  }
+  .text_muted {
+    color: var(--foreground-muted);
+  }
+  .text_primary {
+    color: var(--primary);
+  }
+  .text_accent {
+    color: var(--accent);
+  }
+  .border {
+    border-color: var(--border);
+  }
+  .border_border {
+    border-color: var(--border);
+  }
+
+  .btn_primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 0.45rem 0.9rem;
+    font-weight: 600;
+  }
+  .btn_secondary {
+    background: var(--secondary);
+    color: var(--secondary-foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.45rem 0.9rem;
+    font-weight: 600;
+  }
+  .card {
+    background: var(--card);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .input {
+    background: var(--card);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.45rem 0.7rem;
+  }
+  .badge_accent {
+    background: var(--accent);
+    color: var(--accent-foreground);
+    border-radius: 999px;
+    padding: 0.15rem 0.5rem;
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+  .badge_success {
+    background: var(--success);
+    color: oklch(1 0 0);
+    border-radius: 999px;
+    padding: 0.15rem 0.5rem;
+  }
+  .badge_warning {
+    background: var(--warning);
+    color: oklch(0.21 0.03 264.66);
+    border-radius: 999px;
+    padding: 0.15rem 0.5rem;
+  }
+  .badge_destructive {
+    background: var(--destructive);
+    color: oklch(1 0 0);
+    border-radius: 999px;
+    padding: 0.15rem 0.5rem;
+  }
+
+  .chart_grid line,
+  .chart_grid path {
+    stroke: var(--chart-grid);
+  }
+  .chart_line {
+    stroke: var(--chart-line);
+  }
+  .chart_accent {
+    stroke: var(--chart-accent);
+    fill: var(--chart-accent);
+  }
+
+  .gradient_primary {
+    background: var(--gradient-primary);
+    color: var(--primary-foreground);
+    border-radius: var(--radius);
+  }
+  .gradient_accent {
+    background: var(--gradient-accent);
+    color: var(--accent-foreground);
+    border-radius: var(--radius);
+  }
+  .gradient_muted {
+    background: var(--gradient-muted);
+  }
+  .gradient_glow {
+    background: var(--gradient-glow);
+  }
+  .gradient_text {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
+  .gradient_mesh {
+    background: var(--gradient-mesh);
+  }
+  .gradient_border {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--card), var(--card)) padding-box,
+      var(--gradient-primary) border-box;
+    border-radius: var(--radius);
+  }
+  .chart_area {
+    fill: url(#area-grad);
+  }
+}

@@ -1,0 +1,8 @@
+pyproject.toml
+src/HelloWorld.py
+src/compare.py
+src/color_compare.egg-info/PKG-INFO
+src/color_compare.egg-info/SOURCES.txt
+src/color_compare.egg-info/dependency_links.txt
+src/color_compare.egg-info/requires.txt
+src/color_compare.egg-info/top_level.txt

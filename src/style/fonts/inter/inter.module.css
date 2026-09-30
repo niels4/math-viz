@@ -1,0 +1,26 @@
+/* Font: Inter — sans-serif · Rasmus Andersson · weights 100, 200, 300, 400, 500, 600, 700, 800, 900 · normal, italic · variable
+ * Family: "Inter" · id inter
+ * Source: workspace/font-catalog.json → workspace/themes/fonts/inter/inter.module.css
+ * File: ./Inter-Variable.woff2 (woff2, OFL) — local, no CDN, works offline
+ * Licensing: OFL (Open Font License) — free for commercial use, no attribution required · Cost: Free
+ * Usage: CSS Module, per-page. Import as `import fontStyles from "#src/style/fonts/inter/inter.module.css"` then wrap page/section with `className={fontStyles.font}`. File name provides uniqueness via CSS Modules hashing; wrapper is generic .font.
+ * No global pollution — @font-face only loads when the page imports this module. No html/body/:root.
+ */
+
+@font-face {
+  font-family: "Inter";
+  src: url("./Inter-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font {
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}

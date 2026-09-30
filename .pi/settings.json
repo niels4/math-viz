@@ -1,0 +1,8 @@
+{
+  "defaultThinkingLevel": "xhigh",
+  "steeringMode": "all",
+  "followUpMode": "all",
+  "compaction": {
+    "reserveTokens": 4096
+  }
+}
