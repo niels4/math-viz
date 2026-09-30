@@ -91,7 +91,7 @@ export default function Page() {
 }
 ```
 
-- Fonts co-exist per-section, like themes (`default` + `neon_noir` + `fintech_dashes` in `theme-demo`). Import only the fonts you use on that page — tree-shaken per-page.
+- Fonts co-exist per-section, like themes (the six `mathviz_*` in `theme-demo`). Import only the fonts you use on that page — tree-shaken per-page.
 - Combine with color themes: `<div className={`${colorStyles.theme} ${fontStyles.font}`}>` — color vars + font-family both inherited.
 
 ## 8. Math-viz fonts

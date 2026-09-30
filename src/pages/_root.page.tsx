@@ -17,8 +17,8 @@ const TableOfContents = () => {
 
         <a href="#basics/theme-demo">Theme Demo</a>
         <p>
-          Scoped CSS Module themes per page — no global pollution. Reference templates in src/style/themes/ —
-          Neon Noir (dark) + Default (light) with _ utilities
+          Scoped CSS Module themes per page — no global pollution. Six MathViz themes (3 dark + 3 light) with
+          _ utilities
         </p>
 
         <a href="#basics/font-demo">Font Demo</a>

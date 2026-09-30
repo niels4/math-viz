@@ -1,17 +1,17 @@
 # Theme Format Rules — math-viz
 
-Reference implementations: `neon_noir.module.css` (dark neon) and `default.module.css` (neutral light), plus the six `mathviz_*` themes (arctic-ice, clean-teal, educational-warm, midnight-violet, sage-editorial, tron-cyan).
+Reference implementations: `mathviz_arctic_ice.module.css` (dark futuristic, AAA contrasts) and `mathviz_educational_warm.module.css` (light friendly), plus clean-teal, midnight-violet, sage-editorial, tron-cyan.
 
 ## 1. File location and naming
 
 - Path: `src/style/themes/<theme_name>.module.css`
-- Filename uses **snake_case**, lowercase, `a-z0-9` + `_` only. Example: `neon_noir.module.css`, `default.module.css`
-- Theme id is the filename without extension: `neon_noir`
+- Filename uses **snake_case**, lowercase, `a-z0-9` + `_` only. Example: `mathviz_arctic_ice.module.css`
+- Theme id is the filename without extension: `mathviz_arctic_ice`
 - Export wrapper class is always `.theme` — one file = one wrapper class. File name distinguishes themes; CSS Modules hashes `.theme` per file, so no global collision.
 
 ## 2. Module, not global
 
-- File **must** be a CSS Module (`.module.css`). Import as `import styles from "#src/style/themes/neon_noir.module.css"` and apply via `className={styles.theme}` on a wrapper div/page.
+- File **must** be a CSS Module (`.module.css`). Import as `import styles from "#src/style/themes/mathviz_arctic_ice.module.css"` and apply via `className={styles.theme}` on a wrapper div/page.
 - Do **not** emit `html {}` or `body {}` selectors. Those are anti-patterns — themes are scoped, not global. The wrapper owns the vars.
 - Do **not** emit `:root {}`. Vars live inside the wrapper class so multiple themes can coexist.
 
@@ -151,7 +151,7 @@ Reference implementations: `neon_noir.module.css` (dark neon) and `default.modul
 ## 7. Usage in React
 
 ```tsx
-import styles from "#src/style/themes/neon_noir.module.css"
+import styles from "#src/style/themes/mathviz_arctic_ice.module.css"
 
 export default function Page() {
   return (
@@ -167,10 +167,10 @@ export default function Page() {
 }
 ```
 
-## 8. Default theme
+## 8. Math-viz themes
 
-- `default.module.css` ships with the template as the neutral light reference. New projects copy it as the starting point.
-- It follows **all** rules above — wrapper `.theme`, oklch values, use it as the canonical example when generating new themes via the sommelier `theme-export` tool.
+- The six `mathviz_*` themes are the project set: arctic-ice, tron-cyan, midnight-violet (dark) + clean-teal, educational-warm, sage-editorial (light).
+- They follow **all** rules above — wrapper `.theme`, oklch values; use `mathviz_arctic_ice.module.css` as the canonical example when generating new themes via the sommelier `theme-export` tool.
 
 ## 9. Tooling
 
