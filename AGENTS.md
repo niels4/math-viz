@@ -120,14 +120,12 @@ No `agent-browser`: every browser check (page render, screenshots, animation fra
 To actually see a page (or animation) rendered in a browser:
 
 - Playwright + Chromium ship via `@vitest/browser-playwright` (chromium lives in `~/Library/Caches/ms-playwright`). Put a small `.mjs` script in `.local/playwright/` (gitignored, excluded from coverage) so `import { chromium } from "playwright"` resolves against the project's `node_modules`.
-- Find the dev server port with `ps aux | grep vite` + `lsof -nP -iTCP -sTCP:LISTEN`, matching the process whose cwd is this checkout. Never assume 5173. Navigate to `http://127.0.0.1:<port>/#<route>` (hash routing).
+- Find the dev server port with `ps aux | grep vite` + `lsof -nP -iTCP -sTCP:LISTEN`, matching the process whose cwd is this checkout. Never assume 5173. Navigate to `http://localhost:<port>/#<route>` (hash routing; vite may bind `[::1]` only, where `127.0.0.1` refuses).
 - For animation, capture frames a couple seconds apart: `await page.waitForTimeout(2000)` between `page.screenshot()` calls.
 - You can view images: `read` on a screenshot PNG shows it to you. After capturing, look at the shot yourself and iterate on the scene (colors, layout, glow) before reporting done — visual review is part of every page task.
 
-Reference script: `.local/playwright/capture.mjs`.
-
-- If `capture.mjs` fails with `browserType.launch: Executable doesn't exist at .../ms-playwright/chromium_headless_shell-NNNN/...`, the `playwright` npm package wants a newer headless shell than the cached one: run `npx playwright install chromium` and retry.
-- Drei `Text` (troika) keeps a `blob:` worker request open for the page lifetime, so `networkidle` never fires on Text pages: screenshot those with `CAPTURE_UNTIL=load node .local/playwright/capture.mjs ...`.
+- If the Playwright script fails with `browserType.launch: Executable doesn't exist at .../ms-playwright/chromium_headless_shell-NNNN/...`, the `playwright` npm package wants a newer headless shell than the cached one: run `npx playwright install chromium` and retry.
+- Drei `Text` (troika) keeps a `blob:` worker request open for the page lifetime, so `networkidle` never fires on Text pages: use `{ waitUntil: "load" }` instead of `networkidle` for those.
 
 ## Live Editing (user workflow)
 
@@ -161,6 +159,7 @@ This project is young and grows by experimentation. The user teaches conventions
 
 - **Router state is module-level singletons** in `router-hooks.ts` (`currentRoute`, `currentSearchParams`). `onHashChange()` runs at import time. Tests leak route state into each other unless reset via `updateLocationHash`.
 - `npm test` runs only the jsdom project. The browser project is separate (`test:run:browser`); run both when touching `src/test/` or the router.
+- If `npm test` fails, check whether the failure is yours: `git stash -u`, rerun the failing file, `git stash pop`. A failure that reproduces on the clean tree is pre-existing — report it, don't fix unrelated code to chase green.
 - `generated/routes.ts` is committed and must be regenerated (`npm run generate`) after page changes, or new pages 404 to `_not_found`.
 - `npm run format` (oxfmt --write) formats the whole repo, not just the files you edited: it also reformats markdown tables (including this AGENTS.md) and CSS. Check `git status` after formatting; unrelated files may change.
 - **The user's checkout is often dirty with in-progress work.** Before running repo-wide commands like `npm run format`, run `git status` (and `git diff` if needed) to see what the user already has in flight. If formatting would touch files you did not edit, prefer `npx oxfmt --write <your-files>` instead. Never discard working-tree changes with `git checkout --` or similar without asking.
