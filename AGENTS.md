@@ -1,6 +1,6 @@
 # math-viz — Browser Math Visualization — Project Conventions
 
-A browser math-visualization project: Vite 8 + React 19 + TypeScript 7, custom file-system routing, per-page CSS Module themes/fonts (offline), R3F + d3-math + GSAP stack ready. Scaffolded from the viz3d-factory template with `basics/` demo pages — new viz pages go under `src/pages/<area>/`.
+A browser math-visualization project: Vite 8 + React 19 + TypeScript 7, custom file-system routing, per-page CSS Module themes/fonts (offline), R3F + d3-math + GSAP stack ready. Scaffolded from the viz3d-factory template with `dev/` pages (developer-facing ad-hoc storyboard) — new viz pages go under `src/pages/<area>/`.
 
 ## Commands
 
@@ -8,7 +8,7 @@ A browser math-visualization project: Vite 8 + React 19 + TypeScript 7, custom f
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `npm test`                 | **Canonical verification**: oxlint + `tsc --noEmit` + vitest jsdom run. Must pass before work is done.            |
 | `npm run test:run:browser` | Vitest in real Chromium (playwright). Also run this when changing the router or test harness.                     |
-| `npm run generate`         | Regenerate `generated/routes.ts` after adding/removing/renaming pages (4 basics routes + `_root` + `_not_found`). |
+| `npm run generate`         | Regenerate `generated/routes.ts` after adding/removing/renaming pages (2 dev routes + `_root` + `_not_found`). |
 | `npm run format`           | `oxfmt --write`. Run after editing code; do not hand-format.                                                      |
 | `npm run dev`              | Vite dev server. Port varies by session — see Coexistence.                                                        |
 | `npm run build`            | `tsc -b && vite build`.                                                                                           |
@@ -20,7 +20,7 @@ A browser math-visualization project: Vite 8 + React 19 + TypeScript 7, custom f
 - **oxfmt** (`.oxfmtrc.json`): no semicolons, printWidth 110, enforced import sorting, `sortPackageJson`. Match the style oxfmt produces.
 - **esbuild pin + override** (`package.json`): direct `esbuild` devDep with `overrides.typed-scss-modules.esbuild: "$esbuild"` — `typed-scss-modules@8.1.1` (via `unplugin-typed-css-modules`, latest upstream) pins `esbuild ^0.17.0` with a moderate advisory and no upstream fix; the override dedups it to the clean tree version so `npm audit` stays at 0. Bump the direct pin with normal dep updates.
 - **React 19 + React Compiler** via `oxc-transform-react@0.145` + `@vitejs/plugin-react@6` `react({ compiler: true })` (native Rust, 4x faster / 32% less RSS than Babel, no `@babel/core`/`@rolldown/plugin-babel`).
-- **R3F stack** (skill `.pi/skills/r3f-viz-stack/SKILL.md`): `@react-three/fiber` + `@react-three/drei` (WebGL 3D chart panels where depth encodes information) + `d3-scale`/`d3-shape`/`d3-array` (data-to-geometry math, numbers only, never DOM; no d3 DOM packages, no visx — anything emitting SVG stays out) + `gsap` + `@gsap/react` (all motion via `useGSAP`, never `setState` per frame). Raw `three` arrives only as an R3F peer; never import it directly, no WebGPU/TSL track. New viz work starts from `basics/` + the skill (see Visualization Conventions).
+- **R3F stack** (skill `.pi/skills/r3f-viz-stack/SKILL.md`): `@react-three/fiber` + `@react-three/drei` (WebGL 3D chart panels where depth encodes information) + `d3-scale`/`d3-shape`/`d3-array` (data-to-geometry math, numbers only, never DOM; no d3 DOM packages, no visx — anything emitting SVG stays out) + `gsap` + `@gsap/react` (all motion via `useGSAP`, never `setState` per frame). Raw `three` arrives only as an R3F peer; never import it directly, no WebGPU/TSL track. New viz work starts from `dev/` + the skill (see Visualization Conventions).
 - tsconfig strictness that shapes code: `strict: true` + `noUncheckedIndexedAccess: true` (`arr[i]` is `T | undefined` - use `?? 0` / `get(arr,i)` helper / `if (v===undefined) return`), `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature` (`process.env["FOO"]`, `routes["_not_found"]`), `verbatimModuleSyntax` (`import type`), `allowImportingTsExtensions` (relative carry `.ts`), `erasableSyntaxOnly` (no enums/namespaces), `forceConsistentCasingInFileNames`, `useUnknownInCatchVariables` (`catch(e: unknown)`), `isolatedModules`, `noUnusedLocals`/`noUnusedParameters`.
 
 ## Layout
@@ -32,8 +32,8 @@ src/
     global.css             # sensible defaults + app shell (html/body/#root)
     themes/                # CSS Module themes per page (6 mathviz_*: arctic-ice, clean-teal, educational-warm, midnight-violet, sage-editorial, tron-cyan)
     fonts/                 # CSS Module fonts per page (work_sans, stix_two_text, roboto_mono) — local woff2, offline
-  pages/                   # file-system routes (see Routing) — 6 routes: 4 basics + _root + _not_found
-    basics/                # theme-demo, font-demo, counter, search-params
+  pages/                   # file-system routes (see Routing) — 4 routes: 2 dev + _root + _not_found
+    dev/                     # theme-demo, font-demo (developer-facing ad-hoc storyboard)
   components/router/       # Router + route state hooks
   test/                    # test harness (includes.tsx + per-env setup)
   util/
@@ -74,17 +74,17 @@ Deterministic-first + offline-first. Repeat for any new gallery image; labs are 
 | 2. Catalog            | `color-catalog list → add/update` 15 roles, `contrastRatios`, `professional`/`designerFriendly` 1-10                                              | `font-catalog list → add/update` Google Fonts URLs, weights, `variable`, OFL cost                                                                                           | Full spec persisted                                                 |
 | 3. Lab                | `color-lab paletteId + sourceFile → workspace/color-lab.html` (source image, 15 swatches, editable type, UI/viz)                                  | `font-lab fontId + sourceFile → workspace/font-lab.html` (source image, `12/16/24/36/48/72` editable, weights, UI **in that font**, viz text, snippet)                      | `workspace/*-lab.html` (dialogue refine rebuilds)                   |
 | 4. Export             | `theme-export paletteId + vizProject:"math-viz" → src/style/themes/<slug>.module.css` (wrapper `.theme` generic file-hashed, oklch vars, `oxfmt`) | `font-export fontId + vizProject:"math-viz" → src/style/fonts/<col>/<col>.module.css` (wrapper `.font` generic file-hashed, `@font-face` local woff2, `oxfmt`)              | `src/style/...` + `workspace/...` (+ woff2 copy)                    |
-| 5. Gallery + template | rebuild `color-gallery` (9), update `create-viz-project` verifies `src/style/themes/README.md` etc                                                | rebuild `font-gallery` (10), ships `inter`+`fraunces` (defaults) + `bebas_neue` (from 08) + `atkinson_hyperlegible`, `basics/font-demo`, verify `src/style/fonts/README.md` | `basics/*` demos co-existing per-section                            |
+| 5. Gallery + template | rebuild `color-gallery` (9), update `create-viz-project` verifies `src/style/themes/README.md` etc                                                | rebuild `font-gallery` (10), ships `inter`+`fraunces` (defaults) + `bebas_neue` (from 08) + `atkinson_hyperlegible`, `dev/font-demo`, verify `src/style/fonts/README.md` | `dev/*` demos co-existing per-section                            |
 
 ### Project scope — scaffolded from the viz3d-factory template
 
-- This project was scaffolded from the viz3d-factory template (`basics/{theme-demo,font-demo,counter,search-params}` + `src/style/{themes,fonts}` + R3F/d3/GSAP stack). It is a project and will diverge — new viz pages go under `src/pages/<area>/` (one page per route).
+- This project was scaffolded from the viz3d-factory template (`dev/{theme-demo,font-demo}` + `src/style/{themes,fonts}` + R3F/d3/GSAP stack). It is a project and will diverge — new viz pages go under `src/pages/<area>/` (one page per route).
 
 ## Architecture: Pages, Views, Data
 
 `.page.tsx` files are the entry points into the app; the URL determines which page runs.
 
-- **Simple pages are self-contained**: everything for the page lives in its `.page.tsx` file, optionally with a sibling `<name>.module.css` (see `search-params.page.tsx` + `search-params.module.css`).
+- **Simple pages are self-contained**: everything for the page lives in its `.page.tsx` file, optionally with a sibling `<name>.module.css` (see `_root.page.tsx` + `_root.page.module.css`).
 - **As the app grows**, reusable pieces split into **views** (presentational components) and **data components** (fetching/shaping data). The page's job then is to read the URL and its parameters and connect the correct data to the correct views — pages orchestrate, they don't accumulate implementation.
 - Don't extract views/data layers prematurely; split when a second consumer exists or the page file stops being scannable.
 
@@ -92,10 +92,10 @@ Deterministic-first + offline-first. Repeat for any new gallery image; labs are 
 
 File-system based: `scripts/generateRoutes.ts` scans pages, `src/components/router/` renders.
 
-- Any `src/pages/**/*.page.tsx` with a default-exported component becomes a route: `src/pages/basics/counter.page.tsx` → `#basics/counter`.
+- Any `src/pages/**/*.page.tsx` with a default-exported component becomes a route: `src/pages/dev/theme-demo.page.tsx` → `#dev/theme-demo`.
 - `_root.page.tsx` → `""` (index) and `_not_found.page.tsx` → fallback; both only at the pages root.
 - Route and directory names: lowercase letters/numbers/dashes, no leading/trailing/double dashes (`isValidRoute`). Anything else fails route generation.
-- Hash-based: route is `location.hash` minus `#`; search params follow `?` (`#basics/search-params?count=7`).
+- Hash-based: route is `location.hash` minus `#`; search params follow `?` (`#dev/theme-demo?theme=tron`).
 - **After adding/removing/renaming a page**: run `npm run generate`, and add a TOC link in `src/pages/_root.page.tsx`.
 - Route state hooks (from `src/components/router/router-hooks.ts`): `useRoute()`, `useSearchParams()`, `useSetSearchParams()` (merge semantics; `null` value deletes a param).
 
