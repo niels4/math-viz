@@ -9,6 +9,7 @@ const TableOfContents = () => {
       </header>
 
       <nav>
+        <h3>UX</h3>
         <a href="#dev/theme-demo">Theme Demo</a>
         <p>
           Scoped CSS Module themes per page — no global pollution. Six MathViz themes (3 dark + 3 light) with
@@ -20,6 +21,10 @@ const TableOfContents = () => {
           Scoped CSS Module fonts per page — no global pollution. Work Sans (UI), STIX Two Text (equations),
           Roboto Mono (metrics) with font-family
         </p>
+
+        <h3>Components</h3>
+        <a href="#dev/components/cartesian-plane">Cartesian Plane</a>
+        <p>Canvas cartesian plane component — interactive axes grid placeholder.</p>
       </nav>
     </section>
   )
