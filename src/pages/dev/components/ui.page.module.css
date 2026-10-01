@@ -79,29 +79,6 @@
   margin-left: auto;
 }
 
-.scheme_toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  font-size: 1rem;
-  color: var(--foreground-muted);
-  background: var(--secondary);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.scheme_toggle span {
-  opacity: 0.45;
-  line-height: 1;
-}
-
-.scheme_toggle span[data-active="true"] {
-  color: var(--foreground);
-  opacity: 1;
-}
-
 .avatar {
   display: inline-flex;
   align-items: center;

@@ -42,7 +42,6 @@ declare const styles: {
   readonly "pagination": string;
   readonly "pill": string;
   readonly "radio": string;
-  readonly "scheme_toggle": string;
   readonly "search": string;
   readonly "search_wrap": string;
   readonly "select": string;

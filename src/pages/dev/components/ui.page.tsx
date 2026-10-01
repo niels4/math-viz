@@ -299,7 +299,7 @@ export default function UiPage() {
               <span className={uiStyles.wordmark_icon}>
                 <SnowflakeIcon />
               </span>
-              Arctiq UI
+              MathViz
             </a>
             <div className={uiStyles.search_wrap}>
               <svg
@@ -326,21 +326,6 @@ export default function UiPage() {
               />
             </div>
             <div className={uiStyles.top_actions}>
-              <button
-                type="button"
-                aria-label="Color scheme"
-                aria-pressed={darkMode}
-                data-testid="ui-scheme-toggle"
-                className={uiStyles.scheme_toggle}
-                onClick={() => setDarkMode((on) => !on)}
-              >
-                <span data-active={darkMode ? "false" : "true"} aria-hidden="true">
-                  ☀
-                </span>
-                <span data-active={darkMode ? "true" : "false"} aria-hidden="true">
-                  ☾
-                </span>
-              </button>
               <span className={uiStyles.avatar} aria-label="Signed in as Jane Doe">
                 JD
               </span>
