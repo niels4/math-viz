@@ -13,7 +13,7 @@ const RootPage = () => {
     <div className={activeTheme.theme}>
       <div className={style.page} data-testid="root-view">
         <div className={style.shell}>
-          <TopBar wordmarkHref="#" actions={<SettingsMenu themeSlug={themeSlug} onSelect={setThemeSlug} />} />
+          <TopBar actions={<SettingsMenu themeSlug={themeSlug} onSelect={setThemeSlug} />} />
           <main className={style.main}>
             <TitleBlock
               title="MathViz"

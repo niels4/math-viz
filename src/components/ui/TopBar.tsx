@@ -7,7 +7,7 @@ export function TopBar({
   query,
   onQueryChange,
   actions,
-  wordmarkHref = "#dev/components/ui",
+  wordmarkHref = "#",
 }: {
   query?: string
   onQueryChange?: (next: string) => void
