@@ -1,0 +1,49 @@
+/* Fix (switch overlap): the knob lives inside the track in normal flow,
+   the ON/OFF caption is a flex sibling — they can never overlap. */
+.switch {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.switch_track {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 70px;
+  padding: 4px 12px 4px 4px;
+  background: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: background 0.15s ease-in-out;
+}
+
+.switch[data-on="true"] .switch_track {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.switch[data-on="false"] .switch_track {
+  flex-direction: row-reverse;
+  padding: 4px 4px 4px 12px;
+}
+
+.switch_knob {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--foreground);
+  border-radius: 999px;
+}
+
+.switch_state {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--foreground-muted);
+}
+
+.switch[data-on="true"] .switch_state {
+  color: var(--primary-foreground);
+}

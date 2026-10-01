@@ -1,0 +1,33 @@
+.slider_track {
+  position: relative;
+  height: 14px;
+  background: color-mix(in oklch, var(--primary) 26%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.slider_track:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.slider_fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--gradient-primary);
+  border-radius: inherit;
+}
+
+.slider_knob {
+  position: absolute;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+  border-radius: 999px;
+  box-shadow: 0 0 12px color-mix(in oklch, var(--primary) 65%, transparent);
+  transform: translate(-50%, -50%);
+}

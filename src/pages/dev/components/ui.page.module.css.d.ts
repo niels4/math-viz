@@ -55,18 +55,11 @@ declare const styles: {
   readonly "settings_wrap": string;
   readonly "shell": string;
   readonly "slider_box": string;
-  readonly "slider_fill": string;
   readonly "slider_head": string;
-  readonly "slider_knob": string;
   readonly "slider_label": string;
   readonly "slider_scale": string;
-  readonly "slider_track": string;
   readonly "slider_value": string;
   readonly "subtitle": string;
-  readonly "switch": string;
-  readonly "switch_knob": string;
-  readonly "switch_state": string;
-  readonly "switch_track": string;
   readonly "tab": string;
   readonly "tab_active": string;
   readonly "tab_empty": string;

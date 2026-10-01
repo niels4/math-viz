@@ -1,5 +1,5 @@
 import { useAtom } from "jotai"
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import {
   BellIcon,
@@ -11,6 +11,8 @@ import {
   TableIcon,
   TagIcon,
 } from "#src/components/ui/icons.tsx"
+import { Slider } from "#src/components/ui/Slider.tsx"
+import { Switch } from "#src/components/ui/Switch.tsx"
 import {
   DARK_THEME_SLUGS,
   LIGHT_THEME_SLUGS,
@@ -58,104 +60,6 @@ const STATUS_BADGE: Record<string, (styles: ThemeStyles) => string> = {
 
 function statusBadge(status: string, styles: ThemeStyles): string {
   return STATUS_BADGE[status]?.(styles) ?? styles.badge_accent
-}
-
-function OpacitySlider({ value, onChange }: { value: number; onChange: (next: number) => void }) {
-  const trackRef = useRef<HTMLDivElement | null>(null)
-  const draggingRef = useRef(false)
-
-  const setFromClientX = (clientX: number) => {
-    const track = trackRef.current
-    if (track === null) return
-    const rect = track.getBoundingClientRect()
-    if (rect.width === 0) return
-    const ratio = (clientX - rect.left) / rect.width
-    onChange(Math.round(Math.min(100, Math.max(0, ratio * 100))))
-  }
-
-  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    draggingRef.current = true
-    event.currentTarget.setPointerCapture(event.pointerId)
-    setFromClientX(event.clientX)
-  }
-
-  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (!draggingRef.current) return
-    setFromClientX(event.clientX)
-  }
-
-  const stopDragging = () => {
-    draggingRef.current = false
-  }
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "ArrowRight" || event.key === "ArrowUp") {
-      event.preventDefault()
-      onChange(Math.min(100, value + (event.shiftKey ? 10 : 1)))
-    } else if (event.key === "ArrowLeft" || event.key === "ArrowDown") {
-      event.preventDefault()
-      onChange(Math.max(0, value - (event.shiftKey ? 10 : 1)))
-    } else if (event.key === "Home") {
-      event.preventDefault()
-      onChange(0)
-    } else if (event.key === "End") {
-      event.preventDefault()
-      onChange(100)
-    }
-  }
-
-  return (
-    <div
-      ref={trackRef}
-      role="slider"
-      tabIndex={0}
-      aria-label="Opacity"
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={value}
-      aria-valuetext={`${value} percent`}
-      data-testid="control-opacity"
-      className={uiStyles.slider_track}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={stopDragging}
-      onPointerCancel={stopDragging}
-      onKeyDown={handleKeyDown}
-    >
-      <div className={uiStyles.slider_fill} style={{ width: `${value}%` }} />
-      <div className={uiStyles.slider_knob} style={{ left: `${value}%` }} />
-    </div>
-  )
-}
-
-function ThemeSwitch({
-  checked,
-  onChange,
-  label,
-  testId,
-}: {
-  checked: boolean
-  onChange: (next: boolean) => void
-  label: string
-  testId: string
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      data-testid={testId}
-      data-on={checked ? "true" : "false"}
-      className={uiStyles.switch}
-      onClick={() => onChange(!checked)}
-    >
-      <span className={uiStyles.switch_track} aria-hidden="true">
-        <span className={uiStyles.switch_knob} />
-        <span className={uiStyles.switch_state}>{checked ? "ON" : "OFF"}</span>
-      </span>
-    </button>
-  )
 }
 
 function SettingsMenu({
@@ -505,7 +409,7 @@ export default function UiPage() {
                       <span className={uiStyles.dark_state} data-testid="dark-mode-state">
                         {darkMode ? "ON" : "OFF"}
                       </span>
-                      <ThemeSwitch
+                      <Switch
                         checked={darkMode}
                         onChange={setDarkMode}
                         label="Dark mode"
@@ -530,7 +434,7 @@ export default function UiPage() {
                       {opacity}%
                     </span>
                   </div>
-                  <OpacitySlider value={opacity} onChange={setOpacity} />
+                  <Slider value={opacity} onChange={setOpacity} label="Opacity" testId="control-opacity" />
                   <div className={uiStyles.slider_scale} aria-hidden="true">
                     <span>0%</span>
                     <span>100%</span>
