@@ -1,7 +1,8 @@
 import type { ThemeSlug } from "#src/state/theme.ts"
 
-import { TableIcon, TagIcon } from "#src/components/ui/icons.tsx"
+import { SlidersIcon, TableIcon, TagIcon } from "#src/components/ui/icons.tsx"
 import { SectionCard } from "#src/components/ui/SectionCard.tsx"
+import { SettingsMenu } from "#src/components/ui/SettingsMenu.tsx"
 import { ThemeSwitcher } from "#src/components/ui/ThemeSwitcher.tsx"
 import { TitleBlock } from "#src/components/ui/TitleBlock.tsx"
 import { TopBar } from "#src/components/ui/TopBar.tsx"
@@ -15,18 +16,7 @@ const RootPage = () => {
     <div className={activeTheme.theme}>
       <div className={style.page} data-testid="root-view">
         <div className={style.shell}>
-          <TopBar
-            wordmarkHref="#"
-            actions={
-              <ThemeSwitcher
-                themes={themes}
-                activeSlug={themeSlug}
-                onSelect={(slug) => setThemeSlug(slug as ThemeSlug)}
-                primaryClass={activeTheme.btn_primary}
-                secondaryClass={activeTheme.btn_secondary}
-              />
-            }
-          />
+          <TopBar wordmarkHref="#" actions={<SettingsMenu themeSlug={themeSlug} onSelect={setThemeSlug} />} />
           <main className={style.main}>
             <TitleBlock
               title="MathViz"
@@ -38,6 +28,21 @@ const RootPage = () => {
               <p>Developer-facing test pages — our own mini ad-hoc storyboard with no external dependency</p>
             </section>
             <div className={style.grid}>
+              <SectionCard
+                icon={<SlidersIcon />}
+                title="Theme"
+                titleId="toc-theme"
+                cardClass={activeTheme.card}
+                className={style.theme_section}
+              >
+                <ThemeSwitcher
+                  themes={themes}
+                  activeSlug={themeSlug}
+                  onSelect={(slug) => setThemeSlug(slug as ThemeSlug)}
+                  primaryClass={activeTheme.btn_primary}
+                  secondaryClass={activeTheme.btn_secondary}
+                />
+              </SectionCard>
               <SectionCard icon={<TagIcon />} title="UX" titleId="toc-ux" cardClass={activeTheme.card}>
                 <div className={style.links}>
                   <a href="#dev/theme-demo" className={`${activeTheme.card} ${style.link_card}`}>

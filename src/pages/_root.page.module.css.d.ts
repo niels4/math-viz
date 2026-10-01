@@ -11,5 +11,6 @@ declare const styles: {
   readonly "main": string;
   readonly "page": string;
   readonly "shell": string;
+  readonly "theme_section": string;
 };
 export = styles;

@@ -45,6 +45,10 @@
   align-items: stretch;
 }
 
+.theme_section {
+  grid-column: 1 / -1;
+}
+
 .links {
   display: grid;
   gap: 14px;
