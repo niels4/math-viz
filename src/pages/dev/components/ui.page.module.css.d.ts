@@ -10,7 +10,6 @@ declare const styles: {
   readonly "alert_success": string;
   readonly "alert_text": string;
   readonly "alert_warning": string;
-  readonly "avatar": string;
   readonly "badge": string;
   readonly "badge_grid": string;
   readonly "btn_destructive": string;
@@ -47,6 +46,13 @@ declare const styles: {
   readonly "select": string;
   readonly "select_chevron": string;
   readonly "select_wrap": string;
+  readonly "settings_button": string;
+  readonly "settings_check": string;
+  readonly "settings_group_label": string;
+  readonly "settings_menu": string;
+  readonly "settings_option": string;
+  readonly "settings_option_active": string;
+  readonly "settings_wrap": string;
   readonly "shell": string;
   readonly "slider_box": string;
   readonly "slider_fill": string;

@@ -1,5 +1,13 @@
-import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react"
+import { useAtom } from "jotai"
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react"
 
+import {
+  DARK_THEME_SLUGS,
+  LIGHT_THEME_SLUGS,
+  THEME_LABELS,
+  themeAtom,
+  type ThemeSlug,
+} from "#src/state/theme.ts"
 import arcticTheme from "#src/style/themes/mathviz_arctic_ice.module.css"
 import tealTheme from "#src/style/themes/mathviz_clean_teal.module.css"
 import warmTheme from "#src/style/themes/mathviz_educational_warm.module.css"
@@ -18,7 +26,6 @@ const THEMES = [
   { slug: "sage-editorial", label: "Sage Editorial", styles: sageTheme },
 ] as const
 
-type ThemeSlug = (typeof THEMES)[number]["slug"]
 type ThemeStyles = (typeof THEMES)[number]["styles"]
 
 const FRAMEWORKS = ["React 18", "Vue 3", "Svelte 5", "Angular 17"] as const
@@ -252,9 +259,124 @@ function ThemeSwitch({
   )
 }
 
+function GearIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M19.4 13.5a7.5 7.5 0 0 0 0-3l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-2.6-1.5L14 2h-4l-.5 2.6a7.6 7.6 0 0 0-2.6 1.5l-2.3-1-2 3.4 2 1.5a7.5 7.5 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 2.6 1.5L10 22h4l.5-2.6a7.6 7.6 0 0 0 2.6-1.5l2.3 1 2-3.4-2-1.5z" />
+    </svg>
+  )
+}
+
+function SettingsMenu({
+  themeSlug,
+  onSelect,
+}: {
+  themeSlug: ThemeSlug
+  onSelect: (slug: ThemeSlug) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const handlePointerDown = (event: globalThis.PointerEvent) => {
+      if (wrapRef.current !== null && !wrapRef.current.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener("pointerdown", handlePointerDown)
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown)
+    }
+  }, [open])
+
+  const groups = [
+    { id: "dark", label: "Dark", slugs: DARK_THEME_SLUGS },
+    { id: "light", label: "Light", slugs: LIGHT_THEME_SLUGS },
+  ] as const
+
+  return (
+    <div ref={wrapRef} className={uiStyles.settings_wrap}>
+      <button
+        type="button"
+        data-testid="settings-button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls="settings-theme-menu"
+        aria-label="Settings"
+        className={uiStyles.settings_button}
+        onClick={() => setOpen((prev) => !prev)}
+      >
+        <GearIcon />
+      </button>
+      {open ? (
+        <div
+          id="settings-theme-menu"
+          role="menu"
+          tabIndex={-1}
+          aria-label="Theme settings"
+          data-testid="settings-menu"
+          className={uiStyles.settings_menu}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.preventDefault()
+              setOpen(false)
+            }
+          }}
+        >
+          {groups.map((group) => (
+            <div key={group.id} role="group" aria-labelledby={`settings-group-${group.id}`}>
+              <p id={`settings-group-${group.id}`} className={uiStyles.settings_group_label}>
+                {group.label}
+              </p>
+              {group.slugs.map((slug) => {
+                const selected = slug === themeSlug
+                return (
+                  <button
+                    key={slug}
+                    type="button"
+                    role="menuitemradio"
+                    aria-checked={selected}
+                    data-testid={`settings-theme-${slug}`}
+                    className={
+                      selected
+                        ? `${uiStyles.settings_option} ${uiStyles.settings_option_active}`
+                        : uiStyles.settings_option
+                    }
+                    onClick={() => {
+                      onSelect(slug)
+                      setOpen(false)
+                    }}
+                  >
+                    <span className={uiStyles.settings_check} aria-hidden="true">
+                      {selected ? "✓" : ""}
+                    </span>
+                    {THEME_LABELS[slug]}
+                  </button>
+                )
+              })}
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 export default function UiPage() {
   const [query, setQuery] = useState("")
-  const [themeSlug, setThemeSlug] = useState<ThemeSlug>("arctic-ice")
+  const [themeSlug, setThemeSlug] = useAtom(themeAtom)
   const [darkMode, setDarkMode] = useState(true)
   const [email, setEmail] = useState("jane.design@arctiq.io")
   const [framework, setFramework] = useState<Framework>("React 18")
@@ -326,9 +448,7 @@ export default function UiPage() {
               />
             </div>
             <div className={uiStyles.top_actions}>
-              <span className={uiStyles.avatar} aria-label="Signed in as Jane Doe">
-                JD
-              </span>
+              <SettingsMenu themeSlug={themeSlug} onSelect={setThemeSlug} />
             </div>
           </header>
 

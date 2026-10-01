@@ -87,6 +87,7 @@ Deterministic-first + offline-first. Repeat for any new gallery image; labs are 
 - **Simple pages are self-contained**: everything for the page lives in its `.page.tsx` file, optionally with a sibling `<name>.module.css` (see `_root.page.tsx` + `_root.page.module.css`).
 - **As the app grows**, reusable pieces split into **views** (presentational components) and **data components** (fetching/shaping data). The page's job then is to read the URL and its parameters and connect the correct data to the correct views — pages orchestrate, they don't accumulate implementation.
 - Don't extract views/data layers prematurely; split when a second consumer exists or the page file stops being scannable.
+- Shared settings that affect multiple views live in `src/state/` as Jotai atoms (e.g. `themeAtom` with `atomWithStorage` persistence); pages read with `useAtomValue` and write with `useSetAtom`.
 
 ## Routing
 
