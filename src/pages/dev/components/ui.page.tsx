@@ -3,6 +3,8 @@ import { useState } from "react"
 
 import { Badge } from "#src/components/ui/Badge.tsx"
 import { Button } from "#src/components/ui/Button.tsx"
+import { Checkbox } from "#src/components/ui/Checkbox.tsx"
+import { Field } from "#src/components/ui/Field.tsx"
 import {
   BellIcon,
   ButtonIcon,
@@ -12,9 +14,12 @@ import {
   TableIcon,
   TagIcon,
 } from "#src/components/ui/icons.tsx"
+import { RadioGroup } from "#src/components/ui/RadioGroup.tsx"
+import { Select } from "#src/components/ui/Select.tsx"
 import { SettingsMenu } from "#src/components/ui/SettingsMenu.tsx"
 import { Slider } from "#src/components/ui/Slider.tsx"
 import { Switch } from "#src/components/ui/Switch.tsx"
+import { TextField } from "#src/components/ui/TextField.tsx"
 import { ThemeSwitcher } from "#src/components/ui/ThemeSwitcher.tsx"
 import { themeAtom, type ThemeSlug } from "#src/state/theme.ts"
 import arcticTheme from "#src/style/themes/mathviz_arctic_ice.module.css"
@@ -232,70 +237,38 @@ export default function UiPage() {
                   <h2 id="ui-form">Form controls</h2>
                 </div>
                 <div className={uiStyles.form_stack}>
-                  <div className={uiStyles.field_row}>
-                    <label className={uiStyles.label} htmlFor="ui-email">
-                      Email address
-                    </label>
-                    <input
+                  <Field label="Email address" htmlFor="ui-email">
+                    <TextField
                       id="ui-email"
                       type="email"
                       autoComplete="email"
-                      data-testid="control-email"
+                      testId="control-email"
                       value={email}
-                      onChange={(event) => setEmail(event.currentTarget.value)}
-                      className={`${activeTheme.input} ${uiStyles.field}`}
+                      onChange={setEmail}
+                      inputClass={activeTheme.input}
                     />
-                  </div>
-                  <div className={uiStyles.field_row}>
-                    <label className={uiStyles.label} htmlFor="ui-framework">
-                      Framework
-                    </label>
-                    <div className={uiStyles.select_wrap}>
-                      <select
-                        id="ui-framework"
-                        data-testid="control-framework"
-                        value={framework}
-                        onChange={(event) => setFramework(event.currentTarget.value as Framework)}
-                        className={`${activeTheme.input} ${uiStyles.field} ${uiStyles.select}`}
-                      >
-                        {FRAMEWORKS.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                      <span className={uiStyles.select_chevron} aria-hidden="true">
-                        ⌄
-                      </span>
-                    </div>
-                  </div>
-                  <label className={uiStyles.check_label}>
-                    <input
-                      type="checkbox"
-                      data-testid="control-telemetry"
-                      checked={telemetry}
-                      onChange={(event) => setTelemetry(event.currentTarget.checked)}
-                      className={uiStyles.check}
+                  </Field>
+                  <Field label="Framework" htmlFor="ui-framework">
+                    <Select
+                      id="ui-framework"
+                      testId="control-framework"
+                      value={framework}
+                      onChange={(next) => setFramework(next as Framework)}
+                      options={FRAMEWORKS}
+                      inputClass={activeTheme.input}
                     />
+                  </Field>
+                  <Checkbox checked={telemetry} onChange={setTelemetry} testId="control-telemetry">
                     Enable telemetry
-                  </label>
-                  <fieldset className={uiStyles.fieldset}>
-                    <legend className={uiStyles.label}>Density</legend>
-                    {(["Comfortable", "Compact"] as const).map((option) => (
-                      <label key={option} className={uiStyles.check_label}>
-                        <input
-                          type="radio"
-                          name="ui-density"
-                          value={option}
-                          data-testid={`control-density-${option.toLowerCase()}`}
-                          checked={density === option}
-                          onChange={() => setDensity(option)}
-                          className={uiStyles.radio}
-                        />
-                        {option}
-                      </label>
-                    ))}
-                  </fieldset>
+                  </Checkbox>
+                  <RadioGroup
+                    legend="Density"
+                    name="ui-density"
+                    options={["Comfortable", "Compact"] as const}
+                    value={density}
+                    onChange={setDensity}
+                    testIdPrefix="control-density-"
+                  />
                   <div className={uiStyles.dark_row}>
                     <span className={uiStyles.dark_label}>Dark mode</span>
                     <span className={uiStyles.dark_control}>

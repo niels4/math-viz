@@ -1,0 +1,11 @@
+.field_row {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--foreground-muted);
+}
