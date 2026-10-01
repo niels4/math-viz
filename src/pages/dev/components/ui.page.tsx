@@ -1,8 +1,25 @@
 import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react"
 
-import arcticStyles from "#src/style/themes/mathviz_arctic_ice.module.css"
+import arcticTheme from "#src/style/themes/mathviz_arctic_ice.module.css"
+import tealTheme from "#src/style/themes/mathviz_clean_teal.module.css"
+import warmTheme from "#src/style/themes/mathviz_educational_warm.module.css"
+import violetTheme from "#src/style/themes/mathviz_midnight_violet.module.css"
+import sageTheme from "#src/style/themes/mathviz_sage_editorial.module.css"
+import tronTheme from "#src/style/themes/mathviz_tron_cyan.module.css"
 
 import uiStyles from "./ui.page.module.css"
+
+const THEMES = [
+  { slug: "arctic-ice", label: "Arctic Ice", styles: arcticTheme },
+  { slug: "tron-cyan", label: "Tron Cyan", styles: tronTheme },
+  { slug: "midnight-violet", label: "Midnight Violet", styles: violetTheme },
+  { slug: "clean-teal", label: "Clean Teal", styles: tealTheme },
+  { slug: "educational-warm", label: "Educational Warm", styles: warmTheme },
+  { slug: "sage-editorial", label: "Sage Editorial", styles: sageTheme },
+] as const
+
+type ThemeSlug = (typeof THEMES)[number]["slug"]
+type ThemeStyles = (typeof THEMES)[number]["styles"]
 
 const FRAMEWORKS = ["React 18", "Vue 3", "Svelte 5", "Angular 17"] as const
 const TABS = ["Alerts", "Notifications", "Logs", "Activity"] as const
@@ -16,14 +33,14 @@ type Framework = (typeof FRAMEWORKS)[number]
 type Tab = (typeof TABS)[number]
 type Density = "Comfortable" | "Compact"
 
-const STATUS_BADGE: Record<string, string> = {
-  Active: arcticStyles.badge_success,
-  Deprecated: arcticStyles.badge_warning,
-  Beta: arcticStyles.badge_accent,
+const STATUS_BADGE: Record<string, (styles: ThemeStyles) => string> = {
+  Active: (styles) => styles.badge_success,
+  Deprecated: (styles) => styles.badge_warning,
+  Beta: (styles) => styles.badge_accent,
 }
 
-function statusBadge(status: string): string {
-  return STATUS_BADGE[status] ?? arcticStyles.badge_accent
+function statusBadge(status: string, styles: ThemeStyles): string {
+  return STATUS_BADGE[status]?.(styles) ?? styles.badge_accent
 }
 
 function SnowflakeIcon() {
@@ -237,6 +254,7 @@ function ThemeSwitch({
 
 export default function UiPage() {
   const [query, setQuery] = useState("")
+  const [themeSlug, setThemeSlug] = useState<ThemeSlug>("arctic-ice")
   const [darkMode, setDarkMode] = useState(true)
   const [email, setEmail] = useState("jane.design@arctiq.io")
   const [framework, setFramework] = useState<Framework>("React 18")
@@ -246,6 +264,9 @@ export default function UiPage() {
   const [tab, setTab] = useState<Tab>("Alerts")
   const [dismissed, setDismissed] = useState<ReadonlySet<string>>(new Set())
   const [page, setPage] = useState(1)
+
+  const activeTheme = THEMES.find((theme) => theme.slug === themeSlug)?.styles ?? arcticTheme
+  const activeThemeLabel = THEMES.find((theme) => theme.slug === themeSlug)?.label ?? "Arctic Ice"
 
   const dismissAlert = (id: string) => {
     setDismissed((prev) => new Set(prev).add(id))
@@ -270,7 +291,7 @@ export default function UiPage() {
   ].filter((alert) => !dismissed.has(alert.id))
 
   return (
-    <div className={arcticStyles.theme}>
+    <div className={activeTheme.theme}>
       <div className={uiStyles.page} data-testid="ui-page">
         <div className={uiStyles.shell}>
           <header className={uiStyles.topbar}>
@@ -336,13 +357,47 @@ export default function UiPage() {
                 </span>
               </div>
               <p className={uiStyles.subtitle}>
-                A fully accessible, dark arctic-ice design system. Built for production, documented and ready
-                to use.
+                A fully accessible, {activeThemeLabel.toLowerCase()} design system. Built for production,
+                documented and ready to use.
               </p>
             </div>
 
             <div className={uiStyles.grid}>
-              <section aria-labelledby="ui-buttons" className={`${arcticStyles.card} ${uiStyles.card}`}>
+              <section
+                aria-labelledby="ui-theme"
+                className={`${activeTheme.card} ${uiStyles.card} ${uiStyles.theme_section}`}
+              >
+                <div className={uiStyles.card_head}>
+                  <span className={uiStyles.card_icon}>
+                    <SlidersIcon />
+                  </span>
+                  <h2 id="ui-theme">Theme</h2>
+                </div>
+                <div
+                  className={uiStyles.theme_group}
+                  role="group"
+                  aria-label="Theme"
+                  data-testid="theme-switcher"
+                >
+                  {THEMES.map((theme) => (
+                    <button
+                      key={theme.slug}
+                      type="button"
+                      aria-pressed={theme.slug === themeSlug}
+                      data-testid={`theme-${theme.slug}`}
+                      className={
+                        theme.slug === themeSlug
+                          ? `${activeTheme.btn_primary} ${uiStyles.theme_btn}`
+                          : `${activeTheme.btn_secondary} ${uiStyles.theme_btn}`
+                      }
+                      onClick={() => setThemeSlug(theme.slug)}
+                    >
+                      {theme.label}
+                    </button>
+                  ))}
+                </div>
+              </section>
+              <section aria-labelledby="ui-buttons" className={`${activeTheme.card} ${uiStyles.card}`}>
                 <div className={uiStyles.card_head}>
                   <span className={uiStyles.card_icon}>
                     <ButtonIcon />
@@ -353,14 +408,14 @@ export default function UiPage() {
                   <button
                     type="button"
                     data-testid="control-button-primary"
-                    className={arcticStyles.btn_primary}
+                    className={activeTheme.btn_primary}
                   >
                     Primary
                   </button>
                   <button
                     type="button"
                     data-testid="control-button-secondary"
-                    className={arcticStyles.btn_secondary}
+                    className={activeTheme.btn_secondary}
                   >
                     Secondary
                   </button>
@@ -377,14 +432,14 @@ export default function UiPage() {
                   <button
                     type="button"
                     disabled
-                    className={`${arcticStyles.btn_secondary} ${uiStyles.btn_disabled}`}
+                    className={`${activeTheme.btn_secondary} ${uiStyles.btn_disabled}`}
                   >
                     Disabled
                   </button>
                 </div>
               </section>
 
-              <section aria-labelledby="ui-badges" className={`${arcticStyles.card} ${uiStyles.card}`}>
+              <section aria-labelledby="ui-badges" className={`${activeTheme.card} ${uiStyles.card}`}>
                 <div className={uiStyles.card_head}>
                   <span className={uiStyles.card_icon}>
                     <TagIcon />
@@ -392,14 +447,14 @@ export default function UiPage() {
                   <h2 id="ui-badges">Badges</h2>
                 </div>
                 <div className={uiStyles.badge_grid}>
-                  <span className={`${arcticStyles.badge_accent} ${uiStyles.badge}`}>Ice • Accent</span>
-                  <span className={`${arcticStyles.badge_success} ${uiStyles.badge}`}>Success ✓</span>
-                  <span className={`${arcticStyles.badge_warning} ${uiStyles.badge}`}>Warning !</span>
-                  <span className={`${arcticStyles.badge_destructive} ${uiStyles.badge}`}>Destructive ✕</span>
+                  <span className={`${activeTheme.badge_accent} ${uiStyles.badge}`}>Ice • Accent</span>
+                  <span className={`${activeTheme.badge_success} ${uiStyles.badge}`}>Success ✓</span>
+                  <span className={`${activeTheme.badge_warning} ${uiStyles.badge}`}>Warning !</span>
+                  <span className={`${activeTheme.badge_destructive} ${uiStyles.badge}`}>Destructive ✕</span>
                 </div>
               </section>
 
-              <section aria-labelledby="ui-form" className={`${arcticStyles.card} ${uiStyles.card}`}>
+              <section aria-labelledby="ui-form" className={`${activeTheme.card} ${uiStyles.card}`}>
                 <div className={uiStyles.card_head}>
                   <span className={uiStyles.card_icon}>
                     <SlidersIcon />
@@ -418,7 +473,7 @@ export default function UiPage() {
                       data-testid="control-email"
                       value={email}
                       onChange={(event) => setEmail(event.currentTarget.value)}
-                      className={`${arcticStyles.input} ${uiStyles.field}`}
+                      className={`${activeTheme.input} ${uiStyles.field}`}
                     />
                   </div>
                   <div className={uiStyles.field_row}>
@@ -431,7 +486,7 @@ export default function UiPage() {
                         data-testid="control-framework"
                         value={framework}
                         onChange={(event) => setFramework(event.currentTarget.value as Framework)}
-                        className={`${arcticStyles.input} ${uiStyles.field} ${uiStyles.select}`}
+                        className={`${activeTheme.input} ${uiStyles.field} ${uiStyles.select}`}
                       >
                         {FRAMEWORKS.map((option) => (
                           <option key={option} value={option}>
@@ -488,7 +543,7 @@ export default function UiPage() {
                 </div>
               </section>
 
-              <section aria-labelledby="ui-slider" className={`${arcticStyles.card} ${uiStyles.card}`}>
+              <section aria-labelledby="ui-slider" className={`${activeTheme.card} ${uiStyles.card}`}>
                 <div className={uiStyles.card_head}>
                   <span className={uiStyles.card_icon}>
                     <SlidersIcon />
@@ -510,7 +565,7 @@ export default function UiPage() {
                 </div>
               </section>
 
-              <section aria-labelledby="ui-data" className={`${arcticStyles.card} ${uiStyles.card}`}>
+              <section aria-labelledby="ui-data" className={`${activeTheme.card} ${uiStyles.card}`}>
                 <div className={uiStyles.card_head}>
                   <span className={uiStyles.card_icon}>
                     <TableIcon />
@@ -532,7 +587,7 @@ export default function UiPage() {
                         <tr key={row.name}>
                           <td className={uiStyles.cell_name}>{row.name}</td>
                           <td>
-                            <span className={`${statusBadge(row.status)} ${uiStyles.pill}`}>
+                            <span className={`${statusBadge(row.status, activeTheme)} ${uiStyles.pill}`}>
                               {row.status}
                             </span>
                           </td>
@@ -574,7 +629,7 @@ export default function UiPage() {
                 </div>
               </section>
 
-              <section aria-labelledby="ui-feedback" className={`${arcticStyles.card} ${uiStyles.card}`}>
+              <section aria-labelledby="ui-feedback" className={`${activeTheme.card} ${uiStyles.card}`}>
                 <div className={uiStyles.card_head}>
                   <span className={uiStyles.card_icon}>
                     <BellIcon />

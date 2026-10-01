@@ -70,6 +70,9 @@ declare const styles: {
   readonly "table_foot": string;
   readonly "table_wrap": string;
   readonly "tabs": string;
+  readonly "theme_btn": string;
+  readonly "theme_group": string;
+  readonly "theme_section": string;
   readonly "title_block": string;
   readonly "title_row": string;
   readonly "top_actions": string;
