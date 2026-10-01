@@ -46,13 +46,6 @@ declare const styles: {
   readonly "select": string;
   readonly "select_chevron": string;
   readonly "select_wrap": string;
-  readonly "settings_button": string;
-  readonly "settings_check": string;
-  readonly "settings_group_label": string;
-  readonly "settings_menu": string;
-  readonly "settings_option": string;
-  readonly "settings_option_active": string;
-  readonly "settings_wrap": string;
   readonly "shell": string;
   readonly "slider_box": string;
   readonly "slider_head": string;
@@ -68,8 +61,6 @@ declare const styles: {
   readonly "table_foot": string;
   readonly "table_wrap": string;
   readonly "tabs": string;
-  readonly "theme_btn": string;
-  readonly "theme_group": string;
   readonly "theme_section": string;
   readonly "title_block": string;
   readonly "title_row": string;

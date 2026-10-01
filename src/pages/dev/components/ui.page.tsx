@@ -1,25 +1,20 @@
 import { useAtom } from "jotai"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 
 import {
   BellIcon,
   ButtonIcon,
-  GearIcon,
   SearchIcon,
   SlidersIcon,
   SnowflakeIcon,
   TableIcon,
   TagIcon,
 } from "#src/components/ui/icons.tsx"
+import { SettingsMenu } from "#src/components/ui/SettingsMenu.tsx"
 import { Slider } from "#src/components/ui/Slider.tsx"
 import { Switch } from "#src/components/ui/Switch.tsx"
-import {
-  DARK_THEME_SLUGS,
-  LIGHT_THEME_SLUGS,
-  THEME_LABELS,
-  themeAtom,
-  type ThemeSlug,
-} from "#src/state/theme.ts"
+import { ThemeSwitcher } from "#src/components/ui/ThemeSwitcher.tsx"
+import { themeAtom, type ThemeSlug } from "#src/state/theme.ts"
 import arcticTheme from "#src/style/themes/mathviz_arctic_ice.module.css"
 import tealTheme from "#src/style/themes/mathviz_clean_teal.module.css"
 import warmTheme from "#src/style/themes/mathviz_educational_warm.module.css"
@@ -60,102 +55,6 @@ const STATUS_BADGE: Record<string, (styles: ThemeStyles) => string> = {
 
 function statusBadge(status: string, styles: ThemeStyles): string {
   return STATUS_BADGE[status]?.(styles) ?? styles.badge_accent
-}
-
-function SettingsMenu({
-  themeSlug,
-  onSelect,
-}: {
-  themeSlug: ThemeSlug
-  onSelect: (slug: ThemeSlug) => void
-}) {
-  const [open, setOpen] = useState(false)
-  const wrapRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    if (!open) return
-    const handlePointerDown = (event: globalThis.PointerEvent) => {
-      if (wrapRef.current !== null && !wrapRef.current.contains(event.target as Node)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener("pointerdown", handlePointerDown)
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown)
-    }
-  }, [open])
-
-  const groups = [
-    { id: "dark", label: "Dark", slugs: DARK_THEME_SLUGS },
-    { id: "light", label: "Light", slugs: LIGHT_THEME_SLUGS },
-  ] as const
-
-  return (
-    <div ref={wrapRef} className={uiStyles.settings_wrap}>
-      <button
-        type="button"
-        data-testid="settings-button"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-controls="settings-theme-menu"
-        aria-label="Settings"
-        className={uiStyles.settings_button}
-        onClick={() => setOpen((prev) => !prev)}
-      >
-        <GearIcon />
-      </button>
-      {open ? (
-        <div
-          id="settings-theme-menu"
-          role="menu"
-          tabIndex={-1}
-          aria-label="Theme settings"
-          data-testid="settings-menu"
-          className={uiStyles.settings_menu}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") {
-              event.preventDefault()
-              setOpen(false)
-            }
-          }}
-        >
-          {groups.map((group) => (
-            <div key={group.id} role="group" aria-labelledby={`settings-group-${group.id}`}>
-              <p id={`settings-group-${group.id}`} className={uiStyles.settings_group_label}>
-                {group.label}
-              </p>
-              {group.slugs.map((slug) => {
-                const selected = slug === themeSlug
-                return (
-                  <button
-                    key={slug}
-                    type="button"
-                    role="menuitemradio"
-                    aria-checked={selected}
-                    data-testid={`settings-theme-${slug}`}
-                    className={
-                      selected
-                        ? `${uiStyles.settings_option} ${uiStyles.settings_option_active}`
-                        : uiStyles.settings_option
-                    }
-                    onClick={() => {
-                      onSelect(slug)
-                      setOpen(false)
-                    }}
-                  >
-                    <span className={uiStyles.settings_check} aria-hidden="true">
-                      {selected ? "✓" : ""}
-                    </span>
-                    {THEME_LABELS[slug]}
-                  </button>
-                )
-              })}
-            </div>
-          ))}
-        </div>
-      ) : null}
-    </div>
-  )
 }
 
 export default function UiPage() {
@@ -250,29 +149,13 @@ export default function UiPage() {
                   </span>
                   <h2 id="ui-theme">Theme</h2>
                 </div>
-                <div
-                  className={uiStyles.theme_group}
-                  role="group"
-                  aria-label="Theme"
-                  data-testid="theme-switcher"
-                >
-                  {THEMES.map((theme) => (
-                    <button
-                      key={theme.slug}
-                      type="button"
-                      aria-pressed={theme.slug === themeSlug}
-                      data-testid={`theme-${theme.slug}`}
-                      className={
-                        theme.slug === themeSlug
-                          ? `${activeTheme.btn_primary} ${uiStyles.theme_btn}`
-                          : `${activeTheme.btn_secondary} ${uiStyles.theme_btn}`
-                      }
-                      onClick={() => setThemeSlug(theme.slug)}
-                    >
-                      {theme.label}
-                    </button>
-                  ))}
-                </div>
+                <ThemeSwitcher
+                  themes={THEMES}
+                  activeSlug={themeSlug}
+                  onSelect={(slug) => setThemeSlug(slug as ThemeSlug)}
+                  primaryClass={activeTheme.btn_primary}
+                  secondaryClass={activeTheme.btn_secondary}
+                />
               </section>
               <section aria-labelledby="ui-buttons" className={`${activeTheme.card} ${uiStyles.card}`}>
                 <div className={uiStyles.card_head}>
