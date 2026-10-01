@@ -1,0 +1,24 @@
+.btn_ghost {
+  font-weight: 600;
+  color: var(--foreground);
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+}
+
+.btn_destructive {
+  font-weight: 600;
+  color: var(--secondary-foreground);
+  background: var(--destructive);
+  border: 1px solid var(--destructive);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+}
+
+.btn_disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

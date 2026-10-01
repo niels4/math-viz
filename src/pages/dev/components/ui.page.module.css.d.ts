@@ -10,11 +10,7 @@ declare const styles: {
   readonly "alert_success": string;
   readonly "alert_text": string;
   readonly "alert_warning": string;
-  readonly "badge": string;
   readonly "badge_grid": string;
-  readonly "btn_destructive": string;
-  readonly "btn_disabled": string;
-  readonly "btn_ghost": string;
   readonly "button_stack": string;
   readonly "card": string;
   readonly "card_head": string;
@@ -39,7 +35,6 @@ declare const styles: {
   readonly "page_btn": string;
   readonly "page_btn_active": string;
   readonly "pagination": string;
-  readonly "pill": string;
   readonly "radio": string;
   readonly "search": string;
   readonly "search_wrap": string;

@@ -1,6 +1,8 @@
 import { useAtom } from "jotai"
 import { useState } from "react"
 
+import { Badge } from "#src/components/ui/Badge.tsx"
+import { Button } from "#src/components/ui/Button.tsx"
 import {
   BellIcon,
   ButtonIcon,
@@ -165,37 +167,45 @@ export default function UiPage() {
                   <h2 id="ui-buttons">Buttons</h2>
                 </div>
                 <div className={uiStyles.button_stack}>
-                  <button
-                    type="button"
-                    data-testid="control-button-primary"
-                    className={activeTheme.btn_primary}
+                  <Button
+                    variant="primary"
+                    testId="control-button-primary"
+                    primaryClass={activeTheme.btn_primary}
+                    secondaryClass={activeTheme.btn_secondary}
                   >
                     Primary
-                  </button>
-                  <button
-                    type="button"
-                    data-testid="control-button-secondary"
-                    className={activeTheme.btn_secondary}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    testId="control-button-secondary"
+                    primaryClass={activeTheme.btn_primary}
+                    secondaryClass={activeTheme.btn_secondary}
                   >
                     Secondary
-                  </button>
-                  <button type="button" data-testid="control-button-ghost" className={uiStyles.btn_ghost}>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    testId="control-button-ghost"
+                    primaryClass={activeTheme.btn_primary}
+                    secondaryClass={activeTheme.btn_secondary}
+                  >
                     Ghost Outline
-                  </button>
-                  <button
-                    type="button"
-                    data-testid="control-button-destructive"
-                    className={uiStyles.btn_destructive}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    testId="control-button-destructive"
+                    primaryClass={activeTheme.btn_primary}
+                    secondaryClass={activeTheme.btn_secondary}
                   >
                     Destructive
-                  </button>
-                  <button
-                    type="button"
-                    disabled
-                    className={`${activeTheme.btn_secondary} ${uiStyles.btn_disabled}`}
+                  </Button>
+                  <Button
+                    variant="disabled"
+                    primaryClass={activeTheme.btn_primary}
+                    secondaryClass={activeTheme.btn_secondary}
                   >
                     Disabled
-                  </button>
+                  </Button>
                 </div>
               </section>
 
@@ -207,10 +217,10 @@ export default function UiPage() {
                   <h2 id="ui-badges">Badges</h2>
                 </div>
                 <div className={uiStyles.badge_grid}>
-                  <span className={`${activeTheme.badge_accent} ${uiStyles.badge}`}>Ice • Accent</span>
-                  <span className={`${activeTheme.badge_success} ${uiStyles.badge}`}>Success ✓</span>
-                  <span className={`${activeTheme.badge_warning} ${uiStyles.badge}`}>Warning !</span>
-                  <span className={`${activeTheme.badge_destructive} ${uiStyles.badge}`}>Destructive ✕</span>
+                  <Badge toneClass={activeTheme.badge_accent}>Ice • Accent</Badge>
+                  <Badge toneClass={activeTheme.badge_success}>Success ✓</Badge>
+                  <Badge toneClass={activeTheme.badge_warning}>Warning !</Badge>
+                  <Badge toneClass={activeTheme.badge_destructive}>Destructive ✕</Badge>
                 </div>
               </section>
 
@@ -347,9 +357,9 @@ export default function UiPage() {
                         <tr key={row.name}>
                           <td className={uiStyles.cell_name}>{row.name}</td>
                           <td>
-                            <span className={`${statusBadge(row.status, activeTheme)} ${uiStyles.pill}`}>
+                            <Badge size="pill" toneClass={statusBadge(row.status, activeTheme)}>
                               {row.status}
-                            </span>
+                            </Badge>
                           </td>
                           <td className={uiStyles.cell_muted}>{row.updated}</td>
                           <td>
