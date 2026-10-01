@@ -26,8 +26,8 @@ const TableOfContents = () => {
         <a href="#dev/components/cartesian-plane">Cartesian Plane</a>
         <p>Canvas cartesian plane component — interactive axes grid placeholder.</p>
 
-        <a href="#dev/components/ui">UI Style Guide</a>
-        <p>UI building blocks test grounds — cards, sections, and a working standard control set.</p>
+        <a href="#dev/components/ui">Component Library</a>
+        <p>Arctic-ice component library — buttons, badges, forms, slider, data table, and feedback.</p>
       </nav>
     </section>
   )

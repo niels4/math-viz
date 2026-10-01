@@ -1,338 +1,631 @@
-import { useRef, useState, type FocusEvent, type KeyboardEvent } from "react"
+import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react"
 
 import arcticStyles from "#src/style/themes/mathviz_arctic_ice.module.css"
 
 import uiStyles from "./ui.page.module.css"
 
-const SELECT_OPTIONS = ["Linear", "Logarithmic", "Symlog"] as const
-const MENU_ITEMS = ["Export PNG", "Export SVG", "Copy spec"] as const
-const RADIO_OPTIONS = ["Points", "Line", "Bars"] as const
-const BUTTON_VARIANTS = ["Primary", "Secondary", "Accent", "Destructive", "Ghost"] as const
+const FRAMEWORKS = ["React 18", "Vue 3", "Svelte 5", "Angular 17"] as const
+const TABS = ["Alerts", "Notifications", "Logs", "Activity"] as const
+const TABLE_ROWS = [
+  { name: "UserCard.tsx", status: "Active", updated: "2m ago" },
+  { name: "Button.tsx", status: "Deprecated", updated: "1h ago" },
+  { name: "Modal.tsx", status: "Beta", updated: "3h ago" },
+] as const
 
-type SelectOption = (typeof SELECT_OPTIONS)[number]
-type MenuItem = (typeof MENU_ITEMS)[number]
-type RadioOption = (typeof RADIO_OPTIONS)[number]
-type ButtonVariant = (typeof BUTTON_VARIANTS)[number]
+type Framework = (typeof FRAMEWORKS)[number]
+type Tab = (typeof TABS)[number]
+type Density = "Comfortable" | "Compact"
 
-const buttonClass = (variant: ButtonVariant): string => {
-  switch (variant) {
-    case "Primary":
-      return arcticStyles.btn_primary
-    case "Secondary":
-      return arcticStyles.btn_secondary
-    case "Accent":
-      return uiStyles.btn_accent
-    case "Destructive":
-      return uiStyles.btn_destructive
-    case "Ghost":
-      return uiStyles.btn_ghost
-  }
+const STATUS_BADGE: Record<string, string> = {
+  Active: arcticStyles.badge_success,
+  Deprecated: arcticStyles.badge_warning,
+  Beta: arcticStyles.badge_accent,
 }
 
-export default function UiPage() {
-  const [scale, setScale] = useState<SelectOption>("Linear")
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [menuChoice, setMenuChoice] = useState<MenuItem>("Export PNG")
-  const [seriesKind, setSeriesKind] = useState<RadioOption>("Points")
-  const [label, setLabel] = useState("Revenue")
-  const [sliderValue, setSliderValue] = useState(40)
-  const [lastAction, setLastAction] = useState("none yet")
-  const [totalClicks, setTotalClicks] = useState(0)
-  const [gridOn, setGridOn] = useState(true)
-  const [showLegend, setShowLegend] = useState(false)
+function statusBadge(status: string): string {
+  return STATUS_BADGE[status] ?? arcticStyles.badge_accent
+}
 
-  const handleButtonClick = (variant: ButtonVariant) => {
-    setLastAction(variant)
-    setTotalClicks((count) => count + 1)
+function SnowflakeIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="28"
+      height="28"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M12 2v20M3.3 7l17.4 10M20.7 7L3.3 17" />
+      <path d="M12 2l-2 2.5M12 2l2 2.5M12 22l-2-2.5M12 22l2-2.5" />
+    </svg>
+  )
+}
+
+function TagIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9-9-9z" />
+      <circle cx="8.5" cy="8.5" r="1.4" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
+function SlidersIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />
+      <circle cx="15" cy="7" r="2.2" />
+      <circle cx="9" cy="17" r="2.2" />
+    </svg>
+  )
+}
+
+function TableIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M3 9.5h18M3 14.5h18M12 9.5v10.5" />
+    </svg>
+  )
+}
+
+function BellIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6" />
+      <path d="M10 20a2.2 2.2 0 0 0 4 0" />
+    </svg>
+  )
+}
+
+function ButtonIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <rect x="3" y="6" width="18" height="12" rx="3" />
+      <path d="M10 9.5v5M10 9.5L7.5 12 10 14.5" />
+    </svg>
+  )
+}
+
+function OpacitySlider({ value, onChange }: { value: number; onChange: (next: number) => void }) {
+  const trackRef = useRef<HTMLDivElement | null>(null)
+  const draggingRef = useRef(false)
+
+  const setFromClientX = (clientX: number) => {
+    const track = trackRef.current
+    if (track === null) return
+    const rect = track.getBoundingClientRect()
+    if (rect.width === 0) return
+    const ratio = (clientX - rect.left) / rect.width
+    onChange(Math.round(Math.min(100, Math.max(0, ratio * 100))))
   }
 
-  const menuRef = useRef<HTMLDivElement | null>(null)
-
-  const handleMenuBlur = (event: FocusEvent<HTMLButtonElement>) => {
-    const related = event.relatedTarget
-    if (related instanceof Node && menuRef.current?.contains(related)) {
-      return
-    }
-    setMenuOpen(false)
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    draggingRef.current = true
+    event.currentTarget.setPointerCapture(event.pointerId)
+    setFromClientX(event.clientX)
   }
 
-  const handleMenuKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key === "Escape") {
-      setMenuOpen(false)
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!draggingRef.current) return
+    setFromClientX(event.clientX)
+  }
+
+  const stopDragging = () => {
+    draggingRef.current = false
+  }
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "ArrowRight" || event.key === "ArrowUp") {
+      event.preventDefault()
+      onChange(Math.min(100, value + (event.shiftKey ? 10 : 1)))
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowDown") {
+      event.preventDefault()
+      onChange(Math.max(0, value - (event.shiftKey ? 10 : 1)))
+    } else if (event.key === "Home") {
+      event.preventDefault()
+      onChange(0)
+    } else if (event.key === "End") {
+      event.preventDefault()
+      onChange(100)
     }
   }
 
   return (
+    <div
+      ref={trackRef}
+      role="slider"
+      tabIndex={0}
+      aria-label="Opacity"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={value}
+      aria-valuetext={`${value} percent`}
+      data-testid="control-opacity"
+      className={uiStyles.slider_track}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={stopDragging}
+      onPointerCancel={stopDragging}
+      onKeyDown={handleKeyDown}
+    >
+      <div className={uiStyles.slider_fill} style={{ width: `${value}%` }} />
+      <div className={uiStyles.slider_knob} style={{ left: `${value}%` }} />
+    </div>
+  )
+}
+
+function ThemeSwitch({
+  checked,
+  onChange,
+  label,
+  testId,
+}: {
+  checked: boolean
+  onChange: (next: boolean) => void
+  label: string
+  testId: string
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      data-testid={testId}
+      data-on={checked ? "true" : "false"}
+      className={uiStyles.switch}
+      onClick={() => onChange(!checked)}
+    >
+      <span className={uiStyles.switch_track} aria-hidden="true">
+        <span className={uiStyles.switch_knob} />
+        <span className={uiStyles.switch_state}>{checked ? "ON" : "OFF"}</span>
+      </span>
+    </button>
+  )
+}
+
+export default function UiPage() {
+  const [query, setQuery] = useState("")
+  const [darkMode, setDarkMode] = useState(true)
+  const [email, setEmail] = useState("jane.design@arctiq.io")
+  const [framework, setFramework] = useState<Framework>("React 18")
+  const [telemetry, setTelemetry] = useState(true)
+  const [density, setDensity] = useState<Density>("Comfortable")
+  const [opacity, setOpacity] = useState(72)
+  const [tab, setTab] = useState<Tab>("Alerts")
+  const [dismissed, setDismissed] = useState<ReadonlySet<string>>(new Set())
+  const [page, setPage] = useState(1)
+
+  const dismissAlert = (id: string) => {
+    setDismissed((prev) => new Set(prev).add(id))
+  }
+
+  const visibleAlerts = [
+    {
+      id: "info",
+      kind: uiStyles.alert_info,
+      title: "Info: New version 1.4.0 is available. Review the migration guide.",
+    },
+    {
+      id: "success",
+      kind: uiStyles.alert_success,
+      title: "Success: Theme saved to preferences.",
+    },
+    {
+      id: "warning",
+      kind: uiStyles.alert_warning,
+      title: 'Warning: "deprecated" prop will be removed in v2.0.',
+    },
+  ].filter((alert) => !dismissed.has(alert.id))
+
+  return (
     <div className={arcticStyles.theme}>
       <div className={uiStyles.page} data-testid="ui-page">
-        <a href="#" className={uiStyles.back_link}>
-          ← Back to home
-        </a>
+        <div className={uiStyles.shell}>
+          <header className={uiStyles.topbar}>
+            <a className={uiStyles.wordmark} href="#dev/components/ui">
+              <span className={uiStyles.wordmark_icon}>
+                <SnowflakeIcon />
+              </span>
+              Arctiq UI
+            </a>
+            <div className={uiStyles.search_wrap}>
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                aria-hidden="true"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.5-3.5" />
+              </svg>
+              <input
+                type="search"
+                value={query}
+                data-testid="ui-search"
+                placeholder="Search components, docs, examples…"
+                aria-label="Search components, docs, examples"
+                className={uiStyles.search}
+                onChange={(event) => setQuery(event.currentTarget.value)}
+              />
+            </div>
+            <div className={uiStyles.top_actions}>
+              <button
+                type="button"
+                aria-label="Color scheme"
+                aria-pressed={darkMode}
+                data-testid="ui-scheme-toggle"
+                className={uiStyles.scheme_toggle}
+                onClick={() => setDarkMode((on) => !on)}
+              >
+                <span data-active={darkMode ? "false" : "true"} aria-hidden="true">
+                  ☀
+                </span>
+                <span data-active={darkMode ? "true" : "false"} aria-hidden="true">
+                  ☾
+                </span>
+              </button>
+              <span className={uiStyles.avatar} aria-label="Signed in as Jane Doe">
+                JD
+              </span>
+            </div>
+          </header>
 
-        <div>
-          <h1>UI Style Guide</h1>
-          <p className={uiStyles.lede}>
-            Test grounds for our UI building blocks — cards, sections with headers, subsections with smaller
-            headers, and a working standard control set. Wrapped in the arctic ice theme only; everything
-            below resolves off the theme CSS variables.
-          </p>
-        </div>
-
-        <div className={arcticStyles.card}>
-          <div className={uiStyles.readout}>
-            <h2>Live state</h2>
-            <dl>
-              <div>
-                <dt>Scale</dt>
-                <dd data-testid="readout-scale">{scale}</dd>
+          <main className={uiStyles.main}>
+            <div className={uiStyles.title_block}>
+              <div className={uiStyles.title_row}>
+                <h1>Component Library</h1>
+                <span className={uiStyles.version_pill}>
+                  <span className={uiStyles.version_dot} aria-hidden="true" />
+                  v1.4.0
+                </span>
               </div>
-              <div>
-                <dt>Menu</dt>
-                <dd data-testid="readout-menu">{menuChoice}</dd>
-              </div>
-              <div>
-                <dt>Series</dt>
-                <dd data-testid="readout-radio">{seriesKind}</dd>
-              </div>
-              <div>
-                <dt>Label</dt>
-                <dd data-testid="readout-label">{label === "" ? "(empty)" : label}</dd>
-              </div>
-              <div>
-                <dt>Detail</dt>
-                <dd data-testid="readout-slider">{sliderValue}</dd>
-              </div>
-              <div>
-                <dt>Last button</dt>
-                <dd data-testid="readout-action">
-                  {lastAction} ({totalClicks} clicks)
-                </dd>
-              </div>
-              <div>
-                <dt>Grid</dt>
-                <dd data-testid="readout-toggle">{gridOn ? "on" : "off"}</dd>
-              </div>
-              <div>
-                <dt>Legend</dt>
-                <dd data-testid="readout-legend">{showLegend ? "shown" : "hidden"}</dd>
-              </div>
-            </dl>
-          </div>
-        </div>
-
-        <section className={`${uiStyles.section} ${uiStyles.section_alt}`}>
-          <h2>Selection</h2>
-          <div className={uiStyles.card_grid}>
-            <div className={arcticStyles.card}>
-              <div className={uiStyles.card_pad}>
-                <h3>Select</h3>
-                <label className={uiStyles.label} htmlFor="ui-scale">
-                  Axis scale
-                </label>
-                <select
-                  id="ui-scale"
-                  data-testid="control-scale"
-                  className={`${arcticStyles.input} ${uiStyles.field_control}`}
-                  value={scale}
-                  onChange={(event) => setScale(event.currentTarget.value as SelectOption)}
-                >
-                  {SELECT_OPTIONS.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                <p className={uiStyles.hint}>Native select, themed via the shared input style.</p>
-              </div>
+              <p className={uiStyles.subtitle}>
+                A fully accessible, dark arctic-ice design system. Built for production, documented and ready
+                to use.
+              </p>
             </div>
 
-            <div className={arcticStyles.card}>
-              <div className={uiStyles.card_pad}>
-                <h3>Dropdown menu</h3>
-                <div ref={menuRef} className={uiStyles.menu_wrap}>
-                  <button
-                    type="button"
-                    data-testid="control-menu-button"
-                    className={arcticStyles.btn_secondary}
-                    aria-haspopup="menu"
-                    aria-expanded={menuOpen}
-                    onClick={() => setMenuOpen((open) => !open)}
-                    onBlur={handleMenuBlur}
-                    onKeyDown={handleMenuKeyDown}
-                  >
-                    {menuChoice} ▾
-                  </button>
-                  {menuOpen ? (
-                    <ul data-testid="control-menu-list" className={uiStyles.menu_list}>
-                      {MENU_ITEMS.map((item) => (
-                        <li key={item}>
-                          <button
-                            type="button"
-                            data-testid={`control-menu-item-${item}`}
-                            className={uiStyles.menu_item}
-                            aria-current={item === menuChoice}
-                            onClick={() => {
-                              setMenuChoice(item)
-                              setMenuOpen(false)
-                            }}
-                            onBlur={handleMenuBlur}
-                            onKeyDown={handleMenuKeyDown}
-                          >
-                            {item}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </div>
-                <p className={uiStyles.hint}>Opens on click, closes on select, blur, or Escape.</p>
-              </div>
-            </div>
-
-            <div className={arcticStyles.card}>
-              <div className={uiStyles.card_pad}>
-                <h3>Radio group</h3>
-                <fieldset className={uiStyles.fieldset}>
-                  <legend className={uiStyles.label}>Series kind</legend>
-                  {RADIO_OPTIONS.map((option) => (
-                    <label key={option} className={uiStyles.check_label}>
-                      <input
-                        type="radio"
-                        name="ui-series-kind"
-                        data-testid={`control-radio-${option}`}
-                        className={uiStyles.check}
-                        value={option}
-                        checked={seriesKind === option}
-                        onChange={() => setSeriesKind(option)}
-                      />
-                      {option}
-                    </label>
-                  ))}
-                </fieldset>
-                <p className={uiStyles.hint}>Single choice within the group.</p>
-              </div>
-            </div>
-
-            <div className={arcticStyles.card}>
-              <div className={uiStyles.card_pad}>
-                <h3>Tooltip</h3>
-                <p>
-                  Grid step follows the{" "}
-                  <span className={uiStyles.tooltip_wrap}>
-                    <button type="button" data-testid="control-tooltip" className={uiStyles.tooltip_target}>
-                      active scale
-                    </button>
-                    <span role="tooltip" className={uiStyles.tooltip_bubble}>
-                      Linear steps by 1, log steps by ×10.
-                    </span>
+            <div className={uiStyles.grid}>
+              <section aria-labelledby="ui-buttons" className={`${arcticStyles.card} ${uiStyles.card}`}>
+                <div className={uiStyles.card_head}>
+                  <span className={uiStyles.card_icon}>
+                    <ButtonIcon />
                   </span>
-                  .
-                </p>
-                <p className={uiStyles.hint}>Hover or keyboard-focus the highlighted text.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className={uiStyles.section}>
-          <h2>Input</h2>
-          <div className={uiStyles.card_grid}>
-            <div className={arcticStyles.card}>
-              <div className={uiStyles.card_pad}>
-                <h3>Text input</h3>
-                <label className={uiStyles.label} htmlFor="ui-label">
-                  Series label
-                </label>
-                <input
-                  id="ui-label"
-                  type="text"
-                  data-testid="control-label"
-                  className={`${arcticStyles.input} ${uiStyles.field_control}`}
-                  value={label}
-                  onChange={(event) => setLabel(event.currentTarget.value)}
-                  placeholder="Name this series"
-                />
-                <p className={uiStyles.hint}>{label.length} characters.</p>
-              </div>
-            </div>
-
-            <div className={arcticStyles.card}>
-              <div className={uiStyles.card_pad}>
-                <h3>Slider</h3>
-                <label className={uiStyles.label} htmlFor="ui-detail">
-                  Detail level
-                </label>
-                <input
-                  id="ui-detail"
-                  type="range"
-                  data-testid="control-slider"
-                  className={uiStyles.slider}
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={sliderValue}
-                  onChange={(event) => setSliderValue(event.currentTarget.valueAsNumber)}
-                />
-                <p className={uiStyles.hint}>Current value: {sliderValue}.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className={`${uiStyles.section} ${uiStyles.section_alt}`}>
-          <h2>Actions</h2>
-          <div className={uiStyles.card_grid}>
-            <div className={arcticStyles.card}>
-              <div className={uiStyles.card_pad}>
-                <h3>Button variants</h3>
-                <div className={uiStyles.button_row}>
-                  {BUTTON_VARIANTS.map((variant) => (
-                    <button
-                      key={variant}
-                      type="button"
-                      data-testid={`control-button-${variant.toLowerCase()}`}
-                      className={buttonClass(variant)}
-                      onClick={() => handleButtonClick(variant)}
-                    >
-                      {variant}
-                    </button>
-                  ))}
+                  <h2 id="ui-buttons">Buttons</h2>
                 </div>
-                <p className={uiStyles.hint}>Each click reports into the live state readout.</p>
-              </div>
-            </div>
-
-            <div className={arcticStyles.card}>
-              <div className={uiStyles.card_pad}>
-                <h3>Toggle and checkbox</h3>
-                <div className={uiStyles.toggle_stack}>
+                <div className={uiStyles.button_stack}>
                   <button
                     type="button"
-                    role="switch"
-                    aria-checked={gridOn}
-                    data-testid="control-toggle"
-                    className={gridOn ? `${uiStyles.switch} ${uiStyles.switch_on}` : uiStyles.switch}
-                    onClick={() => setGridOn((on) => !on)}
+                    data-testid="control-button-primary"
+                    className={arcticStyles.btn_primary}
                   >
-                    <span className={uiStyles.switch_knob} />
-                    <span className={uiStyles.switch_text}>Grid {gridOn ? "on" : "off"}</span>
+                    Primary
                   </button>
+                  <button
+                    type="button"
+                    data-testid="control-button-secondary"
+                    className={arcticStyles.btn_secondary}
+                  >
+                    Secondary
+                  </button>
+                  <button type="button" data-testid="control-button-ghost" className={uiStyles.btn_ghost}>
+                    Ghost Outline
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="control-button-destructive"
+                    className={uiStyles.btn_destructive}
+                  >
+                    Destructive
+                  </button>
+                  <button
+                    type="button"
+                    disabled
+                    className={`${arcticStyles.btn_secondary} ${uiStyles.btn_disabled}`}
+                  >
+                    Disabled
+                  </button>
+                </div>
+              </section>
+
+              <section aria-labelledby="ui-badges" className={`${arcticStyles.card} ${uiStyles.card}`}>
+                <div className={uiStyles.card_head}>
+                  <span className={uiStyles.card_icon}>
+                    <TagIcon />
+                  </span>
+                  <h2 id="ui-badges">Badges</h2>
+                </div>
+                <div className={uiStyles.badge_grid}>
+                  <span className={`${arcticStyles.badge_accent} ${uiStyles.badge}`}>Ice • Accent</span>
+                  <span className={`${arcticStyles.badge_success} ${uiStyles.badge}`}>Success ✓</span>
+                  <span className={`${arcticStyles.badge_warning} ${uiStyles.badge}`}>Warning !</span>
+                  <span className={`${arcticStyles.badge_destructive} ${uiStyles.badge}`}>Destructive ✕</span>
+                </div>
+              </section>
+
+              <section aria-labelledby="ui-form" className={`${arcticStyles.card} ${uiStyles.card}`}>
+                <div className={uiStyles.card_head}>
+                  <span className={uiStyles.card_icon}>
+                    <SlidersIcon />
+                  </span>
+                  <h2 id="ui-form">Form controls</h2>
+                </div>
+                <div className={uiStyles.form_stack}>
+                  <div className={uiStyles.field_row}>
+                    <label className={uiStyles.label} htmlFor="ui-email">
+                      Email address
+                    </label>
+                    <input
+                      id="ui-email"
+                      type="email"
+                      autoComplete="email"
+                      data-testid="control-email"
+                      value={email}
+                      onChange={(event) => setEmail(event.currentTarget.value)}
+                      className={`${arcticStyles.input} ${uiStyles.field}`}
+                    />
+                  </div>
+                  <div className={uiStyles.field_row}>
+                    <label className={uiStyles.label} htmlFor="ui-framework">
+                      Framework
+                    </label>
+                    <div className={uiStyles.select_wrap}>
+                      <select
+                        id="ui-framework"
+                        data-testid="control-framework"
+                        value={framework}
+                        onChange={(event) => setFramework(event.currentTarget.value as Framework)}
+                        className={`${arcticStyles.input} ${uiStyles.field} ${uiStyles.select}`}
+                      >
+                        {FRAMEWORKS.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                      <span className={uiStyles.select_chevron} aria-hidden="true">
+                        ⌄
+                      </span>
+                    </div>
+                  </div>
                   <label className={uiStyles.check_label}>
                     <input
                       type="checkbox"
-                      data-testid="control-legend"
+                      data-testid="control-telemetry"
+                      checked={telemetry}
+                      onChange={(event) => setTelemetry(event.currentTarget.checked)}
                       className={uiStyles.check}
-                      checked={showLegend}
-                      onChange={(event) => setShowLegend(event.currentTarget.checked)}
                     />
-                    Show legend
+                    Enable telemetry
                   </label>
+                  <fieldset className={uiStyles.fieldset}>
+                    <legend className={uiStyles.label}>Density</legend>
+                    {(["Comfortable", "Compact"] as const).map((option) => (
+                      <label key={option} className={uiStyles.check_label}>
+                        <input
+                          type="radio"
+                          name="ui-density"
+                          value={option}
+                          data-testid={`control-density-${option.toLowerCase()}`}
+                          checked={density === option}
+                          onChange={() => setDensity(option)}
+                          className={uiStyles.radio}
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </fieldset>
+                  <div className={uiStyles.dark_row}>
+                    <span className={uiStyles.dark_label}>Dark mode</span>
+                    <span className={uiStyles.dark_control}>
+                      <span className={uiStyles.dark_state} data-testid="dark-mode-state">
+                        {darkMode ? "ON" : "OFF"}
+                      </span>
+                      <ThemeSwitch
+                        checked={darkMode}
+                        onChange={setDarkMode}
+                        label="Dark mode"
+                        testId="control-dark-mode"
+                      />
+                    </span>
+                  </div>
                 </div>
-                <p className={uiStyles.hint}>Switch is a button, legend is a native checkbox.</p>
-              </div>
+              </section>
+
+              <section aria-labelledby="ui-slider" className={`${arcticStyles.card} ${uiStyles.card}`}>
+                <div className={uiStyles.card_head}>
+                  <span className={uiStyles.card_icon}>
+                    <SlidersIcon />
+                  </span>
+                  <h2 id="ui-slider">Slider</h2>
+                </div>
+                <div className={uiStyles.slider_box}>
+                  <div className={uiStyles.slider_head}>
+                    <span className={uiStyles.slider_label}>Opacity</span>
+                    <span className={uiStyles.slider_value} data-testid="readout-opacity">
+                      {opacity}%
+                    </span>
+                  </div>
+                  <OpacitySlider value={opacity} onChange={setOpacity} />
+                  <div className={uiStyles.slider_scale} aria-hidden="true">
+                    <span>0%</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+              </section>
+
+              <section aria-labelledby="ui-data" className={`${arcticStyles.card} ${uiStyles.card}`}>
+                <div className={uiStyles.card_head}>
+                  <span className={uiStyles.card_icon}>
+                    <TableIcon />
+                  </span>
+                  <h2 id="ui-data">Data</h2>
+                </div>
+                <div className={uiStyles.table_wrap}>
+                  <table className={uiStyles.table}>
+                    <thead>
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Updated</th>
+                        <th scope="col">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {TABLE_ROWS.map((row) => (
+                        <tr key={row.name}>
+                          <td className={uiStyles.cell_name}>{row.name}</td>
+                          <td>
+                            <span className={`${statusBadge(row.status)} ${uiStyles.pill}`}>
+                              {row.status}
+                            </span>
+                          </td>
+                          <td className={uiStyles.cell_muted}>{row.updated}</td>
+                          <td>
+                            <button type="button" className={uiStyles.view_link}>
+                              View
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className={uiStyles.table_foot}>
+                  <span className={uiStyles.table_count}>Showing 1–3 of 24 results</span>
+                  <div className={uiStyles.pagination} role="navigation" aria-label="Pagination">
+                    <button type="button" className={uiStyles.page_btn}>
+                      ← Previous
+                    </button>
+                    {[1, 2, 3].map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        aria-current={n === page ? "page" : undefined}
+                        data-testid={`page-${n}`}
+                        className={
+                          n === page ? `${uiStyles.page_btn} ${uiStyles.page_btn_active}` : uiStyles.page_btn
+                        }
+                        onClick={() => setPage(n)}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                    <button type="button" className={uiStyles.page_btn}>
+                      Next →
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              <section aria-labelledby="ui-feedback" className={`${arcticStyles.card} ${uiStyles.card}`}>
+                <div className={uiStyles.card_head}>
+                  <span className={uiStyles.card_icon}>
+                    <BellIcon />
+                  </span>
+                  <h2 id="ui-feedback">Feedback</h2>
+                </div>
+                <div className={uiStyles.tabs} role="tablist" aria-label="Feedback categories">
+                  {TABS.map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      role="tab"
+                      aria-selected={tab === name}
+                      data-testid={`tab-${name.toLowerCase()}`}
+                      className={tab === name ? `${uiStyles.tab} ${uiStyles.tab_active}` : uiStyles.tab}
+                      onClick={() => setTab(name)}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+                {tab === "Alerts" ? (
+                  <div className={uiStyles.alert_stack}>
+                    {visibleAlerts.length === 0 ? (
+                      <p className={uiStyles.alert_empty}>You&apos;re all caught up.</p>
+                    ) : (
+                      visibleAlerts.map((alert) => (
+                        <div key={alert.id} className={`${uiStyles.alert} ${alert.kind}`} role="alert">
+                          <span className={uiStyles.alert_text}>{alert.title}</span>
+                          <button
+                            type="button"
+                            aria-label={`Dismiss ${alert.id} notification`}
+                            data-testid={`dismiss-${alert.id}`}
+                            className={uiStyles.alert_close}
+                            onClick={() => dismissAlert(alert.id)}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                ) : (
+                  <p className={uiStyles.tab_empty}>
+                    No {tab.toLowerCase()} yet — switch back to Alerts to review notifications.
+                  </p>
+                )}
+              </section>
             </div>
-          </div>
-        </section>
+          </main>
+        </div>
       </div>
     </div>
   )
