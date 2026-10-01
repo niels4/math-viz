@@ -1,5 +1,6 @@
-import { useAtom } from "jotai"
 import { useState } from "react"
+
+import type { ThemeSlug } from "#src/state/theme.ts"
 
 import { AlertStack, type AlertItem } from "#src/components/ui/AlertStack.tsx"
 import { Badge } from "#src/components/ui/Badge.tsx"
@@ -20,26 +21,11 @@ import { TextField } from "#src/components/ui/TextField.tsx"
 import { ThemeSwitcher } from "#src/components/ui/ThemeSwitcher.tsx"
 import { TitleBlock } from "#src/components/ui/TitleBlock.tsx"
 import { TopBar } from "#src/components/ui/TopBar.tsx"
-import { themeAtom, type ThemeSlug } from "#src/state/theme.ts"
-import arcticTheme from "#src/style/themes/mathviz_arctic_ice.module.css"
-import tealTheme from "#src/style/themes/mathviz_clean_teal.module.css"
-import warmTheme from "#src/style/themes/mathviz_educational_warm.module.css"
-import violetTheme from "#src/style/themes/mathviz_midnight_violet.module.css"
-import sageTheme from "#src/style/themes/mathviz_sage_editorial.module.css"
-import tronTheme from "#src/style/themes/mathviz_tron_cyan.module.css"
+import { type AppThemeStyles, useAppTheme } from "#src/components/ui/useAppTheme.ts"
 
 import uiStyles from "./ui.page.module.css"
 
-const THEMES = [
-  { slug: "arctic-ice", label: "Arctic Ice", styles: arcticTheme },
-  { slug: "tron-cyan", label: "Tron Cyan", styles: tronTheme },
-  { slug: "midnight-violet", label: "Midnight Violet", styles: violetTheme },
-  { slug: "clean-teal", label: "Clean Teal", styles: tealTheme },
-  { slug: "educational-warm", label: "Educational Warm", styles: warmTheme },
-  { slug: "sage-editorial", label: "Sage Editorial", styles: sageTheme },
-] as const
-
-type ThemeStyles = (typeof THEMES)[number]["styles"]
+type ThemeStyles = AppThemeStyles
 
 const FRAMEWORKS = ["React 18", "Vue 3", "Svelte 5", "Angular 17"] as const
 const TABS = ["Alerts", "Notifications", "Logs", "Activity"] as const
@@ -65,7 +51,7 @@ function statusBadge(status: string, styles: ThemeStyles): string {
 
 export default function UiPage() {
   const [query, setQuery] = useState("")
-  const [themeSlug, setThemeSlug] = useAtom(themeAtom)
+  const { themes, themeSlug, setThemeSlug, activeTheme, activeThemeLabel } = useAppTheme()
   const [darkMode, setDarkMode] = useState(true)
   const [email, setEmail] = useState("jane.design@arctiq.io")
   const [framework, setFramework] = useState<Framework>("React 18")
@@ -75,9 +61,6 @@ export default function UiPage() {
   const [tab, setTab] = useState<Tab>("Alerts")
   const [dismissed, setDismissed] = useState<ReadonlySet<string>>(new Set())
   const [page, setPage] = useState(1)
-
-  const activeTheme = THEMES.find((theme) => theme.slug === themeSlug)?.styles ?? arcticTheme
-  const activeThemeLabel = THEMES.find((theme) => theme.slug === themeSlug)?.label ?? "Arctic Ice"
 
   const dismissAlert = (id: string) => {
     setDismissed((prev) => new Set(prev).add(id))
@@ -134,7 +117,7 @@ export default function UiPage() {
                 className={uiStyles.theme_section}
               >
                 <ThemeSwitcher
-                  themes={THEMES}
+                  themes={themes}
                   activeSlug={themeSlug}
                   onSelect={(slug) => setThemeSlug(slug as ThemeSlug)}
                   primaryClass={activeTheme.btn_primary}
