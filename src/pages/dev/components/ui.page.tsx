@@ -1,26 +1,25 @@
 import { useAtom } from "jotai"
 import { useState } from "react"
 
+import { AlertStack, type AlertItem } from "#src/components/ui/AlertStack.tsx"
 import { Badge } from "#src/components/ui/Badge.tsx"
 import { Button } from "#src/components/ui/Button.tsx"
 import { Checkbox } from "#src/components/ui/Checkbox.tsx"
+import { DataTable } from "#src/components/ui/DataTable.tsx"
 import { Field } from "#src/components/ui/Field.tsx"
-import {
-  BellIcon,
-  ButtonIcon,
-  SearchIcon,
-  SlidersIcon,
-  SnowflakeIcon,
-  TableIcon,
-  TagIcon,
-} from "#src/components/ui/icons.tsx"
+import { BellIcon, ButtonIcon, SlidersIcon, TableIcon, TagIcon } from "#src/components/ui/icons.tsx"
+import { Pagination } from "#src/components/ui/Pagination.tsx"
 import { RadioGroup } from "#src/components/ui/RadioGroup.tsx"
+import { SectionCard } from "#src/components/ui/SectionCard.tsx"
 import { Select } from "#src/components/ui/Select.tsx"
 import { SettingsMenu } from "#src/components/ui/SettingsMenu.tsx"
 import { Slider } from "#src/components/ui/Slider.tsx"
 import { Switch } from "#src/components/ui/Switch.tsx"
+import { Tabs } from "#src/components/ui/Tabs.tsx"
 import { TextField } from "#src/components/ui/TextField.tsx"
 import { ThemeSwitcher } from "#src/components/ui/ThemeSwitcher.tsx"
+import { TitleBlock } from "#src/components/ui/TitleBlock.tsx"
+import { TopBar } from "#src/components/ui/TopBar.tsx"
 import { themeAtom, type ThemeSlug } from "#src/state/theme.ts"
 import arcticTheme from "#src/style/themes/mathviz_arctic_ice.module.css"
 import tealTheme from "#src/style/themes/mathviz_clean_teal.module.css"
@@ -84,78 +83,56 @@ export default function UiPage() {
     setDismissed((prev) => new Set(prev).add(id))
   }
 
-  const visibleAlerts = [
+  const allAlerts: ReadonlyArray<AlertItem> = [
     {
       id: "info",
-      kind: uiStyles.alert_info,
+      kind: "info",
       title: "Info: New version 1.4.0 is available. Review the migration guide.",
     },
     {
       id: "success",
-      kind: uiStyles.alert_success,
+      kind: "success",
       title: "Success: Theme saved to preferences.",
     },
     {
       id: "warning",
-      kind: uiStyles.alert_warning,
+      kind: "warning",
       title: 'Warning: "deprecated" prop will be removed in v2.0.',
     },
-  ].filter((alert) => !dismissed.has(alert.id))
+  ]
+
+  const visibleAlerts = allAlerts.filter((alert) => !dismissed.has(alert.id))
 
   return (
     <div className={activeTheme.theme}>
       <div className={uiStyles.page} data-testid="ui-page">
         <div className={uiStyles.shell}>
-          <header className={uiStyles.topbar}>
-            <a className={uiStyles.wordmark} href="#dev/components/ui">
-              <span className={uiStyles.wordmark_icon}>
-                <SnowflakeIcon />
-              </span>
-              MathViz
-            </a>
-            <div className={uiStyles.search_wrap}>
-              <SearchIcon />
-              <input
-                type="search"
-                value={query}
-                data-testid="ui-search"
-                placeholder="Search components, docs, examples…"
-                aria-label="Search components, docs, examples"
-                className={uiStyles.search}
-                onChange={(event) => setQuery(event.currentTarget.value)}
-              />
-            </div>
-            <div className={uiStyles.top_actions}>
-              <SettingsMenu themeSlug={themeSlug} onSelect={setThemeSlug} />
-            </div>
-          </header>
+          <TopBar
+            query={query}
+            onQueryChange={setQuery}
+            actions={<SettingsMenu themeSlug={themeSlug} onSelect={setThemeSlug} />}
+          />
 
           <main className={uiStyles.main}>
-            <div className={uiStyles.title_block}>
-              <div className={uiStyles.title_row}>
-                <h1>Component Library</h1>
-                <span className={uiStyles.version_pill}>
-                  <span className={uiStyles.version_dot} aria-hidden="true" />
-                  v1.4.0
-                </span>
-              </div>
-              <p className={uiStyles.subtitle}>
-                A fully accessible, {activeThemeLabel.toLowerCase()} design system. Built for production,
-                documented and ready to use.
-              </p>
-            </div>
+            <TitleBlock
+              title="Component Library"
+              version="v1.4.0"
+              subtitle={
+                <>
+                  A fully accessible, {activeThemeLabel.toLowerCase()} design system. Built for production,
+                  documented and ready to use.
+                </>
+              }
+            />
 
             <div className={uiStyles.grid}>
-              <section
-                aria-labelledby="ui-theme"
-                className={`${activeTheme.card} ${uiStyles.card} ${uiStyles.theme_section}`}
+              <SectionCard
+                icon={<SlidersIcon />}
+                title="Theme"
+                titleId="ui-theme"
+                cardClass={activeTheme.card}
+                className={uiStyles.theme_section}
               >
-                <div className={uiStyles.card_head}>
-                  <span className={uiStyles.card_icon}>
-                    <SlidersIcon />
-                  </span>
-                  <h2 id="ui-theme">Theme</h2>
-                </div>
                 <ThemeSwitcher
                   themes={THEMES}
                   activeSlug={themeSlug}
@@ -163,14 +140,13 @@ export default function UiPage() {
                   primaryClass={activeTheme.btn_primary}
                   secondaryClass={activeTheme.btn_secondary}
                 />
-              </section>
-              <section aria-labelledby="ui-buttons" className={`${activeTheme.card} ${uiStyles.card}`}>
-                <div className={uiStyles.card_head}>
-                  <span className={uiStyles.card_icon}>
-                    <ButtonIcon />
-                  </span>
-                  <h2 id="ui-buttons">Buttons</h2>
-                </div>
+              </SectionCard>
+              <SectionCard
+                icon={<ButtonIcon />}
+                title="Buttons"
+                titleId="ui-buttons"
+                cardClass={activeTheme.card}
+              >
                 <div className={uiStyles.button_stack}>
                   <Button
                     variant="primary"
@@ -212,30 +188,23 @@ export default function UiPage() {
                     Disabled
                   </Button>
                 </div>
-              </section>
+              </SectionCard>
 
-              <section aria-labelledby="ui-badges" className={`${activeTheme.card} ${uiStyles.card}`}>
-                <div className={uiStyles.card_head}>
-                  <span className={uiStyles.card_icon}>
-                    <TagIcon />
-                  </span>
-                  <h2 id="ui-badges">Badges</h2>
-                </div>
+              <SectionCard icon={<TagIcon />} title="Badges" titleId="ui-badges" cardClass={activeTheme.card}>
                 <div className={uiStyles.badge_grid}>
                   <Badge toneClass={activeTheme.badge_accent}>Ice • Accent</Badge>
                   <Badge toneClass={activeTheme.badge_success}>Success ✓</Badge>
                   <Badge toneClass={activeTheme.badge_warning}>Warning !</Badge>
                   <Badge toneClass={activeTheme.badge_destructive}>Destructive ✕</Badge>
                 </div>
-              </section>
+              </SectionCard>
 
-              <section aria-labelledby="ui-form" className={`${activeTheme.card} ${uiStyles.card}`}>
-                <div className={uiStyles.card_head}>
-                  <span className={uiStyles.card_icon}>
-                    <SlidersIcon />
-                  </span>
-                  <h2 id="ui-form">Form controls</h2>
-                </div>
+              <SectionCard
+                icon={<SlidersIcon />}
+                title="Form controls"
+                titleId="ui-form"
+                cardClass={activeTheme.card}
+              >
                 <div className={uiStyles.form_stack}>
                   <Field label="Email address" htmlFor="ui-email">
                     <TextField
@@ -284,15 +253,14 @@ export default function UiPage() {
                     </span>
                   </div>
                 </div>
-              </section>
+              </SectionCard>
 
-              <section aria-labelledby="ui-slider" className={`${activeTheme.card} ${uiStyles.card}`}>
-                <div className={uiStyles.card_head}>
-                  <span className={uiStyles.card_icon}>
-                    <SlidersIcon />
-                  </span>
-                  <h2 id="ui-slider">Slider</h2>
-                </div>
+              <SectionCard
+                icon={<SlidersIcon />}
+                title="Slider"
+                titleId="ui-slider"
+                cardClass={activeTheme.card}
+              >
                 <div className={uiStyles.slider_box}>
                   <div className={uiStyles.slider_head}>
                     <span className={uiStyles.slider_label}>Opacity</span>
@@ -306,121 +274,33 @@ export default function UiPage() {
                     <span>100%</span>
                   </div>
                 </div>
-              </section>
+              </SectionCard>
 
-              <section aria-labelledby="ui-data" className={`${activeTheme.card} ${uiStyles.card}`}>
-                <div className={uiStyles.card_head}>
-                  <span className={uiStyles.card_icon}>
-                    <TableIcon />
-                  </span>
-                  <h2 id="ui-data">Data</h2>
-                </div>
-                <div className={uiStyles.table_wrap}>
-                  <table className={uiStyles.table}>
-                    <thead>
-                      <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Updated</th>
-                        <th scope="col">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {TABLE_ROWS.map((row) => (
-                        <tr key={row.name}>
-                          <td className={uiStyles.cell_name}>{row.name}</td>
-                          <td>
-                            <Badge size="pill" toneClass={statusBadge(row.status, activeTheme)}>
-                              {row.status}
-                            </Badge>
-                          </td>
-                          <td className={uiStyles.cell_muted}>{row.updated}</td>
-                          <td>
-                            <button type="button" className={uiStyles.view_link}>
-                              View
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <div className={uiStyles.table_foot}>
-                  <span className={uiStyles.table_count}>Showing 1–3 of 24 results</span>
-                  <div className={uiStyles.pagination} role="navigation" aria-label="Pagination">
-                    <button type="button" className={uiStyles.page_btn}>
-                      ← Previous
-                    </button>
-                    {[1, 2, 3].map((n) => (
-                      <button
-                        key={n}
-                        type="button"
-                        aria-current={n === page ? "page" : undefined}
-                        data-testid={`page-${n}`}
-                        className={
-                          n === page ? `${uiStyles.page_btn} ${uiStyles.page_btn_active}` : uiStyles.page_btn
-                        }
-                        onClick={() => setPage(n)}
-                      >
-                        {n}
-                      </button>
-                    ))}
-                    <button type="button" className={uiStyles.page_btn}>
-                      Next →
-                    </button>
-                  </div>
-                </div>
-              </section>
+              <SectionCard icon={<TableIcon />} title="Data" titleId="ui-data" cardClass={activeTheme.card}>
+                <DataTable rows={TABLE_ROWS} statusTone={(status) => statusBadge(status, activeTheme)} />
+                <Pagination
+                  page={page}
+                  pageCount={3}
+                  onChange={setPage}
+                  countLabel="Showing 1–3 of 24 results"
+                />
+              </SectionCard>
 
-              <section aria-labelledby="ui-feedback" className={`${activeTheme.card} ${uiStyles.card}`}>
-                <div className={uiStyles.card_head}>
-                  <span className={uiStyles.card_icon}>
-                    <BellIcon />
-                  </span>
-                  <h2 id="ui-feedback">Feedback</h2>
-                </div>
-                <div className={uiStyles.tabs} role="tablist" aria-label="Feedback categories">
-                  {TABS.map((name) => (
-                    <button
-                      key={name}
-                      type="button"
-                      role="tab"
-                      aria-selected={tab === name}
-                      data-testid={`tab-${name.toLowerCase()}`}
-                      className={tab === name ? `${uiStyles.tab} ${uiStyles.tab_active}` : uiStyles.tab}
-                      onClick={() => setTab(name)}
-                    >
-                      {name}
-                    </button>
-                  ))}
-                </div>
+              <SectionCard
+                icon={<BellIcon />}
+                title="Feedback"
+                titleId="ui-feedback"
+                cardClass={activeTheme.card}
+              >
+                <Tabs tabs={TABS} active={tab} onChange={setTab} />
                 {tab === "Alerts" ? (
-                  <div className={uiStyles.alert_stack}>
-                    {visibleAlerts.length === 0 ? (
-                      <p className={uiStyles.alert_empty}>You&apos;re all caught up.</p>
-                    ) : (
-                      visibleAlerts.map((alert) => (
-                        <div key={alert.id} className={`${uiStyles.alert} ${alert.kind}`} role="alert">
-                          <span className={uiStyles.alert_text}>{alert.title}</span>
-                          <button
-                            type="button"
-                            aria-label={`Dismiss ${alert.id} notification`}
-                            data-testid={`dismiss-${alert.id}`}
-                            className={uiStyles.alert_close}
-                            onClick={() => dismissAlert(alert.id)}
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
+                  <AlertStack alerts={visibleAlerts} onDismiss={dismissAlert} />
                 ) : (
                   <p className={uiStyles.tab_empty}>
                     No {tab.toLowerCase()} yet — switch back to Alerts to review notifications.
                   </p>
                 )}
-              </section>
+              </SectionCard>
             </div>
           </main>
         </div>

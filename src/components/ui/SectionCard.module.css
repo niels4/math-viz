@@ -1,0 +1,30 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 18px;
+  padding: 24px;
+}
+
+.card_head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--foreground);
+  }
+}
+
+.card_icon {
+  display: inline-flex;
+  color: var(--primary);
+}
+
+.card_icon_warn {
+  display: inline-flex;
+  color: var(--warning);
+}

@@ -2,22 +2,8 @@
 // WARNING: THIS FILE IS AUTO GENERATED, PLEASE DO NOT EDIT IT MANUALLY.
 // prettier-ignore
 declare const styles: {
-  readonly "alert": string;
-  readonly "alert_close": string;
-  readonly "alert_empty": string;
-  readonly "alert_info": string;
-  readonly "alert_stack": string;
-  readonly "alert_success": string;
-  readonly "alert_text": string;
-  readonly "alert_warning": string;
   readonly "badge_grid": string;
   readonly "button_stack": string;
-  readonly "card": string;
-  readonly "card_head": string;
-  readonly "card_icon": string;
-  readonly "card_icon_warn": string;
-  readonly "cell_muted": string;
-  readonly "cell_name": string;
   readonly "dark_control": string;
   readonly "dark_label": string;
   readonly "dark_row": string;
@@ -26,35 +12,13 @@ declare const styles: {
   readonly "grid": string;
   readonly "main": string;
   readonly "page": string;
-  readonly "page_btn": string;
-  readonly "page_btn_active": string;
-  readonly "pagination": string;
-  readonly "search": string;
-  readonly "search_wrap": string;
   readonly "shell": string;
   readonly "slider_box": string;
   readonly "slider_head": string;
   readonly "slider_label": string;
   readonly "slider_scale": string;
   readonly "slider_value": string;
-  readonly "subtitle": string;
-  readonly "tab": string;
-  readonly "tab_active": string;
   readonly "tab_empty": string;
-  readonly "table": string;
-  readonly "table_count": string;
-  readonly "table_foot": string;
-  readonly "table_wrap": string;
-  readonly "tabs": string;
   readonly "theme_section": string;
-  readonly "title_block": string;
-  readonly "title_row": string;
-  readonly "top_actions": string;
-  readonly "topbar": string;
-  readonly "version_dot": string;
-  readonly "version_pill": string;
-  readonly "view_link": string;
-  readonly "wordmark": string;
-  readonly "wordmark_icon": string;
 };
 export = styles;

@@ -1,0 +1,75 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--foreground);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.wordmark_icon {
+  display: inline-flex;
+  color: var(--primary);
+}
+
+.search_wrap {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  max-width: 560px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 10px 18px;
+  color: var(--foreground-muted);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.search {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--foreground);
+  background: transparent;
+  border: 0;
+  outline: none;
+}
+
+.search::placeholder {
+  color: var(--foreground-muted);
+  opacity: 1;
+}
+
+.top_actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+@media (max-width: 780px) {
+  .topbar {
+    flex-wrap: wrap;
+  }
+
+  .search_wrap {
+    order: 3;
+    flex-basis: 100%;
+    max-width: none;
+  }
+}

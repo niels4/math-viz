@@ -1,0 +1,62 @@
+.alert_stack {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.4;
+  border: 1px solid;
+  border-radius: var(--radius);
+}
+
+.alert_info {
+  color: var(--foreground);
+  background: color-mix(in oklch, var(--accent) 24%, transparent);
+  border-color: color-mix(in oklch, var(--accent) 55%, transparent);
+}
+
+.alert_success {
+  color: var(--foreground);
+  background: color-mix(in oklch, var(--success) 24%, transparent);
+  border-color: color-mix(in oklch, var(--success) 55%, transparent);
+}
+
+.alert_warning {
+  color: var(--foreground);
+  background: color-mix(in oklch, var(--warning) 24%, transparent);
+  border-color: color-mix(in oklch, var(--warning) 55%, transparent);
+}
+
+.alert_text {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert_close {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0.75;
+}
+
+.alert_close:hover {
+  opacity: 1;
+}
+
+.alert_empty {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--foreground-muted);
+}
