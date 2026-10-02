@@ -3,6 +3,8 @@
 // prettier-ignore
 declare const styles: {
   readonly "theme_btn": string;
+  readonly "theme_btn_active": string;
+  readonly "theme_btn_idle": string;
   readonly "theme_group": string;
 };
 export = styles;

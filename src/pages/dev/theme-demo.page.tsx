@@ -1,9 +1,56 @@
-import arcticStyles from "#src/style/themes/mathviz_arctic_ice.module.css"
-import cleanTealStyles from "#src/style/themes/mathviz_clean_teal.module.css"
-import educationalStyles from "#src/style/themes/mathviz_educational_warm.module.css"
-import midnightStyles from "#src/style/themes/mathviz_midnight_violet.module.css"
-import sageStyles from "#src/style/themes/mathviz_sage_editorial.module.css"
-import tronStyles from "#src/style/themes/mathviz_tron_cyan.module.css"
+import arcticTheme from "#src/style/themes/mathviz_arctic_ice.module.css"
+import tealTheme from "#src/style/themes/mathviz_clean_teal.module.css"
+import warmTheme from "#src/style/themes/mathviz_educational_warm.module.css"
+import violetTheme from "#src/style/themes/mathviz_midnight_violet.module.css"
+import sageTheme from "#src/style/themes/mathviz_sage_editorial.module.css"
+import tronTheme from "#src/style/themes/mathviz_tron_cyan.module.css"
+
+import demo from "./theme-demo.page.module.css"
+
+const SECTIONS = [
+  {
+    theme: arcticTheme.theme,
+    title: "MathViz Arctic Ice — dark futuristic",
+    desc: "Achromatic ice precision + single mint signal · bg×fg 18.06:1 AAA",
+    cardNote: "Dark dashboard shell, mint chart line",
+    inputValue: "arctic input",
+  },
+  {
+    theme: tronTheme.theme,
+    title: "MathViz Tron Cyan — dark energy",
+    desc: "Tron-lineage neon cyan on near-black void · glow chart accents",
+    cardNote: "High-voltage dark shell for live canvases",
+    inputValue: "tron input",
+  },
+  {
+    theme: violetTheme.theme,
+    title: "MathViz Midnight Violet — dark depth",
+    desc: "Violet-depth dark shell · warm supporting accents",
+    cardNote: "Violet primary line, warm supporting accents",
+    inputValue: "violet input",
+  },
+  {
+    theme: tealTheme.theme,
+    title: "MathViz Clean Teal — light education",
+    desc: "Chips + layer toggles on clean paper · teal signal, navy ink",
+    cardNote: "Light classroom shell, teal chart line",
+    inputValue: "teal input",
+  },
+  {
+    theme: warmTheme.theme,
+    title: "MathViz Educational Warm — light friendly",
+    desc: "Warm paper educator voice · indigo parabola, coral tangent",
+    cardNote: "Friendly warm shell for lesson pages",
+    inputValue: "warm input",
+  },
+  {
+    theme: sageTheme.theme,
+    title: "MathViz Sage Editorial — light serif",
+    desc: "Muted-by-design sage · serif function labels, calm cards",
+    cardNote: "Editorial calm for reading-heavy pages",
+    inputValue: "sage input",
+  },
+] as const
 
 export default function ThemeDemoPage() {
   return (
@@ -13,234 +60,38 @@ export default function ThemeDemoPage() {
       </a>
       <h1>Theme Demo — CSS Modules per page</h1>
       <p style={{ opacity: 0.7 }}>
-        Each theme is a scoped CSS Module with <code>oklch()</code> colors. No global html/body pollution.
-        Wrap a section with <code>styles.theme</code> (file name gives uniqueness via CSS Modules hashing) and
-        use <code>styles.bg_background</code> etc inside. Six MathViz themes co-exist below — three dark
+        Each theme is a scoped CSS Module that provides <code>var(--*)</code> tokens in <code>oklch()</code>.
+        No global html/body pollution. Each section below applies one theme class at its root (which sets the
+        vars) and component styles consume the vars. Six MathViz themes co-exist below — three dark
         (arctic-ice, tron-cyan, midnight-violet) and three light (clean-teal, educational-warm,
         sage-editorial).
       </p>
 
-      {/* MathViz Arctic Ice — dark futuristic */}
-      <div
-        className={arcticStyles.theme}
-        style={{ borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)" }}
-      >
-        <div style={{ padding: 16, background: "var(--background)", color: "var(--foreground)" }}>
-          <h2 style={{ color: "var(--primary)" }}>MathViz Arctic Ice — dark futuristic</h2>
-          <p style={{ color: "var(--foreground-muted)" }}>
-            Achromatic ice precision + single mint signal · bg×fg 18.06:1 AAA
-          </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
-            <button className={arcticStyles.btn_primary}>Primary</button>
-            <button className={arcticStyles.btn_secondary}>Secondary</button>
-            <span className={arcticStyles.badge_accent}>Accent</span>
-            <span className={arcticStyles.badge_success}>Success</span>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
-            <div className={arcticStyles.card} style={{ padding: 12 }}>
-              <div style={{ fontWeight: 700 }}>Card</div>
-              <div className={arcticStyles.text_muted} style={{ fontSize: 12, marginTop: 4 }}>
-                Dark dashboard shell, mint chart line
-              </div>
+      {SECTIONS.map((section) => (
+        <div key={section.title} className={`${section.theme} ${demo.section}`}>
+          <div className={demo.body}>
+            <h2 className={demo.title}>{section.title}</h2>
+            <p className={demo.muted}>{section.desc}</p>
+            <div className={demo.row}>
+              <button className={demo.btn_primary}>Primary</button>
+              <button className={demo.btn_secondary}>Secondary</button>
+              <span className={demo.badge_accent}>Accent</span>
+              <span className={demo.badge_success}>Success</span>
             </div>
-            <input className={arcticStyles.input} placeholder="Input" defaultValue="arctic input" />
-          </div>
-          <svg
-            viewBox="0 0 320 80"
-            width="100%"
-            height={80}
-            style={{ marginTop: 16, background: "var(--card)", borderRadius: 8 }}
-          >
-            <line x1={10} y1={60} x2={310} y2={20} className={arcticStyles.chart_line} strokeWidth={2} />
-            <circle cx={310} cy={20} r={6} className={arcticStyles.chart_accent} />
-          </svg>
-        </div>
-      </div>
-
-      {/* MathViz Tron Cyan — dark energy */}
-      <div
-        className={tronStyles.theme}
-        style={{ borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)" }}
-      >
-        <div style={{ padding: 16, background: "var(--background)", color: "var(--foreground)" }}>
-          <h2 style={{ color: "var(--primary)" }}>MathViz Tron Cyan — dark energy</h2>
-          <p style={{ color: "var(--foreground-muted)" }}>
-            Tron-lineage neon cyan on near-black void · glow chart accents
-          </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
-            <button className={tronStyles.btn_primary}>Primary</button>
-            <button className={tronStyles.btn_secondary}>Secondary</button>
-            <span className={tronStyles.badge_accent}>Accent</span>
-            <span className={tronStyles.badge_success}>Success</span>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
-            <div className={tronStyles.card} style={{ padding: 12 }}>
-              <div style={{ fontWeight: 700 }}>Card</div>
-              <div className={tronStyles.text_muted} style={{ fontSize: 12, marginTop: 4 }}>
-                High-voltage dark shell for live canvases
+            <div className={demo.grid}>
+              <div className={demo.card}>
+                <div style={{ fontWeight: 700 }}>Card</div>
+                <div className={demo.card_muted}>{section.cardNote}</div>
               </div>
+              <input className={demo.input} placeholder="Input" defaultValue={section.inputValue} />
             </div>
-            <input className={tronStyles.input} placeholder="Input" defaultValue="tron input" />
+            <svg viewBox="0 0 320 80" width="100%" height={80} className={demo.chart}>
+              <line x1={10} y1={60} x2={310} y2={20} className={demo.chart_line} strokeWidth={2} />
+              <circle cx={310} cy={20} r={6} className={demo.chart_accent} />
+            </svg>
           </div>
-          <svg
-            viewBox="0 0 320 80"
-            width="100%"
-            height={80}
-            style={{ marginTop: 16, background: "var(--card)", borderRadius: 8 }}
-          >
-            <line x1={10} y1={60} x2={310} y2={20} className={tronStyles.chart_line} strokeWidth={2} />
-            <circle cx={310} cy={20} r={6} className={tronStyles.chart_accent} />
-          </svg>
         </div>
-      </div>
-
-      {/* MathViz Midnight Violet — dark depth */}
-      <div
-        className={midnightStyles.theme}
-        style={{ borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)" }}
-      >
-        <div style={{ padding: 16, background: "var(--background)", color: "var(--foreground)" }}>
-          <h2 style={{ color: "var(--primary)" }}>MathViz Midnight Violet — dark depth</h2>
-          <p style={{ color: "var(--foreground-muted)" }}>
-            Violet-depth dark shell · warm supporting accents
-          </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
-            <button className={midnightStyles.btn_primary}>Primary</button>
-            <button className={midnightStyles.btn_secondary}>Secondary</button>
-            <span className={midnightStyles.badge_accent}>Accent</span>
-            <span className={midnightStyles.badge_success}>Success</span>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
-            <div className={midnightStyles.card} style={{ padding: 12 }}>
-              <div style={{ fontWeight: 700 }}>Card</div>
-              <div className={midnightStyles.text_muted} style={{ fontSize: 12, marginTop: 4 }}>
-                Violet primary line, warm supporting accents
-              </div>
-            </div>
-            <input className={midnightStyles.input} placeholder="Input" defaultValue="violet input" />
-          </div>
-          <svg
-            viewBox="0 0 320 80"
-            width="100%"
-            height={80}
-            style={{ marginTop: 16, background: "var(--card)", borderRadius: 8 }}
-          >
-            <line x1={10} y1={60} x2={310} y2={20} className={midnightStyles.chart_line} strokeWidth={2} />
-            <circle cx={310} cy={20} r={6} className={midnightStyles.chart_accent} />
-          </svg>
-        </div>
-      </div>
-
-      {/* MathViz Clean Teal — light education */}
-      <div
-        className={cleanTealStyles.theme}
-        style={{ borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)" }}
-      >
-        <div style={{ padding: 16, background: "var(--background)", color: "var(--foreground)" }}>
-          <h2 style={{ color: "var(--primary)" }}>MathViz Clean Teal — light education</h2>
-          <p style={{ color: "var(--foreground-muted)" }}>
-            Chips + layer toggles on clean paper · teal signal, navy ink
-          </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
-            <button className={cleanTealStyles.btn_primary}>Primary</button>
-            <button className={cleanTealStyles.btn_secondary}>Secondary</button>
-            <span className={cleanTealStyles.badge_accent}>Accent</span>
-            <span className={cleanTealStyles.badge_success}>Success</span>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
-            <div className={cleanTealStyles.card} style={{ padding: 12 }}>
-              <div style={{ fontWeight: 700 }}>Card</div>
-              <div className={cleanTealStyles.text_muted} style={{ fontSize: 12, marginTop: 4 }}>
-                Light classroom shell, teal chart line
-              </div>
-            </div>
-            <input className={cleanTealStyles.input} placeholder="Input" defaultValue="teal input" />
-          </div>
-          <svg
-            viewBox="0 0 320 80"
-            width="100%"
-            height={80}
-            style={{ marginTop: 16, background: "var(--card)", borderRadius: 8 }}
-          >
-            <line x1={10} y1={60} x2={310} y2={20} className={cleanTealStyles.chart_line} strokeWidth={2} />
-            <circle cx={310} cy={20} r={6} className={cleanTealStyles.chart_accent} />
-          </svg>
-        </div>
-      </div>
-
-      {/* MathViz Educational Warm — light friendly */}
-      <div
-        className={educationalStyles.theme}
-        style={{ borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)" }}
-      >
-        <div style={{ padding: 16, background: "var(--background)", color: "var(--foreground)" }}>
-          <h2 style={{ color: "var(--primary)" }}>MathViz Educational Warm — light friendly</h2>
-          <p style={{ color: "var(--foreground-muted)" }}>
-            Warm paper educator voice · indigo parabola, coral tangent
-          </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
-            <button className={educationalStyles.btn_primary}>Primary</button>
-            <button className={educationalStyles.btn_secondary}>Secondary</button>
-            <span className={educationalStyles.badge_accent}>Accent</span>
-            <span className={educationalStyles.badge_success}>Success</span>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
-            <div className={educationalStyles.card} style={{ padding: 12 }}>
-              <div style={{ fontWeight: 700 }}>Card</div>
-              <div className={educationalStyles.text_muted} style={{ fontSize: 12, marginTop: 4 }}>
-                Friendly warm shell for lesson pages
-              </div>
-            </div>
-            <input className={educationalStyles.input} placeholder="Input" defaultValue="warm input" />
-          </div>
-          <svg
-            viewBox="0 0 320 80"
-            width="100%"
-            height={80}
-            style={{ marginTop: 16, background: "var(--card)", borderRadius: 8 }}
-          >
-            <line x1={10} y1={60} x2={310} y2={20} className={educationalStyles.chart_line} strokeWidth={2} />
-            <circle cx={310} cy={20} r={6} className={educationalStyles.chart_accent} />
-          </svg>
-        </div>
-      </div>
-
-      {/* MathViz Sage Editorial — light serif */}
-      <div
-        className={sageStyles.theme}
-        style={{ borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)" }}
-      >
-        <div style={{ padding: 16, background: "var(--background)", color: "var(--foreground)" }}>
-          <h2 style={{ color: "var(--primary)" }}>MathViz Sage Editorial — light serif</h2>
-          <p style={{ color: "var(--foreground-muted)" }}>
-            Muted-by-design sage · serif function labels, calm cards
-          </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
-            <button className={sageStyles.btn_primary}>Primary</button>
-            <button className={sageStyles.btn_secondary}>Secondary</button>
-            <span className={sageStyles.badge_accent}>Accent</span>
-            <span className={sageStyles.badge_success}>Success</span>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
-            <div className={sageStyles.card} style={{ padding: 12 }}>
-              <div style={{ fontWeight: 700 }}>Card</div>
-              <div className={sageStyles.text_muted} style={{ fontSize: 12, marginTop: 4 }}>
-                Editorial calm for reading-heavy pages
-              </div>
-            </div>
-            <input className={sageStyles.input} placeholder="Input" defaultValue="sage input" />
-          </div>
-          <svg
-            viewBox="0 0 320 80"
-            width="100%"
-            height={80}
-            style={{ marginTop: 16, background: "var(--card)", borderRadius: 8 }}
-          >
-            <line x1={10} y1={60} x2={310} y2={20} className={sageStyles.chart_line} strokeWidth={2} />
-            <circle cx={310} cy={20} r={6} className={sageStyles.chart_accent} />
-          </svg>
-        </div>
-      </div>
+      ))}
     </div>
   )
 }

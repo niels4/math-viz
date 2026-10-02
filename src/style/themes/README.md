@@ -11,8 +11,8 @@ Reference implementations: `mathviz_arctic_ice.module.css` (dark futuristic, AAA
 
 ## 2. Module, not global
 
-- File **must** be a CSS Module (`.module.css`). Import as `import styles from "#src/style/themes/mathviz_arctic_ice.module.css"` and apply via `className={styles.theme}` on a wrapper div/page.
-- Do **not** emit `html {}` or `body {}` selectors. Those are anti-patterns — themes are scoped, not global. The wrapper owns the vars.
+- File **must** be a CSS Module (`.module.css`). Each page applies one theme class at its root element (e.g. `import arcticTheme from "#src/style/themes/mathviz_arctic_ice.module.css"` then `<div className={arcticTheme.theme}>`) which sets the vars; component CSS below consumes them via `var(--*)`.
+- Do **not** emit `html {}` or `body {}` selectors. Those are anti-patterns — themes are scoped, not global. The page root owns the vars.
 - Do **not** emit `:root {}`. Vars live inside the wrapper class so multiple themes can coexist.
 
 ## 3. Wrapper class owns all vars — in oklch
@@ -40,7 +40,7 @@ Reference implementations: `mathviz_arctic_ice.module.css` (dark futuristic, AAA
   --chart-accent: oklch(0.7234 0.1854 1.78);
   --chart-glow: oklch(0.8442 0.1457 209.29 / 0.4);
 
-  /* utilities nested one level deep — see §4 */
+  /* vars only — component CSS consumes these via var(--*) */
 }
 ```
 
@@ -49,92 +49,11 @@ Reference implementations: `mathviz_arctic_ice.module.css` (dark futuristic, AAA
 - Color values are **`oklch(L C H)` or `oklch(L C H / A)`** — perceptually uniform, better for coherent palettes than hex. `L` 0–1, `C` 0–0.4, `H` 0–360. Alpha via slash, e.g. `oklch(0.8442 0.1457 209.29 / 0.4)` for 40%.
 - Never use hex `#rrggbb` in theme outputs — always oklch.
 
-## 4. Utilities and components — one level deep, snake_case
+## 4. No utility or component classes — vars only
 
-- All classes are **nested exactly one level** inside the wrapper. Example:
-
-```css
-.theme {
-  .bg_background {
-    background: var(--background);
-  }
-  .bg_muted {
-    background: var(--background-muted);
-  }
-  .bg_card {
-    background: var(--card);
-  }
-  .bg_primary {
-    background: var(--primary);
-    color: var(--primary-foreground);
-  }
-  .bg_secondary {
-    background: var(--secondary);
-    color: var(--secondary-foreground);
-  }
-  .bg_accent {
-    background: var(--accent);
-    color: var(--accent-foreground);
-  }
-  .text_foreground {
-    color: var(--foreground);
-  }
-  .text_muted {
-    color: var(--foreground-muted);
-  }
-  .text_primary {
-    color: var(--primary);
-  }
-  .text_accent {
-    color: var(--accent);
-  }
-  .border {
-    border-color: var(--border);
-  }
-  .border_border {
-    border-color: var(--border);
-  }
-  .btn_primary {
-    /* ... */
-  }
-  .btn_secondary {
-    /* ... */
-  }
-  .card {
-    /* ... */
-  }
-  .input {
-    /* ... */
-  }
-  .badge_accent {
-    /* ... */
-  }
-  .badge_success {
-    /* ... */
-  }
-  .badge_warning {
-    /* ... */
-  }
-  .badge_destructive {
-    /* ... */
-  }
-  .chart_grid line,
-  .chart_grid path {
-    stroke: var(--chart-grid);
-  }
-  .chart_line {
-    stroke: var(--chart-line);
-  }
-  .chart_accent {
-    stroke: var(--chart-accent);
-    fill: var(--chart-accent);
-  }
-}
-```
-
-- **Class names use `_` not `-`.** Never `bg-primary`, `text-foreground`, `btn-primary`, `chart-grid`. Always `bg_primary`, `text_foreground`, `btn_primary`, `chart_grid`.
-- Keep `.card`, `.input`, `.border` as single-word exceptions (no underscore needed). For disambiguation use `.border_border` for explicit border color.
-- No deeper nesting, no combined selectors beyond one level. Chart helpers may combine `line, path` as shown.
+- The `.theme` block contains **only var declarations**. No nested classes of any kind: no `bg_*` / `text_*` / `border` utilities, no `btn_*` / `card` / `input` / `badge_*` components, no `chart_*` / `gradient_*` helpers.
+- Component styles live in the component's own CSS Module and consume the vars (e.g. `Badge.module.css` uses `var(--accent)` / `var(--success)`; `Button.module.css` uses `var(--primary)`; page CSS uses `var(--background)`). The theme never knows its consumers.
+- **Class names use `_` not `-`** for component CSS (e.g. `btn_primary`, `badge_accent`). Never `bg-primary`, `text-foreground`.
 
 ## 5. No global side effects
 
@@ -151,21 +70,22 @@ Reference implementations: `mathviz_arctic_ice.module.css` (dark futuristic, AAA
 ## 7. Usage in React
 
 ```tsx
-import styles from "#src/style/themes/mathviz_arctic_ice.module.css"
+import arcticTheme from "#src/style/themes/mathviz_arctic_ice.module.css"
 
 export default function Page() {
   return (
-    <div className={styles.theme}>
-      <div className={styles.bg_background}>...</div>
-      <button className={styles.btn_primary}>Primary</button>
-      <div className={styles.card}>Card</div>
+    <div className={arcticTheme.theme}>
+      {/* component CSS consumes var(--background), var(--primary), etc */}
+      <div className={cardStyles.card}>Card</div>
       <svg>
-        <path className={styles.chart_line} d="..." />
+        <path className={chartStyles.chart_line} d="..." />
       </svg>
     </div>
   )
 }
 ```
+
+Do not pass theme classes down as props (`cardClass`, `primaryClass`, `toneClass`, `inputClass`). Components style themselves from the vars.
 
 ## 8. Math-viz themes
 
@@ -174,6 +94,6 @@ export default function Page() {
 
 ## 9. Tooling
 
-- `theme-export` tool must emit this exact format: `src/style/themes/<slug>.module.css` with wrapper `.theme` containing oklch vars and one-level-deep `_` classes. No global file. File name provides uniqueness via CSS Modules hashing.
+- `theme-export` tool must emit this exact format: `src/style/themes/<slug>.module.css` with wrapper `.theme` containing oklch vars only — no nested classes. No global file. File name provides uniqueness via CSS Modules hashing.
 - `color-lab` preview should render the same CSS vars (oklch) for live iteration before export.
 - `color-gallery` shows swatches in oklch (with hex fallback) and previews in oklch.

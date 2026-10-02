@@ -1,4 +1,4 @@
-import { Badge } from "./Badge.tsx"
+import { Badge, type BadgeVariant } from "./Badge.tsx"
 import tableStyles from "./DataTable.module.css"
 
 export type DataTableRow = {
@@ -12,7 +12,7 @@ export function DataTable({
   statusTone,
 }: {
   rows: ReadonlyArray<DataTableRow>
-  statusTone: (status: string) => string
+  statusTone: (status: string) => BadgeVariant
 }) {
   return (
     <div className={tableStyles.table_wrap}>
@@ -30,7 +30,7 @@ export function DataTable({
             <tr key={row.name}>
               <td className={tableStyles.cell_name}>{row.name}</td>
               <td>
-                <Badge size="pill" toneClass={statusTone(row.status)}>
+                <Badge size="pill" tone={statusTone(row.status)}>
                   {row.status}
                 </Badge>
               </td>

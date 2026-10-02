@@ -5,5 +5,7 @@ declare const styles: {
   readonly "btn_destructive": string;
   readonly "btn_disabled": string;
   readonly "btn_ghost": string;
+  readonly "btn_primary": string;
+  readonly "btn_secondary": string;
 };
 export = styles;

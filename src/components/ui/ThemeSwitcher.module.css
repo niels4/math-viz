@@ -9,4 +9,18 @@
   font-size: 0.92rem;
   font-weight: 700;
   white-space: nowrap;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.theme_btn_active {
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.theme_btn_idle {
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  border: 1px solid var(--border);
 }

@@ -4,6 +4,10 @@
   min-width: 0;
   gap: 18px;
   padding: 24px;
+  color: var(--foreground);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
 .card_head {

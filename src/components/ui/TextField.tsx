@@ -5,7 +5,6 @@ export function TextField({
   value,
   onChange,
   testId,
-  inputClass,
   type = "text",
   autoComplete,
 }: {
@@ -13,7 +12,6 @@ export function TextField({
   value: string
   onChange: (next: string) => void
   testId: string
-  inputClass: string
   type?: string
   autoComplete?: string
 }) {
@@ -25,7 +23,7 @@ export function TextField({
       data-testid={testId}
       value={value}
       onChange={(event) => onChange(event.currentTarget.value)}
-      className={`${inputClass} ${fieldStyles.field}`}
+      className={fieldStyles.field}
     />
   )
 }

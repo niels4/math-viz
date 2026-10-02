@@ -1,0 +1,106 @@
+.section {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.body {
+  padding: 16px;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.title {
+  color: var(--primary);
+}
+
+.muted {
+  color: var(--foreground-muted);
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.btn_primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.9rem;
+  font-weight: 600;
+}
+
+.btn_secondary {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.9rem;
+  font-weight: 600;
+}
+
+.badge_accent {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.badge_success {
+  background: var(--success);
+  color: oklch(1 0 0);
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.78rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.card {
+  background: var(--card);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.card_muted {
+  font-size: 12px;
+  margin-top: 4px;
+  color: var(--foreground-muted);
+}
+
+.input {
+  background: var(--card);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.7rem;
+}
+
+.chart {
+  margin-top: 16px;
+  background: var(--card);
+  border-radius: 8px;
+}
+
+.chart_line {
+  stroke: var(--chart-line);
+}
+
+.chart_accent {
+  stroke: var(--chart-accent);
+  fill: var(--chart-accent);
+}

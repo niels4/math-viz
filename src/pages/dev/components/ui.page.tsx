@@ -3,7 +3,7 @@ import { useState } from "react"
 import type { ThemeSlug } from "#src/state/theme.ts"
 
 import { AlertStack, type AlertItem } from "#src/components/ui/AlertStack.tsx"
-import { Badge } from "#src/components/ui/Badge.tsx"
+import { Badge, type BadgeVariant } from "#src/components/ui/Badge.tsx"
 import { Button } from "#src/components/ui/Button.tsx"
 import { Checkbox } from "#src/components/ui/Checkbox.tsx"
 import { DataTable } from "#src/components/ui/DataTable.tsx"
@@ -21,11 +21,9 @@ import { TextField } from "#src/components/ui/TextField.tsx"
 import { ThemeSwitcher } from "#src/components/ui/ThemeSwitcher.tsx"
 import { TitleBlock } from "#src/components/ui/TitleBlock.tsx"
 import { TopBar } from "#src/components/ui/TopBar.tsx"
-import { type AppThemeStyles, useAppTheme } from "#src/components/ui/useAppTheme.ts"
+import { useAppTheme } from "#src/components/ui/useAppTheme.ts"
 
 import uiStyles from "./ui.page.module.css"
-
-type ThemeStyles = AppThemeStyles
 
 const FRAMEWORKS = ["React 18", "Vue 3", "Svelte 5", "Angular 17"] as const
 const TABS = ["Alerts", "Notifications", "Logs", "Activity"] as const
@@ -39,19 +37,19 @@ type Framework = (typeof FRAMEWORKS)[number]
 type Tab = (typeof TABS)[number]
 type Density = "Comfortable" | "Compact"
 
-const STATUS_BADGE: Record<string, (styles: ThemeStyles) => string> = {
-  Active: (styles) => styles.badge_success,
-  Deprecated: (styles) => styles.badge_warning,
-  Beta: (styles) => styles.badge_accent,
+const STATUS_BADGE: Record<string, BadgeVariant> = {
+  Active: "success",
+  Deprecated: "warning",
+  Beta: "accent",
 }
 
-function statusBadge(status: string, styles: ThemeStyles): string {
-  return STATUS_BADGE[status]?.(styles) ?? styles.badge_accent
+function statusBadge(status: string): BadgeVariant {
+  return STATUS_BADGE[status] ?? "accent"
 }
 
 export default function UiPage() {
   const [query, setQuery] = useState("")
-  const { themes, themeSlug, setThemeSlug, activeTheme, activeThemeLabel } = useAppTheme()
+  const { themes, themeSlug, setThemeSlug, themeClass, activeThemeLabel } = useAppTheme()
   const [darkMode, setDarkMode] = useState(true)
   const [email, setEmail] = useState("jane.design@arctiq.io")
   const [framework, setFramework] = useState<Framework>("React 18")
@@ -87,14 +85,10 @@ export default function UiPage() {
   const visibleAlerts = allAlerts.filter((alert) => !dismissed.has(alert.id))
 
   return (
-    <div className={activeTheme.theme}>
+    <div className={themeClass}>
       <div className={uiStyles.page} data-testid="ui-page">
         <div className={uiStyles.shell}>
-          <TopBar
-            query={query}
-            onQueryChange={setQuery}
-            actions={<SettingsMenu themeSlug={themeSlug} onSelect={setThemeSlug} />}
-          />
+          <TopBar query={query} onQueryChange={setQuery} actions={<SettingsMenu />} />
 
           <main className={uiStyles.main}>
             <TitleBlock
@@ -113,81 +107,42 @@ export default function UiPage() {
                 icon={<SlidersIcon />}
                 title="Theme"
                 titleId="ui-theme"
-                cardClass={activeTheme.card}
                 className={uiStyles.theme_section}
               >
                 <ThemeSwitcher
                   themes={themes}
                   activeSlug={themeSlug}
                   onSelect={(slug) => setThemeSlug(slug as ThemeSlug)}
-                  primaryClass={activeTheme.btn_primary}
-                  secondaryClass={activeTheme.btn_secondary}
                 />
               </SectionCard>
-              <SectionCard
-                icon={<ButtonIcon />}
-                title="Buttons"
-                titleId="ui-buttons"
-                cardClass={activeTheme.card}
-              >
+              <SectionCard icon={<ButtonIcon />} title="Buttons" titleId="ui-buttons">
                 <div className={uiStyles.button_stack}>
-                  <Button
-                    variant="primary"
-                    testId="control-button-primary"
-                    primaryClass={activeTheme.btn_primary}
-                    secondaryClass={activeTheme.btn_secondary}
-                  >
+                  <Button variant="primary" testId="control-button-primary">
                     Primary
                   </Button>
-                  <Button
-                    variant="secondary"
-                    testId="control-button-secondary"
-                    primaryClass={activeTheme.btn_primary}
-                    secondaryClass={activeTheme.btn_secondary}
-                  >
+                  <Button variant="secondary" testId="control-button-secondary">
                     Secondary
                   </Button>
-                  <Button
-                    variant="ghost"
-                    testId="control-button-ghost"
-                    primaryClass={activeTheme.btn_primary}
-                    secondaryClass={activeTheme.btn_secondary}
-                  >
+                  <Button variant="ghost" testId="control-button-ghost">
                     Ghost Outline
                   </Button>
-                  <Button
-                    variant="destructive"
-                    testId="control-button-destructive"
-                    primaryClass={activeTheme.btn_primary}
-                    secondaryClass={activeTheme.btn_secondary}
-                  >
+                  <Button variant="destructive" testId="control-button-destructive">
                     Destructive
                   </Button>
-                  <Button
-                    variant="disabled"
-                    primaryClass={activeTheme.btn_primary}
-                    secondaryClass={activeTheme.btn_secondary}
-                  >
-                    Disabled
-                  </Button>
+                  <Button variant="disabled">Disabled</Button>
                 </div>
               </SectionCard>
 
-              <SectionCard icon={<TagIcon />} title="Badges" titleId="ui-badges" cardClass={activeTheme.card}>
+              <SectionCard icon={<TagIcon />} title="Badges" titleId="ui-badges">
                 <div className={uiStyles.badge_grid}>
-                  <Badge toneClass={activeTheme.badge_accent}>Ice • Accent</Badge>
-                  <Badge toneClass={activeTheme.badge_success}>Success ✓</Badge>
-                  <Badge toneClass={activeTheme.badge_warning}>Warning !</Badge>
-                  <Badge toneClass={activeTheme.badge_destructive}>Destructive ✕</Badge>
+                  <Badge tone="accent">Ice • Accent</Badge>
+                  <Badge tone="success">Success ✓</Badge>
+                  <Badge tone="warning">Warning !</Badge>
+                  <Badge tone="destructive">Destructive ✕</Badge>
                 </div>
               </SectionCard>
 
-              <SectionCard
-                icon={<SlidersIcon />}
-                title="Form controls"
-                titleId="ui-form"
-                cardClass={activeTheme.card}
-              >
+              <SectionCard icon={<SlidersIcon />} title="Form controls" titleId="ui-form">
                 <div className={uiStyles.form_stack}>
                   <Field label="Email address" htmlFor="ui-email">
                     <TextField
@@ -197,7 +152,6 @@ export default function UiPage() {
                       testId="control-email"
                       value={email}
                       onChange={setEmail}
-                      inputClass={activeTheme.input}
                     />
                   </Field>
                   <Field label="Framework" htmlFor="ui-framework">
@@ -207,7 +161,6 @@ export default function UiPage() {
                       value={framework}
                       onChange={(next) => setFramework(next as Framework)}
                       options={FRAMEWORKS}
-                      inputClass={activeTheme.input}
                     />
                   </Field>
                   <Checkbox checked={telemetry} onChange={setTelemetry} testId="control-telemetry">
@@ -238,12 +191,7 @@ export default function UiPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard
-                icon={<SlidersIcon />}
-                title="Slider"
-                titleId="ui-slider"
-                cardClass={activeTheme.card}
-              >
+              <SectionCard icon={<SlidersIcon />} title="Slider" titleId="ui-slider">
                 <div className={uiStyles.slider_box}>
                   <div className={uiStyles.slider_head}>
                     <span className={uiStyles.slider_label}>Opacity</span>
@@ -259,8 +207,8 @@ export default function UiPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard icon={<TableIcon />} title="Data" titleId="ui-data" cardClass={activeTheme.card}>
-                <DataTable rows={TABLE_ROWS} statusTone={(status) => statusBadge(status, activeTheme)} />
+              <SectionCard icon={<TableIcon />} title="Data" titleId="ui-data">
+                <DataTable rows={TABLE_ROWS} statusTone={statusBadge} />
                 <Pagination
                   page={page}
                   pageCount={3}
@@ -269,12 +217,7 @@ export default function UiPage() {
                 />
               </SectionCard>
 
-              <SectionCard
-                icon={<BellIcon />}
-                title="Feedback"
-                titleId="ui-feedback"
-                cardClass={activeTheme.card}
-              >
+              <SectionCard icon={<BellIcon />} title="Feedback" titleId="ui-feedback">
                 <Tabs tabs={TABS} active={tab} onChange={setTab} />
                 {tab === "Alerts" ? (
                   <AlertStack alerts={visibleAlerts} onDismiss={dismissAlert} />

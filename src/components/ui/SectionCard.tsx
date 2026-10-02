@@ -6,7 +6,6 @@ export function SectionCard({
   icon,
   title,
   titleId,
-  cardClass,
   className,
   children,
   iconTone = "default",
@@ -14,7 +13,6 @@ export function SectionCard({
   icon: ReactNode
   title: string
   titleId: string
-  cardClass: string
   className?: string
   children: ReactNode
   iconTone?: "default" | "warn"
@@ -22,9 +20,7 @@ export function SectionCard({
   return (
     <section
       aria-labelledby={titleId}
-      className={
-        className ? `${cardClass} ${cardStyles.card} ${className}` : `${cardClass} ${cardStyles.card}`
-      }
+      className={className ? `${cardStyles.card} ${className}` : cardStyles.card}
     >
       <div className={cardStyles.card_head}>
         <span className={iconTone === "warn" ? cardStyles.card_icon_warn : cardStyles.card_icon}>{icon}</span>

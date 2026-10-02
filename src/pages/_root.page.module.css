@@ -57,6 +57,9 @@
   padding: 16px;
   color: var(--foreground);
   text-decoration: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
 .link_card:hover {

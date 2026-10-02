@@ -4,6 +4,11 @@
   width: 100%;
   max-width: 100%;
   min-width: 0;
+  padding: 0.45rem 0.7rem;
+  color: var(--foreground);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
 .field:focus-visible {

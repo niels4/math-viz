@@ -4,54 +4,38 @@ import buttonStyles from "./Button.module.css"
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive" | "disabled"
 
+const VARIANT_STYLES: Record<Exclude<ButtonVariant, "disabled">, string> = {
+  primary: buttonStyles.btn_primary,
+  secondary: buttonStyles.btn_secondary,
+  ghost: buttonStyles.btn_ghost,
+  destructive: buttonStyles.btn_destructive,
+}
+
 export function Button({
   variant,
   children,
-  primaryClass,
-  secondaryClass,
   testId,
   onClick,
 }: {
   variant: ButtonVariant
   children: ReactNode
-  primaryClass: string
-  secondaryClass: string
   testId?: string
   onClick?: () => void
 }) {
-  if (variant === "ghost") {
-    return (
-      <button type="button" data-testid={testId} className={buttonStyles.btn_ghost} onClick={onClick}>
-        {children}
-      </button>
-    )
-  }
-  if (variant === "destructive") {
-    return (
-      <button type="button" data-testid={testId} className={buttonStyles.btn_destructive} onClick={onClick}>
-        {children}
-      </button>
-    )
-  }
   if (variant === "disabled") {
     return (
       <button
         type="button"
         disabled
         data-testid={testId}
-        className={`${secondaryClass} ${buttonStyles.btn_disabled}`}
+        className={`${buttonStyles.btn_secondary} ${buttonStyles.btn_disabled}`}
       >
         {children}
       </button>
     )
   }
   return (
-    <button
-      type="button"
-      data-testid={testId}
-      className={variant === "primary" ? primaryClass : secondaryClass}
-      onClick={onClick}
-    >
+    <button type="button" data-testid={testId} className={VARIANT_STYLES[variant]} onClick={onClick}>
       {children}
     </button>
   )

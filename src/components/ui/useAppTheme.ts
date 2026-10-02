@@ -9,15 +9,13 @@ import sageTheme from "#src/style/themes/mathviz_sage_editorial.module.css"
 import tronTheme from "#src/style/themes/mathviz_tron_cyan.module.css"
 
 export const APP_THEMES = [
-  { slug: "arctic-ice", label: "Arctic Ice", styles: arcticTheme },
-  { slug: "tron-cyan", label: "Tron Cyan", styles: tronTheme },
-  { slug: "midnight-violet", label: "Midnight Violet", styles: violetTheme },
-  { slug: "clean-teal", label: "Clean Teal", styles: tealTheme },
-  { slug: "educational-warm", label: "Educational Warm", styles: warmTheme },
-  { slug: "sage-editorial", label: "Sage Editorial", styles: sageTheme },
+  { slug: "arctic-ice", label: "Arctic Ice", themeClass: arcticTheme.theme },
+  { slug: "tron-cyan", label: "Tron Cyan", themeClass: tronTheme.theme },
+  { slug: "midnight-violet", label: "Midnight Violet", themeClass: violetTheme.theme },
+  { slug: "clean-teal", label: "Clean Teal", themeClass: tealTheme.theme },
+  { slug: "educational-warm", label: "Educational Warm", themeClass: warmTheme.theme },
+  { slug: "sage-editorial", label: "Sage Editorial", themeClass: sageTheme.theme },
 ] as const
-
-export type AppThemeStyles = (typeof APP_THEMES)[number]["styles"]
 
 export function useAppTheme() {
   const [themeSlug, setThemeSlug] = useAtom(themeAtom)
@@ -26,7 +24,7 @@ export function useAppTheme() {
     themes: APP_THEMES,
     themeSlug,
     setThemeSlug,
-    activeTheme: selection.styles,
+    themeClass: selection.themeClass,
     activeThemeLabel: selection.label,
   }
 }

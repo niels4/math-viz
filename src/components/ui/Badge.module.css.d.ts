@@ -3,6 +3,10 @@
 // prettier-ignore
 declare const styles: {
   readonly "badge": string;
+  readonly "badge_accent": string;
+  readonly "badge_destructive": string;
+  readonly "badge_success": string;
+  readonly "badge_warning": string;
   readonly "pill": string;
 };
 export = styles;

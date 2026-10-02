@@ -9,14 +9,10 @@ export function ThemeSwitcher({
   themes,
   activeSlug,
   onSelect,
-  primaryClass,
-  secondaryClass,
 }: {
   themes: ReadonlyArray<ThemeOption>
   activeSlug: string
   onSelect: (slug: string) => void
-  primaryClass: string
-  secondaryClass: string
 }) {
   return (
     <div className={switcherStyles.theme_group} role="group" aria-label="Theme" data-testid="theme-switcher">
@@ -28,8 +24,8 @@ export function ThemeSwitcher({
           data-testid={`theme-${theme.slug}`}
           className={
             theme.slug === activeSlug
-              ? `${primaryClass} ${switcherStyles.theme_btn}`
-              : `${secondaryClass} ${switcherStyles.theme_btn}`
+              ? `${switcherStyles.theme_btn} ${switcherStyles.theme_btn_active}`
+              : `${switcherStyles.theme_btn} ${switcherStyles.theme_btn_idle}`
           }
           onClick={() => onSelect(theme.slug)}
         >
