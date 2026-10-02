@@ -11,26 +11,26 @@ import tronTheme from "#src/style/themes/mathviz_tron_cyan.module.css"
 export const DARK_THEME_SLUGS = ["arctic-ice", "tron-cyan", "midnight-violet"] as const
 export const LIGHT_THEME_SLUGS = ["clean-teal", "educational-warm", "sage-editorial"] as const
 
+const DEFAULT_SLUG = DARK_THEME_SLUGS[0]
+
 export type ThemeSlug = (typeof DARK_THEME_SLUGS)[number] | (typeof LIGHT_THEME_SLUGS)[number]
 
-export const THEME_LABELS: Record<ThemeSlug, string> = {
-  "arctic-ice": "Arctic Ice",
-  "tron-cyan": "Tron Cyan",
-  "midnight-violet": "Midnight Violet",
-  "clean-teal": "Clean Teal",
-  "educational-warm": "Educational Warm",
-  "sage-editorial": "Sage Editorial",
+export type ThemeDef = {
+  label: string
+  className: string
 }
 
-function isThemeSlug(value: unknown): value is ThemeSlug {
-  return (
-    value === "arctic-ice" ||
-    value === "tron-cyan" ||
-    value === "midnight-violet" ||
-    value === "clean-teal" ||
-    value === "educational-warm" ||
-    value === "sage-editorial"
-  )
+export const appThemes: Record<ThemeSlug, ThemeDef> = {
+  "arctic-ice": { label: "Arctic Ice", className: arcticTheme.theme },
+  "tron-cyan": { label: "Tron Cyan", className: tronTheme.theme },
+  "midnight-violet": { label: "Midnight Violet", className: violetTheme.theme },
+  "clean-teal": { label: "Clean Teal", className: tealTheme.theme },
+  "educational-warm": { label: "Educational Warm", className: warmTheme.theme },
+  "sage-editorial": { label: "Sage Editorial", className: sageTheme.theme },
+} as const
+
+const isThemeSlug = (slug: string): slug is ThemeSlug => {
+  return Object.hasOwn(appThemes, slug)
 }
 
 const jsonStorage = createJSONStorage<ThemeSlug>(() => localStorage)
@@ -67,27 +67,17 @@ const validatedStorage = {
  * or `useSetAtom(themeAtom)` to write — no prop drilling, no context.
  * Persisted to localStorage so the choice survives reloads.
  */
-export const themeAtom = atomWithStorage<ThemeSlug>("mathviz-theme", "arctic-ice", validatedStorage, {
+export const themeAtom = atomWithStorage<ThemeSlug>("mathviz-theme", DEFAULT_SLUG, validatedStorage, {
   getOnInit: true,
 })
 
-export const APP_THEMES = [
-  { slug: "arctic-ice", label: "Arctic Ice", themeClass: arcticTheme.theme },
-  { slug: "tron-cyan", label: "Tron Cyan", themeClass: tronTheme.theme },
-  { slug: "midnight-violet", label: "Midnight Violet", themeClass: violetTheme.theme },
-  { slug: "clean-teal", label: "Clean Teal", themeClass: tealTheme.theme },
-  { slug: "educational-warm", label: "Educational Warm", themeClass: warmTheme.theme },
-  { slug: "sage-editorial", label: "Sage Editorial", themeClass: sageTheme.theme },
-] as const
-
 export function useAppTheme() {
   const [themeSlug, setThemeSlug] = useAtom(themeAtom)
-  const selection = APP_THEMES.find((theme) => theme.slug === themeSlug) ?? APP_THEMES[0]
+  const selection = appThemes[themeSlug]
   return {
-    themes: APP_THEMES,
     themeSlug,
     setThemeSlug,
-    themeClass: selection.themeClass,
-    activeThemeLabel: selection.label,
+    themeClass: selection.className,
+    themeLabel: selection.label,
   }
 }

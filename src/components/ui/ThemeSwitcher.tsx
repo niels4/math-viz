@@ -1,35 +1,25 @@
+import { appThemes, useAppTheme, type ThemeSlug } from "#src/state/useAppTheme.ts"
+
 import switcherStyles from "./ThemeSwitcher.module.css"
 
-export type ThemeOption = {
-  slug: string
-  label: string
-}
-
-export function ThemeSwitcher({
-  themes,
-  activeSlug,
-  onSelect,
-}: {
-  themes: ReadonlyArray<ThemeOption>
-  activeSlug: string
-  onSelect: (slug: string) => void
-}) {
+export function ThemeSwitcher() {
+  const { themeSlug, setThemeSlug } = useAppTheme()
   return (
     <div className={switcherStyles.theme_group} role="group" aria-label="Theme" data-testid="theme-switcher">
-      {themes.map((theme) => (
+      {Object.entries(appThemes).map(([slug, { label }]) => (
         <button
-          key={theme.slug}
+          key={slug}
           type="button"
-          aria-pressed={theme.slug === activeSlug}
-          data-testid={`theme-${theme.slug}`}
+          aria-pressed={slug === themeSlug}
+          data-testid={`theme-${slug}`}
           className={
-            theme.slug === activeSlug
+            slug === themeSlug
               ? `${switcherStyles.theme_btn} ${switcherStyles.theme_btn_active}`
               : `${switcherStyles.theme_btn} ${switcherStyles.theme_btn_idle}`
           }
-          onClick={() => onSelect(theme.slug)}
+          onClick={() => setThemeSlug(slug as ThemeSlug)}
         >
-          {theme.label}
+          {label}
         </button>
       ))}
     </div>

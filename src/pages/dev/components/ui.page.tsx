@@ -1,7 +1,5 @@
 import { useState } from "react"
 
-import type { ThemeSlug } from "#src/state/useAppTheme.ts"
-
 import { AlertStack, type AlertItem } from "#src/components/ui/AlertStack.tsx"
 import { Badge, type BadgeVariant } from "#src/components/ui/Badge.tsx"
 import { Button } from "#src/components/ui/Button.tsx"
@@ -49,7 +47,7 @@ function statusBadge(status: string): BadgeVariant {
 
 export default function UiPage() {
   const [query, setQuery] = useState("")
-  const { themes, themeSlug, setThemeSlug, themeClass, activeThemeLabel } = useAppTheme()
+  const { themeClass, themeLabel } = useAppTheme()
   const [darkMode, setDarkMode] = useState(true)
   const [email, setEmail] = useState("jane.design@arctiq.io")
   const [framework, setFramework] = useState<Framework>("React 18")
@@ -96,7 +94,7 @@ export default function UiPage() {
               version="v1.4.0"
               subtitle={
                 <>
-                  A fully accessible, {activeThemeLabel.toLowerCase()} design system. Built for production,
+                  A fully accessible, {themeLabel.toLowerCase()} design system. Built for production,
                   documented and ready to use.
                 </>
               }
@@ -109,11 +107,7 @@ export default function UiPage() {
                 titleId="ui-theme"
                 className={uiStyles.theme_section}
               >
-                <ThemeSwitcher
-                  themes={themes}
-                  activeSlug={themeSlug}
-                  onSelect={(slug) => setThemeSlug(slug as ThemeSlug)}
-                />
+                <ThemeSwitcher />
               </SectionCard>
               <SectionCard icon={<ButtonIcon />} title="Buttons" titleId="ui-buttons">
                 <div className={uiStyles.button_stack}>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 
-import { DARK_THEME_SLUGS, LIGHT_THEME_SLUGS, THEME_LABELS } from "#src/state/useAppTheme.ts"
+import { DARK_THEME_SLUGS, LIGHT_THEME_SLUGS, appThemes } from "#src/state/useAppTheme.ts"
 
 import { useAppTheme } from "../../state/useAppTheme.ts"
 import { GearIcon } from "./icons.tsx"
@@ -85,7 +85,7 @@ export function SettingsMenu() {
                     <span className={menuStyles.settings_check} aria-hidden="true">
                       {selected ? "✓" : ""}
                     </span>
-                    {THEME_LABELS[slug]}
+                    {appThemes[slug].label}
                   </button>
                 )
               })}
