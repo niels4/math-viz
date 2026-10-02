@@ -21,7 +21,12 @@ export type AppThemeStyles = (typeof APP_THEMES)[number]["styles"]
 
 export function useAppTheme() {
   const [themeSlug, setThemeSlug] = useAtom(themeAtom)
-  const activeTheme = APP_THEMES.find((theme) => theme.slug === themeSlug)?.styles ?? arcticTheme
-  const activeThemeLabel = APP_THEMES.find((theme) => theme.slug === themeSlug)?.label ?? "Arctic Ice"
-  return { themes: APP_THEMES, themeSlug, setThemeSlug, activeTheme, activeThemeLabel }
+  const selection = APP_THEMES.find((theme) => theme.slug === themeSlug) ?? APP_THEMES[0]
+  return {
+    themes: APP_THEMES,
+    themeSlug,
+    setThemeSlug,
+    activeTheme: selection.styles,
+    activeThemeLabel: selection.label,
+  }
 }
