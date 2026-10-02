@@ -55,7 +55,7 @@ function statusBadge(status: string): BadgeVariant {
 
 export default function UiPage() {
   const [query, setQuery] = useState("")
-  const { themeClass, themeLabel } = useAppTheme()
+  const { themeLabel } = useAppTheme()
   const [darkMode, setDarkMode] = useState(true)
   const [email, setEmail] = useState("jane.design@arctiq.io")
   const [framework, setFramework] = useState<Framework>("React 18")
@@ -91,147 +91,145 @@ export default function UiPage() {
   const visibleAlerts = allAlerts.filter((alert) => !dismissed.has(alert.id))
 
   return (
-    <div className={themeClass}>
-      <div className={uiStyles.page} data-testid="ui-page">
-        <div className={uiStyles.shell}>
-          <TopBar query={query} onQueryChange={setQuery} actions={<SettingsMenu />} />
+    <div className={uiStyles.page} data-testid="ui-page">
+      <div className={uiStyles.shell}>
+        <TopBar query={query} onQueryChange={setQuery} actions={<SettingsMenu />} />
 
-          <main className={uiStyles.main}>
-            <TitleBlock
-              title="Component Library"
-              version="v1.4.0"
-              subtitle={
-                <>
-                  A fully accessible, {themeLabel.toLowerCase()} design system. Built for production,
-                  documented and ready to use.
-                </>
-              }
-            />
+        <main className={uiStyles.main}>
+          <TitleBlock
+            title="Component Library"
+            version="v1.4.0"
+            subtitle={
+              <>
+                A fully accessible, {themeLabel.toLowerCase()} design system. Built for production, documented
+                and ready to use.
+              </>
+            }
+          />
 
-            <div className={uiStyles.grid}>
-              <SectionCard
-                icon={<SlidersIcon />}
-                title="Theme"
-                titleId="ui-theme"
-                className={uiStyles.theme_section}
-              >
-                <ThemeSwitcher />
-              </SectionCard>
-              <SectionCard icon={<ButtonIcon />} title="Buttons" titleId="ui-buttons">
-                <div className={uiStyles.button_stack}>
-                  <Button variant="primary" testId="control-button-primary">
-                    Primary
-                  </Button>
-                  <Button variant="secondary" testId="control-button-secondary">
-                    Secondary
-                  </Button>
-                  <Button variant="ghost" testId="control-button-ghost">
-                    Ghost Outline
-                  </Button>
-                  <Button variant="destructive" testId="control-button-destructive">
-                    Destructive
-                  </Button>
-                  <Button variant="disabled">Disabled</Button>
-                </div>
-              </SectionCard>
+          <div className={uiStyles.grid}>
+            <SectionCard
+              icon={<SlidersIcon />}
+              title="Theme"
+              titleId="ui-theme"
+              className={uiStyles.theme_section}
+            >
+              <ThemeSwitcher />
+            </SectionCard>
+            <SectionCard icon={<ButtonIcon />} title="Buttons" titleId="ui-buttons">
+              <div className={uiStyles.button_stack}>
+                <Button variant="primary" testId="control-button-primary">
+                  Primary
+                </Button>
+                <Button variant="secondary" testId="control-button-secondary">
+                  Secondary
+                </Button>
+                <Button variant="ghost" testId="control-button-ghost">
+                  Ghost Outline
+                </Button>
+                <Button variant="destructive" testId="control-button-destructive">
+                  Destructive
+                </Button>
+                <Button variant="disabled">Disabled</Button>
+              </div>
+            </SectionCard>
 
-              <SectionCard icon={<TagIcon />} title="Badges" titleId="ui-badges">
-                <div className={uiStyles.badge_grid}>
-                  <Badge tone="accent">Ice • Accent</Badge>
-                  <Badge tone="success">Success ✓</Badge>
-                  <Badge tone="warning">Warning !</Badge>
-                  <Badge tone="destructive">Destructive ✕</Badge>
-                </div>
-              </SectionCard>
+            <SectionCard icon={<TagIcon />} title="Badges" titleId="ui-badges">
+              <div className={uiStyles.badge_grid}>
+                <Badge tone="accent">Ice • Accent</Badge>
+                <Badge tone="success">Success ✓</Badge>
+                <Badge tone="warning">Warning !</Badge>
+                <Badge tone="destructive">Destructive ✕</Badge>
+              </div>
+            </SectionCard>
 
-              <SectionCard icon={<SlidersIcon />} title="Form controls" titleId="ui-form">
-                <div className={uiStyles.form_stack}>
-                  <Field label="Email address" htmlFor="ui-email">
-                    <TextField
-                      id="ui-email"
-                      type="email"
-                      autoComplete="email"
-                      testId="control-email"
-                      value={email}
-                      onChange={setEmail}
-                    />
-                  </Field>
-                  <Field label="Framework" htmlFor="ui-framework">
-                    <Select
-                      id="ui-framework"
-                      testId="control-framework"
-                      value={framework}
-                      onChange={(next) => setFramework(next as Framework)}
-                      options={FRAMEWORKS}
-                    />
-                  </Field>
-                  <Checkbox checked={telemetry} onChange={setTelemetry} testId="control-telemetry">
-                    Enable telemetry
-                  </Checkbox>
-                  <RadioGroup
-                    legend="Density"
-                    name="ui-density"
-                    options={["Comfortable", "Compact"] as const}
-                    value={density}
-                    onChange={setDensity}
-                    testIdPrefix="control-density-"
+            <SectionCard icon={<SlidersIcon />} title="Form controls" titleId="ui-form">
+              <div className={uiStyles.form_stack}>
+                <Field label="Email address" htmlFor="ui-email">
+                  <TextField
+                    id="ui-email"
+                    type="email"
+                    autoComplete="email"
+                    testId="control-email"
+                    value={email}
+                    onChange={setEmail}
                   />
-                  <div className={uiStyles.dark_row}>
-                    <span className={uiStyles.dark_label}>Dark mode</span>
-                    <span className={uiStyles.dark_control}>
-                      <span className={uiStyles.dark_state} data-testid="dark-mode-state">
-                        {darkMode ? "ON" : "OFF"}
-                      </span>
-                      <Switch
-                        checked={darkMode}
-                        onChange={setDarkMode}
-                        label="Dark mode"
-                        testId="control-dark-mode"
-                      />
-                    </span>
-                  </div>
-                </div>
-              </SectionCard>
-
-              <SectionCard icon={<SlidersIcon />} title="Slider" titleId="ui-slider">
-                <div className={uiStyles.slider_box}>
-                  <div className={uiStyles.slider_head}>
-                    <span className={uiStyles.slider_label}>Opacity</span>
-                    <span className={uiStyles.slider_value} data-testid="readout-opacity">
-                      {opacity}%
-                    </span>
-                  </div>
-                  <Slider value={opacity} onChange={setOpacity} label="Opacity" testId="control-opacity" />
-                  <div className={uiStyles.slider_scale} aria-hidden="true">
-                    <span>0%</span>
-                    <span>100%</span>
-                  </div>
-                </div>
-              </SectionCard>
-
-              <SectionCard icon={<TableIcon />} title="Data" titleId="ui-data">
-                <DataTable rows={TABLE_ROWS} statusTone={statusBadge} />
-                <Pagination
-                  page={page}
-                  pageCount={3}
-                  onChange={setPage}
-                  countLabel="Showing 1–3 of 24 results"
+                </Field>
+                <Field label="Framework" htmlFor="ui-framework">
+                  <Select
+                    id="ui-framework"
+                    testId="control-framework"
+                    value={framework}
+                    onChange={(next) => setFramework(next as Framework)}
+                    options={FRAMEWORKS}
+                  />
+                </Field>
+                <Checkbox checked={telemetry} onChange={setTelemetry} testId="control-telemetry">
+                  Enable telemetry
+                </Checkbox>
+                <RadioGroup
+                  legend="Density"
+                  name="ui-density"
+                  options={["Comfortable", "Compact"] as const}
+                  value={density}
+                  onChange={setDensity}
+                  testIdPrefix="control-density-"
                 />
-              </SectionCard>
+                <div className={uiStyles.dark_row}>
+                  <span className={uiStyles.dark_label}>Dark mode</span>
+                  <span className={uiStyles.dark_control}>
+                    <span className={uiStyles.dark_state} data-testid="dark-mode-state">
+                      {darkMode ? "ON" : "OFF"}
+                    </span>
+                    <Switch
+                      checked={darkMode}
+                      onChange={setDarkMode}
+                      label="Dark mode"
+                      testId="control-dark-mode"
+                    />
+                  </span>
+                </div>
+              </div>
+            </SectionCard>
 
-              <SectionCard icon={<BellIcon />} title="Feedback" titleId="ui-feedback">
-                <Tabs tabs={TABS} active={tab} onChange={setTab} />
-                {tab === "Alerts" ? (
-                  <AlertStack alerts={visibleAlerts} onDismiss={dismissAlert} />
-                ) : (
-                  <p className={uiStyles.tab_empty}>
-                    No {tab.toLowerCase()} yet — switch back to Alerts to review notifications.
-                  </p>
-                )}
-              </SectionCard>
-            </div>
-          </main>
-        </div>
+            <SectionCard icon={<SlidersIcon />} title="Slider" titleId="ui-slider">
+              <div className={uiStyles.slider_box}>
+                <div className={uiStyles.slider_head}>
+                  <span className={uiStyles.slider_label}>Opacity</span>
+                  <span className={uiStyles.slider_value} data-testid="readout-opacity">
+                    {opacity}%
+                  </span>
+                </div>
+                <Slider value={opacity} onChange={setOpacity} label="Opacity" testId="control-opacity" />
+                <div className={uiStyles.slider_scale} aria-hidden="true">
+                  <span>0%</span>
+                  <span>100%</span>
+                </div>
+              </div>
+            </SectionCard>
+
+            <SectionCard icon={<TableIcon />} title="Data" titleId="ui-data">
+              <DataTable rows={TABLE_ROWS} statusTone={statusBadge} />
+              <Pagination
+                page={page}
+                pageCount={3}
+                onChange={setPage}
+                countLabel="Showing 1–3 of 24 results"
+              />
+            </SectionCard>
+
+            <SectionCard icon={<BellIcon />} title="Feedback" titleId="ui-feedback">
+              <Tabs tabs={TABS} active={tab} onChange={setTab} />
+              {tab === "Alerts" ? (
+                <AlertStack alerts={visibleAlerts} onDismiss={dismissAlert} />
+              ) : (
+                <p className={uiStyles.tab_empty}>
+                  No {tab.toLowerCase()} yet — switch back to Alerts to review notifications.
+                </p>
+              )}
+            </SectionCard>
+          </div>
+        </main>
       </div>
     </div>
   )

@@ -1,5 +1,3 @@
-import cn from "classnames"
-
 import {
   SectionCard,
   SettingsMenu,
@@ -8,14 +6,12 @@ import {
   TitleBlock,
   TopBar,
 } from "#src/components/ui/index.ts"
-import { useAppTheme } from "#src/state/useAppTheme.ts"
 
 import style from "./_root.page.module.css"
 
 const RootPage = () => {
-  const { themeClass } = useAppTheme()
   return (
-    <div className={cn(themeClass, style.page)} data-testid="root-view">
+    <div className={style.page} data-testid="root-view">
       <div className={style.shell}>
         <TopBar actions={<SettingsMenu />} />
         <main className={style.main}>

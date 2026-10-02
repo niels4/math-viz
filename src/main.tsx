@@ -1,4 +1,4 @@
-import { StrictMode } from "react"
+import { StrictMode, useEffect } from "react"
 import { createRoot } from "react-dom/client"
 
 import routes from "#generated/routes.ts"
@@ -6,8 +6,22 @@ import routes from "#generated/routes.ts"
 import { Router } from "./components/router/Router.tsx"
 import "#src/style/global.css"
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Router routes={routes} />
-  </StrictMode>,
-)
+import { useAppTheme } from "./state/useAppTheme.ts"
+
+const rootElement = document.getElementById("root")!
+
+export const Root = () => {
+  const { themeClass } = useAppTheme()
+
+  useEffect(() => {
+    document.body.className = themeClass
+  }, [themeClass])
+
+  return (
+    <StrictMode>
+      <Router routes={routes} />
+    </StrictMode>
+  )
+}
+
+createRoot(rootElement).render(<Root />)
