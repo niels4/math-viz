@@ -16,7 +16,7 @@ export default function CartesianPlanePage() {
     const dpr = window.devicePixelRatio ?? 1
     canvas.width = Math.max(1, Math.round(width * dpr))
     canvas.height = Math.max(1, Math.round(height * dpr))
-    const ctx = canvas.getContext("2d")
+    const ctx = canvas.getContext("2d", { colorSpace: "display-p3" }) ?? canvas.getContext("2d")
     if (ctx === null) {
       return
     }
