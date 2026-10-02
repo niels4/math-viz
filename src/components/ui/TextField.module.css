@@ -1,6 +1,5 @@
 /* Fix (overflow): controls must stay inside their card. */
 .field {
-  box-sizing: border-box;
   width: 100%;
   max-width: 100%;
   min-width: 0;

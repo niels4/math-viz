@@ -29,6 +29,15 @@ select {
   font: inherit;
 }
 
+html {
+  box-sizing: border-box;
+}
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
 /* *** */
 
 /* App takes up full screen */

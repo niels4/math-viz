@@ -1,5 +1,4 @@
 .page {
-  box-sizing: border-box;
   min-height: 100vh;
   padding: 24px;
   background: var(--background);

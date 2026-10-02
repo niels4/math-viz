@@ -1,24 +1,32 @@
 import { useState } from "react"
 
-import { AlertStack, type AlertItem } from "#src/components/ui/AlertStack.tsx"
-import { Badge, type BadgeVariant } from "#src/components/ui/Badge.tsx"
-import { Button } from "#src/components/ui/Button.tsx"
-import { Checkbox } from "#src/components/ui/Checkbox.tsx"
-import { DataTable } from "#src/components/ui/DataTable.tsx"
-import { Field } from "#src/components/ui/Field.tsx"
-import { BellIcon, ButtonIcon, SlidersIcon, TableIcon, TagIcon } from "#src/components/ui/icons.tsx"
-import { Pagination } from "#src/components/ui/Pagination.tsx"
-import { RadioGroup } from "#src/components/ui/RadioGroup.tsx"
-import { SectionCard } from "#src/components/ui/SectionCard.tsx"
-import { Select } from "#src/components/ui/Select.tsx"
-import { SettingsMenu } from "#src/components/ui/SettingsMenu.tsx"
-import { Slider } from "#src/components/ui/Slider.tsx"
-import { Switch } from "#src/components/ui/Switch.tsx"
-import { Tabs } from "#src/components/ui/Tabs.tsx"
-import { TextField } from "#src/components/ui/TextField.tsx"
+import {
+  AlertStack,
+  Badge,
+  BellIcon,
+  Button,
+  ButtonIcon,
+  Checkbox,
+  DataTable,
+  Field,
+  Pagination,
+  RadioGroup,
+  SectionCard,
+  Select,
+  SettingsMenu,
+  Slider,
+  SlidersIcon,
+  Switch,
+  TableIcon,
+  Tabs,
+  TagIcon,
+  TextField,
+  TitleBlock,
+  TopBar,
+  type AlertItem,
+  type BadgeVariant,
+} from "#src/components/ui/index.ts"
 import { ThemeSwitcher } from "#src/components/ui/ThemeSwitcher.tsx"
-import { TitleBlock } from "#src/components/ui/TitleBlock.tsx"
-import { TopBar } from "#src/components/ui/TopBar.tsx"
 import { useAppTheme } from "#src/state/useAppTheme.ts"
 
 import uiStyles from "./ui.page.module.css"
