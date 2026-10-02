@@ -1,5 +1,6 @@
 import { useAtom } from "jotai"
 import { atomWithStorage, createJSONStorage } from "jotai/utils"
+import { useMemo } from "react"
 
 import arcticTheme from "#src/style/themes/mathviz_arctic_ice.module.css"
 import tealTheme from "#src/style/themes/mathviz_clean_teal.module.css"
@@ -73,13 +74,38 @@ export const themeAtom = atomWithStorage<ThemeSlug>("mathviz-theme", DEFAULT_SLU
   getOnInit: true,
 })
 
+export const THEME_VAR_NAMES = ["--background", "--foreground", "--chart-line", "--chart-accent"] as const
+
+export type ThemeVarName = (typeof THEME_VAR_NAMES)[number]
+
+const readVarsForClass = (className: string, names: readonly string[]) => {
+  const out: Record<string, string> = {}
+  const el = document.createElement("div")
+  el.className = className
+  el.setAttribute("aria-hidden", "true")
+  el.style.cssText = "position:absolute;visibility:hidden;pointer-events:none;"
+  document.body.appendChild(el)
+  const cs = getComputedStyle(el)
+  for (const name of names) {
+    out[name] = cs.getPropertyValue(name).trim()
+  }
+  el.remove()
+  return out
+}
+
 export function useAppTheme() {
   const [themeSlug, setThemeSlug] = useAtom(themeAtom)
   const selection = appThemes[themeSlug]
+  const themeVars = useMemo(
+    () => readVarsForClass(selection.className, THEME_VAR_NAMES),
+    [selection.className],
+  )
+
   return {
     themeSlug,
     setThemeSlug,
     themeClass: selection.className,
     themeLabel: selection.label,
+    themeVars,
   }
 }
