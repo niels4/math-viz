@@ -18,9 +18,13 @@ export function Slider({
 
   const setFromClientX = (clientX: number) => {
     const track = trackRef.current
-    if (track === null) return
+    if (track === null) {
+      return
+    }
     const rect = track.getBoundingClientRect()
-    if (rect.width === 0) return
+    if (rect.width === 0) {
+      return
+    }
     const ratio = (clientX - rect.left) / rect.width
     onChange(Math.round(Math.min(100, Math.max(0, ratio * 100))))
   }
@@ -32,7 +36,9 @@ export function Slider({
   }
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (!draggingRef.current) return
+    if (!draggingRef.current) {
+      return
+    }
     setFromClientX(event.clientX)
   }
 

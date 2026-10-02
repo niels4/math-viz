@@ -7,20 +7,31 @@ export const useResizeObserver = <T extends HTMLElement = HTMLDivElement>() => {
 
   useEffect(() => {
     const el = ref.current
-    if (el === null) return
+    if (el === null) {
+      return
+    }
+
     const report = (newWidth: number, newHeight: number) => {
       setWidth(newWidth)
       setHeight(newHeight)
     }
+
     const rect = el.getBoundingClientRect()
     report(rect.width, rect.height)
-    if (typeof ResizeObserver !== "function") return
+
+    if (typeof ResizeObserver !== "function") {
+      return
+    }
+
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0]
-      if (entry === undefined) return
+      if (entry === undefined) {
+        return
+      }
       report(entry.contentRect.width, entry.contentRect.height)
     })
     observer.observe(el)
+
     return () => {
       observer.disconnect()
     }

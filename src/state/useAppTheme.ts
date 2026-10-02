@@ -51,7 +51,9 @@ const validatedStorage = {
     jsonStorage.removeItem(key)
   },
   subscribe: (key: string, callback: (value: ThemeSlug) => void, initialValue: ThemeSlug) => {
-    if (jsonStorage.subscribe === undefined) return undefined
+    if (jsonStorage.subscribe === undefined) {
+      return undefined
+    }
     return jsonStorage.subscribe(
       key,
       (value) => {

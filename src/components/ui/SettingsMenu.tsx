@@ -12,7 +12,9 @@ export function SettingsMenu() {
   const wrapRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    if (!open) return
+    if (!open) {
+      return
+    }
     const handlePointerDown = (event: globalThis.PointerEvent) => {
       if (wrapRef.current !== null && !wrapRef.current.contains(event.target as Node)) {
         setOpen(false)
