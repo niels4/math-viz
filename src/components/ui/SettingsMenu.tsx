@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react"
 
-import { DARK_THEME_SLUGS, LIGHT_THEME_SLUGS, THEME_LABELS } from "#src/state/theme.ts"
+import { DARK_THEME_SLUGS, LIGHT_THEME_SLUGS, THEME_LABELS } from "#src/state/useAppTheme.ts"
 
+import { useAppTheme } from "../../state/useAppTheme.ts"
 import { GearIcon } from "./icons.tsx"
 import menuStyles from "./SettingsMenu.module.css"
-import { useAppTheme } from "./useAppTheme.ts"
 
 export function SettingsMenu() {
   const { themeSlug, setThemeSlug } = useAppTheme()

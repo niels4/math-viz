@@ -3,7 +3,7 @@ import { SectionCard } from "#src/components/ui/SectionCard.tsx"
 import { SettingsMenu } from "#src/components/ui/SettingsMenu.tsx"
 import { TitleBlock } from "#src/components/ui/TitleBlock.tsx"
 import { TopBar } from "#src/components/ui/TopBar.tsx"
-import { useAppTheme } from "#src/components/ui/useAppTheme.ts"
+import { useAppTheme } from "#src/state/useAppTheme.ts"
 
 import style from "./_root.page.module.css"
 

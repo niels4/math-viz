@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import type { ThemeSlug } from "#src/state/theme.ts"
+import type { ThemeSlug } from "#src/state/useAppTheme.ts"
 
 import { AlertStack, type AlertItem } from "#src/components/ui/AlertStack.tsx"
 import { Badge, type BadgeVariant } from "#src/components/ui/Badge.tsx"
@@ -21,7 +21,7 @@ import { TextField } from "#src/components/ui/TextField.tsx"
 import { ThemeSwitcher } from "#src/components/ui/ThemeSwitcher.tsx"
 import { TitleBlock } from "#src/components/ui/TitleBlock.tsx"
 import { TopBar } from "#src/components/ui/TopBar.tsx"
-import { useAppTheme } from "#src/components/ui/useAppTheme.ts"
+import { useAppTheme } from "#src/state/useAppTheme.ts"
 
 import uiStyles from "./ui.page.module.css"
 
