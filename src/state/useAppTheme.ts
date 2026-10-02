@@ -78,7 +78,7 @@ export const THEME_VAR_NAMES = ["--background", "--foreground", "--chart-line", 
 
 export type ThemeVarName = (typeof THEME_VAR_NAMES)[number]
 
-const readVarsForClass = (className: string, names: readonly string[]) => {
+const readVarsForClass = (className: string, names: readonly string[]): Record<ThemeVarName, string> => {
   const out: Record<string, string> = {}
   const el = document.createElement("div")
   el.className = className
