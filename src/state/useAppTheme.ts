@@ -80,6 +80,18 @@ export type ThemeVars = {
   chartLine: string
   chartAccent: string
   chartGrid: string
+  ordinal01: string
+  ordinal02: string
+  ordinal03: string
+  ordinal04: string
+  ordinal05: string
+  ordinal06: string
+  ordinal07: string
+  ordinal08: string
+  ordinal09: string
+  ordinal10: string
+  ordinal11: string
+  ordinal12: string
 }
 
 type ThemeVarKey = keyof ThemeVars
@@ -90,6 +102,18 @@ const themeVarMapping: Record<string, ThemeVarKey> = {
   "--chart-line": "chartLine",
   "--chart-accent": "chartAccent",
   "--chart-grid": "chartGrid",
+  "--ordinal-01": "ordinal01",
+  "--ordinal-02": "ordinal02",
+  "--ordinal-03": "ordinal03",
+  "--ordinal-04": "ordinal04",
+  "--ordinal-05": "ordinal05",
+  "--ordinal-06": "ordinal06",
+  "--ordinal-07": "ordinal07",
+  "--ordinal-08": "ordinal08",
+  "--ordinal-09": "ordinal09",
+  "--ordinal-10": "ordinal10",
+  "--ordinal-11": "ordinal11",
+  "--ordinal-12": "ordinal12",
 }
 
 const readVarsForClass = (className: string): ThemeVars => {
