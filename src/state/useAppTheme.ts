@@ -74,32 +74,43 @@ export const themeAtom = atomWithStorage<ThemeSlug>("mathviz-theme", DEFAULT_SLU
   getOnInit: true,
 })
 
-export const THEME_VAR_NAMES = ["--background", "--foreground", "--chart-line", "--chart-accent"] as const
+export type ThemeVars = {
+  background: string
+  foreground: string
+  chartLine: string
+  chartAccent: string
+  chartGrid: string
+}
 
-export type ThemeVarName = (typeof THEME_VAR_NAMES)[number]
+type ThemeVarKey = keyof ThemeVars
 
-const readVarsForClass = (className: string, names: readonly string[]): Record<ThemeVarName, string> => {
-  const out: Record<string, string> = {}
+const themeVarMapping: Record<string, ThemeVarKey> = {
+  "--background": "background",
+  "--foreground": "foreground",
+  "--chart-line": "chartLine",
+  "--chart-accent": "chartAccent",
+  "--chart-grid": "chartGrid",
+}
+
+const readVarsForClass = (className: string): ThemeVars => {
+  const out: Partial<ThemeVars> = {}
   const el = document.createElement("div")
   el.className = className
   el.setAttribute("aria-hidden", "true")
   el.style.cssText = "position:absolute;visibility:hidden;pointer-events:none;"
   document.body.appendChild(el)
   const cs = getComputedStyle(el)
-  for (const name of names) {
-    out[name] = cs.getPropertyValue(name).trim()
+  for (const [cssVar, outKey] of Object.entries(themeVarMapping)) {
+    out[outKey] = cs.getPropertyValue(cssVar).trim()
   }
   el.remove()
-  return out
+  return out as ThemeVars
 }
 
 export function useAppTheme() {
   const [themeSlug, setThemeSlug] = useAtom(themeAtom)
   const selection = appThemes[themeSlug]
-  const themeVars = useMemo(
-    () => readVarsForClass(selection.className, THEME_VAR_NAMES),
-    [selection.className],
-  )
+  const themeVars = useMemo(() => readVarsForClass(selection.className), [selection.className])
 
   return {
     themeSlug,

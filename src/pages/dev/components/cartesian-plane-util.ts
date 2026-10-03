@@ -1,3 +1,5 @@
+import type { ThemeVars } from "#src/state/useAppTheme.ts"
+
 const gridScale = 40
 
 const cartesianToCtx = (width: number, height: number, x: number, y: number): [number, number] => {
@@ -11,8 +13,9 @@ const plotFunc = (
   xStart: number,
   xEnd: number,
   f: (x: number) => number,
+  color: string,
 ): void => {
-  ctx.strokeStyle = "#44e"
+  ctx.strokeStyle = color
   ctx.lineWidth = 2
   ctx.beginPath()
   ctx.moveTo(...cartesianToCtx(width, height, xStart, f(xStart)))
@@ -25,11 +28,16 @@ const plotFunc = (
 
 const fx = (x: number) => x ** 2
 
-export const drawCartesianPlane = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+export const drawCartesianPlane = (
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  themeVars: ThemeVars,
+) => {
   if (!ctx || width === 0 || height === 0) {
     return
   }
-  console.log("draw plane2")
+  console.log("draw plane3")
   const yUnits = Math.floor(height / gridScale)
   const xUnits = Math.floor(width / gridScale)
   const xStart = -Math.floor(xUnits / 2)
@@ -37,7 +45,7 @@ export const drawCartesianPlane = (ctx: CanvasRenderingContext2D, width: number,
   const yStart = -Math.floor(yUnits / 2)
   const yEnd = yStart + yUnits
 
-  ctx.strokeStyle = "#888"
+  ctx.strokeStyle = themeVars.chartGrid
   ctx.lineWidth = 0.5
 
   for (let x = xStart; x <= xEnd; x++) {
@@ -58,7 +66,7 @@ export const drawCartesianPlane = (ctx: CanvasRenderingContext2D, width: number,
     ctx.stroke()
   }
 
-  plotFunc(ctx, width, height, xStart, xEnd, fx)
+  plotFunc(ctx, width, height, xStart, xEnd, fx, themeVars.chartLine)
 
   const point = cartesianToCtx(width, height, -5.5, -3.5)
   ctx.beginPath()
