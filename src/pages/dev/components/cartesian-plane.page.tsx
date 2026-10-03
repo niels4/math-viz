@@ -30,6 +30,7 @@ export default function CartesianPlanePage() {
   const { themeVars } = useAppTheme()
   const { ref, width, height } = useResizeObserver()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null)
   const dpr = useDevicePixelRatio()
 
   useEffect(() => {
@@ -39,13 +40,17 @@ export default function CartesianPlanePage() {
     }
     canvas.width = Math.max(1, Math.round(width * dpr))
     canvas.height = Math.max(1, Math.round(height * dpr))
-    const ctx = canvas.getContext("2d", { colorSpace: "display-p3" }) ?? canvas.getContext("2d")
+    if (ctxRef.current == null) {
+      ctxRef.current = canvas.getContext("2d", { colorSpace: "display-p3" }) ?? canvas.getContext("2d")
+    }
+    const ctx = ctxRef.current
     if (ctx === null) {
       return
     }
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, width, height)
+    // pass in zoom level, panX, panY
     drawCartesianPlane(ctx, width, height, themeVars)
     // HMR: drawCartesianPlane identity changes only on hot reload, intentional redraw
     // eslint-disable-next-line react-hooks/exhaustive-deps -- keeps the HMR redraw

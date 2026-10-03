@@ -1,9 +1,10 @@
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
-const gridScale = Math.max(40, 1)
-const panX = 3.4
-const panY = -0.1
+const gridScale = Math.max(11, 1)
+const panX = -0.1 * 20
+const panY = -0.3 * 20
 
+// split into x and y funcs
 const cartesianToCtx = (width: number, height: number, x: number, y: number): [number, number] => {
   return [Math.floor(width / 2) + (x + panX) * gridScale, Math.floor(height / 2) - (y + panY) * gridScale]
 }
