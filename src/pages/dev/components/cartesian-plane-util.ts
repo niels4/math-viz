@@ -1,12 +1,47 @@
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
-const gridScale = Math.max(11, 1)
-const panX = -0.1 * 20
-const panY = -0.3 * 20
+export type PlaneView = {
+  /** pixels per math unit */
+  scale: number
+  /** math-unit offset added to x before scaling */
+  panX: number
+  /** math-unit offset added to y before scaling */
+  panY: number
+}
 
-// split into x and y funcs
-const cartesianToCtx = (width: number, height: number, x: number, y: number): [number, number] => {
-  return [Math.floor(width / 2) + (x + panX) * gridScale, Math.floor(height / 2) - (y + panY) * gridScale]
+export const DEFAULT_VIEW: PlaneView = {
+  scale: 11,
+  panX: -2,
+  panY: -6,
+}
+
+export const MIN_SCALE = 4
+export const MAX_SCALE = 200
+
+const screenToMath = (
+  width: number,
+  height: number,
+  sx: number,
+  sy: number,
+  view: PlaneView,
+): [number, number] => {
+  return [
+    (sx - Math.floor(width / 2)) / view.scale - view.panX,
+    -(sy - Math.floor(height / 2)) / view.scale - view.panY,
+  ]
+}
+
+const cartesianToCtx = (
+  width: number,
+  height: number,
+  x: number,
+  y: number,
+  view: PlaneView,
+): [number, number] => {
+  return [
+    Math.floor(width / 2) + (x + view.panX) * view.scale,
+    Math.floor(height / 2) - (y + view.panY) * view.scale,
+  ]
 }
 
 const plotFunc = (
@@ -17,14 +52,15 @@ const plotFunc = (
   xEnd: number,
   f: (x: number) => number,
   color: string,
+  view: PlaneView,
 ): void => {
   ctx.strokeStyle = color
   ctx.lineWidth = 2
   ctx.beginPath()
-  ctx.moveTo(...cartesianToCtx(width, height, xStart, f(xStart)))
-  const step = (xEnd - xStart) / width
+  ctx.moveTo(...cartesianToCtx(width, height, xStart, f(xStart), view))
+  const step = (xEnd - xStart) / Math.max(1, width)
   for (let x = xStart; x <= xEnd; x += step) {
-    ctx.lineTo(...cartesianToCtx(width, height, x, f(x)))
+    ctx.lineTo(...cartesianToCtx(width, height, x, f(x), view))
   }
   ctx.stroke()
 }
@@ -36,23 +72,19 @@ export const drawCartesianPlane = (
   width: number,
   height: number,
   themeVars: ThemeVars,
+  view: PlaneView,
 ) => {
   if (!ctx || width === 0 || height === 0) {
     return
   }
-  console.log("draw plane3")
-  const yUnits = Math.floor(height / gridScale)
-  const xUnits = Math.floor(width / gridScale)
-  const xStart = -Math.floor(xUnits / 2)
-  const xEnd = xStart + xUnits
-  const yStart = -Math.floor(yUnits / 2)
-  const yEnd = yStart + yUnits
+  const [mathLeft, mathTop] = screenToMath(width, height, 0, 0, view)
+  const [mathRight, mathBottom] = screenToMath(width, height, width, height, view)
 
   ctx.strokeStyle = themeVars.chartGrid
   ctx.lineWidth = 0.5
 
-  for (let x = xStart - Math.ceil(panX); x <= xEnd - panX; x++) {
-    const ctxX = Math.floor(width / 2) + (x + panX) * gridScale
+  for (let x = Math.ceil(mathLeft); x <= Math.floor(mathRight); x++) {
+    const ctxX = Math.floor(width / 2) + (x + view.panX) * view.scale
     ctx.lineWidth = x === 0 ? 1.5 : 0.5
     ctx.beginPath()
     ctx.moveTo(ctxX, 0)
@@ -60,20 +92,20 @@ export const drawCartesianPlane = (
     ctx.stroke()
   }
 
-  for (let y = yStart - Math.ceil(panY); y <= yEnd - panY; y++) {
+  for (let y = Math.ceil(mathBottom); y <= Math.floor(mathTop); y++) {
     ctx.lineWidth = y === 0 ? 1.5 : 0.5
-    const ctxY = Math.floor(height / 2) - (y + panY) * gridScale
+    const ctxY = Math.floor(height / 2) - (y + view.panY) * view.scale
     ctx.beginPath()
     ctx.moveTo(0, ctxY)
     ctx.lineTo(width, ctxY)
     ctx.stroke()
   }
 
-  plotFunc(ctx, width, height, xStart, xEnd, fx, themeVars.chartLine)
+  plotFunc(ctx, width, height, mathLeft, mathRight, fx, themeVars.chartLine, view)
 
-  const point = cartesianToCtx(width, height, -5.5, -3.5)
+  const point = cartesianToCtx(width, height, -5.5, -3.5, view)
   ctx.beginPath()
-  ctx.arc(...point, gridScale / 2, 0, 2 * Math.PI)
+  ctx.arc(...point, view.scale / 2, 0, 2 * Math.PI)
   ctx.stroke()
   ctx.fillStyle = "green"
   ctx.fill()
