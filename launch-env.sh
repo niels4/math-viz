@@ -31,16 +31,26 @@ while lsof -nP -iTCP:$port -sTCP:LISTEN >/dev/null 2>&1; do
   (( port += 1 ))
 done
 
-echo "starting ${session} (dev server port ${port})"
+# Next free port above $port for the second (disk-only) server.
+port2=$(( port + 1 ))
+while lsof -nP -iTCP:$port2 -sTCP:LISTEN >/dev/null 2>&1; do
+  (( port2 += 1 ))
+done
+
+echo "starting ${session} (wtr port ${port}, disk port ${port2})"
 
 tmux new-session -d -s $session -n "editor"
 tmux new-window -t $session -n "shell"
 tmux new-window -t $session -n "repl"
 tmux new-window -t $session -n "server"
+# Split the server window: server.1 runs with WTR (live edits),
+# server.2 runs disk-only (DISABLE_WTR=1).
+tmux split-window -t "${session}:server.1"
 tmux new-window -t $session -n "agent"
 
 editor="${session}:editor.1"
-server="${session}:server.1"
+server1="${session}:server.1"
+server2="${session}:server.2"
 agent="${session}:agent.1"
 
 tmux send-keys -t $editor "nvim" C-m
@@ -50,14 +60,16 @@ tmux send-keys -t $agent "pi -a" C-m
 # Open the pages dir in the editor for convenience (new viz pages go here)
 tmux send-keys -t $editor ":e src/pages/" C-m
 
+tmux send-keys -t $server1 "npm i && npm run dev -- --port $port --strictPort" C-m
+
 # DISABLE_WTR=1: disk-only server. The user's live-edit loop
-# (websocket-text-relay, unsaved buffers) runs on their own dev server port;
-# the agent server must only see disk edits, so the two never collide.
-tmux send-keys -t $server "DISABLE_WTR=1 npm run dev -- --port $port --strictPort" C-m
+# (websocket-text-relay, unsaved buffers) runs on the WTR server port;
+# the disk-only server must only see disk edits, so the two never collide.
+tmux send-keys -t $server2 "npm i && DISABLE_WTR=1 npm run dev -- --port $port2 --strictPort" C-m
 
 tmux select-window -t "${session}:1"
 if [[ $detach -eq 1 ]]; then
-  echo "detached; agent pane: ${agent}; dev server: http://localhost:${port}"
+  echo "detached; agent pane: ${agent}; wtr server: http://localhost:${port}; disk server: http://localhost:${port2}"
 else
   tmux attach-session -t $session
 fi
