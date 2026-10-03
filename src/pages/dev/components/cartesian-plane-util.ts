@@ -1,9 +1,11 @@
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
-const gridScale = 40
+const gridScale = Math.max(40, 1)
+const panX = 3.4
+const panY = -0.1
 
 const cartesianToCtx = (width: number, height: number, x: number, y: number): [number, number] => {
-  return [Math.floor(width / 2) + x * gridScale, Math.floor(height / 2) - y * gridScale]
+  return [Math.floor(width / 2) + (x + panX) * gridScale, Math.floor(height / 2) - (y + panY) * gridScale]
 }
 
 const plotFunc = (
@@ -48,8 +50,8 @@ export const drawCartesianPlane = (
   ctx.strokeStyle = themeVars.chartGrid
   ctx.lineWidth = 0.5
 
-  for (let x = xStart; x <= xEnd; x++) {
-    const ctxX = Math.floor(width / 2) + x * gridScale
+  for (let x = xStart - Math.ceil(panX); x <= xEnd - panX; x++) {
+    const ctxX = Math.floor(width / 2) + (x + panX) * gridScale
     ctx.lineWidth = x === 0 ? 1.5 : 0.5
     ctx.beginPath()
     ctx.moveTo(ctxX, 0)
@@ -57,9 +59,9 @@ export const drawCartesianPlane = (
     ctx.stroke()
   }
 
-  for (let y = yStart; y <= yEnd; y++) {
+  for (let y = yStart - Math.ceil(panY); y <= yEnd - panY; y++) {
     ctx.lineWidth = y === 0 ? 1.5 : 0.5
-    const ctxY = Math.floor(height / 2) - y * gridScale
+    const ctxY = Math.floor(height / 2) - (y + panY) * gridScale
     ctx.beginPath()
     ctx.moveTo(0, ctxY)
     ctx.lineTo(width, ctxY)
