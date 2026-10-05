@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 
-export const useResizeObserver = <T extends HTMLElement = HTMLDivElement>() => {
-  const ref = useRef<T | null>(null)
+export const useResizeObserver = (ref: React.RefObject<HTMLElement | null>) => {
   const [width, setWidth] = useState(0)
   const [height, setHeight] = useState(0)
 
@@ -35,7 +34,7 @@ export const useResizeObserver = <T extends HTMLElement = HTMLDivElement>() => {
     return () => {
       observer.disconnect()
     }
-  }, [])
+  }, [ref])
 
   return {
     ref,
