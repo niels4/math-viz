@@ -39,11 +39,12 @@ const formatStep = (step: number): string => {
 const drawScale = ({ ctx, width, height, themeVars, zoom }: DrawCartesianPlaneProps) => {
   const step = gridStep(zoom)
   const barPx = step * zoom
-  const pad = 16
+  const padY = 16
+  const padX = 40
   const tick = 6
-  const x2 = width - pad
-  const x1 = Math.max(pad, x2 - barPx)
-  const yBar = height - pad
+  const x2 = width - padX + barPx / 2
+  const x1 = Math.max(padY, x2 - barPx)
+  const yBar = height - padY
   const label = `${formatStep(step)} ${step === 1 ? "unit" : "units"}`
   const labelPad = 8
 
