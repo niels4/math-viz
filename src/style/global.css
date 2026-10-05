@@ -1,3 +1,11 @@
+/* Cascade layers: the design system (src/components/ui/*.module.css) lives in
+ * `@layer components`. Everything else stays unlayered, and unlayered author
+ * styles automatically win over layered ones — so plain view classes override
+ * component classes regardless of specificity or stylesheet order. This
+ * declaration must load before any layered stylesheet; global.css is the
+ * first import in main.tsx. */
+@layer components;
+
 /* More sensible defaults */
 
 html {

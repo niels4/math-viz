@@ -1,39 +1,41 @@
-.tabs {
-  display: flex;
-  gap: 4px;
-  padding: 4px;
-  background: var(--secondary);
-  border-radius: var(--radius);
-}
+@layer components {
+  .tabs {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: var(--secondary);
+    border-radius: var(--radius);
+  }
 
-.tab {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-  padding: 8px 4px;
-  font: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--foreground-muted);
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+  .tab {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    padding: 8px 4px;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--foreground-muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-.tab_active {
-  color: var(--primary);
-}
+  .tab_active {
+    color: var(--primary);
+  }
 
-.tab_active::after {
-  position: absolute;
-  right: 10px;
-  bottom: 2px;
-  left: 10px;
-  height: 2px;
-  content: "";
-  background: var(--primary);
-  border-radius: 2px;
+  .tab_active::after {
+    position: absolute;
+    right: 10px;
+    bottom: 2px;
+    left: 10px;
+    height: 2px;
+    content: "";
+    background: var(--primary);
+    border-radius: 2px;
+  }
 }

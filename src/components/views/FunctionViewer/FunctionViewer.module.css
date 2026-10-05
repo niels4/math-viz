@@ -81,14 +81,12 @@
   pointer-events: auto;
 }
 
-/* Element qualifier, same as the select below: beats the design-system
-label size on specificity rather than stylesheet order. */
-label.func_select_label {
+/* Unlayered view styles win over the `@layer components` design system
+regardless of specificity or stylesheet order, so plain classes suffice. */
+.func_select_label {
   font-size: 1.15rem;
 }
 
-/* Element qualifier lifts specificity over the design-system field padding
-so this wins regardless of stylesheet order. */
 .func_select {
   font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
   font-size: 1.75rem;
