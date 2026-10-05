@@ -40,6 +40,60 @@ html {
 
 /* *** */
 
+/* Load app fonts here — vendored woff2, offline-first. Families stay
+ * usable everywhere (including canvas ctx.font); the per-page .font
+ * wrappers in src/style/fonts/* still own which family a section uses. */
+
+@font-face {
+  font-family: "Work Sans";
+  src: url("./fonts/work_sans/WorkSans-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Work Sans";
+  src: url("./fonts/work_sans/WorkSans-Italic-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "STIX Two Text";
+  src: url("./fonts/stix_two_text/STIXTwoText-Variable.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "STIX Two Text";
+  src: url("./fonts/stix_two_text/STIXTwoText-Italic-Variable.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("./fonts/roboto_mono/RobotoMono-Variable.woff2") format("woff2");
+  font-weight: 100 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("./fonts/roboto_mono/RobotoMono-Italic-Variable.woff2") format("woff2");
+  font-weight: 100 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* *** */
+
 /* App takes up full screen */
 
 html {

@@ -34,6 +34,12 @@ const formatStep = (step: number): string => {
   return String(Number(step.toPrecision(12)))
 }
 
+// Design system: Roboto Mono owns metrics/HUD numbers (see dev/font-demo:
+// Work Sans is UI text, STIX Two Text is equations only). This stack mirrors
+// src/style/fonts/roboto_mono/roboto_mono.module.css `.font`; the face
+// itself loads globally via src/style/global.css.
+export const SCALE_FONT = `14px "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace`
+
 // Scale bar, one grid square wide: the bar matches the grid spacing on
 // screen, the label says how many math units that square represents.
 const drawScale = ({ ctx, width, height, themeVars, zoom }: DrawCartesianPlaneProps) => {
@@ -52,7 +58,7 @@ const drawScale = ({ ctx, width, height, themeVars, zoom }: DrawCartesianPlanePr
   ctx.strokeStyle = themeVars.foreground
   ctx.fillStyle = themeVars.foreground
   ctx.lineWidth = 2
-  ctx.font = "14px system-ui, sans-serif"
+  ctx.font = SCALE_FONT
   ctx.textAlign = "center"
   ctx.textBaseline = "bottom"
   ctx.beginPath()
