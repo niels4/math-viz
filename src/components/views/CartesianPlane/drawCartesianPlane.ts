@@ -6,6 +6,10 @@ const xToCtx = (width: number, zoom: number, panX: number, x: number): number =>
   return Math.floor(width / 2) + (x + panX) * zoom
 }
 
+const ctxTox = (width: number, zoom: number, panX: number, ctxX: number): number => {
+  return (ctxX - Math.floor(width / 2)) / zoom - panX
+}
+
 const yToCtx = (height: number, zoom: number, panY: number, y: number): number => {
   return Math.floor(height / 2) - (y + panY) * zoom
 }
@@ -134,28 +138,20 @@ const drawPlotFunction = ({
   if (!plotFunc) {
     return
   }
-  const widthUnits = Math.floor(width / zoom)
-  const halfWidthUnits = Math.floor(widthUnits / 2)
-  const xStart = Math.floor(-halfWidthUnits - panX)
-  const xEnd = Math.ceil(halfWidthUnits - panX)
-
   ctx.strokeStyle = themeVars.chartLine
-  ctx.lineWidth = 2
+  ctx.lineWidth = 3.5
   ctx.beginPath()
 
-  const stepX = gridStep(zoom)
-  const nStart = Math.ceil(xStart / stepX)
-  const x = nStart * stepX
-  const ctxX = xToCtx(width, zoom, panX, x)
+  const x = ctxTox(width, zoom, panX, 0)
   const ctxY = yToCtx(height, zoom, panY, plotFunc(x))
-  ctx.moveTo(ctxX, ctxY)
+  ctx.moveTo(0, ctxY)
 
-  for (let n = nStart + 1; n <= Math.floor(xEnd / stepX); n++) {
-    const x = n * stepX
-    const ctxX = xToCtx(width, zoom, panX, x)
+  for (let ctxX = 0; ctxX <= width; ctxX++) {
+    const x = ctxTox(width, zoom, panX, ctxX)
     const ctxY = yToCtx(height, zoom, panY, plotFunc(x))
     ctx.lineTo(ctxX, ctxY)
   }
+
   ctx.stroke()
 }
 
