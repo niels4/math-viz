@@ -67,6 +67,18 @@
   gap: 12px;
 }
 
+/* Narrow screens: the brand, title, and settings crowd each other around
+450px, so drop the center title and let brand/actions take the edges. */
+@media (max-width: 450px) {
+  .topbar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .title {
+    display: none;
+  }
+}
+
 .sidebar {
   grid-area: sidebar;
   justify-self: start;
