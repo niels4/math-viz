@@ -3,7 +3,9 @@ import { useId, useState } from "react"
 import type { PlotFunc } from "../CartesianPlane/types"
 
 import { Field } from "../../ui/Field"
+import { SnowflakeIcon } from "../../ui/icons.tsx"
 import { Select } from "../../ui/Select"
+import { SettingsMenu } from "../../ui/SettingsMenu.tsx"
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
 import style from "./FunctionViewer.module.css"
 
@@ -47,6 +49,18 @@ export function FunctionViewer() {
   return (
     <div>
       <CartesianPlane {...{ plotFunc: plotFuncs[funcSlug] }} />
+      <header className={style.topbar}>
+        <a className={style.brand} href="#">
+          <span className={style.brand_icon}>
+            <SnowflakeIcon />
+          </span>
+          MathViz
+        </a>
+        <h1 className={style.title}>Function Viewer</h1>
+        <div className={style.actions}>
+          <SettingsMenu />
+        </div>
+      </header>
       <div className={style.sidebar}>
         <Field className={style.func_select_label} label="Function" htmlFor={selectId}>
           <Select
