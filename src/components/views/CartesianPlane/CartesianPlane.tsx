@@ -4,6 +4,8 @@ import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.t
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import { useAppTheme } from "#src/state/useAppTheme.ts"
 
+import type { PlotFunc } from "./types"
+
 import style from "./cartesian-plane.module.css"
 import { drawCartesianPlane } from "./drawCartesianPlane"
 
@@ -20,7 +22,12 @@ const VELOCITY_WINDOW_MS = 120
 
 const clampZoom = (zoom: number): number => Math.min(MAX_UNIT_SIZE, Math.max(MIN_UNIT_SIZE, zoom))
 
-export function CartesianPlane() {
+export type CartesianPlaneProps = {
+  plotFunc?: PlotFunc
+}
+
+export function CartesianPlane({ plotFunc }: CartesianPlaneProps) {
+  console.log("got plot func", plotFunc)
   const { themeVars } = useAppTheme()
   const wrapperRef = useRef(null)
   const { width, height } = useResizeObserver(wrapperRef)
@@ -231,9 +238,6 @@ export function CartesianPlane() {
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
       />
-      <p className={style.readout}>
-        {width} X {height}
-      </p>
     </div>
   )
 }

@@ -1,0 +1,13 @@
+.sidebar {
+  position: absolute;
+  /* Panel follows the canvas in the DOM so it paints above it (both
+  positioned, auto z-index). Explicit offsets: auto would park it after
+  the 100vh page instead of over it; margin keeps the 28px gutter. */
+  top: 28px;
+  left: 28px;
+  max-width: 400px;
+  background: var(--background-muted);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+}

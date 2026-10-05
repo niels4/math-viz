@@ -17,11 +17,3 @@
 .canvas:active {
   cursor: grabbing;
 }
-
-.readout {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  margin: 0;
-  pointer-events: none;
-}

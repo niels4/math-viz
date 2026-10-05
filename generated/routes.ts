@@ -4,6 +4,7 @@ import cartesian_plane$2 from "#src/pages/dev/components/cartesian-plane.page.ts
 import ui$3 from "#src/pages/dev/components/ui.page.tsx"
 import font_demo$4 from "#src/pages/dev/font-demo.page.tsx"
 import theme_demo$5 from "#src/pages/dev/theme-demo.page.tsx"
+import function_viewer$6 from "#src/pages/dev/views/function-viewer.page.tsx"
 
 const routes = {
   "_not_found": _not_found$0,
@@ -11,7 +12,8 @@ const routes = {
   "dev/components/cartesian-plane": cartesian_plane$2,
   "dev/components/ui": ui$3,
   "dev/font-demo": font_demo$4,
-  "dev/theme-demo": theme_demo$5
+  "dev/theme-demo": theme_demo$5,
+  "dev/views/function-viewer": function_viewer$6
 } as const
 
 export default routes
