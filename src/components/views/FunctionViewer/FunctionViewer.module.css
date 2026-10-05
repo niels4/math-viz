@@ -21,4 +21,9 @@ select.func_select {
   font-size: 2.15rem;
   padding: 24px 44px 24px 24px;
   margin-top: 8px;
+  /* Equation-box pattern: tinted fill, accent border, matching foreground.
+  In educational-warm these are the reference colors exactly. */
+  background: var(--secondary);
+  border: 2px solid var(--primary);
+  color: var(--secondary-foreground);
 }
