@@ -104,3 +104,53 @@
   stroke: var(--chart-accent);
   fill: var(--chart-accent);
 }
+
+.ordinal_block {
+  margin-top: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.ordinal_heading {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.ordinal_swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.ordinal_swatch {
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  color: var(--background);
+}
+
+.ordinal_chart {
+  margin-top: 12px;
+  width: 100%;
+  background: var(--background);
+  border-radius: 8px;
+}
+
+.ordinal_legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ordinal_legend_item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}

@@ -52,6 +52,24 @@ const SECTIONS = [
   },
 ] as const
 
+const ORDINALS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] as const
+
+function ordinalDash(index: number): string | undefined {
+  if (index % 3 === 1) {
+    return "7 4"
+  }
+  if (index % 3 === 2) {
+    return "2 4"
+  }
+  return undefined
+}
+
+function ordinalWave(index: number): string {
+  const base = 28 + index * 15
+  const amp = index % 2 === 0 ? -10 : 10
+  return `M 8 ${base} C 180 ${base + amp}, 460 ${base - amp}, 632 ${base}`
+}
+
 export default function ThemeDemoPage() {
   return (
     <div style={{ display: "grid", gap: 24, padding: 24 }}>
@@ -89,6 +107,48 @@ export default function ThemeDemoPage() {
               <line x1={10} y1={60} x2={310} y2={20} className={demo.chart_line} strokeWidth={2} />
               <circle cx={310} cy={20} r={6} className={demo.chart_accent} />
             </svg>
+            <div className={demo.ordinal_block}>
+              <div className={demo.ordinal_heading}>Ordinal 12</div>
+              <div className={demo.ordinal_swatches}>
+                {ORDINALS.map((n) => (
+                  <span key={n} className={demo.ordinal_swatch} style={{ background: `var(--ordinal-${n})` }}>
+                    O{n}
+                  </span>
+                ))}
+              </div>
+              <svg viewBox="0 0 640 240" width="100%" height={240} className={demo.ordinal_chart}>
+                {ORDINALS.map((n, i) => (
+                  <g key={n}>
+                    <path
+                      d={ordinalWave(i)}
+                      fill="none"
+                      stroke={`var(--ordinal-${n})`}
+                      strokeWidth={2}
+                      strokeDasharray={ordinalDash(i)}
+                    />
+                    <circle cx={632} cy={28 + i * 15} r={4} fill={`var(--ordinal-${n})`} />
+                  </g>
+                ))}
+              </svg>
+              <div className={demo.ordinal_legend}>
+                {ORDINALS.map((n, i) => (
+                  <span key={n} className={demo.ordinal_legend_item}>
+                    <svg width={48} height={8}>
+                      <line
+                        x1={0}
+                        y1={4}
+                        x2={48}
+                        y2={4}
+                        stroke={`var(--ordinal-${n})`}
+                        strokeWidth={3}
+                        strokeDasharray={ordinalDash(i)}
+                      />
+                    </svg>
+                    O{n}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       ))}

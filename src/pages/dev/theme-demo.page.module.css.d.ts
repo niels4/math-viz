@@ -15,6 +15,13 @@ declare const styles: {
   readonly "grid": string;
   readonly "input": string;
   readonly "muted": string;
+  readonly "ordinal_block": string;
+  readonly "ordinal_chart": string;
+  readonly "ordinal_heading": string;
+  readonly "ordinal_legend": string;
+  readonly "ordinal_legend_item": string;
+  readonly "ordinal_swatch": string;
+  readonly "ordinal_swatches": string;
   readonly "row": string;
   readonly "section": string;
   readonly "title": string;
