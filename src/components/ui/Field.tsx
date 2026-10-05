@@ -6,14 +6,19 @@ export function Field({
   label,
   htmlFor,
   children,
+  className,
 }: {
   label: string
   htmlFor?: string
   children: ReactNode
+  className?: string
 }) {
   return (
     <div className={fieldStyles.field_row}>
-      <label className={fieldStyles.label} htmlFor={htmlFor}>
+      <label
+        className={className === undefined ? fieldStyles.label : `${fieldStyles.label} ${className}`}
+        htmlFor={htmlFor}
+      >
         {label}
       </label>
       {children}

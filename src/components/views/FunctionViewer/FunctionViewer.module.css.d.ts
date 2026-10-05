@@ -3,6 +3,7 @@
 // prettier-ignore
 declare const styles: {
   readonly "func_select": string;
+  readonly "func_select_label": string;
   readonly "sidebar": string;
 };
 export = styles;

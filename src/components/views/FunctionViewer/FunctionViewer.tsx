@@ -48,7 +48,7 @@ export function FunctionViewer() {
     <div>
       <CartesianPlane {...{ plotFunc: plotFuncs[funcSlug] }} />
       <div className={style.sidebar}>
-        <Field label="Function" htmlFor={selectId}>
+        <Field className={style.func_select_label} label="Function" htmlFor={selectId}>
           <Select
             id={selectId}
             testId={selectId}
