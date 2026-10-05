@@ -12,6 +12,12 @@ import {
 
 console.log("jsdom-setup")
 
+// Mirror browser-setup: synthetic pointerIds never had capture, so keep
+// these as no-ops in jsdom too (jsdom lacks them entirely).
+HTMLCanvasElement.prototype.setPointerCapture = () => {}
+HTMLCanvasElement.prototype.releasePointerCapture = () => {}
+HTMLCanvasElement.prototype.hasPointerCapture = () => false
+
 // make sure we clean up the screen after every test
 afterEach(() => {
   cleanup()

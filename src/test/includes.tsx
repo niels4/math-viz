@@ -1,6 +1,6 @@
 import type { render as vitestRender, renderHook as vitestRenderHook } from "vitest-browser-react"
 
-import { StrictMode } from "react"
+import { StrictMode, act as reactAct } from "react"
 
 import { wait } from "#src/util/async.ts"
 
@@ -36,4 +36,60 @@ export const _renderSetup = ({ isBrowser, render, renderHook }: RenderSetupParam
   _isBrowser = isBrowser
   _render = render
   _renderHook = renderHook
+}
+
+// Cross-env act: `import { act } from "react"` warns in browser mode because
+// vitest-browser-react only enables IS_REACT_ACT_ENVIRONMENT inside its own
+// render calls. Setting the flag around React's act makes pointer-event
+// batching (`act(() => { down(); move(); ... })`) work in both jsdom and
+// real Chromium with the same sync semantics.
+export const act = (callback: () => unknown): unknown => {
+  const g = globalThis as unknown as Record<string, unknown>
+  const prev = g["IS_REACT_ACT_ENVIRONMENT"]
+  g["IS_REACT_ACT_ENVIRONMENT"] = true
+  try {
+    const result = (reactAct as (cb: () => unknown) => unknown)(callback)
+    if (result !== null && typeof result === "object" && "then" in result) {
+      const thenable = result as PromiseLike<unknown>
+      return thenable.then(
+        (value) => {
+          g["IS_REACT_ACT_ENVIRONMENT"] = prev
+          return value
+        },
+        (error) => {
+          g["IS_REACT_ACT_ENVIRONMENT"] = prev
+          throw error
+        },
+      )
+    }
+    g["IS_REACT_ACT_ENVIRONMENT"] = prev
+    return result
+  } catch (error) {
+    g["IS_REACT_ACT_ENVIRONMENT"] = prev
+    throw error
+  }
+}
+
+type WithElementMethod = {
+  element: () => HTMLElement
+}
+
+const hasElementMethod = (node: unknown): node is WithElementMethod => {
+  return (
+    node !== null &&
+    typeof node === "object" &&
+    "element" in node &&
+    typeof (node as Record<string, unknown>)["element"] === "function"
+  )
+}
+
+// Cross-env element resolver: jsdom `getByTestId` returns a real element,
+// browser mode returns a Locator. Unwrap Locators via `.element()` so
+// `dispatchEvent(new PointerEvent(...))` works in both environments.
+// Callers narrow via `as`, e.g. `toElement(screen.getByTestId("x")) as HTMLCanvasElement`.
+export const toElement = (node: unknown): HTMLElement => {
+  if (hasElementMethod(node)) {
+    return node.element()
+  }
+  return node as HTMLElement
 }

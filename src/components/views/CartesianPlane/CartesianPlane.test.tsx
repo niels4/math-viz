@@ -1,7 +1,6 @@
-import { act } from "react"
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest"
 
-import { render } from "#test"
+import { act, render, toElement } from "#test"
 
 import { CartesianPlane } from "./CartesianPlane"
 import { drawCartesianPlane } from "./drawCartesianPlane"
@@ -36,20 +35,38 @@ const up = (canvas: HTMLCanvasElement, pointerId: number, x: number, y: number) 
   canvas.dispatchEvent(pointer("pointerup", { pointerId, clientX: x, clientY: y }))
 }
 
+const zeroRect = () =>
+  ({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    toJSON: () => {},
+  }) as unknown as DOMRect
+
 describe("CartesianPlane pinch zoom", () => {
   beforeEach(() => {
     drawMock.mockClear()
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
       stubCtx as unknown as CanvasRenderingContext2D,
     )
-    HTMLCanvasElement.prototype.setPointerCapture ??= () => {}
-    HTMLCanvasElement.prototype.releasePointerCapture ??= () => {}
-    HTMLCanvasElement.prototype.hasPointerCapture ??= () => false
+    // Unconditional: real Chromium implements these but throws for synthetic
+    // pointerIds, and `??=` would keep the throwing version in browsers.
+    HTMLCanvasElement.prototype.setPointerCapture = () => {}
+    HTMLCanvasElement.prototype.releasePointerCapture = () => {}
+    HTMLCanvasElement.prototype.hasPointerCapture = () => false
+    // jsdom rects are zero; stub the same in real Chromium so the origin
+    // doubles as the view center and pan math stays layout-independent.
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(zeroRect())
   })
 
   it("applies the exact finger-distance ratio when moves share one closure", async () => {
     const screen = await render(<CartesianPlane />)
-    const canvas = screen.getByTestId("cartesian-canvas") as unknown as HTMLCanvasElement
+    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
     // jsdom rects are zero, so the origin doubles as the view center: spread
     // symmetrically about it and pan must stay put while zoom telescopes.
     // Everything inside one act shares a single render closure, like rapid
@@ -70,7 +87,7 @@ describe("CartesianPlane pinch zoom", () => {
 
   it("returns to the starting frame after an exact reverse", async () => {
     const screen = await render(<CartesianPlane />)
-    const canvas = screen.getByTestId("cartesian-canvas") as unknown as HTMLCanvasElement
+    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
     act(() => {
       down(canvas, 1, -100, 0)
       down(canvas, 2, 100, 0)
@@ -110,7 +127,7 @@ describe("CartesianPlane pinch zoom", () => {
 
     it("quick pinch release schedules no inertia", async () => {
       const screen = await render(<CartesianPlane />)
-      const canvas = screen.getByTestId("cartesian-canvas") as unknown as HTMLCanvasElement
+      const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
       // Fast spread with both fingers still traveling at lift-off: the
       // few-ms release window would otherwise read pinch speed as fling.
       act(() => {
@@ -130,7 +147,7 @@ describe("CartesianPlane pinch zoom", () => {
 
     it("fast single-finger flick still schedules inertia", async () => {
       const screen = await render(<CartesianPlane />)
-      const canvas = screen.getByTestId("cartesian-canvas") as unknown as HTMLCanvasElement
+      const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
       act(() => {
         down(canvas, 1, 0, 0)
         now += 30
@@ -146,7 +163,7 @@ describe("CartesianPlane pinch zoom", () => {
 
   it("single-finger drag still pans", async () => {
     const screen = await render(<CartesianPlane />)
-    const canvas = screen.getByTestId("cartesian-canvas") as unknown as HTMLCanvasElement
+    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
     act(() => {
       down(canvas, 1, 100, 100)
       move(canvas, 1, 120, 110)
