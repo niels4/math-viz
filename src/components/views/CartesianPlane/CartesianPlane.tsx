@@ -27,7 +27,6 @@ export type CartesianPlaneProps = {
 }
 
 export function CartesianPlane({ plotFunc }: CartesianPlaneProps) {
-  console.log("got plot func", plotFunc)
   const { themeVars } = useAppTheme()
   const wrapperRef = useRef(null)
   const { width, height } = useResizeObserver(wrapperRef)
@@ -125,10 +124,11 @@ export function CartesianPlane({ plotFunc }: CartesianPlaneProps) {
       zoom,
       panX,
       panY,
+      plotFunc,
     })
-    // HMR: drawCartesianPlane identity changes only on hot reload, intentional redraw
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- keeps the HMR redraw
-  }, [width, height, dpr, zoom, panX, panY, drawCartesianPlane])
+    // HMR: drawCartesianPlane identity changes only on hot reload, intentional redraw.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [width, height, dpr, zoom, panX, panY, plotFunc, themeVars, drawCartesianPlane])
 
   // Wheel zoom centered on the cursor. Native non-passive listener so we can
   // preventDefault and keep the page from scrolling while zooming the plane.

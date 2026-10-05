@@ -1,5 +1,7 @@
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
+import type { PlotFunc } from "./types"
+
 const xToCtx = (width: number, zoom: number, panX: number, x: number): number => {
   return Math.floor(width / 2) + (x + panX) * zoom
 }
@@ -119,6 +121,44 @@ const drawGrid = ({ ctx, width, height, themeVars, zoom, panX, panY }: DrawCarte
   ctx.stroke()
 }
 
+const drawPlotFunction = ({
+  ctx,
+  width,
+  height,
+  zoom,
+  panX,
+  panY,
+  themeVars,
+  plotFunc,
+}: DrawCartesianPlaneProps) => {
+  if (!plotFunc) {
+    return
+  }
+  const widthUnits = Math.floor(width / zoom)
+  const halfWidthUnits = Math.floor(widthUnits / 2)
+  const xStart = Math.floor(-halfWidthUnits - panX)
+  const xEnd = Math.ceil(halfWidthUnits - panX)
+
+  ctx.strokeStyle = themeVars.chartLine
+  ctx.lineWidth = 2
+  ctx.beginPath()
+
+  const stepX = gridStep(zoom)
+  const nStart = Math.ceil(xStart / stepX)
+  const x = nStart * stepX
+  const ctxX = xToCtx(width, zoom, panX, x)
+  const ctxY = yToCtx(height, zoom, panY, plotFunc(x))
+  ctx.moveTo(ctxX, ctxY)
+
+  for (let n = nStart + 1; n <= Math.floor(xEnd / stepX); n++) {
+    const x = n * stepX
+    const ctxX = xToCtx(width, zoom, panX, x)
+    const ctxY = yToCtx(height, zoom, panY, plotFunc(x))
+    ctx.lineTo(ctxX, ctxY)
+  }
+  ctx.stroke()
+}
+
 type DrawCartesianPlaneProps = {
   ctx: CanvasRenderingContext2D
   themeVars: ThemeVars
@@ -128,10 +168,13 @@ type DrawCartesianPlaneProps = {
   zoom: number
   panX: number
   panY: number
+  // `| undefined`: callers pass through a destructured optional, which reads
+  // as `PlotFunc | undefined` and is rejected under exactOptionalPropertyTypes.
+  plotFunc?: PlotFunc | undefined
 }
 
 export const drawCartesianPlane = (props: DrawCartesianPlaneProps) => {
-  const { ctx, width, height, zoom, panX, panY } = props
+  const { ctx, width, height } = props
 
   if (!ctx || width === 0 || height === 0) {
     return
@@ -139,16 +182,5 @@ export const drawCartesianPlane = (props: DrawCartesianPlaneProps) => {
 
   drawGrid(props)
   drawScale(props)
-
-  ctx.beginPath()
-  ctx.arc(xToCtx(width, zoom, panX, -5), yToCtx(height, zoom, panY, 2), zoom / 2, 0, 2 * Math.PI)
-  ctx.stroke()
-  ctx.fillStyle = "green"
-  ctx.fill()
-
-  ctx.beginPath()
-  ctx.arc(xToCtx(width, zoom, panX, 0), yToCtx(height, zoom, panY, 0), 10, 0, 2 * Math.PI)
-  ctx.stroke()
-  ctx.fillStyle = "blue"
-  ctx.fill()
+  drawPlotFunction(props)
 }
