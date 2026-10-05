@@ -22,8 +22,8 @@ const plotFuncs: Record<PlotFuncSlug, PlotFunc> = {
 
 const plotFuncLabels: Record<PlotFuncSlug, string> = {
   x: "x",
-  x2: "x^2",
-  x3: "x^3",
+  x2: "x²",
+  x3: "x³",
   sin: "sin(x)",
 } as const
 
@@ -55,6 +55,7 @@ export function FunctionViewer() {
             value={funcSlug}
             onChange={onSelectFunc}
             options={funcOptions}
+            className={style.func_select}
           />
         </Field>
       </div>

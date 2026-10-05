@@ -12,12 +12,14 @@ export function Select({
   onChange,
   options,
   testId,
+  className,
 }: {
   id: string
   value: string
   onChange: (next: string) => void
   options: ReadonlyArray<SelectOption>
   testId: string
+  className?: string
 }) {
   return (
     <div className={selectStyles.select_wrap}>
@@ -26,7 +28,11 @@ export function Select({
         data-testid={testId}
         value={value}
         onChange={(event) => onChange(event.currentTarget.value)}
-        className={`${fieldStyles.field} ${selectStyles.select}`}
+        className={
+          className === undefined
+            ? `${fieldStyles.field} ${selectStyles.select}`
+            : `${fieldStyles.field} ${selectStyles.select} ${className}`
+        }
       >
         {options.map((option) => (
           <option key={toValue(option)} value={toValue(option)}>
