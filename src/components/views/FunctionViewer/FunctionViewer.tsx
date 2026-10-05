@@ -1,9 +1,9 @@
-import type { ChangeEvent } from "react"
-
-import { useState } from "react"
+import { useId, useState } from "react"
 
 import type { PlotFunc } from "../CartesianPlane/types"
 
+import { Field } from "../../ui/Field"
+import { Select } from "../../ui/Select"
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
 import style from "./FunctionViewer.module.css"
 
@@ -27,32 +27,37 @@ const plotFuncLabels: Record<PlotFuncSlug, string> = {
   sin: "sin(x)",
 } as const
 
+const funcOptions = plotFuncSlugs.map((slug) => ({ value: slug, label: `f(x) = ${plotFuncLabels[slug]}` }))
+
 const isPlotFuncSlug = (slug: string): slug is PlotFuncSlug => {
   return (plotFuncSlugs as readonly string[]).includes(slug)
 }
 
 export function FunctionViewer() {
   const [funcSlug, setFuncSlug] = useState<PlotFuncSlug>(defaultFuncSlug)
+  const id = useId()
+  const selectId = `func-select-${id}`
 
-  const onSelectFunc = (e: ChangeEvent<HTMLSelectElement>) => {
-    if (isPlotFuncSlug(e.target.value)) {
-      setFuncSlug(e.target.value)
+  const onSelectFunc = (next: string) => {
+    if (isPlotFuncSlug(next)) {
+      setFuncSlug(next)
     }
   }
 
   return (
     <div>
       <CartesianPlane {...{ plotFunc: plotFuncs[funcSlug] }} />
-      <label className={style.sidebar} htmlFor="plot-func-select">
-        Function:
-        <select id="plot-func-select" value={funcSlug} onChange={onSelectFunc}>
-          {plotFuncSlugs.map((slug) => (
-            <option key={slug} value={slug}>
-              {plotFuncLabels[slug]}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className={style.sidebar}>
+        <Field label="Function" htmlFor={selectId}>
+          <Select
+            id={selectId}
+            testId={selectId}
+            value={funcSlug}
+            onChange={onSelectFunc}
+            options={funcOptions}
+          />
+        </Field>
+      </div>
     </div>
   )
 }

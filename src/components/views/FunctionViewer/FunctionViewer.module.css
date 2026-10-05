@@ -5,6 +5,8 @@
   the 100vh page instead of over it; margin keeps the 28px gutter. */
   top: 28px;
   left: 28px;
+  display: grid;
+  gap: 16px;
   max-width: 400px;
   background: var(--background-muted);
   border: 1px solid var(--border);

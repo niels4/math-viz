@@ -1,6 +1,11 @@
 import selectStyles from "./Select.module.css"
 import fieldStyles from "./TextField.module.css"
 
+export type SelectOption = string | { value: string; label: string }
+
+const toValue = (option: SelectOption): string => (typeof option === "string" ? option : option.value)
+const toLabel = (option: SelectOption): string => (typeof option === "string" ? option : option.label)
+
 export function Select({
   id,
   value,
@@ -11,7 +16,7 @@ export function Select({
   id: string
   value: string
   onChange: (next: string) => void
-  options: ReadonlyArray<string>
+  options: ReadonlyArray<SelectOption>
   testId: string
 }) {
   return (
@@ -24,8 +29,8 @@ export function Select({
         className={`${fieldStyles.field} ${selectStyles.select}`}
       >
         {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
+          <option key={toValue(option)} value={toValue(option)}>
+            {toLabel(option)}
           </option>
         ))}
       </select>
