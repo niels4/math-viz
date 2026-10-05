@@ -164,19 +164,99 @@ export function CartesianPlane({ plotFunc }: CartesianPlaneProps) {
     }
   }, [zoom, panX, panY, stopInertia])
 
+  // Multi-touch pinch (Maps-style): every active pointer is tracked, and two
+  // or more means pinching. Zoom anchors on the pinch midpoint while the
+  // midpoint's travel pans, so content stays glued to the fingers.
+  // `touch-action: none` in CSS stops the browser stealing the gesture.
+  const pointersRef = useRef(new Map<number, { x: number; y: number }>())
+  const pinchRef = useRef<{ lastDist: number; lastMidX: number; lastMidY: number } | null>(null)
+  // Gesture source of truth while pinching. Move events for both fingers can
+  // land in one task sharing a stale render closure, so the pinch reads and
+  // writes the view here synchronously and only mirrors it to state. Synced
+  // from state when a pinch starts (pointerdowns flush discretely, so the
+  // closure is fresh there).
+  const viewRef = useRef<{ zoom: number; panX: number; panY: number } | null>(null)
+
+  const pinchBaseline = (canvas: HTMLCanvasElement) => {
+    const pts = [...pointersRef.current.values()]
+    const p1 = pts[0]
+    const p2 = pts[1]
+    if (p1 === undefined || p2 === undefined) {
+      pinchRef.current = null
+      return
+    }
+    const rect = canvas.getBoundingClientRect()
+    pinchRef.current = {
+      lastDist: Math.hypot(p2.x - p1.x, p2.y - p1.y),
+      lastMidX: (p1.x + p2.x) / 2 - rect.left,
+      lastMidY: (p1.y + p2.y) / 2 - rect.top,
+    }
+  }
+
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     stopInertia()
+    e.currentTarget.setPointerCapture(e.pointerId)
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    if (pointersRef.current.size >= 2) {
+      // Second finger down: swap drag for pinch, baselined on the live
+      // finger positions so the switch causes no jump.
+      viewRef.current = { zoom, panX, panY }
+      pinchBaseline(e.currentTarget)
+      dragRef.current = null
+      return
+    }
     dragRef.current = {
       lastX: e.clientX,
       lastY: e.clientY,
       samples: [{ x: e.clientX, y: e.clientY, t: performance.now() }],
     }
-    e.currentTarget.setPointerCapture(e.pointerId)
   }
 
   // Drag pans the plane: pixel deltas become math-unit shifts so the grabbed
   // point stays under the cursor (y negated: screen y grows downward).
   const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!pointersRef.current.has(e.pointerId)) {
+      return
+    }
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    if (pointersRef.current.size >= 2 && pinchRef.current !== null) {
+      const pts = [...pointersRef.current.values()]
+      const p1 = pts[0]
+      const p2 = pts[1]
+      if (p1 === undefined || p2 === undefined) {
+        return
+      }
+      const rect = e.currentTarget.getBoundingClientRect()
+      const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y)
+      const midX = (p1.x + p2.x) / 2 - rect.left
+      const midY = (p1.y + p2.y) / 2 - rect.top
+      const pinch = pinchRef.current
+      if (pinch.lastDist === 0 || dist === 0) {
+        pinchRef.current = { lastDist: dist, lastMidX: midX, lastMidY: midY }
+        return
+      }
+      // Glued-finger similarity, telescoping exactly across the events of one
+      // dispatch: scale about the old midpoint, then shift old midpoint onto
+      // the new one. Both fingertips keep their content points (absent
+      // rotation, which Maps-style zoom ignores like Apple/Google Maps).
+      // Same hold-point math as wheel zoom (y flips: screen y grows down).
+      const v = viewRef.current ?? { zoom, panX, panY }
+      const nextZoom = clampZoom(v.zoom * (dist / pinch.lastDist))
+      const k = 1 / nextZoom - 1 / v.zoom
+      const dx = midX - pinch.lastMidX
+      const dy = midY - pinch.lastMidY
+      const next = {
+        zoom: nextZoom,
+        panX: v.panX + dx / v.zoom + (midX - rect.width / 2) * k,
+        panY: v.panY - dy / v.zoom + (rect.height / 2 - midY) * k,
+      }
+      viewRef.current = next
+      setZoom(next.zoom)
+      setPanX(next.panX)
+      setPanY(next.panY)
+      pinchRef.current = { lastDist: dist, lastMidX: midX, lastMidY: midY }
+      return
+    }
     const drag = dragRef.current
     if (drag === null) {
       return
@@ -199,12 +279,40 @@ export function CartesianPlane({ plotFunc }: CartesianPlaneProps) {
   }
 
   const endDrag = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    const drag = dragRef.current
-    dragRef.current = null
+    pointersRef.current.delete(e.pointerId)
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId)
     }
-    if (drag !== null && typeof performance !== "undefined") {
+    if (pointersRef.current.size >= 2) {
+      // Still pinching after a lift (third finger): re-baseline, no jump.
+      pinchBaseline(e.currentTarget)
+      dragRef.current = null
+      return
+    }
+    pinchRef.current = null
+    if (pointersRef.current.size === 1) {
+      // Pinch back to one finger: restart drag tracking on the remaining
+      // finger with no samples yet. Momentum observation starts only when
+      // it actually moves, so a quick lift-off can never read fast pinch
+      // motion as fling velocity.
+      const remaining = [...pointersRef.current.values()][0]
+      dragRef.current =
+        remaining === undefined
+          ? null
+          : {
+              lastX: remaining.x,
+              lastY: remaining.y,
+              samples: [],
+            }
+      return
+    }
+    const drag = dragRef.current
+    dragRef.current = null
+    // Momentum needs an observed motion segment (two samples): a bare
+    // down/up or a pinch lift-off with no single-finger travel carries no
+    // fling intent, and a few-ms window would inflate it into a huge
+    // velocity either way.
+    if (drag !== null && typeof performance !== "undefined" && drag.samples.length >= 2) {
       const now = performance.now()
       const samples = drag.samples
       samples.push({ x: e.clientX, y: e.clientY, t: now })
