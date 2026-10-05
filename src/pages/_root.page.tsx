@@ -1,6 +1,7 @@
 import {
   SectionCard,
   SettingsMenu,
+  SlidersIcon,
   TableIcon,
   TagIcon,
   TitleBlock,
@@ -39,6 +40,17 @@ const RootPage = () => {
                   <span className={style.link_desc}>
                     Scoped CSS Module fonts per page — no global pollution. Work Sans (UI), STIX Two Text
                     (equations), Roboto Mono (metrics) with font-family
+                  </span>
+                </a>
+              </div>
+            </SectionCard>
+            <SectionCard icon={<SlidersIcon />} title="Views" titleId="toc-views">
+              <div className={style.links}>
+                <a href="#dev/views/function-viewer" className={style.link_card}>
+                  <span className={style.link_title}>Function Viewer</span>
+                  <span className={style.link_desc}>
+                    Interactive function plotter — graph f(x) = x, x², x³, sin(x) on a pannable,
+                    pinch-zoomable cartesian plane.
                   </span>
                 </a>
               </div>
