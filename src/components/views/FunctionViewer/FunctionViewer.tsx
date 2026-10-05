@@ -55,7 +55,7 @@ export function FunctionViewer() {
             <span className={style.brand_icon}>
               <SnowflakeIcon />
             </span>
-            MathViz
+            <span className={style.brand_text}>MathViz</span>
           </a>
           <h1 className={style.title}>Function Viewer</h1>
           <div className={style.actions}>

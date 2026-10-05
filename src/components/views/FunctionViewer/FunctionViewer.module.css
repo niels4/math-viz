@@ -67,9 +67,17 @@
   gap: 12px;
 }
 
+/* Mid widths: the wordmark crowds the center title around 600px, so show
+the logo icon alone. */
+@media (max-width: 600px) {
+  .brand_text {
+    display: none;
+  }
+}
+
 /* Narrow screens: the brand, title, and settings crowd each other around
 450px, so drop the center title and let brand/actions take the edges. */
-@media (max-width: 450px) {
+@media (max-width: 400px) {
   .topbar {
     grid-template-columns: 1fr auto;
   }
