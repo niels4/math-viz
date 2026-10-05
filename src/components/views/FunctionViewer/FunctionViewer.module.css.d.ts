@@ -7,6 +7,8 @@ declare const styles: {
   readonly "brand_icon": string;
   readonly "func_select": string;
   readonly "func_select_label": string;
+  readonly "overlay": string;
+  readonly "page": string;
   readonly "sidebar": string;
   readonly "title": string;
   readonly "topbar": string;

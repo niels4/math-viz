@@ -47,31 +47,33 @@ export function FunctionViewer() {
   }
 
   return (
-    <div>
+    <div className={style.page}>
       <CartesianPlane {...{ plotFunc: plotFuncs[funcSlug] }} />
-      <header className={style.topbar}>
-        <a className={style.brand} href="#">
-          <span className={style.brand_icon}>
-            <SnowflakeIcon />
-          </span>
-          MathViz
-        </a>
-        <h1 className={style.title}>Function Viewer</h1>
-        <div className={style.actions}>
-          <SettingsMenu />
+      <div className={style.overlay}>
+        <header className={style.topbar}>
+          <a className={style.brand} href="#">
+            <span className={style.brand_icon}>
+              <SnowflakeIcon />
+            </span>
+            MathViz
+          </a>
+          <h1 className={style.title}>Function Viewer</h1>
+          <div className={style.actions}>
+            <SettingsMenu />
+          </div>
+        </header>
+        <div className={style.sidebar}>
+          <Field className={style.func_select_label} label="Function" htmlFor={selectId}>
+            <Select
+              id={selectId}
+              testId={selectId}
+              value={funcSlug}
+              onChange={onSelectFunc}
+              options={funcOptions}
+              className={style.func_select}
+            />
+          </Field>
         </div>
-      </header>
-      <div className={style.sidebar}>
-        <Field className={style.func_select_label} label="Function" htmlFor={selectId}>
-          <Select
-            id={selectId}
-            testId={selectId}
-            value={funcSlug}
-            onChange={onSelectFunc}
-            options={funcOptions}
-            className={style.func_select}
-          />
-        </Field>
       </div>
     </div>
   )
