@@ -8,7 +8,7 @@ const yToCtx = (height: number, zoom: number, panY: number, y: number): number =
   return Math.floor(height / 2) - (y + panY) * zoom
 }
 
-const MIN_GRID_PX = 24
+const MIN_GRID_PX = 20
 
 // Grid spacing in math units, snapped to 1/2/5 x 10^n so lines stay at
 // least MIN_GRID_PX apart: zoomed far out we skip units, zoomed far in we
