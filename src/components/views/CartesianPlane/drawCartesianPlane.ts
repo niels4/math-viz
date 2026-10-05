@@ -29,6 +29,43 @@ const gridStep = (zoom: number): number => {
   return 10 * mag
 }
 
+// "1.5" instead of "1.5 units"-style float noise like 0.30000000000000004.
+const formatStep = (step: number): string => {
+  return String(Number(step.toPrecision(12)))
+}
+
+// Scale bar, one grid square wide: the bar matches the grid spacing on
+// screen, the label says how many math units that square represents.
+const drawScale = ({ ctx, width, height, themeVars, zoom }: DrawCartesianPlaneProps) => {
+  const step = gridStep(zoom)
+  const barPx = step * zoom
+  const pad = 16
+  const tick = 6
+  const x2 = width - pad
+  const x1 = Math.max(pad, x2 - barPx)
+  const yBar = height - pad
+  const label = `${formatStep(step)} ${step === 1 ? "unit" : "units"}`
+  const labelPad = 8
+
+  ctx.save()
+  ctx.strokeStyle = themeVars.foreground
+  ctx.fillStyle = themeVars.foreground
+  ctx.lineWidth = 2
+  ctx.font = "14px system-ui, sans-serif"
+  ctx.textAlign = "center"
+  ctx.textBaseline = "bottom"
+  ctx.beginPath()
+  ctx.moveTo(x1, yBar)
+  ctx.lineTo(x2, yBar)
+  ctx.moveTo(x1, yBar)
+  ctx.lineTo(x1, yBar - tick)
+  ctx.moveTo(x2, yBar)
+  ctx.lineTo(x2, yBar - tick)
+  ctx.stroke()
+  ctx.fillText(label, (x1 + x2) / 2, yBar - tick - labelPad)
+  ctx.restore()
+}
+
 const drawGrid = ({ ctx, width, height, themeVars, zoom, panX, panY }: DrawCartesianPlaneProps) => {
   const widthUnits = Math.floor(width / zoom)
   const halfWidthUnits = Math.floor(widthUnits / 2)
@@ -94,6 +131,7 @@ export const drawCartesianPlane = (props: DrawCartesianPlaneProps) => {
   }
 
   drawGrid(props)
+  drawScale(props)
 
   ctx.beginPath()
   ctx.arc(xToCtx(width, zoom, panX, -5), yToCtx(height, zoom, panY, 2), zoom / 2, 0, 2 * Math.PI)
