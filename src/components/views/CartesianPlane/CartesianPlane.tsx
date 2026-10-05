@@ -22,7 +22,9 @@ export function CartesianPlane() {
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null)
   const dpr = useDevicePixelRatio()
   const dragRef = useRef<{ lastX: number; lastY: number } | null>(null)
-  const [view, setView] = useState({ zoom: 50, panX: 0, panY: 0 })
+  const [zoom, setZoom] = useState(50)
+  const [panX, setPanX] = useState(0)
+  const [panY, setPanY] = useState(0)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -47,13 +49,13 @@ export function CartesianPlane() {
       height,
       themeVars,
       dpr,
-      zoom: view.zoom,
-      panX: view.panX,
-      panY: view.panY,
+      zoom,
+      panX,
+      panY,
     })
     // HMR: drawCartesianPlane identity changes only on hot reload, intentional redraw
     // eslint-disable-next-line react-hooks/exhaustive-deps -- keeps the HMR redraw
-  }, [width, height, dpr, view, drawCartesianPlane])
+  }, [width, height, dpr, zoom, panX, panY, drawCartesianPlane])
 
   // Wheel zoom centered on the cursor. Native non-passive listener so we can
   // preventDefault and keep the page from scrolling while zooming the plane.
@@ -71,40 +73,41 @@ export function CartesianPlane() {
       const cy = Math.floor(rect.height / 2)
       const delta = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY
       // Multiplicative zoom: each tick scales by a fixed factor, so one notch
-      // feels the same at zoom 100 and zoom 0.5. Pan shifts to hold the math
+      // feels the same at zoom 100 and zoom 0.25. Pan shifts to hold the math
       // point under the cursor fixed (y sign flips: screen y grows downward).
-      setView((curr) => {
-        const nextZoom = clampZoom(curr.zoom * Math.exp(-delta * ZOOM_SPEED))
-        if (nextZoom === curr.zoom) {
-          return curr
-        }
-        const k = 1 / nextZoom - 1 / curr.zoom
-        return {
-          zoom: nextZoom,
-          panX: curr.panX + (sx - cx) * k,
-          panY: curr.panY + (cy - sy) * k,
-        }
-      })
+      const nextZoom = clampZoom(zoom * Math.exp(-delta * ZOOM_SPEED))
+      if (nextZoom === zoom) {
+        return
+      }
+      const k = 1 / nextZoom - 1 / zoom
+      setZoom(nextZoom)
+      setPanX(panX + (sx - cx) * k)
+      setPanY(panY + (cy - sy) * k)
     }
     canvas.addEventListener("wheel", onWheel, { passive: false })
     return () => {
       canvas.removeEventListener("wheel", onWheel)
     }
-  }, [])
+  }, [zoom, panX, panY])
 
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     dragRef.current = { lastX: e.clientX, lastY: e.clientY }
     e.currentTarget.setPointerCapture(e.pointerId)
   }
 
+  // Drag pans the plane: pixel deltas become math-unit shifts so the grabbed
+  // point stays under the cursor (y negated: screen y grows downward).
   const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const drag = dragRef.current
     if (drag === null) {
       return
     }
+    const dx = e.clientX - drag.lastX
+    const dy = e.clientY - drag.lastY
     drag.lastX = e.clientX
     drag.lastY = e.clientY
-    console.log("Dragging", drag.lastX, drag.lastY)
+    setPanX((curr) => curr + dx / zoom)
+    setPanY((curr) => curr - dy / zoom)
   }
 
   const endDrag = (e: React.PointerEvent<HTMLCanvasElement>) => {
