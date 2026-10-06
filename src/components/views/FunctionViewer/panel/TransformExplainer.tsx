@@ -30,15 +30,18 @@ const where = (param: TransformParam): string =>
 // value at 2 on x² (the original dashed, one point carried), its place in
 // the form with its letter lit, and its ruler's gestures. A non-modal
 // dialog beside the panel, its caret on the letter chip; the view says when
-// it opens and closes. `locate` gives the chip's and the panel's boxes.
+// it opens and closes (`closing`: on its way out, inert). `locate` gives
+// the chip's and the panel's boxes.
 export function TransformExplainer({
   param,
   id,
   locate,
+  closing = false,
 }: {
   param: TransformParam
   id: string
   locate: () => { chip: Rect; panel: Rect } | null
+  closing?: boolean
 }) {
   const ref = useRef<HTMLDivElement | null>(null)
   const [place, setPlace] = useState<ExplainerPlace | null>(null)
@@ -75,6 +78,7 @@ export function TransformExplainer({
       tone="plain"
       caret={place?.caret ?? { side: "left", at: EXPLAINER_LAYOUT.tip }}
       className={place === null ? `${style.explainer} ${style.unplaced}` : style.explainer}
+      closing={closing}
       role="dialog"
       labelledBy={`${id}-name`}
       testId={`fv-explainer-${param}`}

@@ -1,4 +1,6 @@
-import type { AriaRole, ReactNode, Ref } from "react"
+import type { AriaRole, CSSProperties, ReactNode, Ref } from "react"
+
+import { motionCssVars } from "#src/util/motion/motion.ts"
 
 import style from "./Callout.module.css"
 
@@ -91,7 +93,10 @@ function Caret({ tone, caret }: { tone: CalloutTone; caret: CalloutCaret }) {
 // A card with a caret that points at what it is about, fixed to the
 // viewport at (x, y), its card's top-left: an explainer beside its chip, a
 // tour step beside what it spotlights. The owner places it (the rules
-// differ per use) and decides when it closes.
+// differ per use) and decides when it closes. It opens and closes on the
+// overlays' motion (the settings menu's, from its caret's tip); `closing`
+// keeps it on screen, inert, while it leaves, which the owner times with
+// usePresence; `glide` springs it between places (a tour's next step).
 export function Callout({
   x,
   y,
@@ -104,6 +109,8 @@ export function Callout({
   label,
   labelledBy,
   tabIndex,
+  closing = false,
+  glide = false,
   testId,
   ref,
 }: {
@@ -119,6 +126,10 @@ export function Callout({
   labelledBy?: string
   /** -1 lets the owner move the focus to the callout itself (a dialog as it opens). */
   tabIndex?: number
+  /** On its way out: it fades and shrinks to its caret, taking no input. */
+  closing?: boolean
+  /** Moves to a new place on the enter spring instead of jumping there. */
+  glide?: boolean
   testId?: string
   ref?: Ref<HTMLDivElement>
 }) {
@@ -126,8 +137,12 @@ export function Callout({
     <div
       ref={ref}
       className={className === undefined ? style.callout : `${style.callout} ${className}`}
-      style={{ left: x, top: y, width }}
+      style={{ ...motionCssVars, left: x, top: y, width, "--caret-at": `${caret.at}px` } as CSSProperties}
       data-tone={tone}
+      data-caret={caret.side}
+      data-closing={closing || undefined}
+      data-glide={glide || undefined}
+      inert={closing}
       role={role}
       aria-label={label}
       aria-labelledby={labelledBy}

@@ -697,6 +697,28 @@ describe("FunctionViewer", () => {
       expect(explainer("k")).toBeNull()
     })
 
+    it("leaves on the overlays' motion: on screen and inert for 120 ms, then gone", async () => {
+      vi.stubGlobal("matchMedia", FULL_MOTION)
+      const screen = await render(<FunctionViewer />)
+      const ruler = byTestId(screen, "fv-param-k-ruler")
+      act(() => {
+        ruler.focus()
+      })
+      keydown(ruler, "?")
+      expect(explainer("k")?.hasAttribute("data-closing")).toBe(false)
+      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
+      keydown(ruler, "Escape")
+      const leaving = explainer("k")
+      expect(leaving?.hasAttribute("data-closing")).toBe(true)
+      expect(leaving?.hasAttribute("inert")).toBe(true)
+      // Closed for the page at once: the ruler no longer points at it.
+      expect(ruler.hasAttribute("aria-describedby")).toBe(false)
+      act(() => {
+        vi.advanceTimersByTime(120)
+      })
+      expect(explainer("k")).toBeNull()
+    })
+
     it("toggles with a tap on the chip; a press anywhere else closes it", async () => {
       const screen = await render(<FunctionViewer />)
       const chip = byTestId(screen, "fv-param-h-chip")
@@ -843,6 +865,25 @@ describe("FunctionViewer", () => {
       click(screen, "settings-button")
       click(screen, "settings-action-tour")
       expect(title()).toBe("This is a function")
+    })
+
+    it("leaves on the overlays' motion: the card and the scrim stay 120 ms, inert, then go", async () => {
+      vi.stubGlobal("matchMedia", FULL_MOTION)
+      const screen = await render(<FunctionViewer />)
+      click(screen, "settings-button")
+      click(screen, "settings-action-tour")
+      expect(title()).toBe("This is a function")
+      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
+      click(screen, "fv-tour-skip")
+      expect(card()?.hasAttribute("data-closing")).toBe(true)
+      expect(card()?.hasAttribute("inert")).toBe(true)
+      expect(document.querySelector('[data-testid="fv-tour-scrim"]')?.hasAttribute("data-closing")).toBe(true)
+      expect(localStorage.getItem(FV_TOUR_KEY)).toBe("true")
+      act(() => {
+        vi.advanceTimersByTime(120)
+      })
+      expect(card()).toBeNull()
+      expect(document.querySelector('[data-testid="fv-tour-scrim"]')).toBeNull()
     })
 
     it("moves on from step 1 after 6 s without input, and Esc skips it", async () => {

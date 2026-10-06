@@ -1,11 +1,31 @@
 /* The spotlight (FV 08): the page under --background at 62 %, holes where
 the step's idea lives. Under the settings menu, above everything else, and
-it takes no input. */
+it takes no input. It fades in and out with the card (the overlays'
+timing, ui/Callout); under reduced motion over 120 ms each way. */
 .scrim {
   position: fixed;
   inset: 0;
   z-index: 15;
   pointer-events: none;
+  transition: opacity var(--motion-dur-base) var(--motion-ease-enter);
+}
+
+@starting-style {
+  .scrim {
+    opacity: 0;
+  }
+}
+
+.scrim[data-closing] {
+  opacity: 0;
+  transition: opacity var(--motion-dur-leave) linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrim,
+  .scrim[data-closing] {
+    transition: opacity var(--motion-dur-reduced-fade) linear;
+  }
 }
 
 .scrim path {
@@ -27,20 +47,6 @@ focus as the tour opens. */
 .unplaced {
   pointer-events: none;
   opacity: 0;
-}
-
-/* Between steps the card springs to its next place (Next's smart animate:
-the enter spring, 320 ms); under reduced motion it moves at once. */
-.settled {
-  transition:
-    left var(--motion-dur-base) var(--motion-ease-enter),
-    top var(--motion-dur-base) var(--motion-ease-enter);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .settled {
-    transition: none;
-  }
 }
 
 /* Three 8 px dots 8 apart, --primary up to this step, then the caps label. */

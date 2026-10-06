@@ -101,13 +101,16 @@ function StepActions({
 // Next (Done on the last). The scrim takes no input, so the page works as
 // it always does; each step completes on its real action (the reducer),
 // Next is the fallback, step 1 also moves on after 6 s idle. `locate` finds
-// the step's targets, followed every frame while the tour shows.
+// the step's targets, followed every frame while the tour shows. It opens
+// and closes on the overlays' motion; `closing`, it fades out and acts no
+// more.
 export function Tour({
   step,
   body,
   locate,
   onNext,
   onEnd,
+  closing = false,
 }: {
   step: FvTourStep
   /** The step's body; step 1's tells about the live curve. */
@@ -115,6 +118,8 @@ export function Tour({
   locate: () => TourTargets
   onNext: () => void
   onEnd: () => void
+  /** On its way out (usePresence): shown as it was, inert. */
+  closing?: boolean
 }) {
   const id = useId()
   const cardRef = useRef<HTMLDivElement | null>(null)
@@ -161,7 +166,7 @@ export function Tour({
   // Step 1 has no action of its own: it moves on after 6 s without input.
   const idle = useEffectEvent(() => onNext())
   useEffect(() => {
-    if (step !== 1) {
+    if (step !== 1 || closing) {
       return
     }
     let timer = setTimeout(() => idle(), TOUR_IDLE_MS)
@@ -178,7 +183,7 @@ export function Tour({
         removeEventListener(type, restart, { capture: true })
       }
     }
-  }, [step])
+  }, [step, closing])
 
   // The focus (FV 07): as the tour opens it goes to the card, a dialog a
   // screen reader announces, where Tab reaches Skip tour and Next, with no
@@ -216,6 +221,7 @@ export function Tour({
         width={view.width}
         height={view.height}
         aria-hidden="true"
+        data-closing={closing || undefined}
         data-testid="fv-tour-scrim"
       >
         <path
@@ -231,9 +237,9 @@ export function Tour({
         width={TOUR_CARD.width}
         tone="accent"
         caret={card?.caret ?? { side: "left", at: 0 }}
-        className={[style.card, card === null && style.unplaced, settled && style.settled]
-          .filter(Boolean)
-          .join(" ")}
+        className={card === null ? `${style.card} ${style.unplaced}` : style.card}
+        glide={settled}
+        closing={closing}
         role="dialog"
         labelledBy={`${id}-title`}
         tabIndex={-1}

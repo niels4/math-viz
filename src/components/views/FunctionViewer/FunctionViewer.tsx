@@ -1,7 +1,8 @@
 import { useEffect, useId, useMemo, useReducer, useRef } from "react"
 
+import { useLeaving } from "#src/components/hooks/usePresence.ts"
 import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
-import { motionCssVars } from "#src/util/motion/motion.ts"
+import { DURATION_MS, motionCssVars, motionLevel } from "#src/util/motion/motion.ts"
 
 import { HintBar } from "../../ui/HintBar.tsx"
 import { MathText } from "../../ui/MathText.tsx"
@@ -107,6 +108,10 @@ export function FunctionViewer() {
   const planeRef = useRef<CartesianPlaneHandle | null>(null)
   const explainerId = useId()
   const { explainer, tour } = state
+  // The overlays stay on screen while they leave (the overlays' motion).
+  const leaveMs = motionLevel() === "none" ? 0 : DURATION_MS.leave
+  const explainerShown = useLeaving(explainer?.param ?? null, leaveMs)
+  const tourShown = useLeaving(tour?.step ?? null, leaveMs)
   // FV 05: the plane's motion; the tour waits for the first paint (FV 08).
   const painted = useFvMotion(state, sceneInput, { plane: planeRef, root: rootRef })
   const help = useHelp(state, dispatch, { root: rootRef, panel: panelRef, plane: planeRef }, painted)
@@ -248,21 +253,23 @@ export function FunctionViewer() {
           }}
         />
       </main>
-      {tour !== null && help.tourBody !== null && (
+      {tourShown.shown !== null && (
         <Tour
-          step={tour.step}
-          body={help.tourBody}
+          step={tourShown.shown}
+          body={help.tourBodyOf(tourShown.shown)}
           locate={help.locateTour}
           onNext={() => dispatch({ type: "tour", to: "next" })}
           onEnd={() => dispatch({ type: "tour", to: "end" })}
+          closing={tourShown.closing}
         />
       )}
-      {explainer !== null && (
+      {explainerShown.shown !== null && (
         <TransformExplainer
-          key={explainer.param}
-          param={explainer.param}
+          key={explainerShown.shown}
+          param={explainerShown.shown}
           id={explainerId}
           locate={help.locateChip}
+          closing={explainerShown.closing}
         />
       )}
     </div>

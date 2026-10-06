@@ -22,3 +22,22 @@ export const usePresence = (open: boolean, exitMs: number): Presence => {
   }, [closing, exitMs])
   return open ? "open" : closing ? "closing" : "closed"
 }
+
+/**
+ * A value that goes away (an open explainer's parameter, the tour's step),
+ * kept through its exit, so its overlay can animate out: the value while
+ * it is there, the last one while it leaves (`closing`), null once gone.
+ * A primitive, compared by value.
+ */
+export const useLeaving = <T extends string | number>(
+  value: T | null,
+  exitMs: number,
+): { shown: T | null; closing: boolean } => {
+  const presence = usePresence(value !== null, exitMs)
+  const [last, setLast] = useState(value)
+  if (value !== null && value !== last) {
+    setLast(value)
+  }
+  const closing = presence === "closing"
+  return { shown: value ?? (closing ? last : null), closing }
+}

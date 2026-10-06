@@ -12,7 +12,6 @@ declare const styles: {
   readonly "path": string;
   readonly "progress": string;
   readonly "scrim": string;
-  readonly "settled": string;
   readonly "skip": string;
   readonly "spacer": string;
   readonly "step_label": string;

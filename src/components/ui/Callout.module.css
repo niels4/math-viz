@@ -17,6 +17,65 @@
     border: 2px solid var(--primary);
   }
 
+  /* It opens on the overlays' motion, as the settings menu does: from
+  its caret's tip, growing from 98 % and coming 4 px toward its place, on
+  the enter spring over dur-base; it leaves the same way back in dur-leave
+  (120 ms), linearly. Gliding, it also springs between places. Under
+  reduced motion it only fades, 120 ms each way, and jumps between places. */
+  .callout {
+    --callout-from: translateX(-4px) scale(0.98);
+    --callout-move:
+      opacity var(--motion-dur-base) var(--motion-ease-enter),
+      transform var(--motion-dur-base) var(--motion-ease-enter);
+
+    transform-origin: 0 var(--caret-at);
+    transition: var(--callout-move);
+  }
+
+  .callout[data-caret="top"] {
+    --callout-from: translateY(-4px) scale(0.98);
+
+    transform-origin: var(--caret-at) 0;
+  }
+
+  .callout[data-caret="bottom"] {
+    --callout-from: translateY(4px) scale(0.98);
+
+    transform-origin: var(--caret-at) 100%;
+  }
+
+  .callout[data-glide] {
+    transition:
+      var(--callout-move),
+      left var(--motion-dur-base) var(--motion-ease-enter),
+      top var(--motion-dur-base) var(--motion-ease-enter);
+  }
+
+  @starting-style {
+    .callout {
+      opacity: 0;
+      transform: var(--callout-from);
+    }
+  }
+
+  .callout[data-closing] {
+    opacity: 0;
+    transform: var(--callout-from);
+    transition:
+      opacity var(--motion-dur-leave) linear,
+      transform var(--motion-dur-leave) linear;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .callout,
+    .callout[data-glide],
+    .callout[data-closing] {
+      --callout-from: none;
+
+      transition: opacity var(--motion-dur-reduced-fade) linear;
+    }
+  }
+
   /* Focused as a whole (a dialog as it opens): its border marks it. */
   .callout:focus {
     outline: none;
