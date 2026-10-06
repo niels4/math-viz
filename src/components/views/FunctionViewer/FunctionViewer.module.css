@@ -24,6 +24,8 @@
   grid-area: topbar;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
+  grid-template-areas: "brand funcbar actions";
+  column-gap: 28px;
   align-items: center;
   gap: 16px;
   background: var(--background-muted);
@@ -33,7 +35,42 @@
   pointer-events: auto;
 }
 
+.func_selector {
+  grid-area: funcbar;
+}
+
+.func_label_hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.func_row {
+  display: grid;
+  flex: 1;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  min-width: 0;
+}
+
+.func_row select {
+  font-size: 1.15rem;
+}
+
+.func_readout {
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.05em;
+  color: var(--secondary-foreground);
+  overflow-wrap: anywhere;
+}
+
 .brand {
+  grid-area: brand;
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -51,17 +88,8 @@
   color: var(--primary);
 }
 
-.title {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: var(--foreground);
-  text-align: center;
-  white-space: nowrap;
-}
-
 .actions {
+  grid-area: actions;
   display: flex;
   justify-self: end;
   align-items: center;
@@ -78,13 +106,18 @@ the logo icon alone. */
 
 /* Narrow screens: the brand, title, and settings crowd each other around
 400px, so drop the center title and let brand/actions take the edges. */
+@media (max-width: 600px) {
+  .func_row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (max-width: 400px) {
   .topbar {
-    grid-template-columns: 1fr auto;
-  }
-
-  .title {
-    display: none;
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      "brand actions"
+      "funcbar funcbar";
   }
 }
 
@@ -100,6 +133,23 @@ the logo icon alone. */
   border-radius: 20px;
   padding: 28px;
   pointer-events: auto;
+}
+
+/* Sidebar sections (Transforms, then the two to come): each is a header
+plus its own grid of rows, so siblings stack with the sidebar gap. */
+.section {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.section_title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--foreground-muted);
 }
 
 /* Input left, scrub strip right: equal halves keep numbers and strips
@@ -120,19 +170,16 @@ usable at the sidebar's narrowest. */
 
 /* Unlayered view styles win over the `@layer components` design system
 regardless of specificity or stylesheet order, so plain classes suffice. */
-.func_select_label {
-  font-size: 1.15rem;
-}
-
-.func_select {
+.func_readout {
   font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
-  font-size: 1.75rem;
-  padding: 24px 44px 24px 24px;
-  margin-top: 8px;
+  font-size: 1.5rem;
+  padding: 12px 24px;
   /* Equation-box pattern: tinted fill, accent border, matching foreground.
   In educational-warm these are the reference colors exactly. */
   background: var(--secondary);
   border: 2px solid var(--primary);
+  border-radius: var(--radius);
   color: var(--secondary-foreground);
-  letter-spacing: 0.3rem;
+  letter-spacing: 0.1rem;
+  overflow-wrap: anywhere;
 }

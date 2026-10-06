@@ -10,16 +10,18 @@ export function Field({
   htmlFor,
   children,
   className,
+  layout = "stacked",
 }: {
   label: string
   htmlFor?: string
   children: ReactNode
   className?: string
+  layout?: "stacked" | "inline"
 }) {
   const autoId = useId()
   const id = htmlFor ?? autoId
   return (
-    <div className={fieldStyles.field_row}>
+    <div className={layout === "inline" ? fieldStyles.field_row_inline : fieldStyles.field_row}>
       <label
         className={className === undefined ? fieldStyles.label : `${fieldStyles.label} ${className}`}
         htmlFor={id}

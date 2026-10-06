@@ -1,16 +1,14 @@
 import { useState } from "react"
 
-import type { HelpContent } from "../../ui/HelpTip.tsx"
 import type { PlotFunc } from "../CartesianPlane/types"
 
 import { Field } from "../../ui/Field"
 import { SnowflakeIcon } from "../../ui/icons.tsx"
-import { NumberField } from "../../ui/NumberField.tsx"
-import { ScrubStrip } from "../../ui/ScrubStrip.tsx"
 import { Select } from "../../ui/Select"
 import { SettingsMenu } from "../../ui/SettingsMenu.tsx"
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
 import style from "./FunctionViewer.module.css"
+import { FunctionViewerSidebar } from "./FunctionViewerSidebar.tsx"
 
 const plotFuncSlugs = ["x", "x2", "x3", "sin"] as const
 
@@ -25,134 +23,26 @@ const plotFuncs: Record<PlotFuncSlug, (x: number) => number> = {
   sin: (x) => Math.sin(x),
 } as const
 
-const plotFuncLabels: Record<PlotFuncSlug, string> = {
+// Display numbers cap at 3 decimal places with trailing zeros stripped:
+// 1 -> "1", 2.5 -> "2.5", 0.30000000000000004 -> "0.3".
+const fmt = (n: number): string => String(Number(n.toFixed(3)))
+
+const plotFuncNames: Record<PlotFuncSlug, string> = {
   x: "x",
   x2: "x²",
   x3: "x³",
   sin: "sin(x)",
-} as const
+}
 
-const funcOptions = plotFuncSlugs.map((slug) => ({ value: slug, label: `f(x) = ${plotFuncLabels[slug]}` }))
+const plotFuncLabels: Record<PlotFuncSlug, (p: PlotFunc) => string> = {
+  x: (p) => `(x / ${fmt(p.xScale)} - ${fmt(p.xOffset)}) * ${fmt(p.yScale)} + ${fmt(p.yOffset)}`,
+  x2: (p) => `(x / ${fmt(p.xScale)} - ${fmt(p.xOffset)})² * ${fmt(p.yScale)} + ${fmt(p.yOffset)}`,
+  x3: (p) => `(x / ${fmt(p.xScale)} - ${fmt(p.xOffset)})³ * ${fmt(p.yScale)} + ${fmt(p.yOffset)}`,
+  sin: (p) => `sin(x / ${fmt(p.xScale)} - ${fmt(p.xOffset)}) * ${fmt(p.yScale)} + ${fmt(p.yOffset)}`,
+}
 
 const isPlotFuncSlug = (slug: string): slug is PlotFuncSlug => {
   return (plotFuncSlugs as readonly string[]).includes(slug)
-}
-
-const scaleHelp: HelpContent = {
-  title: "Scrub the scale",
-  rows: [
-    { keys: "drag", text: "scrub the value" },
-    { keys: "Shift drag", text: "fine control" },
-    { keys: "Ctrl drag", text: "snap to whole numbers" },
-    { keys: "2×click", text: "reset to 1" },
-  ],
-}
-
-const offsetHelp: HelpContent = {
-  title: "Scrub the offset",
-  rows: [
-    { keys: "drag", text: "scrub the value" },
-    { keys: "Shift drag", text: "fine control" },
-    { keys: "Ctrl drag", text: "snap to whole numbers" },
-    { keys: "2×click", text: "reset to 0" },
-  ],
-}
-
-type FunctionViewerSidebarProps = {
-  funcSlug: string
-  onSelectFunc: (next: string) => void
-  xScale: number
-  setXScale: (next: number) => void
-  xOffset: number
-  setXOffset: (next: number) => void
-  yScale: number
-  setYScale: (next: number) => void
-  yOffset: number
-  setYOffset: (next: number) => void
-}
-
-function FunctionViewerSidebar({
-  funcSlug,
-  onSelectFunc,
-  xScale,
-  setXScale,
-  xOffset,
-  setXOffset,
-  yScale,
-  setYScale,
-  yOffset,
-  setYOffset,
-}: FunctionViewerSidebarProps) {
-  return (
-    <div className={style.sidebar}>
-      <Field className={style.func_select_label} label="Function">
-        <Select
-          testId="func-select"
-          value={funcSlug}
-          onChange={onSelectFunc}
-          options={funcOptions}
-          className={style.func_select}
-        />
-      </Field>
-      <Field label="X Scale">
-        <div className={style.control_row}>
-          <NumberField testId="x-scale-input" {...{ value: xScale, onChange: setXScale }} />
-          <ScrubStrip
-            testId="x-scale-strip"
-            label="Scrub X scale"
-            kind="multiplicative"
-            step={0.002}
-            defaultValue={1}
-            help={scaleHelp}
-            {...{ value: xScale, onChange: setXScale }}
-          />
-        </div>
-      </Field>
-      <Field label="X Offset">
-        <div className={style.control_row}>
-          <NumberField testId="x-offset-input" {...{ value: xOffset, onChange: setXOffset }} />
-          <ScrubStrip
-            testId="x-offset-strip"
-            label="Scrub X offset"
-            kind="additive"
-            step={0.02}
-            defaultValue={0}
-            help={offsetHelp}
-            {...{ value: xOffset, onChange: setXOffset }}
-          />
-        </div>
-      </Field>
-      <Field label="Y Scale">
-        <div className={style.control_row}>
-          <NumberField testId="y-scale-input" {...{ value: yScale, onChange: setYScale }} />
-          <ScrubStrip
-            testId="y-scale-strip"
-            label="Scrub Y scale"
-            kind="multiplicative"
-            step={0.002}
-            defaultValue={1}
-            help={scaleHelp}
-            {...{ value: yScale, onChange: setYScale }}
-          />
-        </div>
-      </Field>
-      <Field label="Y Offset">
-        <div className={style.control_row}>
-          <NumberField testId="y-offset-input" {...{ value: yOffset, onChange: setYOffset }} />
-          <ScrubStrip
-            testId="y-offset-strip"
-            label="Scrub Y offset"
-            kind="additive"
-            step={0.02}
-            defaultValue={0}
-            help={offsetHelp}
-            {...{ value: yOffset, onChange: setYOffset }}
-          />
-        </div>
-      </Field>
-      <p className={style.scrub_hint}>Drag a strip to scrub · Shift fine · Ctrl snap · double-click resets</p>
-    </div>
-  )
 }
 
 export function FunctionViewer() {
@@ -176,6 +66,11 @@ export function FunctionViewer() {
     func: plotFuncs[funcSlug],
   }
 
+  const funcOptions = plotFuncSlugs.map((slug) => ({
+    value: slug,
+    label: plotFuncNames[slug],
+  }))
+
   return (
     <div className={style.page}>
       <CartesianPlane {...{ plotFunc }} />
@@ -187,15 +82,22 @@ export function FunctionViewer() {
             </span>
             <span className={style.brand_text}>MathViz</span>
           </a>
-          <h1 className={style.title}>Function Viewer</h1>
           <div className={style.actions}>
             <SettingsMenu />
+          </div>
+          <div className={style.func_selector}>
+            <Field className={style.func_label_hidden} label="Function" layout="inline">
+              <div className={style.func_row}>
+                <Select testId="func-select" value={funcSlug} onChange={onSelectFunc} options={funcOptions} />
+                <output className={style.func_readout} data-testid="func-readout">
+                  {`f(x) = ${plotFuncLabels[funcSlug](plotFunc)}`}
+                </output>
+              </div>
+            </Field>
           </div>
         </header>
         <FunctionViewerSidebar
           {...{
-            funcSlug,
-            onSelectFunc,
             xScale,
             setXScale,
             xOffset,

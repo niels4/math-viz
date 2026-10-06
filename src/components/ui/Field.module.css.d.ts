@@ -3,6 +3,7 @@
 // prettier-ignore
 declare const styles: {
   readonly "field_row": string;
+  readonly "field_row_inline": string;
   readonly "label": string;
 };
 export = styles;
