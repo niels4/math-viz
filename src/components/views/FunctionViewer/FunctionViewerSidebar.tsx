@@ -5,7 +5,9 @@ import { ExtentSlider } from "../../ui/ExtentSlider.tsx"
 import { Field } from "../../ui/Field"
 import { NumberField } from "../../ui/NumberField.tsx"
 import { ScrubStrip } from "../../ui/ScrubStrip.tsx"
+import { SECTIONS } from "./copy.ts"
 import style from "./FunctionViewer.module.css"
+import { PanelSection } from "./panel/PanelSection.tsx"
 
 const scaleHelp: HelpContent = {
   title: "Scrub the scale",
@@ -57,9 +59,8 @@ export function FunctionViewerSidebar({
   xExtent,
 }: FunctionViewerSidebarProps) {
   return (
-    <div className={style.sidebar}>
-      <section className={style.section} aria-label="Function Transforms">
-        <h2 className={style.section_title}>Function Transforms</h2>
+    <>
+      <PanelSection {...SECTIONS.transform}>
         <Field label="X Scale">
           <div className={style.control_row}>
             <NumberField testId="x-scale-input" {...{ value: xScale, onChange: setXScale }} />
@@ -119,9 +120,8 @@ export function FunctionViewerSidebar({
         <p className={style.scrub_hint}>
           Drag a strip to scrub · Shift fine · Ctrl snap · double-click resets
         </p>
-      </section>
-      <section className={style.section} aria-label="Points">
-        <h2 className={style.section_title}>Points</h2>
+      </PanelSection>
+      <PanelSection {...SECTIONS.points}>
         <Field label="p1">
           <div className={style.control_row}>
             <NumberField testId="p1-input" {...{ value: point1X, onChange: setPoint1X }} />
@@ -140,7 +140,7 @@ export function FunctionViewerSidebar({
             {point2X === null ? "Hover the chart" : point2X.toFixed(2)}
           </output>
         </Field>
-      </section>
-    </div>
+      </PanelSection>
+    </>
   )
 }

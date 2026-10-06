@@ -10,15 +10,17 @@ export type BaseFunction = {
   g: (u: number) => number
   /** Maths as the picker and the Original toggle print it ("y = x²"). */
   label: string
+  /** The label read aloud: the picker's radios are named by it. */
+  spoken: string
   /** D14: 1 for the powers, π/2 for sin, so g(unitX) = 1. */
   unitX: number
 }
 
 export const BASE_FUNCTIONS: Readonly<Record<BaseFunctionSlug, BaseFunction>> = {
-  x: { g: (u) => u, label: "x", unitX: 1 },
-  x2: { g: (u) => u * u, label: "x²", unitX: 1 },
-  x3: { g: (u) => u * u * u, label: "x³", unitX: 1 },
-  sin: { g: Math.sin, label: "sin x", unitX: Math.PI / 2 },
+  x: { g: (u) => u, label: "x", spoken: "x", unitX: 1 },
+  x2: { g: (u) => u * u, label: "x²", spoken: "x squared", unitX: 1 },
+  x3: { g: (u) => u * u * u, label: "x³", spoken: "x cubed", unitX: 1 },
+  sin: { g: Math.sin, label: "sin x", spoken: "sine of x", unitX: Math.PI / 2 },
 }
 
 export const isBaseFunctionSlug = (slug: string): slug is BaseFunctionSlug =>

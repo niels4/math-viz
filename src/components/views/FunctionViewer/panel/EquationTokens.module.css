@@ -1,7 +1,15 @@
-/* A parameter's term ("+ 1") never breaks across lines; its padding is
-figma0's term frame (fvTerm: 0 3 1 3), where the active plate will sit. */
+/* figma0's fvRender in CSS. Sizes are its rounded px: at the live line's
+28 px a fraction sets 22, an exponent 19 and a grown paren 40; at the form
+line's 18 px, 14, 12 and 26. Figma centres every part on the row; the
+vertical offsets below put each part's baseline where that centring does,
+with STIX Two Text's metrics (ascent 0.762, descent 0.238, line gap 0.25). */
+
+/* A parameter's term ("+ 1") never breaks; its padding is fvTerm's frame
+(0 3 1 3), where the active plate will sit. */
 .term {
+  display: inline-block;
   padding: 0 3px 1px;
+  border-radius: 4px;
   white-space: nowrap;
 }
 
@@ -9,40 +17,47 @@ figma0's term frame (fvTerm: 0 3 1 3), where the active plate will sit. */
   display: inline-block;
 }
 
-/* A self-contained stack in inline flow, so exponents next to it stay
-raised (AGENTS.md › Gotchas: sup inside flex rows). Both parts stretch to
-the wider one, so the bar spans x − h over a short b. */
+/* A self-contained stack in inline flow: numerator, a bar 0.055 em of the
+line's size (at least 1.5 px) and denominator, 2 px apart, the parts
+stretched to the wider one. Its padding is 0.12 em of the line's size. */
 .frac {
   display: inline-flex;
   flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  margin: 0 0.12em;
-  font-size: 0.8em;
-  line-height: 1.2;
+  gap: 2px;
+  padding: 0 round(nearest, 0.15em, 1px);
+  font-size: round(nearest, 0.8em, 1px);
   vertical-align: middle;
 }
 
-.num {
-  padding: 0 0.3em 0.08em;
+.part {
+  padding: 0 4px;
+  line-height: round(up, 1.25em, 1px);
   text-align: center;
+  white-space: nowrap;
 }
 
-.den {
-  border-top: 1.5px solid currentcolor;
-  padding: 0.08em 0.3em 0;
-  text-align: center;
+.bar {
+  height: max(1.5px, 0.06875em);
+  background: currentcolor;
 }
 
+/* 0.68 of the line's size, raised as fvRender's exponent frame (bottom
+padding 0.62 of the line's size) raises it. */
 .sup {
-  margin-left: 0.05em;
-  font-size: 0.68em;
+  margin-left: 1px;
+  font-size: round(nearest, 0.68em, 1px);
   line-height: 0;
+  vertical-align: 0.58em;
 }
 
-/* Grown around a stacked fraction, centred on it. */
-.paren_big {
-  font-size: 1.42em;
+.paren {
   line-height: 1;
-  vertical-align: middle;
+}
+
+/* Grown to 1.42 em around a stacked fraction; centred like the fraction,
+so its baseline drops 0.262 of the growth. */
+.paren_big {
+  font-size: round(nearest, 1.42em, 1px);
+  line-height: 1;
+  vertical-align: -0.0775em;
 }

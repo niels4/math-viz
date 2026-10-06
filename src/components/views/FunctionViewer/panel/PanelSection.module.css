@@ -1,0 +1,36 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* fvStep: 20 px tall, gap 8; the badge a 20 px --secondary disc with the
+number in Roboto Mono 600 12, the title Work Sans 600 13 caps. Line heights
+are Figma's AUTO boxes in px. */
+.header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  height: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 15px;
+  letter-spacing: var(--sig-label-tracking);
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+
+.step {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0;
+  background: var(--secondary);
+  border-radius: 50%;
+}

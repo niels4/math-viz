@@ -1,0 +1,73 @@
+/* The equation card (fvPanel): card fill, 1 px border, padding 10 16, 4
+between the lines. The live line sits in a 60 px row, the height of its
+stacked fraction, so switching x² for (x − h)/b keeps the panel still. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--sig-card-radius);
+}
+
+.live {
+  display: flex;
+  align-items: center;
+  min-height: 60px;
+  color: var(--foreground);
+}
+
+/* STIX Two Text's AUTO line box is 1.25 em, which Figma rounds up to whole
+px. */
+.line,
+.form {
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  line-height: round(up, 1.25em, 1px);
+}
+
+.line {
+  font-size: 28px;
+}
+
+.form_row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Figma's box ends at the last letter; CSS tracks after it too. */
+.form_label {
+  margin-inline-end: calc(-1 * var(--sig-label-tracking));
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 14px;
+  letter-spacing: var(--sig-label-tracking);
+  text-transform: uppercase;
+  color: var(--foreground-muted);
+}
+
+.form {
+  font-size: 18px;
+  color: var(--foreground-muted);
+}
+
+/* Every slot keeps room for the ghost's 1 px outline, so a value leaving
+its default never moves the line or the panel below it. */
+.form [data-param] {
+  border: 1px solid transparent;
+}
+
+.form [data-ghost] {
+  border-style: dashed;
+  border-color: currentcolor;
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

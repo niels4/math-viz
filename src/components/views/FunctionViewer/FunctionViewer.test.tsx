@@ -48,6 +48,45 @@ describe("FunctionViewer", () => {
     const curve = lastScene().curves[0]
     expect(curve?.fn(-1)).toBe(1)
     expect(curve?.fn(0.5)).toBe(5.5)
+    // The form line keeps every letter; only b, still at its default, is a ghost slot (D13).
+    const form = toElement(screen.getByTestId("fv-form"))
+    expect(form.textContent).toContain("Form: f(x) = a((x − h)/b)² + k")
+    expect([...form.querySelectorAll("[data-ghost]")].map((el) => el.getAttribute("data-param"))).toEqual([
+      "b",
+    ])
+  })
+
+  it("switches the function from the picker: equation and curve (D5)", async () => {
+    const screen = await render(<FunctionViewer />)
+    act(() => {
+      toElement(screen.getByTestId("fv-fn-sin")).click()
+    })
+    expect(toElement(screen.getByTestId("fv-fn-sin")).getAttribute("aria-checked")).toBe("true")
+    expect(toElement(screen.getByTestId("func-readout")).getAttribute("aria-label")).toBe("f(x) = sin(x)")
+    expect(lastScene().curves[0]?.fn(Math.PI / 2)).toBe(1)
+  })
+
+  it("names the view and the live theme in its top bar", async () => {
+    const screen = await render(<FunctionViewer />)
+    expect(document.querySelector("header h1")?.textContent).toBe("Function Viewer")
+    expect(document.querySelector("header h1 + p")?.textContent).toBe("Functions · transformations")
+    const chip = () => toElement(screen.getByTestId("theme-chip")).textContent
+    expect(chip()).toBe("Theme: Arctic Ice")
+    // A plain click event: the menu closes on it, and jsdom's patched click() (src/test/jsdom-setup.ts)
+    // throws on an element that unmounts during its own click.
+    const click = (id: string) => {
+      act(() => {
+        toElement(screen.getByTestId(id)).dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      })
+    }
+    const pick = (slug: string) => {
+      click("settings-button")
+      click(`settings-theme-${slug}`)
+    }
+    pick("clean-teal")
+    expect(chip()).toBe("Theme: Clean Teal")
+    pick("arctic-ice")
+    expect(chip()).toBe("Theme: Arctic Ice")
   })
 
   it("starts P at x = 2 (D4)", async () => {
