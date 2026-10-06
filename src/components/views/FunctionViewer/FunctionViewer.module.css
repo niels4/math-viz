@@ -180,6 +180,69 @@ regardless of specificity or stylesheet order, so plain classes suffice. */
   border: 2px solid var(--primary);
   border-radius: var(--radius);
   color: var(--secondary-foreground);
-  letter-spacing: 0.1rem;
+  letter-spacing: normal;
+  line-height: 1.6;
   overflow-wrap: anywhere;
+}
+
+/* Typeset equation: italic variables, upright sin, stacked fractions,
+juxtaposed coefficients (3(x−1)², never (x−1)² * 3). */
+/* Plain inline flow (not flex) so sup keeps its raised baseline alignment;
+fractions are self-contained inline-flex boxes and lines still wrap. */
+.formula {
+  vertical-align: baseline;
+}
+
+.formula_var {
+  font-style: italic;
+}
+
+/* Italic f leans hard into the opening paren, so f(x) gets a thin space. */
+.formula_fname {
+  font-style: italic;
+  margin-right: 0.2em;
+}
+
+.formula_eq {
+  margin: 0 0.45em;
+}
+
+.formula_op {
+  margin: 0 0.34em;
+}
+
+.formula_frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.14em;
+  font-size: 0.8em;
+  line-height: 1.2;
+  vertical-align: middle;
+}
+
+.formula_num {
+  padding: 0 0.3em 0.08em;
+}
+
+.formula_den {
+  border-top: 1.5px solid currentcolor;
+  padding: 0.08em 0.3em 0;
+}
+
+.formula sup {
+  margin-left: 0.05em;
+  font-size: 0.68em;
+  line-height: 0;
+}
+
+.formula_sin {
+  font-style: normal;
+  margin-right: 0.06em;
+}
+
+/* Thin space between a leading coefficient and sin: 3 sin(x), not 3sin(x). */
+.formula_coeff + .formula_sin {
+  margin-left: 0.16em;
 }

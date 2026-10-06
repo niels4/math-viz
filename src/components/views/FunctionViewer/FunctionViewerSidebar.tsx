@@ -48,8 +48,8 @@ export function FunctionViewerSidebar({
 }: FunctionViewerSidebarProps) {
   return (
     <div className={style.sidebar}>
-      <section className={style.section} aria-label="Transforms">
-        <h2 className={style.section_title}>Transforms</h2>
+      <section className={style.section} aria-label="Function Transforms">
+        <h2 className={style.section_title}>Function Transforms</h2>
         <Field label="X Scale">
           <div className={style.control_row}>
             <NumberField testId="x-scale-input" {...{ value: xScale, onChange: setXScale }} />
