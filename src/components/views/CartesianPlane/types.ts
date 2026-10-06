@@ -1,10 +1,6 @@
-export type PlotFunc = {
-  xOffset: number
-  xScale: number
-  yOffset: number
-  yScale: number
-  func: (x: number) => number
-}
+// The curve to plot, y for each math x. The owner composes the function
+// (transforms included); the plane only samples it.
+export type PlotFunc = (x: number) => number
 
 // The visible X range in math units: the left and right screen edges mapped
 // back through zoom and pan (mirrors ctxTox in drawCartesianPlane). The

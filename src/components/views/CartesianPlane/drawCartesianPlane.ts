@@ -126,9 +126,6 @@ const drawGrid = ({ ctx, width, height, themeVars, zoom, panX, panY }: DrawCarte
   ctx.stroke()
 }
 
-const plotY = (plotFunc: PlotFunc, x: number): number =>
-  plotFunc.yScale * plotFunc.func(x / plotFunc.xScale - plotFunc.xOffset) + plotFunc.yOffset
-
 const drawPlotFunction = ({
   ctx,
   width,
@@ -147,12 +144,12 @@ const drawPlotFunction = ({
   ctx.beginPath()
 
   const x = ctxTox(width, zoom, panX, 0)
-  const ctxY = yToCtx(height, zoom, panY, plotY(plotFunc, x))
+  const ctxY = yToCtx(height, zoom, panY, plotFunc(x))
   ctx.moveTo(0, ctxY)
 
   for (let ctxX = 0; ctxX <= width; ctxX++) {
     const x = ctxTox(width, zoom, panX, ctxX)
-    const ctxY = yToCtx(height, zoom, panY, plotY(plotFunc, x))
+    const ctxY = yToCtx(height, zoom, panY, plotFunc(x))
     ctx.lineTo(ctxX, ctxY)
   }
 
@@ -188,14 +185,13 @@ export const drawCircle = (
 
 const drawPoint1 = (props: DrawCartesianPlaneProps) => {
   const { plotFunc, themeVars, zoom, point1X } = props
-  console.log("drawing point 1", point1X)
   if (point1X == null) {
     return
   }
   if (plotFunc == null || zoom <= 0) {
     return
   }
-  const y = plotY(plotFunc, point1X)
+  const y = plotFunc(point1X)
   drawCircle(props, point1X, y, 8 / zoom, themeVars.foreground, themeVars.ordinal05, 2)
 }
 
@@ -207,7 +203,7 @@ const drawPoint2 = (props: DrawCartesianPlaneProps) => {
   if (plotFunc == null || zoom <= 0) {
     return
   }
-  const y = plotY(plotFunc, point2X)
+  const y = plotFunc(point2X)
   drawCircle(props, point2X, y, 8 / zoom, themeVars.foreground, themeVars.chartAccent, 2)
 }
 

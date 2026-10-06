@@ -1,5 +1,7 @@
-/* A parameter's term ("+ 1") never breaks across lines. */
+/* A parameter's term ("+ 1") never breaks across lines; its padding is
+figma0's term frame (fvTerm: 0 3 1 3), where the active plate will sit. */
 .term {
+  padding: 0 3px 1px;
   white-space: nowrap;
 }
 
@@ -8,11 +10,12 @@
 }
 
 /* A self-contained stack in inline flow, so exponents next to it stay
-raised (AGENTS.md › Gotchas: sup inside flex rows). */
+raised (AGENTS.md › Gotchas: sup inside flex rows). Both parts stretch to
+the wider one, so the bar spans x − h over a short b. */
 .frac {
   display: inline-flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   margin: 0 0.12em;
   font-size: 0.8em;
@@ -22,11 +25,13 @@ raised (AGENTS.md › Gotchas: sup inside flex rows). */
 
 .num {
   padding: 0 0.3em 0.08em;
+  text-align: center;
 }
 
 .den {
   border-top: 1.5px solid currentcolor;
   padding: 0.08em 0.3em 0;
+  text-align: center;
 }
 
 .sup {
