@@ -50,7 +50,7 @@
   --sig-curve-glow: transparent;
   --sig-glow-radius: 8px;
   --sig-hud-ticks: 0;
-  --sig-label-tracking: 0.2em;
+  --sig-label-tracking: 2.8px;
   --sig-readout-font: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --gradient-primary: linear-gradient(
     135deg,

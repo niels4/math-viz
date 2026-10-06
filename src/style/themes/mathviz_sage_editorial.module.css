@@ -50,7 +50,7 @@
   --sig-curve-glow: transparent;
   --sig-glow-radius: 0px;
   --sig-hud-ticks: 0;
-  --sig-label-tracking: 0.08em;
+  --sig-label-tracking: 1.12px;
   --sig-readout-font: "STIX Two Text", Georgia, "Times New Roman", serif;
   --gradient-primary: linear-gradient(
     135deg,

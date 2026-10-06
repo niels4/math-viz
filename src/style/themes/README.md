@@ -111,7 +111,7 @@ Proposed by figma0 (`scripts/mathviz-claude/payloads/fv-tokens.json`, `v2-tokens
 | `--sig-curve-glow`     | `transparent`; midnight-violet `--primary` at 60 %                    | glow under the plotted curve                         |
 | `--sig-glow-radius`    | 8 / 10 / 14px in the dark themes, `0px` in the light ones             | blur radius of the glows                             |
 | `--sig-hud-ticks`      | `0`; tron-cyan `1`                                                    | HUD ticks on the plane frame, used as `opacity`      |
-| `--sig-label-tracking` | `0.08em`; arctic-ice `0.2em`                                          | letter-spacing of caps labels                        |
+| `--sig-label-tracking` | `1.12px`; arctic-ice `2.8px` (0.08em and 0.2em of a 14 px label)      | letter-spacing of caps labels, the same at any size  |
 | `--sig-readout-font`   | Roboto Mono stack; sage-editorial STIX Two Text                       | readout numerals                                     |
 
 The sommelier `theme-export` must emit these too, or a re-export drops them.
