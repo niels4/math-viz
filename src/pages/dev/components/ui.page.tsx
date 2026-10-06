@@ -145,9 +145,8 @@ export default function UiPage() {
 
             <SectionCard icon={<SlidersIcon />} title="Form controls" titleId="ui-form">
               <div className={uiStyles.form_stack}>
-                <Field label="Email address" htmlFor="ui-email">
+                <Field label="Email address">
                   <TextField
-                    id="ui-email"
                     type="email"
                     autoComplete="email"
                     testId="control-email"
@@ -155,9 +154,8 @@ export default function UiPage() {
                     onChange={setEmail}
                   />
                 </Field>
-                <Field label="Framework" htmlFor="ui-framework">
+                <Field label="Framework">
                   <Select
-                    id="ui-framework"
                     testId="control-framework"
                     value={framework}
                     onChange={(next) => setFramework(next as Framework)}

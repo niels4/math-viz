@@ -1,5 +1,8 @@
+import { useId } from "react"
+
 import selectStyles from "./Select.module.css"
 import fieldStyles from "./TextField.module.css"
+import { useFieldId } from "./useFieldId.ts"
 
 export type SelectOption = string | { value: string; label: string }
 
@@ -14,17 +17,20 @@ export function Select({
   testId,
   className,
 }: {
-  id: string
+  id?: string
   value: string
   onChange: (next: string) => void
   options: ReadonlyArray<SelectOption>
   testId: string
   className?: string
 }) {
+  const fieldId = useFieldId()
+  const autoId = useId()
+  const resolvedId = id ?? fieldId ?? autoId
   return (
     <div className={selectStyles.select_wrap}>
       <select
-        id={id}
+        id={resolvedId}
         data-testid={testId}
         value={value}
         onChange={(event) => onChange(event.currentTarget.value)}

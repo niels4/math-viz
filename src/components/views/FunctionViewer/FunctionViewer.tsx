@@ -1,4 +1,4 @@
-import { useId, useState } from "react"
+import { useState } from "react"
 
 import type { PlotFunc } from "../CartesianPlane/types"
 
@@ -37,8 +37,6 @@ const isPlotFuncSlug = (slug: string): slug is PlotFuncSlug => {
 
 export function FunctionViewer() {
   const [funcSlug, setFuncSlug] = useState<PlotFuncSlug>(defaultFuncSlug)
-  const id = useId()
-  const selectId = `func-select-${id}`
 
   const onSelectFunc = (next: string) => {
     if (isPlotFuncSlug(next)) {
@@ -63,10 +61,9 @@ export function FunctionViewer() {
           </div>
         </header>
         <div className={style.sidebar}>
-          <Field className={style.func_select_label} label="Function" htmlFor={selectId}>
+          <Field className={style.func_select_label} label="Function">
             <Select
-              id={selectId}
-              testId={selectId}
+              testId="func-select"
               value={funcSlug}
               onChange={onSelectFunc}
               options={funcOptions}

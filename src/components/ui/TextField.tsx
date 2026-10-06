@@ -1,4 +1,7 @@
+import { useId } from "react"
+
 import fieldStyles from "./TextField.module.css"
+import { useFieldId } from "./useFieldId.ts"
 
 export function TextField({
   id,
@@ -8,16 +11,19 @@ export function TextField({
   type = "text",
   autoComplete,
 }: {
-  id: string
+  id?: string
   value: string
   onChange: (next: string) => void
   testId: string
   type?: string
   autoComplete?: string
 }) {
+  const fieldId = useFieldId()
+  const autoId = useId()
+  const resolvedId = id ?? fieldId ?? autoId
   return (
     <input
-      id={id}
+      id={resolvedId}
       type={type}
       autoComplete={autoComplete}
       data-testid={testId}
