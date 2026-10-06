@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { describe, expect, it } from "vitest"
 
-import { act, render, toElement } from "#test"
+import { act, render, selectionMayStart, toElement } from "#test"
 
 import type { ScrubKind, ScrubMode } from "./scrub.ts"
 
@@ -116,6 +116,14 @@ describe("ScrubStrip", () => {
     )
     expect(now()).toBe("3.00")
     expect(seen.modes).toEqual(["coarse", null])
+  })
+
+  it("selects no text from the press until it is let go, wherever the pointer goes", async () => {
+    const { dispatch } = await renderStrip({ initial: 1 })
+    dispatch(pointer("pointerdown", { clientX: 100 }), pointer("pointermove", { clientX: 700, buttons: 1 }))
+    expect(selectionMayStart()).toBe(false)
+    dispatch(pointer("pointerup", { clientX: 700 }))
+    expect(selectionMayStart()).toBe(true)
   })
 
   it("reports the mode as it changes and never jumps when Shift comes or goes", async () => {

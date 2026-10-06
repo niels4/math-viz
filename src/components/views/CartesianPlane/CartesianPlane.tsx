@@ -8,6 +8,7 @@ import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
 import { motionLevel } from "#src/util/motion/motion.ts"
+import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
 
 import type { EdgeArrival } from "./arrivals.ts"
 import type { MarksLayout } from "./marks.ts"
@@ -396,6 +397,7 @@ export function CartesianPlane({
     if (hit !== null && mark !== undefined && e.button === 0) {
       pan.stopInertia()
       e.currentTarget.setPointerCapture(e.pointerId)
+      selectNothingUntilRelease(e)
       markDragRef.current = {
         id: hit.id,
         kind: hit.kind,

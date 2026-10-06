@@ -2,7 +2,7 @@ import { useState } from "react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { formatNumber } from "#src/util/format/number.ts"
-import { act, render, toElement } from "#test"
+import { act, render, selectionMayStart, toElement } from "#test"
 
 import { ExtentSlider } from "./ExtentSlider.tsx"
 
@@ -131,6 +131,15 @@ describe("ExtentSlider (the P scrubber, FV 07)", () => {
     expect(track.getAttribute("aria-valuenow")).toBe("9.36")
     pointer("pointerup", TRACK.left + 2000, 0)
     expect(seen.drags).toEqual([true, false])
+  })
+
+  it("selects no text from the press until it is let go", async () => {
+    const { pointer } = await renderSlider(2)
+    pointer("pointerdown", TRACK.left + 99)
+    pointer("pointermove", TRACK.left + 2000)
+    expect(selectionMayStart()).toBe(false)
+    pointer("pointerup", TRACK.left + 2000, 0)
+    expect(selectionMayStart()).toBe(true)
   })
 
   it("steps 0.1 with the arrows and 1 with Shift, past the range's ends", async () => {

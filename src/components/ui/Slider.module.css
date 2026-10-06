@@ -6,6 +6,8 @@
     border-radius: 999px;
     cursor: pointer;
     touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   .slider_track:focus-visible {

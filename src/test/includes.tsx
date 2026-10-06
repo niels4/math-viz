@@ -93,3 +93,9 @@ export const toElement = (node: unknown): HTMLElement => {
   }
   return node as HTMLElement
 }
+
+// Whether a text selection may start: a selectstart on the page goes
+// uncancelled. A pointer drag holds it off until it is let go
+// (#src/util/pointer/selectNothing.ts).
+export const selectionMayStart = () =>
+  document.body.dispatchEvent(new Event("selectstart", { bubbles: true, cancelable: true }))

@@ -2,7 +2,7 @@ import { getDefaultStore } from "jotai"
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest"
 
 import { FV_TOUR_KEY, fvTourDoneAtom } from "#src/state/fvTour.ts"
-import { act, render, toElement } from "#test"
+import { act, render, selectionMayStart, toElement } from "#test"
 
 import type { PlaneScene } from "../CartesianPlane/scene.ts"
 
@@ -498,12 +498,15 @@ describe("FunctionViewer", () => {
     // 50 px right is one unit for a shift, as on its ruler; k's ruler shows the drag.
     expect(valueOf(screen, "k")).toBe("1.00")
     expect(byTestId(screen, "fv-param-k-ruler").getAttribute("data-mode")).toBe("coarse")
+    // No text selection starts until the drag is let go.
+    expect(selectionMayStart()).toBe(false)
     at("pointermove", 10, 1)
     // Back at 0 mid-drag, the live line keeps the term: "+ 0.00".
     expect(document.querySelector('[data-line="live"] [data-param="k"]')?.textContent).toBe("+ 0.00")
     act(() => {
       window.dispatchEvent(new PointerEvent("pointerup"))
     })
+    expect(selectionMayStart()).toBe(true)
     expect(document.querySelector('[data-line="live"] [data-param="k"]')).toBeNull()
     expect(byTestId(screen, "fv-param-k-ruler").getAttribute("data-mode")).toBeNull()
     at("pointerdown", 10, 1)

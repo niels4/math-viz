@@ -13,6 +13,7 @@ import {
 
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import { quantize } from "#src/util/format/number.ts"
+import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
 
 import style from "./ExtentSlider.module.css"
 import { BASELINE_Y, extentMarks, TICK_LENGTH, TRACK_HEIGHT } from "./extentTicks.ts"
@@ -40,7 +41,8 @@ const inward = (v: number, q: number, side: "low" | "high"): number =>
 // bounds, Home and End jump to the ends, Enter asks the owner to open its
 // value field. Hover, focus and a drag show the value in a tip above the
 // thumb. A value off the track parks the thumb on the end it lies past, and
-// the tip points that way. Every value it sends sits on `quantum`.
+// the tip points that way. Every value it sends sits on `quantum`. A drag
+// selects no text, wherever the pointer goes.
 export function ExtentSlider({
   value,
   min,
@@ -125,6 +127,7 @@ export function ExtentSlider({
       return
     }
     event.currentTarget.setPointerCapture(event.pointerId)
+    selectNothingUntilRelease(event)
     showDragging(true)
     sendFromClientX(event.clientX)
   }

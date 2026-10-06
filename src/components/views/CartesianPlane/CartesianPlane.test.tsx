@@ -1,7 +1,7 @@
 import { createRef, useState, type Ref } from "react"
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest"
 
-import { act, render, toElement } from "#test"
+import { act, render, selectionMayStart, toElement } from "#test"
 
 import type { PlaneScene } from "./scene.ts"
 
@@ -462,6 +462,32 @@ describe("CartesianPlane marks", () => {
       press(canvas, "pointerup", 150, 100, 0)
     })
     expect(onPointer).toHaveBeenLastCalledWith(expect.objectContaining({ panning: false }))
+  })
+
+  it("selects no text while a point drags or the plane pans, until the pointer lets go", async () => {
+    const onMarkDrag = vi.fn<(phase: string, id: string, to: { x: number; y: number }) => void>()
+    const screen = await render(<CartesianPlane scene={POINT_SCENE} onMarkDrag={onMarkDrag} />)
+    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
+    act(() => {
+      press(canvas, "pointerdown", 350, 250, 1)
+      press(canvas, "pointermove", 900, 250, 1)
+    })
+    expect(onMarkDrag.mock.calls[0]?.[0]).toBe("start")
+    expect(selectionMayStart()).toBe(false)
+    act(() => {
+      press(canvas, "pointerup", 900, 250, 0)
+    })
+    expect(selectionMayStart()).toBe(true)
+    act(() => {
+      press(canvas, "pointerdown", 100, 100, 1)
+      press(canvas, "pointermove", -400, 100, 1)
+    })
+    expect(lastDraw().panX).toBe(-10)
+    expect(selectionMayStart()).toBe(false)
+    act(() => {
+      press(canvas, "pointerup", -400, 100, 0)
+    })
+    expect(selectionMayStart()).toBe(true)
   })
 
   it("pans a point off the view into it when its edge marker is clicked", async () => {

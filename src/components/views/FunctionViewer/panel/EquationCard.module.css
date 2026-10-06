@@ -107,6 +107,7 @@ motion takes from 0 to 1 and back, over the lit plate and under the text. */
   background-image: linear-gradient(var(--flash-ink), var(--flash-ink));
   cursor: ew-resize;
   touch-action: none;
+  -webkit-user-select: none;
   user-select: none;
 }
 

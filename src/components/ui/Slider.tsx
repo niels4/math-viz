@@ -1,5 +1,7 @@
 import { useRef, type KeyboardEvent, type PointerEvent } from "react"
 
+import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
+
 import sliderStyles from "./Slider.module.css"
 
 export function Slider({
@@ -32,6 +34,7 @@ export function Slider({
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     draggingRef.current = true
     event.currentTarget.setPointerCapture(event.pointerId)
+    selectNothingUntilRelease(event)
     setFromClientX(event.clientX)
   }
 

@@ -13,6 +13,7 @@ between runs, radius 6, all --foreground with --background text. It hangs
   line-height: 0;
   white-space: nowrap;
   pointer-events: none;
+  -webkit-user-select: none;
   user-select: none;
   transform: translateX(-50%);
 }

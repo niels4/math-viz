@@ -1,5 +1,7 @@
 import { useEffect, useEffectEvent, useRef, useState, type PointerEvent } from "react"
 
+import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
+
 import { scrubDelta, scrubMode, type ScrubKind, type ScrubMode } from "./scrub.ts"
 
 type Drag = {
@@ -27,6 +29,7 @@ export type ScrubDragHandlers = {
 // the value, and Ctrl snaps it at once. Letting go anywhere, a lost capture
 // or a lost window focus ends the drag, and a move with no button held
 // drops a drag whose release was missed (AGENTS.md › pointer-capture drags).
+// A drag selects no text, wherever the pointer goes.
 export function useScrubDrag({
   value,
   kind,
@@ -79,6 +82,7 @@ export function useScrubDrag({
     const drag: Drag = { anchorX: event.clientX, anchorValue: value, lastX: event.clientX, mode: next, value }
     dragRef.current = drag
     event.currentTarget.setPointerCapture(event.pointerId)
+    selectNothingUntilRelease(event)
     showMode(next)
     if (next === "snap") {
       send(drag, scrubDelta({ value, dxPx: 0, kind, mode: next }))

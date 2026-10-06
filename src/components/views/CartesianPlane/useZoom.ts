@@ -2,6 +2,8 @@ import type { RefObject } from "react"
 
 import { useEffect, useRef, useState } from "react"
 
+import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
+
 import type { PinchState, PointerPoint, ViewState } from "./types.ts"
 import type { PanApi } from "./usePan.ts"
 
@@ -102,6 +104,7 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     stopInertia()
     e.currentTarget.setPointerCapture(e.pointerId)
+    selectNothingUntilRelease(e)
     pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
     if (pointersRef.current.size >= 2) {
       // Second finger down: swap drag for pinch, baselined on the live
