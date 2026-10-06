@@ -6,20 +6,20 @@ import type { HelpContent } from "./HelpTip.tsx"
 import type { ScrubKind } from "./scrub.ts"
 
 import { HelpTip } from "./HelpTip.tsx"
-import { scrubDelta, wheelDxPx } from "./scrub.ts"
+import { SCRUB_QUANTUM, scrubDelta, wheelDxPx } from "./scrub.ts"
 import stripStyles from "./ScrubStrip.module.css"
 
 // A relative (jog-style) scrub strip: dragging emits value deltas from the
 // grab point, so there is no min/max and unbounded params scrub forever.
-// Blender polarity: plain drag is coarse, Shift is fine, Ctrl snaps to
-// integers. Double-click resets, wheel scrubs in notches, arrows nudge.
+// Blender polarity: plain drag is coarse, Shift is fine, Ctrl snaps (shifts
+// to whole numbers, scales to quarters). Values land on the number rule's
+// lattice. Double-click resets, wheel scrubs in notches, arrows nudge.
 export function ScrubStrip({
   value,
   onChange,
   kind,
   step,
   fineScale = 0.1,
-  quantum,
   label,
   testId,
   defaultValue,
@@ -30,7 +30,6 @@ export function ScrubStrip({
   kind: ScrubKind
   step: number
   fineScale?: number
-  quantum?: number
   label: string
   testId: string
   defaultValue: number
@@ -40,7 +39,6 @@ export function ScrubStrip({
   const dragRef = useRef<{ startX: number; startValue: number } | null>(null)
   const emittedRef = useRef(value)
   const [mode, setMode] = useState<"fine" | "snap" | null>(null)
-  const q = quantum ?? step * fineScale
 
   const emit = useCallback(
     (next: number) => {
@@ -65,7 +63,7 @@ export function ScrubStrip({
         kind,
         step,
         fineScale,
-        quantum: q,
+        quantum: SCRUB_QUANTUM,
         fine,
         snap,
       }),
@@ -127,7 +125,7 @@ export function ScrubStrip({
           kind,
           step,
           fineScale,
-          quantum: q,
+          quantum: SCRUB_QUANTUM,
           fine: e.shiftKey,
           snap,
         }),
@@ -137,7 +135,7 @@ export function ScrubStrip({
     return () => {
       track.removeEventListener("wheel", onWheel)
     }
-  }, [value, kind, step, fineScale, q, emit])
+  }, [value, kind, step, fineScale, emit])
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const dir =
@@ -157,7 +155,7 @@ export function ScrubStrip({
         kind,
         step,
         fineScale,
-        quantum: q,
+        quantum: SCRUB_QUANTUM,
         fine: false,
         snap: false,
       }),

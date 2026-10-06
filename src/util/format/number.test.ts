@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest"
 
-import { APPROX, formatNumber, formatShort, MINUS, numberParts, quantize, relation, roundTo } from "./number.ts"
+import {
+  APPROX,
+  formatNumber,
+  formatShort,
+  formatStored,
+  MINUS,
+  numberParts,
+  quantize,
+  relation,
+  roundTo,
+} from "./number.ts"
 
 describe("formatNumber", () => {
   it("prints 2 dp with trailing zeros stripped", () => {
@@ -119,5 +129,21 @@ describe("roundTo and quantize", () => {
     expect(quantize(1.0004, 0.001)).toBe(1)
     expect(quantize(0.4, 0.25)).toBe(0.5)
     expect(quantize(-0.126, 0.25)).toBe(-0.25)
+  })
+
+  it("snaps ties away from zero, so a value and its negative snap alike", () => {
+    expect(quantize(0.375, 0.25)).toBe(0.5)
+    expect(quantize(-0.375, 0.25)).toBe(-0.5)
+    expect(quantize(-0.5, 1)).toBe(-1)
+    expect(Object.is(quantize(-0.001, 0.01), 0)).toBe(true)
+  })
+})
+
+describe("formatStored", () => {
+  it("prints every digit a stored value has, and no more", () => {
+    expect(formatStored(1.035)).toBe("1.035")
+    expect(formatStored(1.04)).toBe("1.04")
+    expect(formatStored(2)).toBe("2")
+    expect(formatStored(-0.5)).toBe("−0.5")
   })
 })

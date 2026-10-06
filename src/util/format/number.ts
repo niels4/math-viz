@@ -36,8 +36,12 @@ export const roundTo = (v: number, dp: number): number => {
   return Math.sign(v) * shiftDecimal(Math.round(shiftDecimal(Math.abs(v), dp)), -dp)
 }
 
-/** Snaps to a multiple of `step` without float noise: 0.1 + 0.2 at 0.01 is 0.3. */
-export const quantize = (v: number, step: number): number => Number((Math.round(v / step) * step).toPrecision(12))
+/**
+ * Snaps to a multiple of `step` without float noise (0.1 + 0.2 at 0.01 is 0.3),
+ * ties away from zero like `roundTo`, so a value and its negative snap alike.
+ */
+export const quantize = (v: number, step: number): number =>
+  Number((Math.sign(v) * Math.round(Math.abs(v) / step) * step).toPrecision(12))
 
 /** `dp` decimals, trailing zeros stripped, U+2212 for negatives, never −0. */
 export const formatNumber = (v: number, dp: number = DISPLAY_DP): string => {
@@ -51,6 +55,14 @@ export const formatNumber = (v: number, dp: number = DISPLAY_DP): string => {
   }
   return withSign(rounded < 0, digits)
 }
+
+/**
+ * A stored value printed whole. Drags store values on 0.01 (0.001 after a
+ * fine drag) and typing keeps up to 3 decimals, so 3 dp with zeros stripped
+ * prints every digit the value has: stored = shown. Parameter fields, terms
+ * and ruler values print through here.
+ */
+export const formatStored = (v: number): string => formatNumber(v, FINE_DP)
 
 const formatInteger = (n: number): string => withSign(n < 0, String(Math.abs(n)))
 
@@ -72,7 +84,11 @@ export const numberParts = (v: number): NumberParts => {
   }
   if (a >= 1e-4 && a < 0.01) {
     const rounded = Number(v.toPrecision(2))
-    return { kind: "fixed", text: withSign(rounded < 0, String(Math.abs(rounded))), exact: Math.abs(rounded - v) < 1e-12 }
+    return {
+      kind: "fixed",
+      text: withSign(rounded < 0, String(Math.abs(rounded))),
+      exact: Math.abs(rounded - v) < 1e-12,
+    }
   }
   let exponent = Math.floor(Math.log10(a))
   let mantissa = roundTo(v / 10 ** exponent, DISPLAY_DP)

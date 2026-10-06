@@ -4,9 +4,9 @@ import { useCallback, useEffect, useRef } from "react"
 
 import sliderStyles from "./Slider.module.css"
 
-// Slider emissions are quantized to thousandths, matching the transform
-// scrub strips (quantum 0.002), so drags never leave float tails like
-// 2.5000000001 in the paired NumberField.
+// Slider emissions are quantized to thousandths, the finest lattice the
+// number rule stores (src/util/format/number.ts), so drags never leave float
+// tails like 2.5000000001 in the paired NumberField.
 const round3 = (n: number): number => Math.round(n * 1000) / 1000
 
 // Bounds readout under the track: display-trimmed only, the slider keeps

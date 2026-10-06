@@ -3,7 +3,15 @@
 // the next value is always derived from the grab value (never accumulated),
 // so float error cannot build up across a drag.
 
+import { quantize } from "#src/util/format/number.ts"
+
 export type ScrubKind = "additive" | "multiplicative"
+
+/** Stored = shown (src/util/format/number.ts): a drag lands on 0.01, a fine drag on 0.001. */
+export const SCRUB_QUANTUM = 0.01
+
+/** Ctrl snap (decision D9): shifts to whole numbers, scales to quarters. */
+export const SNAP_STEP: Readonly<Record<ScrubKind, number>> = { additive: 1, multiplicative: 0.25 }
 
 export type ScrubDelta = {
   value: number
@@ -13,13 +21,13 @@ export type ScrubDelta = {
   // multiplicative). Shift scales it by fineScale.
   step: number
   fineScale: number
-  // Display quantum for additive mode; snapped to integers under Ctrl.
+  // Lattice a normal drag lands on; a fine drag lands on quantum × fineScale.
   quantum: number
   fine: boolean
   snap: boolean
 }
 
-// Blender polarity: Shift is fine, Ctrl snaps to integers (and wins over fine).
+// Blender polarity: Shift is fine, Ctrl snaps and wins over fine.
 export const scrubDelta = ({
   value,
   dxPx,
@@ -31,18 +39,15 @@ export const scrubDelta = ({
   snap,
 }: ScrubDelta): number => {
   const rate = fine && !snap ? step * fineScale : step
-  if (kind === "multiplicative" && value !== 0) {
-    const scaled = value * (1 + rate) ** dxPx
-    // Preserve sign so scrubbing a negative scale never crosses zero.
-    const next = Math.sign(value) * Math.abs(scaled)
-    return snap ? Math.round(next) : Number(next.toPrecision(6))
-  }
-  // Additive path, including the zero fallback: multiplicative scrubbing
-  // cannot leave 0 (0 times anything is 0), so it pushes additively until
-  // the value is nonzero.
-  const next = value + dxPx * rate
-  const q = snap ? 1 : quantum
-  return Math.round(next / q) * q
+  // Multiplicative scrubbing cannot leave 0 (0 times anything is 0), so a
+  // scale at 0 is pushed additively until it is nonzero. Otherwise the
+  // factor is positive, so a scale keeps its sign.
+  const raw = kind === "multiplicative" && value !== 0 ? value * (1 + rate) ** dxPx : value + dxPx * rate
+  const lattice = snap ? SNAP_STEP[kind] : fine ? quantum * fineScale : quantum
+  const next = quantize(raw, lattice)
+  // A scale never lands on 0, which would flatten the curve (D9): it stops
+  // one lattice step short, on its own side.
+  return kind === "multiplicative" && next === 0 && raw !== 0 ? Math.sign(raw) * lattice : next
 }
 
 // Wheel notch expressed as equivalent scrub px: scroll up increases.
