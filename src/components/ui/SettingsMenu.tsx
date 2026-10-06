@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 
 import { usePresence } from "#src/components/hooks/usePresence.ts"
 import { DARK_THEME_SLUGS, LIGHT_THEME_SLUGS, appThemes } from "#src/state/useAppTheme.ts"
-import { DURATION_MS, motionCssVars, motionLevel } from "#src/util/motion/motion.ts"
+import { MENU_LEAVE_MS, REDUCED_FADE_MS, motionCssVars, motionLevel } from "#src/util/motion/motion.ts"
 
 import { useAppTheme } from "../../state/useAppTheme.ts"
 import { CheckIcon, GearIcon } from "./icons.tsx"
@@ -18,10 +18,17 @@ const itemsOf = (menu: HTMLElement | null): HTMLElement[] => [
   ...(menu?.querySelectorAll<HTMLElement>('[role="menuitemradio"], [role="menuitem"]') ?? []),
 ]
 
+/** How long the menu stays on its way out: as long as its CSS takes to leave. */
+const leaveMs = (): number => {
+  const level = motionLevel()
+  return level === "none" ? 0 : level === "reduced" ? REDUCED_FADE_MS : MENU_LEAVE_MS
+}
+
 // The top bar's gear and its menu: the themes, dark then light, and a
-// view's own items under them. The menu opens with the enter spring and
-// leaves in 120 ms (SettingsMenu.module.css; the motion tokens ride along
-// on the wrapper, as on any page); while it leaves it takes no input. It
+// view's own items under them. The menu comes out of the gear on the enter
+// spring at the spring's own pace and goes back in 200 ms, 120 ms fades
+// under reduced motion (SettingsMenu.module.css; the motion tokens ride
+// along on the wrapper, as on any page); while it leaves it takes no input. It
 // is a menu button (WAI-ARIA APG): opening moves the focus to the checked
 // theme (↑ on the gear: the last item), ↑ ↓ Home End move it, Enter or a
 // click picks, Esc closes from the gear or the menu and hands the focus
@@ -32,7 +39,7 @@ export function SettingsMenu({ actions = [] }: { actions?: readonly SettingsActi
   const wrapRef = useRef<HTMLDivElement | null>(null)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const menuRef = useRef<HTMLDivElement | null>(null)
-  const presence = usePresence(open !== null, motionLevel() === "none" ? 0 : DURATION_MS.leave)
+  const presence = usePresence(open !== null, leaveMs())
 
   const close = (refocus: boolean) => {
     setOpen(null)

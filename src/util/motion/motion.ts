@@ -38,6 +38,21 @@ export const easeEnter = springEase(SPRING_ENTER)
 export const easeDraw = cubicBezier(...EASE_DRAW_BEZIER)
 
 /**
+ * The enter spring at its own pace (643 ms, its settle time), as FV 05 runs
+ * its springs: in place by 200 ms, 5 % over at 270 ms, within 1 % by 410 ms.
+ * Squeezed into dur-base it puts 90 % of its change in the first 80 ms, which
+ * reads as a pop on anything as large as a menu.
+ */
+export const ENTER_SETTLE_MS = Math.round(easeEnter.settle * 1000)
+
+/**
+ * The settings menu leaving (no board draws it): linear, as things leave in
+ * FV 05, and long enough to be seen going; dur-leave's 120 ms reads as a
+ * blink on a card that size.
+ */
+export const MENU_LEAVE_MS = 200
+
+/**
  * How much motion to show: full; reduced (prefers-reduced-motion: fades of
  * at most REDUCED_FADE_MS, nothing that travels); or none where there is no
  * matchMedia (jsdom, a server render), which has no frames to show it in.
@@ -66,6 +81,8 @@ export const motionCssVars = {
   "--motion-dur-draw": `${DURATION_MS.draw}ms`,
   "--motion-stagger": `${DURATION_MS.stagger}ms`,
   "--motion-dur-leave": `${DURATION_MS.leave}ms`,
+  "--motion-dur-enter-settle": `${ENTER_SETTLE_MS}ms`,
+  "--motion-dur-menu-leave": `${MENU_LEAVE_MS}ms`,
   "--motion-dur-reduced-fade": `${REDUCED_FADE_MS}ms`,
   "--motion-ease-draw": `cubic-bezier(${EASE_DRAW_BEZIER.join(", ")})`,
   "--motion-ease-enter": cssLinear(easeEnter.ease),
