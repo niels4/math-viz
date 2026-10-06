@@ -4,7 +4,11 @@ import type { Rect } from "../../CartesianPlane/rect.ts"
 
 // Decision D12 and where an explainer opens (help-popover-fv, FV 02 › H2;
 // R7): right of the panel, over the plane's edge, never over the panel's
-// own controls, its caret's tip on the letter chip's centre.
+// own controls, its caret's tip on the letter chip's centre. The dock (R9)
+// has no room right of it or under its chips: there the card opens above
+// the chip, over the plane, reaching away from the window's middle, where
+// the curve and its annotation are at the default view (R7 keeps them in
+// sight beside the card).
 
 /** D12: the pointer resting this long on a letter chip opens its explainer. */
 export const EXPLAINER_REST_MS = 400
@@ -22,8 +26,9 @@ export type ExplainerPlace = { x: number; y: number; caret: CalloutCaret }
 /**
  * The card's top-left (viewport px) and its caret, for a card `height` tall.
  * Kept 16 px inside the window, the caret following the chip. Where the
- * window has no room right of the panel (the stacked layout), it hangs
- * under the chip, its caret up.
+ * window has no room right of the panel, it hangs under the chip, its caret
+ * up (the stacked layout), or where that runs out of the window, stands
+ * above it, its caret down (the dock); failing both, on the roomier side.
  */
 export const placeExplainer = (
   chip: Rect,
@@ -39,10 +44,15 @@ export const placeExplainer = (
     const y = clamp(cy - tip, MARGIN, view.height - MARGIN - height)
     return { x, y, caret: { side: "left", at: clamp(cy - y, tip, height - tip) } }
   }
-  const left = clamp(cx - tip, MARGIN, view.width - MARGIN - width)
-  return {
-    x: left,
-    y: chip.y + chip.h + gap + caret,
-    caret: { side: "top", at: clamp(cx - left, tip, width - tip) },
-  }
+  const below = chip.y + chip.h + gap + caret
+  const above = chip.y - gap - caret - height
+  const roomBelow = view.height - MARGIN - (below + height)
+  const roomAbove = above - MARGIN
+  const under = roomBelow >= 0 || roomBelow >= roomAbove
+  const outward = !under && cx < view.width / 2 ? cx + tip - width : cx - tip
+  const left = clamp(outward, MARGIN, view.width - MARGIN - width)
+  const at = clamp(cx - left, tip, width - tip)
+  return under
+    ? { x: left, y: below, caret: { side: "top", at } }
+    : { x: left, y: above, caret: { side: "bottom", at } }
 }

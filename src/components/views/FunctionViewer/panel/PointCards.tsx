@@ -14,6 +14,8 @@ import type { PartUi } from "../model/selectors.ts"
 import type { PartEvents } from "../model/state.ts"
 
 import {
+  COMPACT_POINT_ROLES,
+  COMPACT_Q_NOTES,
   MOVED_LABEL,
   movedBy,
   OFF_VIEW_ROLES,
@@ -32,7 +34,11 @@ import { PointReadout } from "./PointReadout.tsx"
 // One point's card (point-readout-fv): the head (the point's mark, its
 // letter, its role caption, its readout at the far end), anything the point
 // adds below, and a note. The caption gives way, whole, when a long readout
-// needs its room; an off-view ▲ ▼ stays.
+// needs its room; an off-view ▲ ▼ stays. Compact (the dock's cards, R9;
+// figma0 dockCard): the head names the point, a badge taking the caption's
+// place while it shows, and the readout has a row of its own; off the view
+// the caption stays as R9 draws it (the plane's edge marker shows where P
+// is) and says so to screen readers.
 function PointCard({
   series,
   caption,
@@ -40,6 +46,7 @@ function PointCard({
   badge,
   readout,
   note,
+  compact = false,
   children,
   ...rest
 }: {
@@ -51,35 +58,46 @@ function PointCard({
   /** Before the readout, e.g. P's "moved +1". */
   badge?: ReactNode
   readout: ReactNode
-  note: readonly Phrase[]
+  /** The note under the card's parts; none in P's compact card. */
+  note: readonly Phrase[] | null
+  compact?: boolean
   children?: ReactNode
 } & ComponentPropsWithRef<"div">) {
+  const offView = off !== undefined && off !== null ? off : null
   return (
-    <div className={style.card} {...rest}>
+    <div className={style.card} data-compact={compact || undefined} {...rest}>
       <div className={style.head}>
         <PointMark
           kind={series === "p" ? "bullseye" : "ring"}
-          size={20}
+          size={compact ? 18 : 20}
           ink={themeColorVar(POINT_INK[series])}
         />
         <var className={style.letter}>{POINT_NAMES[series]}</var>
-        {off !== undefined && off !== null && (
+        {offView !== null && !compact && (
           <span className={style.off_mark}>
-            <TriangleIcon dir={off === "above" ? "up" : "down"} width={10} height={9} />
+            <TriangleIcon dir={offView === "above" ? "up" : "down"} width={10} height={9} />
           </span>
         )}
         <span className={style.caption_slot}>
-          <span className={style.caption} data-off={off ?? undefined}>
-            {caption}
-          </span>
+          {compact && badge !== null && badge !== undefined ? (
+            badge
+          ) : (
+            <span className={style.caption} data-off={compact ? undefined : (offView ?? undefined)}>
+              {caption}
+            </span>
+          )}
         </span>
-        {badge}
-        {readout}
+        {compact && offView !== null && <span className={style.hidden}>{OFF_VIEW_ROLES[offView]}</span>}
+        {!compact && badge}
+        {!compact && readout}
       </div>
+      {compact && <div className={style.readout_row}>{readout}</div>}
       {children}
-      <p className={style.note}>
-        <Phrases phrases={note} />
-      </p>
+      {note !== null && (
+        <p className={style.note}>
+          <Phrases phrases={note} words={compact} />
+        </p>
+      )}
     </div>
   )
 }
@@ -98,6 +116,7 @@ export function PCard({
   ui,
   events,
   onChange,
+  compact = false,
 }: {
   x: number
   y: number
@@ -108,6 +127,8 @@ export function PCard({
   ui: PartUi
   events: PartEvents
   onChange: (next: number) => void
+  /** The dock's card (R9). */
+  compact?: boolean
 }) {
   const cardRef = useRef<HTMLDivElement | null>(null)
   const fieldRef = useRef<NumberFieldHandle | null>(null)
@@ -118,8 +139,9 @@ export function PCard({
     <PointCard
       ref={cardRef}
       series="p"
-      caption={off === null ? POINT_ROLES.p : OFF_VIEW_ROLES[off]}
+      caption={compact ? COMPACT_POINT_ROLES.p : off === null ? POINT_ROLES.p : OFF_VIEW_ROLES[off]}
       off={off}
+      compact={compact}
       data-testid="fv-point-p"
       data-dragging={ui.mode !== null || undefined}
       onPointerEnter={hover.onPointerEnter}
@@ -143,6 +165,7 @@ export function PCard({
           testId="fv-p-readout"
           x={x}
           y={y}
+          compact={compact}
           xField={
             <NumberField
               ref={fieldRef}
@@ -163,7 +186,7 @@ export function PCard({
           }
         />
       }
-      note={P_NOTE}
+      note={compact ? null : P_NOTE}
     >
       <ExtentSlider
         ref={scrubberRef}
@@ -187,15 +210,17 @@ export function PCard({
 
 // Q's card: live while the pointer is on the plane, placeholders while not.
 // Both states have the same rows, so the card never changes height.
-export function QCard({ x, y }: { x: number | null; y: number | null }) {
+export function QCard({ x, y, compact = false }: { x: number | null; y: number | null; compact?: boolean }) {
+  const notes = compact ? COMPACT_Q_NOTES : Q_NOTES
   return (
     <PointCard
       series="q"
-      caption={POINT_ROLES.q}
+      caption={compact ? COMPACT_POINT_ROLES.q : POINT_ROLES.q}
+      compact={compact}
       data-testid="fv-point-q"
       data-part="q-card"
-      readout={<PointReadout testId="fv-q-readout" x={x} y={y} />}
-      note={x === null ? Q_NOTES.empty : Q_NOTES.live}
+      readout={<PointReadout testId="fv-q-readout" x={x} y={y} compact={compact} />}
+      note={x === null ? notes.empty : notes.live}
     />
   )
 }

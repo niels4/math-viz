@@ -83,6 +83,14 @@ export const Q_NOTES = {
   empty: [{ text: "Point at the plane to place" }, { math: "Q" }],
 } as const satisfies Record<string, readonly Phrase[]>
 
+/** The dock's point cards (R9, figma0 dockCard): the shorter roles and Q's shorter notes; P has none. */
+export const COMPACT_POINT_ROLES = { p: "Pinned", q: "Pointer" } as const
+
+export const COMPACT_Q_NOTES = {
+  live: [{ math: "x" }, { text: "follows your pointer" }],
+  empty: [{ text: "Point at the plane" }],
+} as const satisfies Record<string, readonly Phrase[]>
+
 /** The Original toggle (ghost-toggle-fv): its label, and the original g it draws dashed. */
 export const ORIGINAL_LABEL = "Original"
 export const originalMath = (g: string): string => `y = ${g}`

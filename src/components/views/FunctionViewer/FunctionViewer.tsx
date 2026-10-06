@@ -12,6 +12,7 @@ import { CartesianPlane, type CartesianPlaneHandle } from "../CartesianPlane/Car
 import { PLANE_KEY_HELP, SECTIONS, TOUR, VIEW_SUBTITLE, VIEW_TITLE } from "./copy.ts"
 import style from "./FunctionViewer.module.css"
 import { GhostToggle } from "./GhostToggle.tsx"
+import { useFvLayout } from "./layout.ts"
 import { hintContext, hintFor } from "./model/hints.ts"
 import { fvReducer } from "./model/reducer.ts"
 import {
@@ -50,6 +51,9 @@ const PLANE_MARKS: readonly string[] = ["p", "anchor", "stretch"] satisfies FvPl
 const isPlaneMark = (id: string | null): id is FvPlaneMark => id !== null && PLANE_MARKS.includes(id)
 
 export function FunctionViewer() {
+  // D16: the side panel, or the dock under the plane in a short window.
+  const layout = useFvLayout()
+  const dock = layout === "dock"
   const [state, dispatch] = useReducer(fvReducer, initialFvState)
   const { fn, params, pX, qX, ghostOn } = state
   const pLitNow = pLit(state)
@@ -104,9 +108,16 @@ export function FunctionViewer() {
     onDrag: (mode) => dispatch({ type: "drag", part, mode }),
     onEdit: (edit) => dispatch({ type: "edit", part, edit }),
   })
+  // D18: at the panel's foot, or in the dock under the equation.
+  const hintBar = <HintBar className={style.hint} hint={hintFor(hintContext(state))} testId="fv-hint" />
 
   return (
-    <div ref={rootRef} className={`${style.page} ${workSansStyles.font}`} style={motionCssVars}>
+    <div
+      ref={rootRef}
+      className={`${style.page} ${workSansStyles.font}`}
+      data-layout={layout}
+      style={motionCssVars}
+    >
       <TopBar
         className={style.topbar}
         title={VIEW_TITLE}
@@ -127,7 +138,7 @@ export function FunctionViewer() {
         }
       />
       <aside ref={panelRef} className={style.panel}>
-        <PanelSection {...SECTIONS.function}>
+        <PanelSection {...SECTIONS.function} className={dock ? style.dock_card : undefined}>
           <FunctionPicker value={fn} onChange={(next) => dispatch({ type: "setFunction", fn: next })} />
           <EquationCard
             fn={fn}
@@ -138,7 +149,9 @@ export function FunctionViewer() {
             onPointer={(over) => dispatch({ type: "eqPointer", over })}
             onLeave={() => dispatch({ type: "hover", part: "eq", on: false })}
             bindTerm={bindTerm}
+            compact={dock}
           />
+          {dock && hintBar}
         </PanelSection>
         <TransformGrid
           params={params}
@@ -150,8 +163,10 @@ export function FunctionViewer() {
           onFlip={(param) => dispatch({ type: "flip", param })}
           onExplain={(param, by, open) => dispatch({ type: "explain", param, by, open })}
           explaining={explainer === null ? null : { param: explainer.param, id: explainerId }}
+          compact={dock}
+          className={dock ? style.dock_card : undefined}
         />
-        <PanelSection {...SECTIONS.points}>
+        <PanelSection {...SECTIONS.points} quiet={dock} className={dock ? style.dock_points : undefined}>
           <PCard
             x={pX}
             y={curveAt(state, pX)}
@@ -161,12 +176,17 @@ export function FunctionViewer() {
             ui={partUi(state, "p")}
             events={eventsOf("p")}
             onChange={(x) => dispatch({ type: "setP", x })}
+            compact={dock}
           />
-          <QCard x={qX} y={qX === null ? null : curveAt(state, qX)} />
+          <QCard x={qX} y={qX === null ? null : curveAt(state, qX)} compact={dock} />
         </PanelSection>
-        <div className={style.spacer} />
-        <HintBar className={style.hint} hint={hintFor(hintContext(state))} testId="fv-hint" />
-        <div className={style.tail} />
+        {!dock && (
+          <>
+            <div className={style.spacer} />
+            {hintBar}
+            <div className={style.tail} />
+          </>
+        )}
       </aside>
       <main className={style.plane} data-part="plane">
         <CartesianPlane

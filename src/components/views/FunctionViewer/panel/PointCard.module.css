@@ -142,3 +142,61 @@ on the boards. */
   height: 20px;
   color: var(--foreground-muted);
 }
+
+/* Compact (the dock's cards, R9; figma0 dockCard): padding 10 12, 6
+between rows, no overhang; a 24 px head with an 18 px mark and the letter
+in STIX italic 19; the readout on a 33 px row of its own (its width the
+readout's fit, PointReadout.module.css); Q's note in Work Sans 13 and STIX
+15, word by word. */
+.card[data-compact] {
+  gap: 6px;
+  margin-inline-end: 0;
+  padding: 10px 12px;
+}
+
+.card[data-compact] .head {
+  height: 24px;
+}
+
+.card[data-compact] .letter {
+  font-size: 19px;
+  line-height: 24px;
+}
+
+.card[data-compact] .caption_slot,
+.card[data-compact] .caption_slot::before {
+  height: 24px;
+}
+
+.readout_row {
+  container-type: inline-size;
+  display: flex;
+  height: 33px;
+}
+
+.card[data-compact] .x_field {
+  height: 32px;
+  font-size: calc(24 * var(--fit));
+  line-height: 32px;
+}
+
+.card[data-compact] .note {
+  --phrase-text-size: 13px;
+  --phrase-text-line: 15px;
+  --phrase-math-size: 15px;
+  --phrase-math-line: 19px;
+
+  flex-wrap: wrap;
+  row-gap: 0;
+  height: auto;
+  min-height: 19px;
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

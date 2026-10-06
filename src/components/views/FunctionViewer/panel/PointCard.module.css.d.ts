@@ -6,12 +6,14 @@ declare const styles: {
   readonly "caption_slot": string;
   readonly "card": string;
   readonly "head": string;
+  readonly "hidden": string;
   readonly "letter": string;
   readonly "moved": string;
   readonly "moved_label": string;
   readonly "moved_value": string;
   readonly "note": string;
   readonly "off_mark": string;
+  readonly "readout_row": string;
   readonly "scrubber": string;
   readonly "x_field": string;
 };

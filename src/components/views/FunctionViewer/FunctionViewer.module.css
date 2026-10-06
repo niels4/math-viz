@@ -63,6 +63,63 @@ plane and the page scrolls (plan § 1.8, call 6). */
   }
 }
 
+/* Decision D16 (layout.ts; FV 06, R9): in a short window the plane spans
+it under the top bar, and the panel becomes a 204 px dock under the plane:
+1 Function (352), 2 Transform (474) and the points, which take the rest.
+Pad 12, gap 10. The DOM order stays the side panel's (panel, then plane),
+so the plane never remounts and the tab order keeps the panel first. */
+.page[data-layout="dock"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(240px, 1fr) auto;
+  grid-template-areas:
+    "topbar"
+    "plane"
+    "panel";
+  gap: 10px;
+  padding: 12px;
+}
+
+.page[data-layout="dock"] .panel {
+  display: grid;
+  grid-template-columns: 352px 474px minmax(0, 1fr);
+  gap: 10px;
+  height: 204px;
+  padding: 0;
+  overflow: visible;
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
+
+/* Sections 1 and 2 as the dock's cards: --background-muted in a 1 px
+--border, padding 10 12, 8 between parts. Section 1's parts take 184 px of
+its 182: nothing shrinks, and the hint reaches 2 px into the bottom
+padding, as on the board. */
+.page[data-layout="dock"] .dock_card {
+  gap: 8px;
+  min-height: 0;
+  padding: 10px 12px;
+  background: var(--background-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--sig-card-radius);
+}
+
+.page[data-layout="dock"] .dock_card > * {
+  flex-shrink: 0;
+}
+
+/* The points: P's and Q's cards side by side, 10 apart, the dock's height. */
+.page[data-layout="dock"] .dock_points {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* D18: the hint under the equation, the column's width. */
+.page[data-layout="dock"] .hint {
+  margin-inline-end: 0;
+}
+
 /* fvPanel's spacer: 1 px at least, then everything the sections leave. */
 .spacer {
   flex: 1 0 1px;

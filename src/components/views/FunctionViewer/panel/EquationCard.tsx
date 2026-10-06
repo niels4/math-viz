@@ -1,4 +1,6 @@
-import { useState, type HTMLAttributes, type PointerEvent } from "react"
+import { useRef, useState, type HTMLAttributes, type PointerEvent } from "react"
+
+import { useFitWidth } from "#src/components/hooks/useFitWidth.ts"
 
 import type { BaseFunctionSlug } from "../math/baseFunctions.ts"
 
@@ -32,7 +34,9 @@ const termAt = (target: EventTarget | null): { param: TransformParam | null; lin
 // Every term is its parameter's partner (FV 04): it lights with it, drags
 // like its ruler (D13: "terms are draggable like their rulers"), and names
 // it in a tip while the pointer is on it (FV 02 › H3). Screen readers get
-// both lines as plain text.
+// both lines as plain text. The live line keeps to one line and shrinks to
+// fit its row where long values would overflow it. Compact (the dock, R9):
+// the live line alone, without the card; the form line is read aloud only.
 export function EquationCard({
   fn,
   params,
@@ -42,6 +46,7 @@ export function EquationCard({
   onPointer,
   onLeave,
   bindTerm,
+  compact = false,
 }: {
   fn: BaseFunctionSlug
   params: TransformParams
@@ -55,11 +60,16 @@ export function EquationCard({
   onPointer: (over: TransformParam | null) => void
   onLeave: () => void
   bindTerm: (param: TransformParam) => HTMLAttributes<HTMLSpanElement>
+  compact?: boolean
 }) {
   // Only the term under the pointer hangs the tip, in the line it is in.
   const [line, setLine] = useState<Line | null>(null)
   const live = equationTokens(fn, params, "live", keep)
   const form = equationTokens(fn, params, "form")
+  const said = describeEquation(live)
+  const rowRef = useRef<HTMLOutputElement | null>(null)
+  const lineRef = useRef<HTMLSpanElement | null>(null)
+  useFitWidth(rowRef, lineRef)
   const track = (event: PointerEvent<HTMLDivElement>) => {
     const at = termAt(event.target)
     setLine(at.line)
@@ -74,6 +84,7 @@ export function EquationCard({
   return (
     <div
       className={style.card}
+      data-compact={compact || undefined}
       data-testid="fv-equation"
       data-part="equation"
       onPointerOver={track}
@@ -82,18 +93,24 @@ export function EquationCard({
         onLeave()
       }}
     >
-      <output className={style.live} data-testid="func-readout" aria-label={describeEquation(live)}>
-        <span className={style.line} data-line="live" aria-hidden="true">
+      <output ref={rowRef} className={style.live} data-testid="func-readout" aria-label={said}>
+        <span ref={lineRef} className={style.line} data-line="live" aria-hidden="true">
           <EquationTokens tokens={live} {...options("live")} />
         </span>
       </output>
-      <p className={style.form_row} data-testid="fv-form">
-        <span className={style.form_label}>{FORM_LABEL}</span>
-        <span className={style.hidden}>: {describeEquation(form)}</span>
-        <span className={style.form} data-line="form" aria-hidden="true">
-          <EquationTokens tokens={form} {...options("form")} />
-        </span>
-      </p>
+      {compact ? (
+        <p className={style.hidden} data-testid="fv-form">
+          {FORM_LABEL}: {describeEquation(form)}
+        </p>
+      ) : (
+        <p className={style.form_row} data-testid="fv-form">
+          <span className={style.form_label}>{FORM_LABEL}</span>
+          <span className={style.hidden}>: {describeEquation(form)}</span>
+          <span className={style.form} data-line="form" aria-hidden="true">
+            <EquationTokens tokens={form} {...options("form")} />
+          </span>
+        </p>
+      )}
     </div>
   )
 }

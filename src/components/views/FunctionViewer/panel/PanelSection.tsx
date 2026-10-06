@@ -19,7 +19,7 @@ export function PanelSection({
   title: string
   action?: ReactNode
   quiet?: boolean
-  className?: string
+  className?: string | undefined
   children: ReactNode
 }) {
   const id = useId()

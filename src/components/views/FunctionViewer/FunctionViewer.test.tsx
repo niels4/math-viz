@@ -1,14 +1,14 @@
 import { getDefaultStore } from "jotai"
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest"
 
-import { act, render, toElement } from "#test"
-
 import { FV_TOUR_KEY, fvTourDoneAtom } from "#src/state/fvTour.ts"
+import { act, render, toElement } from "#test"
 
 import type { PlaneScene } from "../CartesianPlane/scene.ts"
 
 import { drawCartesianPlane } from "../CartesianPlane/drawCartesianPlane"
 import { FunctionViewer } from "./FunctionViewer.tsx"
+import { DOCK_QUERY } from "./layout.ts"
 
 vi.mock("../CartesianPlane/drawCartesianPlane", () => ({
   drawCartesianPlane: vi.fn<(props: { scene: PlaneScene }) => void>(),
@@ -623,6 +623,94 @@ describe("FunctionViewer", () => {
       tap()
       pointer(document.body, "pointerdown", "touch")
       expect(explainer("h")).toBeNull()
+    })
+  })
+
+  describe("the dock (D16, D18; R9)", () => {
+    // A window whose height matches the dock's query while `short` is set.
+    const window = (short: boolean) => {
+      let matching = short
+      const listeners = new Set<() => void>()
+      vi.stubGlobal("matchMedia", (query: string) => ({
+        media: query,
+        get matches() {
+          return query === DOCK_QUERY && matching
+        },
+        addEventListener: (_: string, listener: () => void) => {
+          listeners.add(listener)
+        },
+        removeEventListener: (_: string, listener: () => void) => {
+          listeners.delete(listener)
+        },
+      }))
+      return (next: boolean) => {
+        matching = next
+        act(() => {
+          for (const listener of listeners) {
+            listener()
+          }
+        })
+      }
+    }
+    const layout = () => document.querySelector("[data-layout]")?.getAttribute("data-layout")
+
+    it("docks the panel under the plane: the hint under the equation, the form line read aloud only", async () => {
+      window(true)
+      const screen = await render(<FunctionViewer />)
+      expect(layout()).toBe("dock")
+      // D18: the hint shares section 1 with the picker and the equation.
+      const section1 = byTestId(screen, "fv-hint").closest("section")
+      expect(section1?.querySelector('[role="radiogroup"]')).not.toBeNull()
+      expect(section1?.contains(byTestId(screen, "fv-equation"))).toBe(true)
+      expect(hint(screen)).toBe(IDLE)
+      expect(document.querySelector('[data-line="form"]')).toBeNull()
+      expect(spoken(byTestId(screen, "fv-form"))).toBe("Form: f(x) = a((x − h)/b)² + k")
+      // The groups keep their names for screen readers.
+      const names = [...document.querySelectorAll('[role="group"][aria-labelledby]')].map(
+        (group) => document.getElementById(group.getAttribute("aria-labelledby") ?? "")?.textContent,
+      )
+      expect(names).toEqual(["Verticaloutsidef( )", "Horizontalinsidef( )"])
+    })
+
+    it("compacts the point cards: Q's shorter role and notes, no note on P's (R9)", async () => {
+      vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(ZERO_RECT)
+      vi.stubGlobal("ResizeObserver", undefined)
+      window(true)
+      const screen = await render(<FunctionViewer />)
+      const p = byTestId(screen, "fv-point-p")
+      const q = byTestId(screen, "fv-point-q")
+      expect(spoken(p)).toContain("Pinned")
+      expect(spoken(p)).not.toContain("here or along the curve")
+      expect(readout(screen, "fv-p-readout")).toBe("f(2) = 4")
+      expect(spoken(q)).toContain("Pointer")
+      expect(spoken(q)).toContain("Point at the plane")
+      expect(spoken(q)).not.toContain("to place")
+      const canvas = byTestId(screen, "cartesian-canvas")
+      act(() => {
+        canvas.dispatchEvent(
+          new PointerEvent("pointermove", { bubbles: true, clientX: -75, clientY: -112.5 }),
+        )
+      })
+      expect(readout(screen, "fv-q-readout")).toBe("f(−1.5) = 2.25")
+      expect(spoken(q)).toContain("x follows your pointer")
+      expect(spoken(q)).not.toContain("y = f(x)")
+    })
+
+    it("switches as the window's height crosses 860 px, keeping the plane and every value", async () => {
+      const setShort = window(false)
+      const screen = await render(<FunctionViewer />)
+      expect(layout()).toBe("side")
+      typeParam(screen, "a", "2")
+      const canvas = byTestId(screen, "cartesian-canvas")
+      setShort(true)
+      expect(layout()).toBe("dock")
+      expect(byTestId(screen, "cartesian-canvas")).toBe(canvas)
+      expect(valueOf(screen, "a")).toBe("2")
+      expect(byTestId(screen, "func-readout").getAttribute("aria-label")).toBe("f(x) = 2x²")
+      setShort(false)
+      expect(layout()).toBe("side")
+      expect(byTestId(screen, "cartesian-canvas")).toBe(canvas)
+      expect(document.querySelector('[data-line="form"]')).not.toBeNull()
     })
   })
 

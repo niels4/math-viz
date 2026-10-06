@@ -2,6 +2,8 @@
 // WARNING: THIS FILE IS AUTO GENERATED, PLEASE DO NOT EDIT IT MANUALLY.
 // prettier-ignore
 declare const styles: {
+  readonly "dock_card": string;
+  readonly "dock_points": string;
   readonly "hint": string;
   readonly "page": string;
   readonly "panel": string;

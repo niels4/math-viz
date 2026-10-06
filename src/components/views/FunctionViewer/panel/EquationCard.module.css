@@ -26,8 +26,32 @@ px. */
   line-height: round(up, 1.25em, 1px);
 }
 
+/* One line, shrunk to fit its row where long values need more (--fit-scale,
+useFitWidth). */
 .line {
-  font-size: 28px;
+  flex: none;
+  font-size: calc(28px * var(--fit-scale, 1));
+  white-space: nowrap;
+}
+
+/* The dock's equation (R9): the live line alone, no card, STIX 26 in a 56
+px row. The row's height holds, as Figma's frame does: a stacked fraction
+(57.5 px at 26) reaches 1 px past it either side instead of moving the hint
+below. */
+.card[data-compact] {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
+
+.card[data-compact] .live {
+  height: 56px;
+  min-height: 0;
+}
+
+.card[data-compact] .line {
+  font-size: calc(26px * var(--fit-scale, 1));
 }
 
 .form_row {

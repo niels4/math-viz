@@ -25,11 +25,47 @@ describe("placeExplainer", () => {
   })
 
   it("hangs under the chip, caret up, where nothing fits right of the panel (the stacked layout)", () => {
-    const place = placeExplainer({ x: 35, y: 500, w: 26, h: 26 }, { x: 16, y: 92, w: 768, h: 900 }, 389, {
+    const place = placeExplainer({ x: 35, y: 400, w: 26, h: 26 }, { x: 16, y: 92, w: 768, h: 900 }, 389, {
       width: 800,
       height: 900,
     })
-    expect(place).toEqual({ x: 28, y: 539, caret: { side: "top", at: 20 } })
+    expect(place).toEqual({ x: 28, y: 439, caret: { side: "top", at: 20 } })
+    // Lower, it would run out of the window: it stands above the chip instead,
+    // reaching left as far as the window's margin lets it.
+    const low = placeExplainer({ x: 35, y: 500, w: 26, h: 26 }, { x: 16, y: 92, w: 768, h: 900 }, 389, {
+      width: 800,
+      height: 900,
+    })
+    expect(low).toEqual({ x: 16, y: 98, caret: { side: "bottom", at: 32 } })
+  })
+
+  it("stands above the chip, caret down, reaching away from the middle, in the dock (R9 at 1280 × 720)", () => {
+    // The dock spans the window under the plane; a's chip at (387, 544), k's at (387, 618), b's at (620, 544).
+    const dock = { x: 12, y: 504, w: 1256, h: 204 }
+    const view = { width: 1280, height: 720 }
+    expect(placeExplainer({ x: 387, y: 544, w: 26, h: 26 }, dock, 389, view)).toEqual({
+      x: 120,
+      y: 544 - 4 - 9 - 389,
+      caret: { side: "bottom", at: 280 },
+    })
+    expect(placeExplainer({ x: 387, y: 618, w: 26, h: 26 }, dock, 367, view)).toEqual({
+      x: 120,
+      y: 618 - 4 - 9 - 367,
+      caret: { side: "bottom", at: 280 },
+    })
+    // Right of the middle it reaches right.
+    expect(placeExplainer({ x: 900, y: 544, w: 26, h: 26 }, dock, 389, view)).toMatchObject({
+      x: 893,
+      caret: { side: "bottom", at: 20 },
+    })
+  })
+
+  it("takes the roomier side where neither fits", () => {
+    const place = placeExplainer({ x: 35, y: 300, w: 26, h: 26 }, { x: 16, y: 92, w: 768, h: 600 }, 389, {
+      width: 800,
+      height: 640,
+    })
+    expect(place.caret.side).toBe("top")
   })
 })
 

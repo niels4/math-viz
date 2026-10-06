@@ -26,6 +26,9 @@ export const HAND_SIZE = 26 * 1.6
 /** Cards keep this far inside the window. */
 const MARGIN = 16
 
+/** Step 3's card keeps this far above the plane's bottom edge, clear of its scale bar and tools. */
+const PLANE_FOOT = 72
+
 /** What the steps point at, in viewport px; null where it isn't on the page. */
 export type TourTargets = {
   equation: Rect | null
@@ -61,15 +64,17 @@ type View = { width: number; height: number }
 /**
  * Right of a target by `gap` (to the caret's tip), `dy` below its top, the
  * caret at the card's middle (FV 08's row, centred). Kept inside the window,
- * the caret still where it was aimed; under the target, caret up, where
- * the window has no room on its right.
+ * the caret then aimed at the target's centre (the dock's equation and k's
+ * control sit at the window's foot); under the target, caret up, where the
+ * window has no room on its right.
  */
 const beside = (target: Rect, gap: number, dy: number, height: number, view: View) => {
   const { width, caret } = TOUR_CARD
   const x = target.x + target.w + gap + caret
   if (x + width + MARGIN <= view.width) {
-    const aim = target.y + dy + height / 2
-    const y = clamp(target.y + dy, MARGIN, view.height - MARGIN - height)
+    const want = target.y + dy
+    const y = clamp(want, MARGIN, view.height - MARGIN - height)
+    const aim = y === want ? want + height / 2 : target.y + target.h / 2
     return { x, y, caret: { side: "left", at: clamp(aim - y, caret, height - caret) } as const }
   }
   const left = clamp(target.x, MARGIN, view.width - MARGIN - width)
@@ -103,14 +108,16 @@ export const tourLayout = (
             card: beside(control, 28, -20, height, view),
             hand: { x: control.x + 46, y: control.y + control.h - 34 },
           }
-    // 3 · The whole plane and Q's card; the card low on the plane, caret up.
+    // 3 · The whole plane and Q's card; the card low on the plane, caret up,
+    // and above its scale bar in a short plane (the dock).
     case 3: {
       if (plane === null) {
         return { holes: holes(qCard), card: null, hand: null }
       }
       const { width, caret } = TOUR_CARD
       const x = clamp(plane.x + 60, MARGIN, view.width - MARGIN - width)
-      const y = clamp(plane.y + 470 + caret, MARGIN + caret, view.height - MARGIN - height)
+      const low = Math.min(plane.y + 470, plane.y + plane.h - PLANE_FOOT - height - caret)
+      const y = clamp(low + caret, MARGIN + caret, view.height - MARGIN - height)
       return { holes: holes(plane, qCard), card: { x, y, caret: { side: "top", at: 9 } }, hand: null }
     }
   }

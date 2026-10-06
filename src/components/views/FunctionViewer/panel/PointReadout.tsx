@@ -4,6 +4,7 @@ import { MathText } from "#src/components/ui/MathText.tsx"
 import { formatNumber, numberParts, relation } from "#src/util/format/number.ts"
 
 import style from "./PointReadout.module.css"
+import { compactReadoutWidth } from "./readoutFit.ts"
 
 /** The placeholder for a number with no point (U+2013, the design's dash). */
 const NO_NUMBER = "–"
@@ -17,22 +18,33 @@ const sized = (text: string): CSSProperties => ({ "--chars": text.length }) as C
 // prints exactly, ≈ when it prints rounded; a y beyond fixed digits prints
 // scientific with a raised exponent (FV 10). With no point (null) both
 // numbers are dashes and the readout is muted, so the card keeps its size.
-// `xField` takes x's place when x can be typed (P).
+// `xField` takes x's place when x can be typed (P). Compact (the dock's
+// cards, R9): STIX 26 and the numbers at 24, shrinking as one where the
+// card is narrower than the readout.
 export function PointReadout({
   x,
   y,
   xField,
+  compact = false,
   testId,
 }: {
   x: number | null
   y: number | null
   xField?: ReactNode
+  compact?: boolean
   testId?: string
 }) {
   const xText = x === null ? NO_NUMBER : formatNumber(x)
   const parts = y === null ? null : numberParts(y)
+  const fit = compact ? ({ "--natural": compactReadoutWidth(xText, parts) } as CSSProperties) : undefined
   return (
-    <span className={style.readout} data-empty={y === null || undefined} data-testid={testId}>
+    <span
+      className={style.readout}
+      style={fit}
+      data-compact={compact || undefined}
+      data-empty={y === null || undefined}
+      data-testid={testId}
+    >
       <span className={`${style.math} ${style.open}`}>
         <MathText text="f(" />
       </span>

@@ -53,3 +53,32 @@ mantissa's foot, which puts its baseline about 10 px above the mantissa's. */
   font-size: 14px;
   vertical-align: 10px;
 }
+
+/* Compact (the dock's cards, R9): STIX 26 and the numbers at 24 in Figma's
+33 and 32 px line boxes, the exponent at 15. Where the card is narrower
+than the readout's natural width (--natural, in px, from readoutFit.ts),
+everything shrinks by the same factor (--fit, a px per px; 4 px kept for
+the whole-px rounding of five runs) and the row keeps its height. 100cqi
+is the card's readout row. */
+.readout[data-compact] {
+  --fit: min(1px, calc((100cqi - 4px) / var(--natural)));
+}
+
+.readout[data-compact] .math {
+  font-size: calc(26 * var(--fit));
+  line-height: 33px;
+}
+
+.readout[data-compact] .number {
+  font-size: calc(24 * var(--fit));
+  line-height: 32px;
+}
+
+.readout[data-compact] .rel {
+  padding: 0 calc(7 * var(--fit));
+}
+
+.readout[data-compact] .exponent {
+  font-size: calc(15 * var(--fit));
+  vertical-align: calc(11 * var(--fit));
+}
