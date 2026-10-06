@@ -125,6 +125,9 @@ const drawGrid = ({ ctx, width, height, themeVars, zoom, panX, panY }: DrawCarte
   ctx.stroke()
 }
 
+const plotY = (plotFunc: PlotFunc, x: number): number =>
+  plotFunc.yScale * plotFunc.func(x / plotFunc.xScale - plotFunc.xOffset) + plotFunc.yOffset
+
 const drawPlotFunction = ({
   ctx,
   width,
@@ -143,12 +146,12 @@ const drawPlotFunction = ({
   ctx.beginPath()
 
   const x = ctxTox(width, zoom, panX, 0)
-  const ctxY = yToCtx(height, zoom, panY, plotFunc.func(x))
+  const ctxY = yToCtx(height, zoom, panY, plotY(plotFunc, x))
   ctx.moveTo(0, ctxY)
 
   for (let ctxX = 0; ctxX <= width; ctxX++) {
     const x = ctxTox(width, zoom, panX, ctxX)
-    const ctxY = yToCtx(height, zoom, panY, plotFunc.func(x))
+    const ctxY = yToCtx(height, zoom, panY, plotY(plotFunc, x))
     ctx.lineTo(ctxX, ctxY)
   }
 
