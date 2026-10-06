@@ -34,11 +34,48 @@ const plotFuncNames: Record<PlotFuncSlug, string> = {
   sin: "sin(x)",
 }
 
+// Inner input: only show xScale/xOffset when off their defaults (1 / 0).
+// Negative offsets flip the sign so `x - -2` reads as `x + 2`.
+const innerX = (p: PlotFunc): string => {
+  const scaleDefault = p.xScale === 1
+  const offsetDefault = p.xOffset === 0
+  if (scaleDefault && offsetDefault) {
+    return "x"
+  }
+  if (scaleDefault) {
+    return p.xOffset > 0 ? `x - ${fmt(p.xOffset)}` : `x + ${fmt(-p.xOffset)}`
+  }
+  const scaled = `x / ${fmt(p.xScale)}`
+  if (offsetDefault) {
+    return scaled
+  }
+  return p.xOffset > 0 ? `${scaled} - ${fmt(p.xOffset)}` : `${scaled} + ${fmt(-p.xOffset)}`
+}
+
+// Outer output: only show yScale/yOffset when off their defaults (1 / 0).
+const withY = (base: string, p: PlotFunc): string => {
+  const scaled = p.yScale === 1 ? base : `${base} * ${fmt(p.yScale)}`
+  if (p.yOffset === 0) {
+    return scaled
+  }
+  return p.yOffset > 0 ? `${scaled} + ${fmt(p.yOffset)}` : `${scaled} - ${fmt(-p.yOffset)}`
+}
+
 const plotFuncLabels: Record<PlotFuncSlug, (p: PlotFunc) => string> = {
-  x: (p) => `(x / ${fmt(p.xScale)} - ${fmt(p.xOffset)}) * ${fmt(p.yScale)} + ${fmt(p.yOffset)}`,
-  x2: (p) => `(x / ${fmt(p.xScale)} - ${fmt(p.xOffset)})² * ${fmt(p.yScale)} + ${fmt(p.yOffset)}`,
-  x3: (p) => `(x / ${fmt(p.xScale)} - ${fmt(p.xOffset)})³ * ${fmt(p.yScale)} + ${fmt(p.yOffset)}`,
-  sin: (p) => `sin(x / ${fmt(p.xScale)} - ${fmt(p.xOffset)}) * ${fmt(p.yScale)} + ${fmt(p.yOffset)}`,
+  x: (p) => {
+    const inner = innerX(p)
+    const base = inner === "x" || p.yScale === 1 ? inner : `(${inner})`
+    return withY(base, p)
+  },
+  x2: (p) => {
+    const inner = innerX(p)
+    return withY(inner === "x" ? "x²" : `(${inner})²`, p)
+  },
+  x3: (p) => {
+    const inner = innerX(p)
+    return withY(inner === "x" ? "x³" : `(${inner})³`, p)
+  },
+  sin: (p) => withY(`sin(${innerX(p)})`, p),
 }
 
 const isPlotFuncSlug = (slug: string): slug is PlotFuncSlug => {
