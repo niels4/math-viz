@@ -9,6 +9,10 @@ import sliderStyles from "./Slider.module.css"
 // 2.5000000001 in the paired NumberField.
 const round3 = (n: number): number => Math.round(n * 1000) / 1000
 
+// Bounds readout under the track: display-trimmed only, the slider keeps
+// the exact min/max for positioning and aria.
+const formatBound = (n: number): string => String(round3(n))
+
 // A traditional (absolute-position) slider bound to a live [min, max]
 // range. The track follows min/max (the Points p1 slider binds them to the
 // grid's visible X extent), the knob sits at the value's fractional
@@ -118,33 +122,41 @@ export function ExtentSlider({
   }
 
   return (
-    <div
-      ref={trackRef}
-      role="slider"
-      tabIndex={0}
-      aria-label={label}
-      aria-valuemin={min}
-      aria-valuemax={max}
-      aria-valuenow={value}
-      aria-valuetext={String(value)}
-      data-testid={testId}
-      className={sliderStyles.slider_track}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={stopDragging}
-      onPointerCancel={stopDragging}
-      onLostPointerCapture={stopDragging}
-      onKeyDown={handleKeyDown}
-    >
-      <div className={sliderStyles.slider_fill} style={{ width: `${clamped * 100}%` }} />
-      {inRange && (
-        <div
-          className={sliderStyles.slider_knob}
-          style={{ left: `${clamped * 100}%` }}
-          data-testid={`${testId}-knob`}
-          aria-hidden="true"
-        />
-      )}
+    // Grouping div: keeps the track and its scale row in one control-row
+    // grid cell so the bounds sit under the slider, not across the row.
+    <div>
+      <div
+        ref={trackRef}
+        role="slider"
+        tabIndex={0}
+        aria-label={label}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={value}
+        aria-valuetext={String(value)}
+        data-testid={testId}
+        className={sliderStyles.slider_track}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={stopDragging}
+        onPointerCancel={stopDragging}
+        onLostPointerCapture={stopDragging}
+        onKeyDown={handleKeyDown}
+      >
+        <div className={sliderStyles.slider_fill} style={{ width: `${clamped * 100}%` }} />
+        {inRange && (
+          <div
+            className={sliderStyles.slider_knob}
+            style={{ left: `${clamped * 100}%` }}
+            data-testid={`${testId}-knob`}
+            aria-hidden="true"
+          />
+        )}
+      </div>
+      <div className={sliderStyles.slider_scale} aria-hidden="true">
+        <span data-testid={`${testId}-min`}>{formatBound(min)}</span>
+        <span data-testid={`${testId}-max`}>{formatBound(max)}</span>
+      </div>
     </div>
   )
 }

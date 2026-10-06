@@ -44,7 +44,7 @@ export function FunctionViewer() {
   const [xOffset, setXOffset] = useState(0)
   const [yScale, setYScale] = useState(1)
   const [yOffset, setYOffset] = useState(0)
-  const [p1, setP1] = useState(0)
+  const [point1X, setPoint1X] = useState(0)
   const [xExtent, setXExtent] = useState<XExtent | null>(null)
 
   const onSelectFunc = (next: string) => {
@@ -105,8 +105,8 @@ export function FunctionViewer() {
             setYScale,
             yOffset,
             setYOffset,
-            p1,
-            setP1,
+            p1: point1X,
+            setP1: setPoint1X,
             xExtent,
           }}
         />

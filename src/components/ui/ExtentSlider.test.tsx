@@ -88,6 +88,18 @@ describe("ExtentSlider", () => {
     expect(knob()?.style.left).toBe("50%")
   })
 
+  it("shows the extent bounds under the track", async () => {
+    const { screen } = await renderSlider({ min: -10, max: 10 })
+    expect(toElement(screen.getByTestId("s-min")).textContent).toBe("-10")
+    expect(toElement(screen.getByTestId("s-max")).textContent).toBe("10")
+  })
+
+  it("trims float tails off the displayed bounds", async () => {
+    const { screen } = await renderSlider({ min: -13.999999999999998, max: 14.000000000000002 })
+    expect(toElement(screen.getByTestId("s-min")).textContent).toBe("-14")
+    expect(toElement(screen.getByTestId("s-max")).textContent).toBe("14")
+  })
+
   it("follows min/max updates (the grid extent)", async () => {
     const { screen } = await renderSlider({ initial: 5, min: 0, max: 10 })
     expect(knob()?.style.left).toBe("50%")
@@ -95,6 +107,8 @@ describe("ExtentSlider", () => {
       toElement(screen.getByTestId("widen")).dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
     expect(knob()?.style.left).toBe("25%")
+    expect(toElement(screen.getByTestId("s-min")).textContent).toBe("0")
+    expect(toElement(screen.getByTestId("s-max")).textContent).toBe("20")
   })
 
   it("hides the knob below min", async () => {

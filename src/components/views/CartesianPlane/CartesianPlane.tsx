@@ -4,13 +4,18 @@ import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.t
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import { useAppTheme } from "#src/state/useAppTheme.ts"
 
-import type { CartesianPlaneProps, XExtent } from "./types.ts"
+import type { PlotFunc, XExtent } from "./types.ts"
 
 import style from "./cartesian-plane.module.css"
 import { drawCartesianPlane } from "./drawCartesianPlane"
 import { usePan } from "./usePan.ts"
 import { useZoom } from "./useZoom.ts"
 import { visibleXExtent } from "./util.ts"
+
+export type CartesianPlaneProps = {
+  plotFunc?: PlotFunc
+  onExtentChange?: ((extent: XExtent) => void) | undefined
+}
 
 export function CartesianPlane({ plotFunc, onExtentChange }: CartesianPlaneProps) {
   const { themeVars } = useAppTheme()

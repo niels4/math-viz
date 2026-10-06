@@ -42,6 +42,8 @@ describe("FunctionViewerSidebar Points", () => {
     expect(slider.getAttribute("aria-valuemax")).toBe("10")
     expect(slider.getAttribute("aria-valuenow")).toBe("2")
     expect(document.querySelector('[data-testid="p1-slider-knob"]')).not.toBeNull()
+    expect(toElement(screen.getByTestId("p1-slider-min")).textContent).toBe("0")
+    expect(toElement(screen.getByTestId("p1-slider-max")).textContent).toBe("10")
   })
 
   it("hides the p1 knob when the value leaves the extent", async () => {
