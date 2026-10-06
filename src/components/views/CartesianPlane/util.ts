@@ -1,4 +1,4 @@
-import type { DragSample, Velocity, ViewState } from "./types.ts"
+import type { DragSample, Velocity, ViewState, XExtent } from "./types.ts"
 
 export const MIN_UNIT_SIZE = 0.25
 export const MAX_UNIT_SIZE = 100
@@ -12,6 +12,14 @@ export const INERTIA_MAX_SPEED = 8000
 export const VELOCITY_WINDOW_MS = 120
 
 export const clampZoom = (zoom: number): number => Math.min(MAX_UNIT_SIZE, Math.max(MIN_UNIT_SIZE, zoom))
+
+// Visible X extent in math units: screen edges mapped back through zoom
+// and pan. Same hold-point math as drawCartesianPlane's ctxTox
+// ((ctxX - floor(width / 2)) / zoom - panX) evaluated at 0 and width.
+export const visibleXExtent = (width: number, zoom: number, panX: number): XExtent => ({
+  minX: (0 - Math.floor(width / 2)) / zoom - panX,
+  maxX: (width - Math.floor(width / 2)) / zoom - panX,
+})
 
 export const normalizeWheelDelta = (deltaY: number, deltaMode: number): number =>
   deltaMode === 1 ? deltaY * 16 : deltaY

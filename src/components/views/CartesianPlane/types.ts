@@ -6,8 +6,17 @@ export type PlotFunc = {
   func: (x: number) => number
 }
 
+// The visible X range in math units: the left and right screen edges mapped
+// back through zoom and pan (mirrors ctxTox in drawCartesianPlane). The
+// Points p1 slider binds its track to this range.
+export type XExtent = {
+  minX: number
+  maxX: number
+}
+
 export type CartesianPlaneProps = {
   plotFunc?: PlotFunc
+  onExtentChange?: ((extent: XExtent) => void) | undefined
 }
 
 // The visible frame: zoom is screen px per math unit, pan is the math

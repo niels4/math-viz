@@ -1,5 +1,7 @@
 import type { HelpContent } from "../../ui/HelpTip.tsx"
+import type { XExtent } from "../CartesianPlane/types.ts"
 
+import { ExtentSlider } from "../../ui/ExtentSlider.tsx"
 import { Field } from "../../ui/Field"
 import { NumberField } from "../../ui/NumberField.tsx"
 import { ScrubStrip } from "../../ui/ScrubStrip.tsx"
@@ -34,6 +36,9 @@ export type FunctionViewerSidebarProps = {
   setYScale: (next: number) => void
   yOffset: number
   setYOffset: (next: number) => void
+  p1: number
+  setP1: (next: number) => void
+  xExtent: XExtent | null
 }
 
 export function FunctionViewerSidebar({
@@ -45,6 +50,9 @@ export function FunctionViewerSidebar({
   setYScale,
   yOffset,
   setYOffset,
+  p1,
+  setP1,
+  xExtent,
 }: FunctionViewerSidebarProps) {
   return (
     <div className={style.sidebar}>
@@ -109,6 +117,25 @@ export function FunctionViewerSidebar({
         <p className={style.scrub_hint}>
           Drag a strip to scrub · Shift fine · Ctrl snap · double-click resets
         </p>
+      </section>
+      <section className={style.section} aria-label="Points">
+        <h2 className={style.section_title}>Points</h2>
+        <Field label="p1">
+          <div className={style.control_row}>
+            <NumberField testId="p1-input" {...{ value: p1, onChange: setP1 }} />
+            <ExtentSlider
+              testId="p1-slider"
+              label="p1 position"
+              value={p1}
+              min={xExtent?.minX ?? 0}
+              max={xExtent?.maxX ?? 0}
+              onChange={setP1}
+            />
+          </div>
+        </Field>
+        <Field label="p2">
+          <p className={style.scrub_hint}>Coming soon — p2 controls land here.</p>
+        </Field>
       </section>
     </div>
   )

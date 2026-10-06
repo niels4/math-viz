@@ -4,6 +4,7 @@ export { Button, type ButtonVariant } from "./Button.tsx"
 export { Checkbox } from "./Checkbox.tsx"
 export { HelpTip, type HelpContent, type HelpRow } from "./HelpTip.tsx"
 export { DataTable, type DataTableRow } from "./DataTable.tsx"
+export { ExtentSlider } from "./ExtentSlider.tsx"
 export { Field } from "./Field.tsx"
 export {
   BellIcon,

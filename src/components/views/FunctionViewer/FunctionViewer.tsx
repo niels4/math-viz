@@ -2,7 +2,7 @@ import { useState } from "react"
 
 import stixStyles from "#src/style/fonts/stix_two_text/stix_two_text.module.css"
 
-import type { PlotFunc } from "../CartesianPlane/types"
+import type { PlotFunc, XExtent } from "../CartesianPlane/types"
 
 import { Field } from "../../ui/Field"
 import { SnowflakeIcon } from "../../ui/icons.tsx"
@@ -44,6 +44,8 @@ export function FunctionViewer() {
   const [xOffset, setXOffset] = useState(0)
   const [yScale, setYScale] = useState(1)
   const [yOffset, setYOffset] = useState(0)
+  const [p1, setP1] = useState(0)
+  const [xExtent, setXExtent] = useState<XExtent | null>(null)
 
   const onSelectFunc = (next: string) => {
     if (isPlotFuncSlug(next)) {
@@ -66,7 +68,7 @@ export function FunctionViewer() {
 
   return (
     <div className={style.page}>
-      <CartesianPlane {...{ plotFunc }} />
+      <CartesianPlane plotFunc={plotFunc} onExtentChange={setXExtent} />
       <div className={style.overlay}>
         <header className={style.topbar}>
           <a className={style.brand} href="#">
@@ -103,6 +105,9 @@ export function FunctionViewer() {
             setYScale,
             yOffset,
             setYOffset,
+            p1,
+            setP1,
+            xExtent,
           }}
         />
       </div>

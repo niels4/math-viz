@@ -4,14 +4,15 @@ import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.t
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import { useAppTheme } from "#src/state/useAppTheme.ts"
 
-import type { CartesianPlaneProps } from "./types.ts"
+import type { CartesianPlaneProps, XExtent } from "./types.ts"
 
 import style from "./cartesian-plane.module.css"
 import { drawCartesianPlane } from "./drawCartesianPlane"
 import { usePan } from "./usePan.ts"
 import { useZoom } from "./useZoom.ts"
+import { visibleXExtent } from "./util.ts"
 
-export function CartesianPlane({ plotFunc }: CartesianPlaneProps) {
+export function CartesianPlane({ plotFunc, onExtentChange }: CartesianPlaneProps) {
   const { themeVars } = useAppTheme()
   const wrapperRef = useRef(null)
   const { width, height } = useResizeObserver(wrapperRef)
@@ -23,6 +24,18 @@ export function CartesianPlane({ plotFunc }: CartesianPlaneProps) {
   const pan = usePan()
   const { panX, panY } = pan
   const { zoom, onPointerDown, onPointerMove, onPointerUp } = useZoom({ canvasRef, pan })
+
+  // Report the visible X extent so the Points p1 slider can bind its track
+  // to it. The callback lives in a ref so an inline parent closure never
+  // retriggers this effect and loops (p1 edits re-render the parent).
+  const extentRef = useRef<((extent: XExtent) => void) | undefined>(undefined)
+  useEffect(() => {
+    extentRef.current = onExtentChange
+  }, [onExtentChange])
+
+  useEffect(() => {
+    extentRef.current?.(visibleXExtent(width, zoom, panX))
+  }, [width, zoom, panX])
 
   useEffect(() => {
     const canvas = canvasRef.current
