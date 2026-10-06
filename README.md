@@ -29,7 +29,7 @@ GitHub Pages serves the committed `docs/` folder of `main`. Run `npm run build` 
 ## Stack
 
 - Vite 8, React 19 with the React Compiler, TypeScript 7
-- Canvas 2D for the Cartesian plane and GSAP for motion; R3F and d3 are set up for 3D panels and scales
+- Canvas 2D for the Cartesian plane, GSAP's ticker for motion
 - Six themes as CSS Modules with oklch colours, and self-hosted fonts (Work Sans, STIX Two Text, Roboto Mono), so the app works offline
 - oxlint, oxfmt, and Vitest in jsdom and Chromium
 
