@@ -37,6 +37,7 @@ export function ScrubStrip({
   onReset,
   kind,
   label,
+  describedBy,
   onEditRequest,
   onModeChange,
   held = null,
@@ -52,6 +53,8 @@ export function ScrubStrip({
   kind: ScrubKind
   /** The slider's accessible name. */
   label: string
+  /** The id of what describes it now, e.g. its owner's open explainer. */
+  describedBy?: string | undefined
   /** Enter: the owner opens its value field. */
   onEditRequest?: () => void
   /** The drag's mode as it starts and changes, null when it ends. */
@@ -142,6 +145,7 @@ export function ScrubStrip({
       role="slider"
       tabIndex={0}
       aria-label={label}
+      aria-describedby={describedBy}
       aria-valuenow={kind === "multiplicative" ? Math.abs(value) : value}
       aria-valuetext={formatStored(value)}
       data-testid={testId}

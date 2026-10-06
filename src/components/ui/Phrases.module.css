@@ -1,13 +1,14 @@
 @layer components {
-  /* Work Sans 14 and STIX 16 in Figma's AUTO line boxes. */
+  /* Work Sans and STIX in Figma's AUTO line boxes: 14 / 16 and 16 / 20
+  unless the owner sets the sizes (the tour's 15 / 18 and 17 / 21). */
   .text {
-    font-size: 14px;
-    line-height: 16px;
+    font-size: var(--phrase-text-size, 14px);
+    line-height: var(--phrase-text-line, 16px);
   }
 
   .math {
     font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
-    font-size: 16px;
-    line-height: 20px;
+    font-size: var(--phrase-math-size, 16px);
+    line-height: var(--phrase-math-line, 20px);
   }
 }

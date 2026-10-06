@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import type { GridLayout } from "./grid.ts"
 
-import { gridSteps, layoutGrid } from "./grid.ts"
+import { gridLines, gridSteps, layoutGrid } from "./grid.ts"
 import { makeViewport } from "./viewport.ts"
 
 // Roboto Mono advances 0.6 em: 8.4 px per character at 14 px.
@@ -105,5 +105,18 @@ describe("layoutGrid", () => {
     expect(grid.axisX).toBe(782)
     const x1 = label(grid, "x", "1")
     expect((x1?.box.y ?? 0) + (x1?.box.h ?? 0)).toBeCloseTo(782 - 9)
+  })
+})
+
+describe("gridLines", () => {
+  it("draws a mini plot's grid on fixed steps: FV 02's 268 × 124 at 22 px per unit, minor 1, major 5", () => {
+    const vp = { width: 268, height: 124, zoom: 22, originX: 134, originY: 112 }
+    const lines = gridLines(vp, { minor: 1, major: 5 })
+    expect(lines.majorX).toEqual([24, 244])
+    expect(lines.minorX).toEqual([2, 46, 68, 90, 112, 156, 178, 200, 222, 266])
+    // y = 1 … 4 minor, y = 5 major; nothing on the axes.
+    expect(lines.minorY).toEqual([90, 68, 46, 24])
+    expect(lines.majorY).toEqual([2])
+    expect([lines.axisX, lines.axisY]).toEqual([112, 134])
   })
 })

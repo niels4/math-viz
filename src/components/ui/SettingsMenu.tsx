@@ -6,7 +6,10 @@ import { useAppTheme } from "../../state/useAppTheme.ts"
 import { GearIcon } from "./icons.tsx"
 import menuStyles from "./SettingsMenu.module.css"
 
-export function SettingsMenu() {
+/** A view's own item in the settings menu, under the themes: "Show the tour again". */
+export type SettingsAction = { id: string; label: string; onSelect: () => void }
+
+export function SettingsMenu({ actions = [] }: { actions?: readonly SettingsAction[] }) {
   const { themeSlug, setThemeSlug } = useAppTheme()
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement | null>(null)
@@ -93,6 +96,26 @@ export function SettingsMenu() {
               })}
             </div>
           ))}
+          {actions.length > 0 && (
+            <div role="group" aria-label="View" className={menuStyles.settings_actions}>
+              {actions.map((action) => (
+                <button
+                  key={action.id}
+                  type="button"
+                  role="menuitem"
+                  data-testid={`settings-action-${action.id}`}
+                  className={menuStyles.settings_option}
+                  onClick={() => {
+                    setOpen(false)
+                    action.onSelect()
+                  }}
+                >
+                  <span className={menuStyles.settings_check} aria-hidden="true" />
+                  {action.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       ) : null}
     </div>

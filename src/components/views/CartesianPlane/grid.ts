@@ -45,8 +45,8 @@ export type GridLabel = {
   box: Rect
 }
 
-export type GridLayout = {
-  steps: GridSteps
+/** A grid's lines in screen px: the axes are drawn apart, so no line sits on one. */
+export type GridLines = {
   /** Screen x of the vertical lines, screen y of the horizontal ones. */
   minorX: number[]
   majorX: number[]
@@ -55,6 +55,10 @@ export type GridLayout = {
   /** Screen y of the x-axis and screen x of the y-axis, while in view. */
   axisX: number | null
   axisY: number | null
+}
+
+export type GridLayout = GridLines & {
+  steps: GridSteps
   /** Tick positions along each axis (the majors). */
   ticksX: number[]
   ticksY: number[]
@@ -101,19 +105,43 @@ export type GridOptions = {
   keepOut?: readonly Rect[]
 }
 
+/** The grid's values in view, in math units: every minor step but 0, and the majors among them. */
+const lattice = (vp: Viewport, steps: GridSteps) => {
+  const extent = visibleExtent(vp)
+  const xs = multiples(extent.minX, extent.maxX, steps.minor).filter((u) => u !== 0)
+  const ys = multiples(extent.minY, extent.maxY, steps.minor).filter((u) => u !== 0)
+  return {
+    xs,
+    ys,
+    majorXs: xs.filter((u) => onStep(u, steps.major)),
+    majorYs: ys.filter((u) => onStep(u, steps.major)),
+  }
+}
+
+/** The lines of a grid on the given steps: the plane's, or a mini plot's fixed ones (1 and 5 u). */
+export const gridLines = (vp: Viewport, steps: GridSteps): GridLines => {
+  const { xs, ys } = lattice(vp, steps)
+  const minor = (u: number) => !onStep(u, steps.major)
+  const major = (u: number) => onStep(u, steps.major)
+  return {
+    minorX: xs.filter(minor).map((u) => toScreenX(vp, u)),
+    majorX: xs.filter(major).map((u) => toScreenX(vp, u)),
+    minorY: ys.filter(minor).map((u) => toScreenY(vp, u)),
+    majorY: ys.filter(major).map((u) => toScreenY(vp, u)),
+    axisX: between(vp.originY, 0, vp.height) ? vp.originY : null,
+    axisY: between(vp.originX, 0, vp.width) ? vp.originX : null,
+  }
+}
+
 export const layoutGrid = (
   vp: Viewport,
   { labelWidth, originWidth, keepOut = [] }: GridOptions,
 ): GridLayout => {
   const { width, height, originX, originY } = vp
   const steps = gridSteps(vp.zoom)
-  const extent = visibleExtent(vp)
-  const xs = multiples(extent.minX, extent.maxX, steps.minor).filter((u) => u !== 0)
-  const ys = multiples(extent.minY, extent.maxY, steps.minor).filter((u) => u !== 0)
-  const majorXs = xs.filter((u) => onStep(u, steps.major))
-  const majorYs = ys.filter((u) => onStep(u, steps.major))
-  const axisX = between(originY, 0, height) ? originY : null
-  const axisY = between(originX, 0, width) ? originX : null
+  const { majorXs, majorYs } = lattice(vp, steps)
+  const lines = gridLines(vp, steps)
+  const { axisX, axisY } = lines
   const clear = (box: Rect) => !keepOut.some((r) => intersects(box, r))
 
   // x labels: below the x-axis, above it when there is no room below, and
@@ -177,13 +205,8 @@ export const layoutGrid = (
   }
 
   return {
+    ...lines,
     steps,
-    minorX: xs.filter((u) => !onStep(u, steps.major)).map((u) => toScreenX(vp, u)),
-    majorX: majorXs.map((u) => toScreenX(vp, u)),
-    minorY: ys.filter((u) => !onStep(u, steps.major)).map((u) => toScreenY(vp, u)),
-    majorY: majorYs.map((u) => toScreenY(vp, u)),
-    axisX,
-    axisY,
     ticksX: axisX === null ? [] : majorXs.map((u) => toScreenX(vp, u)),
     ticksY: axisY === null ? [] : majorYs.map((u) => toScreenY(vp, u)),
     labels: [...xLabels, ...yLabels],

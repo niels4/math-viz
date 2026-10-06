@@ -1,6 +1,6 @@
-import type { KeyboardEvent, PointerEvent, ReactNode } from "react"
+import type { KeyboardEvent, PointerEvent, ReactNode, Ref } from "react"
 
-import { useEffect, useEffectEvent, useRef, useState } from "react"
+import { useEffect, useEffectEvent, useImperativeHandle, useRef, useState } from "react"
 
 import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.ts"
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
@@ -9,6 +9,7 @@ import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
 
 import type { MarksLayout } from "./marks.ts"
 import type { Rect } from "./rect.ts"
+import type { DrawnPlane } from "./region.ts"
 import type { PlaneScene } from "./scene.ts"
 import type { PlaneView } from "./viewport.ts"
 
@@ -18,6 +19,7 @@ import { PLANE_FACES, readoutFaces } from "./faces.ts"
 import { hitTest } from "./hitTest.ts"
 import { layoutMarks, NO_MARKS } from "./marks.ts"
 import { PlaneChrome } from "./PlaneChrome.tsx"
+import { regionOf } from "./region.ts"
 import { usePan } from "./usePan.ts"
 import { usePlaneKeys } from "./usePlaneKeys.ts"
 import { useZoom } from "./useZoom.ts"
@@ -50,6 +52,15 @@ export type PlanePointer = {
 
 export type MarkDragPhase = "start" | "move" | "end"
 
+/** What an owner can ask the plane from outside. */
+export type CartesianPlaneHandle = {
+  /**
+   * Where the named curves and points sit on screen as last drawn (client
+   * px), with the axis labels beside them (region.ts); null when none shows.
+   */
+  regionOf: (ids: readonly string[]) => Rect | null
+}
+
 export type CartesianPlaneProps = {
   scene: PlaneScene
   /** Maths beside the caption's caps label, e.g. y = f(x). */
@@ -71,6 +82,7 @@ export type CartesianPlaneProps = {
   onMarkDrag?: ((phase: MarkDragPhase, id: string, to: { x: number; y: number }) => void) | undefined
   /** A key on the focused plane, before its own keys: true when the owner took it. */
   onKeyDown?: ((event: KeyboardEvent<HTMLElement>) => boolean) | undefined
+  ref?: Ref<CartesianPlaneHandle>
 }
 
 /** The canvas's cursor says what a press will do (FV 07 › pointer modes). */
@@ -154,6 +166,7 @@ export function CartesianPlane({
   onPointer,
   onMarkDrag,
   onKeyDown,
+  ref,
 }: CartesianPlaneProps) {
   const { themeVars } = useAppTheme()
   const rootRef = useRef<HTMLDivElement | null>(null)
@@ -204,6 +217,23 @@ export function CartesianPlane({
 
   // The marks as last drawn: what the pointer can take.
   const marksRef = useRef<MarksLayout>(NO_MARKS)
+  // The whole frame as last drawn: what the owner can ask about.
+  const drawnRef = useRef<DrawnPlane | null>(null)
+  useImperativeHandle(
+    ref,
+    () => ({
+      regionOf: (ids) => {
+        const canvas = canvasRef.current
+        const region = drawnRef.current === null ? null : regionOf(drawnRef.current, ids)
+        if (canvas === null || region === null) {
+          return null
+        }
+        const at = canvas.getBoundingClientRect()
+        return { ...region, x: region.x + at.left, y: region.y + at.top }
+      },
+    }),
+    [],
+  )
   const markDragRef = useRef<MarkDrag | null>(null)
   const [cursor, setCursor] = useState<Cursor>("probe")
 
@@ -373,7 +403,8 @@ export function CartesianPlane({
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, width, height)
     const chrome = measureKeepOut(rootRef.current)
-    const marks = layoutMarks(scene, makeViewport({ width, height, dpr }, { zoom, panX, panY }), {
+    const frameVp = makeViewport({ width, height, dpr }, { zoom, panX, panY })
+    const marks = layoutMarks(scene, frameVp, {
       measure: (face, text) => {
         ctx.font = face.font
         return ctx.measureText(text).width
@@ -383,7 +414,7 @@ export function CartesianPlane({
       corners: chrome.corners,
     })
     marksRef.current = marks
-    drawCartesianPlane({
+    const grid = drawCartesianPlane({
       ctx,
       width,
       height,
@@ -396,6 +427,7 @@ export function CartesianPlane({
       marks,
       keepOut: [...chrome.plates, ...chrome.corners],
     })
+    drawnRef.current = { vp: frameVp, scene, marks, labels: grid?.labels ?? [] }
     // HMR: drawCartesianPlane identity changes only on hot reload, intentional redraw.
     // fontLoads: redraw once the canvas faces have loaded.
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -77,6 +77,12 @@
     background: var(--primary);
   }
 
+  /* The view's own items, set off from the themes by a rule. */
+  .settings_actions {
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
   .settings_check {
     display: inline-block;
     width: 1.2em;

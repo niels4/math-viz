@@ -1,0 +1,45 @@
+@layer components {
+  /* The card: fixed to the viewport, --card with the signature radius and
+  shadow, its border inside the box (Figma's INSIDE stroke counts in its
+  auto-layout, so the owner's padding sits inside it). */
+  .callout {
+    position: fixed;
+    z-index: 30;
+    box-sizing: border-box;
+    color: var(--foreground);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--sig-card-radius);
+    box-shadow: var(--sig-card-shadow);
+  }
+
+  .callout[data-tone="accent"] {
+    border: 2px solid var(--primary);
+  }
+
+  /* The caret hangs outside the card, measured from its border box. */
+  .caret {
+    position: absolute;
+    overflow: visible;
+    margin: -1px;
+  }
+
+  .callout[data-tone="accent"] .caret {
+    margin: -2px;
+  }
+
+  .plain_fill {
+    fill: var(--card);
+  }
+
+  .plain_edge {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 1px;
+    stroke-linejoin: round;
+  }
+
+  .accent_fill {
+    fill: var(--primary);
+  }
+}

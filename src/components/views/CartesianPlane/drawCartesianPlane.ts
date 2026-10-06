@@ -1,6 +1,7 @@
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
 import type { CanvasFace } from "./faces.ts"
+import type { GridLayout } from "./grid.ts"
 import type { MarksLayout } from "./marks.ts"
 import type { Rect } from "./rect.ts"
 import type { PlaneScene } from "./scene.ts"
@@ -37,11 +38,12 @@ export type DrawCartesianPlaneProps = {
 // annotations under the curve, the other curves, the handles' halos, the
 // annotations over the curve, the handles, the pointer guides and drop
 // lines, the axis tags, then each point in order: where it was, its edge
-// marker or its marker, and its label. The DOM chrome sits above.
-export const drawCartesianPlane = (props: DrawCartesianPlaneProps) => {
+// marker or its marker, and its label. The DOM chrome sits above. Returns
+// the grid it laid out (null for an empty plane).
+export const drawCartesianPlane = (props: DrawCartesianPlaneProps): GridLayout | null => {
   const { ctx, themeVars, width, height, dpr, scene, marks } = props
   if (width === 0 || height === 0) {
-    return
+    return null
   }
   const vp = makeViewport({ width, height, dpr }, props)
   const measure = (face: CanvasFace, text: string) => {
@@ -92,4 +94,5 @@ export const drawCartesianPlane = (props: DrawCartesianPlaneProps) => {
       paintPlate(ctx, layer.label, themeVars)
     }
   }
+  return grid
 }

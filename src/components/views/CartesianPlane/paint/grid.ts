@@ -1,6 +1,6 @@
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
-import type { GridLayout } from "../grid.ts"
+import type { GridLayout, GridLines } from "../grid.ts"
 
 import { baselineBelowTop, ORIGIN_FACE, TICK_LABEL_FACE } from "../faces.ts"
 import { TICK_HALF } from "../grid.ts"
@@ -34,21 +34,36 @@ const strokeLines = (
   ctx.stroke()
 }
 
-/** Back to front: minor lines, major lines, axes, ticks, tick labels, the O. */
+/** Minor lines, major lines, then the axes (2 px on the plane, 1.5 in a mini plot). */
+export const paintGridLines = (
+  ctx: CanvasRenderingContext2D,
+  lines: GridLines,
+  theme: ThemeVars,
+  size: { width: number; height: number },
+  axisWidth: number = AXIS_WIDTH,
+) => {
+  ctx.save()
+  ctx.lineCap = "butt"
+  strokeLines(ctx, lines.minorX, lines.minorY, size, theme.chartGrid, GRID_WIDTH)
+  strokeLines(ctx, lines.majorX, lines.majorY, size, theme.chartGridMajor, GRID_WIDTH)
+  const axesX = lines.axisY === null ? [] : [lines.axisY]
+  const axesY = lines.axisX === null ? [] : [lines.axisX]
+  strokeLines(ctx, axesX, axesY, size, theme.chartAxis, axisWidth)
+  ctx.restore()
+}
+
+/** Back to front: the lines and axes, ticks, tick labels, the O. */
 export const paintGrid = (
   ctx: CanvasRenderingContext2D,
   grid: GridLayout,
   theme: ThemeVars,
   size: { width: number; height: number },
 ) => {
+  paintGridLines(ctx, grid, theme, size)
   ctx.save()
   ctx.lineCap = "butt"
-  strokeLines(ctx, grid.minorX, grid.minorY, size, theme.chartGrid, GRID_WIDTH)
-  strokeLines(ctx, grid.majorX, grid.majorY, size, theme.chartGridMajor, GRID_WIDTH)
-  const axesX = grid.axisY === null ? [] : [grid.axisY]
-  const axesY = grid.axisX === null ? [] : [grid.axisX]
-  strokeLines(ctx, axesX, axesY, size, theme.chartAxis, AXIS_WIDTH)
-
+  ctx.strokeStyle = theme.chartAxis
+  ctx.lineWidth = AXIS_WIDTH
   ctx.beginPath()
   if (grid.axisX !== null) {
     for (const x of grid.ticksX) {
