@@ -143,12 +143,12 @@ const drawPlotFunction = ({
   ctx.beginPath()
 
   const x = ctxTox(width, zoom, panX, 0)
-  const ctxY = yToCtx(height, zoom, panY, plotFunc(x))
+  const ctxY = yToCtx(height, zoom, panY, plotFunc.func(x))
   ctx.moveTo(0, ctxY)
 
   for (let ctxX = 0; ctxX <= width; ctxX++) {
     const x = ctxTox(width, zoom, panX, ctxX)
-    const ctxY = yToCtx(height, zoom, panY, plotFunc(x))
+    const ctxY = yToCtx(height, zoom, panY, plotFunc.func(x))
     ctx.lineTo(ctxX, ctxY)
   }
 

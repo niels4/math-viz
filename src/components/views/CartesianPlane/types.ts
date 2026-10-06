@@ -1,4 +1,10 @@
-export type PlotFunc = (x: number) => number
+export type PlotFunc = {
+  xOffset: number
+  xScale: number
+  yOffset: number
+  yScale: number
+  func: (x: number) => number
+}
 
 export type CartesianPlaneProps = {
   plotFunc?: PlotFunc
