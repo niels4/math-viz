@@ -6,8 +6,11 @@
 
   /* hint-bar-fv: 48 px, padding 6 12, --background inside a 1 px --border,
   the signature radius. Two rows (40 px) overflow the 34 px content box
-  into the padding, centred, as Figma lays them out. An error hint turns
-  border and copy --destructive. */
+  into the padding, centred, as Figma lays them out. The copy keeps 2 px of
+  the right padding: Figma's box for the longest phrase ("Drag a ruler
+  sideways to reshape the curve ·") is 302 px and overflows the dock's 300
+  px content into its padding (R9, FV 06). An error hint turns border and
+  copy --destructive. */
   .bar {
     display: flex;
     flex-wrap: wrap;
@@ -15,7 +18,7 @@
     place-content: center flex-start;
     align-items: center;
     height: 48px;
-    padding: 6px 12px;
+    padding: 6px 10px 6px 12px;
     overflow: hidden;
     color: var(--foreground-muted);
     background: var(--background);
@@ -23,10 +26,10 @@
     border-radius: var(--sig-card-radius);
   }
 
-  /* Narrower than the longest phrase needs (302 px of copy, "Drag a ruler
-  sideways to reshape the curve ·"), a hint can take three rows: the box
-  takes their height, still the same for every hint. */
-  @container (width < 340px) {
+  /* Narrower than the longest phrase needs (those 302 px, from a 326 px
+  bar), a hint can take three rows: the box takes their height, still the
+  same for every hint. */
+  @container (width < 326px) {
     .bar {
       height: 72px;
     }

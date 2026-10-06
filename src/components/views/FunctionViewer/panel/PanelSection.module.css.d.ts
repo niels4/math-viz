@@ -4,6 +4,7 @@
 declare const styles: {
   readonly "header": string;
   readonly "header_row": string;
+  readonly "quiet": string;
   readonly "section": string;
   readonly "step": string;
 };

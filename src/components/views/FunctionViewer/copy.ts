@@ -119,7 +119,8 @@ export const HINTS = {
   transform: (param: TransformParam, scale: boolean, reset: number): Phrase[] =>
     gestures([{ text: "Drag to change" }, { math: param }, { text: "·" }], scale, reset),
   fine: [{ key: "Shift" }, { text: "Fine: a tenth of the speed, steps of 0.001" }],
-  snap: [{ key: "Ctrl" }, { text: "Snapping to whole numbers (scales: quarters)" }],
+  /** Two phrases, so the dock's 302 px of copy wraps between them. */
+  snap: [{ key: "Ctrl" }, { text: "Snapping to whole numbers" }, { text: "(scales: quarters)" }],
   edit: [
     { key: "Enter" },
     { text: "apply ·" },
@@ -131,9 +132,9 @@ export const HINTS = {
   ],
   /** Refused text: why, by the field's error code, and the value Esc puts back (FV 07). */
   refused: (error: string, putsBack: string): Phrase[] => [
-    {
-      text: `${error === ZERO_SCALE ? "A scale of 0 squashes the curve flat. Try 0.1" : "Type a number such as 1.5"} ·`,
-    },
+    ...(error === ZERO_SCALE
+      ? [{ text: "A scale of 0 squashes the curve flat." }, { text: "Try 0.1 ·" }]
+      : [{ text: "Type a number such as 1.5 ·" }]),
     { key: "Esc" },
     { text: `puts back ${putsBack}` },
   ],

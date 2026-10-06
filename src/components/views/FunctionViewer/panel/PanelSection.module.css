@@ -43,3 +43,13 @@ in px. */
   background: var(--secondary);
   border-radius: 50%;
 }
+
+/* A quiet section's header: read aloud, not shown, out of the layout. */
+.quiet {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
