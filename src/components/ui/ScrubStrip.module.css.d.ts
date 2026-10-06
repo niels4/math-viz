@@ -6,6 +6,7 @@ declare const styles: {
   readonly "strip_badge": string;
   readonly "strip_detent": string;
   readonly "strip_fine": string;
+  readonly "strip_help": string;
   readonly "strip_snap": string;
 };
 export = styles;

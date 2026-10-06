@@ -1,0 +1,48 @@
+@layer components {
+  .wrap {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    color: var(--foreground-muted);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    cursor: help;
+  }
+
+  .button:hover {
+    color: var(--foreground);
+    border-color: var(--border);
+  }
+
+  .button:focus-visible {
+    color: var(--foreground);
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+  }
+
+  .bubble {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: -6px;
+    width: max-content;
+    max-width: 16rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--foreground);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    z-index: 10;
+  }
+}

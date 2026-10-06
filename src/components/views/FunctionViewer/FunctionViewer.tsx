@@ -82,6 +82,7 @@ function FunctionViewerSidebar({
             kind="multiplicative"
             step={0.002}
             defaultValue={1}
+            helpText="Drag to scrub the scale. Large values move faster than small ones, and the sign never flips. Shift for fine control, Ctrl snaps to whole numbers, double-click resets to 1."
             {...{ value: xScale, onChange: setXScale }}
           />
         </div>
@@ -95,6 +96,7 @@ function FunctionViewerSidebar({
             kind="additive"
             step={0.02}
             defaultValue={0}
+            helpText="Drag to scrub the offset. Shift for fine control, Ctrl snaps to whole numbers, double-click resets to 0."
             {...{ value: xOffset, onChange: setXOffset }}
           />
         </div>
@@ -108,6 +110,7 @@ function FunctionViewerSidebar({
             kind="multiplicative"
             step={0.002}
             defaultValue={1}
+            helpText="Drag to scrub the scale. Large values move faster than small ones, and the sign never flips. Shift for fine control, Ctrl snaps to whole numbers, double-click resets to 1."
             {...{ value: yScale, onChange: setYScale }}
           />
         </div>
@@ -121,6 +124,7 @@ function FunctionViewerSidebar({
             kind="additive"
             step={0.02}
             defaultValue={0}
+            helpText="Drag to scrub the offset. Shift for fine control, Ctrl snaps to whole numbers, double-click resets to 0."
             {...{ value: yOffset, onChange: setYOffset }}
           />
         </div>

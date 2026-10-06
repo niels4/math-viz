@@ -128,6 +128,25 @@ export function GearIcon() {
   )
 }
 
+export function HelpIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.6 9.6a2.5 2.5 0 1 1 3.3 2.4c-.8.3-1 .9-1 1.8" />
+      <circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
 export function SearchIcon() {
   return (
     <svg

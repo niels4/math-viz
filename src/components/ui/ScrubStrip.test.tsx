@@ -22,12 +22,14 @@ function Harness({
   step = 0.02,
   defaultValue = 0,
   seen,
+  helpText,
 }: {
   initial?: number
   kind?: "additive" | "multiplicative"
   step?: number
   defaultValue?: number
   seen?: (next: number) => void
+  helpText?: string
 }) {
   const [value, setValue] = useState(initial)
   return (
@@ -44,6 +46,7 @@ function Harness({
         step,
         defaultValue,
       }}
+      {...(helpText === undefined ? {} : { helpText })}
     />
   )
 }
@@ -117,6 +120,24 @@ describe("ScrubStrip", () => {
       strip.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowRight" }))
     })
     expect(strip.getAttribute("aria-valuenow")).toBe("1.3")
+  })
+
+  it("the help button neither scrubs nor resets", async () => {
+    const seen: number[] = []
+    const screen = await render(
+      <Harness initial={5} defaultValue={0} seen={(next) => seen.push(next)} helpText="Help me" />,
+    )
+    stubPointerCapture()
+    const strip = toElement(screen.getByTestId("strip")) as HTMLDivElement
+    const help = document.querySelector('button[aria-label="X offset help"]')
+    expect(help).not.toBeNull()
+    act(() => {
+      help?.dispatchEvent(pointer("pointerdown", { pointerId: 1, clientX: 100 }))
+      strip.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: 500 }))
+      strip.dispatchEvent(pointer("pointerup", { pointerId: 1, clientX: 500 }))
+      help?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }))
+    })
+    expect(seen).toEqual([])
   })
 
   it("multiplicative scrub never crosses zero", async () => {

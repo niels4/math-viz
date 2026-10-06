@@ -37,6 +37,14 @@
     border-color: var(--warning);
   }
 
+  /* Floats just outside the strip, above its top-right corner. The row
+  makes room via padding so it never overlaps the field label. */
+  .strip_help {
+    position: absolute;
+    top: -26px;
+    right: 0;
+  }
+
   .strip_detent {
     width: 2px;
     align-self: stretch;
