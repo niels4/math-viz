@@ -44,3 +44,7 @@ GitHub Pages serves the committed `docs/` folder of `main`. Run `npm run build` 
 | `docs/`                 | the built site for GitHub Pages (generated)               |
 
 Project conventions for contributors and coding agents are in `AGENTS.md`.
+
+## License
+
+MIT, see `LICENSE`.
