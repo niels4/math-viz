@@ -113,6 +113,7 @@ const PLANE_RECT = {
 describe("FunctionViewer", () => {
   afterEach(() => {
     vi.useRealTimers()
+    vi.unstubAllGlobals()
     vi.restoreAllMocks()
   })
 
@@ -274,6 +275,8 @@ describe("FunctionViewer", () => {
 
   it("shows Q's placeholders until the pointer is on the plane, at one height (R2, R3)", async () => {
     vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(ZERO_RECT)
+    // Real Chromium's ResizeObserver would report the laid-out plane over the mock.
+    vi.stubGlobal("ResizeObserver", undefined)
     const screen = await render(<FunctionViewer />)
     const q = byTestId(screen, "fv-point-q")
     expect(readout(screen, "fv-q-readout")).toBe("f(–) = –")
@@ -479,6 +482,7 @@ describe("FunctionViewer", () => {
         ? PLANE_RECT
         : ZERO_RECT
     })
+    vi.stubGlobal("ResizeObserver", undefined)
     const screen = await render(<FunctionViewer />)
     typeParam(screen, "a", "2")
     typeParam(screen, "h", "-1")

@@ -55,6 +55,17 @@ const rectOf = (width: number, height: number) =>
 
 const zeroRect = () => rectOf(0, 0)
 
+// The tests set the plane's size through getBoundingClientRect. In real
+// Chromium a ResizeObserver would then report the element's laid-out size
+// over it, a race the browser project loses now and then: no observer here.
+beforeEach(() => {
+  vi.stubGlobal("ResizeObserver", undefined)
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
+
 describe("CartesianPlane pinch zoom", () => {
   beforeEach(() => {
     drawMock.mockClear()
