@@ -102,6 +102,22 @@ the logo icon alone. */
   pointer-events: auto;
 }
 
+/* Input left, scrub strip right: equal halves keep numbers and strips
+usable at the sidebar's narrowest. */
+.control_row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: stretch;
+  margin-top: 8px;
+}
+
+.scrub_hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--foreground-muted);
+}
+
 /* Unlayered view styles win over the `@layer components` design system
 regardless of specificity or stylesheet order, so plain classes suffice. */
 .func_select_label {

@@ -5,6 +5,7 @@ import type { PlotFunc } from "../CartesianPlane/types"
 import { Field } from "../../ui/Field"
 import { SnowflakeIcon } from "../../ui/icons.tsx"
 import { NumberField } from "../../ui/NumberField.tsx"
+import { ScrubStrip } from "../../ui/ScrubStrip.tsx"
 import { Select } from "../../ui/Select"
 import { SettingsMenu } from "../../ui/SettingsMenu.tsx"
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
@@ -73,17 +74,58 @@ function FunctionViewerSidebar({
         />
       </Field>
       <Field label="X Scale">
-        <NumberField testId="x-scale-input" {...{ value: xScale, onChange: setXScale }} />
+        <div className={style.control_row}>
+          <NumberField testId="x-scale-input" {...{ value: xScale, onChange: setXScale }} />
+          <ScrubStrip
+            testId="x-scale-strip"
+            label="Scrub X scale"
+            kind="multiplicative"
+            step={0.002}
+            defaultValue={1}
+            {...{ value: xScale, onChange: setXScale }}
+          />
+        </div>
       </Field>
       <Field label="X Offset">
-        <NumberField testId="x-offset-input" {...{ value: xOffset, onChange: setXOffset }} />
+        <div className={style.control_row}>
+          <NumberField testId="x-offset-input" {...{ value: xOffset, onChange: setXOffset }} />
+          <ScrubStrip
+            testId="x-offset-strip"
+            label="Scrub X offset"
+            kind="additive"
+            step={0.02}
+            defaultValue={0}
+            {...{ value: xOffset, onChange: setXOffset }}
+          />
+        </div>
       </Field>
       <Field label="Y Scale">
-        <NumberField testId="y-scale-input" {...{ value: yScale, onChange: setYScale }} />
+        <div className={style.control_row}>
+          <NumberField testId="y-scale-input" {...{ value: yScale, onChange: setYScale }} />
+          <ScrubStrip
+            testId="y-scale-strip"
+            label="Scrub Y scale"
+            kind="multiplicative"
+            step={0.002}
+            defaultValue={1}
+            {...{ value: yScale, onChange: setYScale }}
+          />
+        </div>
       </Field>
       <Field label="Y Offset">
-        <NumberField testId="y-offset-input" {...{ value: yOffset, onChange: setYOffset }} />
+        <div className={style.control_row}>
+          <NumberField testId="y-offset-input" {...{ value: yOffset, onChange: setYOffset }} />
+          <ScrubStrip
+            testId="y-offset-strip"
+            label="Scrub Y offset"
+            kind="additive"
+            step={0.02}
+            defaultValue={0}
+            {...{ value: yOffset, onChange: setYOffset }}
+          />
+        </div>
       </Field>
+      <p className={style.scrub_hint}>Drag a strip to scrub · Shift fine · Ctrl snap · double-click resets</p>
     </div>
   )
 }

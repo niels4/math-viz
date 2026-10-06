@@ -17,6 +17,7 @@ export {
 export { NumberField } from "./NumberField.tsx"
 export { Pagination } from "./Pagination.tsx"
 export { RadioGroup } from "./RadioGroup.tsx"
+export { ScrubStrip } from "./ScrubStrip.tsx"
 export { SectionCard } from "./SectionCard.tsx"
 export { Select } from "./Select.tsx"
 export { SettingsMenu } from "./SettingsMenu.tsx"
