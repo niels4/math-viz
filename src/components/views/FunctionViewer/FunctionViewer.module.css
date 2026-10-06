@@ -1,23 +1,20 @@
 .page {
-  position: relative;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
-.overlay {
-  position: absolute;
-  inset: 0;
   display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas:
     "topbar topbar"
     "sidebar main";
   gap: 8px;
-  align-content: start;
   padding: 8px;
-  /* Overlay itself never blocks the canvas: only the cards re-enable input. */
-  pointer-events: none;
+  height: 100vh;
+  height: 100dvh;
+}
+
+.main {
+  grid-area: main;
+  min-width: 0;
+  min-height: 0;
 }
 
 .topbar {
@@ -32,7 +29,6 @@
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 16px 28px;
-  pointer-events: auto;
 }
 
 .func_selector {
@@ -124,15 +120,14 @@ the logo icon alone. */
 .sidebar {
   grid-area: sidebar;
   justify-self: start;
-  align-self: start;
   display: grid;
   gap: 16px;
+  align-content: start;
   max-width: 400px;
   background: var(--background-muted);
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 28px;
-  pointer-events: auto;
 }
 
 /* Sidebar sections (Transforms, then the two to come): each is a header

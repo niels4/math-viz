@@ -21,7 +21,7 @@ declare const styles: {
   readonly "func_readout": string;
   readonly "func_row": string;
   readonly "func_selector": string;
-  readonly "overlay": string;
+  readonly "main": string;
   readonly "page": string;
   readonly "scrub_hint": string;
   readonly "section": string;

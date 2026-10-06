@@ -14,6 +14,10 @@ const yToCtx = (height: number, zoom: number, panY: number, y: number): number =
   return Math.floor(height / 2) - (y + panY) * zoom
 }
 
+const ctxToy = (height: number, zoom: number, panY: number, ctxY: number): number => {
+  return (Math.floor(height / 2) - ctxY) / zoom - panY
+}
+
 const MIN_GRID_PX = 20
 
 // Grid spacing in math units, snapped to 1/2/5 x 10^n so lines stay at
@@ -80,30 +84,27 @@ const drawScale = ({ ctx, width, height, themeVars, zoom }: DrawCartesianPlanePr
 }
 
 const drawGrid = ({ ctx, width, height, themeVars, zoom, panX, panY }: DrawCartesianPlaneProps) => {
-  const widthUnits = Math.floor(width / zoom)
-  const halfWidthUnits = Math.floor(widthUnits / 2)
-  const xStart = Math.floor(-halfWidthUnits - panX)
-  const xEnd = Math.ceil(halfWidthUnits - panX)
-
   ctx.strokeStyle = themeVars.chartGrid
   ctx.lineWidth = 0.5
 
-  const stepX = gridStep(zoom)
-  for (let n = Math.ceil(xStart / stepX); n <= Math.floor(xEnd / stepX); n++) {
-    const ctxX = xToCtx(width, zoom, panX, n * stepX)
+  // Visible math range from the screen edges: flooring the dimension
+  // first undercounts the half-extent by up to a unit and drops the
+  // outermost lines, so edge squares render as rectangles.
+  const step = gridStep(zoom)
+  const xMin = ctxTox(width, zoom, panX, 0)
+  const xMax = ctxTox(width, zoom, panX, width)
+  for (let n = Math.ceil(xMin / step); n * step <= xMax; n++) {
+    const ctxX = xToCtx(width, zoom, panX, n * step)
     ctx.beginPath()
     ctx.moveTo(ctxX, 0)
     ctx.lineTo(ctxX, height)
     ctx.stroke()
   }
 
-  const heightUnits = Math.floor(height / zoom)
-  const halfHeightUnits = Math.floor(heightUnits / 2)
-  const yStart = Math.floor(-halfHeightUnits - panY)
-  const yEnd = Math.ceil(halfHeightUnits - panY)
-  const stepY = gridStep(zoom)
-  for (let n = Math.ceil(yStart / stepY); n <= Math.floor(yEnd / stepY); n++) {
-    const ctxY = yToCtx(height, zoom, panY, n * stepY)
+  const yBottom = ctxToy(height, zoom, panY, height)
+  const yTop = ctxToy(height, zoom, panY, 0)
+  for (let n = Math.ceil(yBottom / step); n * step <= yTop; n++) {
+    const ctxY = yToCtx(height, zoom, panY, n * step)
     ctx.beginPath()
     ctx.moveTo(0, ctxY)
     ctx.lineTo(width, ctxY)
