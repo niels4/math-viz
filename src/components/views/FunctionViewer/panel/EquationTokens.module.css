@@ -1,0 +1,43 @@
+/* A parameter's term ("+ 1") never breaks across lines. */
+.term {
+  white-space: nowrap;
+}
+
+.gap {
+  display: inline-block;
+}
+
+/* A self-contained stack in inline flow, so exponents next to it stay
+raised (AGENTS.md › Gotchas: sup inside flex rows). */
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.12em;
+  font-size: 0.8em;
+  line-height: 1.2;
+  vertical-align: middle;
+}
+
+.num {
+  padding: 0 0.3em 0.08em;
+}
+
+.den {
+  border-top: 1.5px solid currentcolor;
+  padding: 0.08em 0.3em 0;
+}
+
+.sup {
+  margin-left: 0.05em;
+  font-size: 0.68em;
+  line-height: 0;
+}
+
+/* Grown around a stacked fraction, centred on it. */
+.paren_big {
+  font-size: 1.42em;
+  line-height: 1;
+  vertical-align: middle;
+}
