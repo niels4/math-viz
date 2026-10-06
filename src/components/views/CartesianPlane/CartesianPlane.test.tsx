@@ -175,3 +175,33 @@ describe("CartesianPlane pinch zoom", () => {
     expect(lastDraw().panY).toBeCloseTo(-20 / 50, 8)
   })
 })
+
+describe("CartesianPlane p2 hover", () => {
+  beforeEach(() => {
+    drawMock.mockClear()
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
+      stubCtx as unknown as CanvasRenderingContext2D,
+    )
+    HTMLCanvasElement.prototype.setPointerCapture = () => {}
+    HTMLCanvasElement.prototype.releasePointerCapture = () => {}
+    HTMLCanvasElement.prototype.hasPointerCapture = () => false
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(zeroRect())
+  })
+
+  it("reports cursor math x on hover and clears it on leave", async () => {
+    const onPoint2Change = vi.fn<(x: number | null) => void>()
+    const screen = await render(<CartesianPlane onPoint2Change={onPoint2Change} />)
+    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
+    act(() => {
+      // No pointerdown: the zoom handlers ignore it, hover still reports.
+      move(canvas, 9, 100, 40)
+    })
+    // Zero rect + zoom 50: (100 - 0 - 0) / 50 - 0.
+    expect(onPoint2Change).toHaveBeenLastCalledWith(2)
+    act(() => {
+      // React derives onPointerLeave from pointerout, not pointerleave.
+      canvas.dispatchEvent(new PointerEvent("pointerout", { bubbles: true, relatedTarget: document.body }))
+    })
+    expect(onPoint2Change).toHaveBeenLastCalledWith(null)
+  })
+})

@@ -45,6 +45,7 @@ export function FunctionViewer() {
   const [yScale, setYScale] = useState(1)
   const [yOffset, setYOffset] = useState(0)
   const [point1X, setPoint1X] = useState(0)
+  const [point2X, setPoint2X] = useState<number | null>(null)
   const [xExtent, setXExtent] = useState<XExtent | null>(null)
 
   useEffect(() => {
@@ -109,11 +110,15 @@ export function FunctionViewer() {
           setYOffset,
           point1X,
           setPoint1X,
+          point2X,
           xExtent,
         }}
       />
       <main className={style.main}>
-        <CartesianPlane {...{ plotFunc, onExtentChange: setXExtent, point1X }} />
+        <CartesianPlane
+          {...{ plotFunc, onExtentChange: setXExtent, point1X, onPoint2Change: setPoint2X }}
+          point2X={point2X ?? undefined}
+        />
       </main>
     </div>
   )

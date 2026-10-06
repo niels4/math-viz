@@ -38,6 +38,7 @@ export type FunctionViewerSidebarProps = {
   setYOffset: (next: number) => void
   point1X: number
   setPoint1X: (next: number) => void
+  point2X: number | null
   xExtent: XExtent | null
 }
 
@@ -52,6 +53,7 @@ export function FunctionViewerSidebar({
   setYOffset,
   point1X,
   setPoint1X,
+  point2X,
   xExtent,
 }: FunctionViewerSidebarProps) {
   return (
@@ -134,7 +136,9 @@ export function FunctionViewerSidebar({
           </div>
         </Field>
         <Field label="p2">
-          <p className={style.scrub_hint}>Coming soon — p2 controls land here.</p>
+          <output data-testid="p2-readout">
+            {point2X === null ? "Hover the chart" : point2X.toFixed(2)}
+          </output>
         </Field>
       </section>
     </div>

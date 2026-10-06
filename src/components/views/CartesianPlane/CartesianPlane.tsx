@@ -1,3 +1,5 @@
+import type { PointerEvent } from "react"
+
 import { useEffect, useRef } from "react"
 
 import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.ts"
@@ -15,10 +17,18 @@ import { visibleXExtent } from "./util.ts"
 export type CartesianPlaneProps = {
   plotFunc?: PlotFunc
   point1X?: number
+  point2X?: number | undefined
   onExtentChange?: ((extent: XExtent) => void) | undefined
+  onPoint2Change?: ((x: number | null) => void) | undefined
 }
 
-export function CartesianPlane({ plotFunc, point1X, onExtentChange }: CartesianPlaneProps) {
+export function CartesianPlane({
+  plotFunc,
+  point1X,
+  point2X,
+  onExtentChange,
+  onPoint2Change,
+}: CartesianPlaneProps) {
   const { themeVars } = useAppTheme()
   const wrapperRef = useRef(null)
   const { width, height } = useResizeObserver(wrapperRef)
@@ -30,6 +40,17 @@ export function CartesianPlane({ plotFunc, point1X, onExtentChange }: CartesianP
   const pan = usePan()
   const { panX, panY } = pan
   const { zoom, onPointerDown, onPointerMove, onPointerUp } = useZoom({ canvasRef, pan })
+
+  // p2 follows the cursor: hover reports the cursor's math x, leaving the
+  // canvas clears it. The zoom handlers run first so gestures keep working.
+  const onHoverMove = (e: PointerEvent<HTMLCanvasElement>) => {
+    onPointerMove(e)
+    const rect = e.currentTarget.getBoundingClientRect()
+    onPoint2Change?.((e.clientX - rect.left - Math.floor(width / 2)) / zoom - panX)
+  }
+  const onHoverLeave = () => {
+    onPoint2Change?.(null)
+  }
 
   // Report the visible X extent so the Points p1 slider can bind its track
   // to it. The callback lives in a ref so an inline parent closure never
@@ -73,10 +94,11 @@ export function CartesianPlane({ plotFunc, point1X, onExtentChange }: CartesianP
       panY,
       plotFunc,
       point1X,
+      point2X,
     })
     // HMR: drawCartesianPlane identity changes only on hot reload, intentional redraw.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [width, height, dpr, zoom, panX, panY, plotFunc, themeVars, point1X, drawCartesianPlane])
+  }, [width, height, dpr, zoom, panX, panY, plotFunc, themeVars, point1X, point2X, drawCartesianPlane])
 
   return (
     <div ref={wrapperRef} className={style.page}>
@@ -85,9 +107,10 @@ export function CartesianPlane({ plotFunc, point1X, onExtentChange }: CartesianP
         className={style.canvas}
         data-testid="cartesian-canvas"
         onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
+        onPointerMove={onHoverMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
+        onPointerLeave={onHoverLeave}
       />
     </div>
   )

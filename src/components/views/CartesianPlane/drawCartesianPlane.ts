@@ -199,6 +199,18 @@ const drawPoint1 = (props: DrawCartesianPlaneProps) => {
   drawCircle(props, point1X, y, 8 / zoom, themeVars.foreground, themeVars.ordinal05, 2)
 }
 
+const drawPoint2 = (props: DrawCartesianPlaneProps) => {
+  const { plotFunc, themeVars, zoom, point2X } = props
+  if (point2X == null) {
+    return
+  }
+  if (plotFunc == null || zoom <= 0) {
+    return
+  }
+  const y = plotY(plotFunc, point2X)
+  drawCircle(props, point2X, y, 8 / zoom, themeVars.foreground, themeVars.chartAccent, 2)
+}
+
 type DrawCartesianPlaneProps = {
   ctx: CanvasRenderingContext2D
   themeVars: ThemeVars
@@ -212,6 +224,7 @@ type DrawCartesianPlaneProps = {
   // as `PlotFunc | undefined` and is rejected under exactOptionalPropertyTypes.
   plotFunc?: PlotFunc | undefined
   point1X?: number | undefined
+  point2X?: number | undefined
 }
 
 export const drawCartesianPlane = (props: DrawCartesianPlaneProps) => {
@@ -225,4 +238,5 @@ export const drawCartesianPlane = (props: DrawCartesianPlaneProps) => {
   drawScale(props)
   drawPlotFunction(props)
   drawPoint1(props)
+  drawPoint2(props)
 }
