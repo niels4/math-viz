@@ -1,11 +1,10 @@
 import { useState } from "react"
 
-import { TextField } from "#src/components/ui/TextField.tsx"
-
 import type { PlotFunc } from "../CartesianPlane/types"
 
 import { Field } from "../../ui/Field"
 import { SnowflakeIcon } from "../../ui/icons.tsx"
+import { NumberField } from "../../ui/NumberField.tsx"
 import { Select } from "../../ui/Select"
 import { SettingsMenu } from "../../ui/SettingsMenu.tsx"
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
@@ -74,28 +73,16 @@ function FunctionViewerSidebar({
         />
       </Field>
       <Field label="X Scale">
-        <TextField
-          testId="x-scale-input"
-          {...{ value: String(xScale), onChange: (val: string) => setXScale(Number(val)) }}
-        />
+        <NumberField testId="x-scale-input" {...{ value: xScale, onChange: setXScale }} />
       </Field>
       <Field label="X Offset">
-        <TextField
-          testId="x-offset-input"
-          {...{ value: String(xOffset), onChange: (val: string) => setXOffset(Number(val)) }}
-        />
+        <NumberField testId="x-offset-input" {...{ value: xOffset, onChange: setXOffset }} />
       </Field>
       <Field label="Y Scale">
-        <TextField
-          testId="y-scale-input"
-          {...{ value: String(yScale), onChange: (val: string) => setYScale(Number(val)) }}
-        />
+        <NumberField testId="y-scale-input" {...{ value: yScale, onChange: setYScale }} />
       </Field>
       <Field label="Y Offset">
-        <TextField
-          testId="y-offset-input"
-          {...{ value: String(yOffset), onChange: (val: string) => setYOffset(Number(val)) }}
-        />
+        <NumberField testId="y-offset-input" {...{ value: yOffset, onChange: setYOffset }} />
       </Field>
     </div>
   )
@@ -139,16 +126,18 @@ export function FunctionViewer() {
           </div>
         </header>
         <FunctionViewerSidebar
-          funcSlug={funcSlug}
-          onSelectFunc={onSelectFunc}
-          xScale={xScale}
-          setXScale={setXScale}
-          xOffset={xOffset}
-          setXOffset={setXOffset}
-          yScale={yScale}
-          setYScale={setYScale}
-          yOffset={yOffset}
-          setYOffset={setYOffset}
+          {...{
+            funcSlug,
+            onSelectFunc,
+            xScale,
+            setXScale,
+            xOffset,
+            setXOffset,
+            yScale,
+            setYScale,
+            yOffset,
+            setYOffset,
+          }}
         />
       </div>
     </div>

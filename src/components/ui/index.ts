@@ -14,6 +14,7 @@ export {
   TableIcon,
   TagIcon,
 } from "./icons.tsx"
+export { NumberField } from "./NumberField.tsx"
 export { Pagination } from "./Pagination.tsx"
 export { RadioGroup } from "./RadioGroup.tsx"
 export { SectionCard } from "./SectionCard.tsx"
