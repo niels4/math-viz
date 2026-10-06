@@ -17,6 +17,11 @@
     border: 2px solid var(--primary);
   }
 
+  /* Focused as a whole (a dialog as it opens): its border marks it. */
+  .callout:focus {
+    outline: none;
+  }
+
   /* The caret hangs outside the card, measured from its border box. */
   .caret {
     position: absolute;

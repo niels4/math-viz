@@ -75,6 +75,7 @@ export function EquationCard({
     <div
       className={style.card}
       data-testid="fv-equation"
+      data-part="equation"
       onPointerOver={track}
       onPointerLeave={() => {
         setLine(null)

@@ -81,6 +81,7 @@ export function Callout({
   role,
   label,
   labelledBy,
+  tabIndex,
   testId,
   ref,
 }: {
@@ -94,6 +95,8 @@ export function Callout({
   role?: AriaRole
   label?: string
   labelledBy?: string
+  /** -1 lets the owner move the focus to the callout itself (a dialog as it opens). */
+  tabIndex?: number
   testId?: string
   ref?: Ref<HTMLDivElement>
 }) {
@@ -106,6 +109,7 @@ export function Callout({
       role={role}
       aria-label={label}
       aria-labelledby={labelledBy}
+      tabIndex={tabIndex}
       data-testid={testId}
     >
       <Caret tone={tone} caret={caret} />

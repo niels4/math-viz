@@ -103,6 +103,7 @@ export function TransformControl({
       ref={controlRef}
       className={style.control}
       data-testid={`fv-param-${param}`}
+      data-part={`control-${param}`}
       data-lit={(lit && !error) || undefined}
       data-error={error || undefined}
       data-mode={mode ?? undefined}

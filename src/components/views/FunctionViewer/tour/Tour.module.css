@@ -1,0 +1,201 @@
+/* The spotlight (FV 08): the page under --background at 62 %, holes where
+the step's idea lives. Under the settings menu, above everything else, and
+it takes no input. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.scrim path {
+  fill: var(--background);
+  fill-opacity: 0.62;
+}
+
+/* The tour's card (FV 08): 340 wide, padding 14 16 inside the 2 px
+--primary border (Callout's accent), 10 between parts. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+/* Until it is placed: see-through but there, so its button can take the
+focus as the tour opens. */
+.unplaced {
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Between steps the card springs to its next place (Next's smart animate:
+the enter spring, 320 ms); under reduced motion it moves at once. */
+.settled {
+  transition:
+    left var(--motion-dur-base) var(--motion-ease-enter),
+    top var(--motion-dur-base) var(--motion-ease-enter);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settled {
+    transition: none;
+  }
+}
+
+/* Three 8 px dots 8 apart, --primary up to this step, then the caps label. */
+.progress {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  height: 14px;
+}
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  background: var(--border);
+  border-radius: 50%;
+}
+
+.dot[data-on] {
+  background: var(--primary);
+}
+
+/* Figma's box ends at the last letter; CSS tracks after it too. */
+.step_label {
+  margin-inline-end: calc(-1 * var(--sig-label-tracking));
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 14px;
+  letter-spacing: var(--sig-label-tracking);
+  text-transform: uppercase;
+  color: var(--foreground-muted);
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 21px;
+}
+
+/* fvRich at 15: words 4 px apart in rows 2 apart, maths in STIX 17. */
+.body {
+  --phrase-text-size: 15px;
+  --phrase-text-line: 18px;
+  --phrase-math-size: 17px;
+  --phrase-math-line: 21px;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+  align-items: center;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  height: 36px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.skip {
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--foreground-muted);
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.skip:hover {
+  color: var(--foreground);
+}
+
+/* chip-v2, on: 36 tall, padding 0 14 inside a 1 px --primary border. */
+.next {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: var(--sig-card-radius);
+  cursor: pointer;
+}
+
+.skip:focus-visible,
+.next:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+}
+
+/* The ghost hand and its path, above the scrim, under the card. */
+.hand,
+.path {
+  position: fixed;
+  z-index: 16;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.hand rect {
+  fill: var(--foreground);
+  stroke: var(--background);
+  stroke-width: 1.4px;
+}
+
+/* Dashed 5 4, its first dash centred on the start as Figma draws it. */
+.path line {
+  stroke: var(--primary);
+  stroke-width: 2.5px;
+  stroke-dasharray: 5 4;
+  stroke-dashoffset: 2.5;
+}
+
+.path polygon {
+  fill: var(--primary);
+}
+
+/* It drags right along the path, lets go and comes back. */
+.hand {
+  animation: drag 2.2s var(--motion-ease-draw) infinite;
+}
+
+@keyframes drag {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+
+  12% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateX(64px);
+  }
+
+  80%,
+  100% {
+    opacity: 0;
+    transform: translateX(64px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hand {
+    animation: none;
+  }
+}

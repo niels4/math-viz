@@ -19,7 +19,8 @@
 }
 
 /* The letter chip: 26, radius 6, --secondary, the letter in STIX italic 19
-in its 24 px line box. */
+in its 24 px line box. It opens the explainer (D12), so its cursor is help
+(FV 02 › help-popover-fv). */
 .chip {
   display: grid;
   flex: none;
@@ -32,6 +33,7 @@ in its 24 px line box. */
   color: var(--foreground);
   background: var(--secondary);
   border-radius: 6px;
+  cursor: help;
 }
 
 /* The name's slot takes the head's slack. Its first line is the head's

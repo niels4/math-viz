@@ -56,6 +56,15 @@ export type FvExplainBy = "hover" | "tap" | "key"
 /** The open explainer (help-popover-fv): one at a time. */
 export type FvExplainer = { param: TransformParam; by: FvExplainBy }
 
+export type FvTourStep = 1 | 2 | 3
+
+/**
+ * The first-minute tour (D19, FV 08): its step, and whether that step's
+ * real action has happened (step 2: a drag has changed the curve and not
+ * yet let go).
+ */
+export type FvTour = { step: FvTourStep; acted: boolean }
+
 export type FvState = {
   /** The base function g. */
   fn: BaseFunctionSlug
@@ -84,6 +93,7 @@ export type FvState = {
   /** Set while a transform is dragged and for a moment after (the view clears it). */
   pBefore: FvPBefore | null
   explainer: FvExplainer | null
+  tour: FvTour | null
 }
 
 export const initialFvState: FvState = {
@@ -102,6 +112,7 @@ export const initialFvState: FvState = {
   edit: null,
   pBefore: null,
   explainer: null,
+  tour: null,
 }
 
 /** What a panel part reports about itself; the view turns each report into its part's action. */

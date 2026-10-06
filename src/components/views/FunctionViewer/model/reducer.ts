@@ -56,8 +56,10 @@ export type FvAction =
    * close what ? opened.
    */
   | { type: "explain"; param: TransformParam; by: FvExplainBy; open: boolean | "toggle" }
-  /** Esc anywhere (FV 07): closes the explainer. */
+  /** Esc anywhere (FV 07): closes the explainer, else skips the tour (FV 08 › Rules). */
   | { type: "escape" }
+  /** The tour starts at step 1, goes on to the next step (Next, or step 1's idle time), or ends. */
+  | { type: "tour"; to: "start" | "next" | "end" }
 
 const withParam = (state: FvState, param: TransformParam, value: number): FvState =>
   state.params[param] === value ? state : { ...state, params: { ...state.params, [param]: value } }
@@ -109,7 +111,36 @@ const sameView = (a: PlaneView | null, b: PlaneView): boolean =>
 // each hold one part; a part leaving clears only its own claim, so a leave
 // that arrives after the next part's enter changes nothing.
 export function fvReducer(state: FvState, action: FvAction): FvState {
-  return trackP(state, transition(state, action))
+  return trackTour(state, trackP(state, transition(state, action)))
+}
+
+const STEPS = [1, 2, 3] as const
+
+/**
+ * FV 08: a step completes on its real action. Step 2's is a drag that
+ * changes the curve, done when it lets go (any transform's: a ruler, a
+ * term or a handle); step 3's is the pointer reading the plane, done once Q
+ * has followed it from one place to another. Step 1 has no action: Next or
+ * its idle time (the view's timer) moves it on.
+ */
+const trackTour = (prev: FvState, next: FvState): FvState => {
+  const { tour } = next
+  if (tour === null || next === prev) {
+    return next
+  }
+  if (tour.step === 2) {
+    const dragging = next.drag !== null && isTransformDrag(next.drag.part)
+    if (dragging && !tour.acted && next.params !== prev.params) {
+      return { ...next, tour: { ...tour, acted: true } }
+    }
+    if (tour.acted && next.drag === null) {
+      return { ...next, tour: { step: 3, acted: false } }
+    }
+  }
+  if (tour.step === 3 && prev.qX !== null && next.qX !== null && next.qX !== prev.qX) {
+    return { ...next, tour: null }
+  }
+  return next
 }
 
 function transition(state: FvState, action: FvAction): FvState {
@@ -201,7 +232,22 @@ function transition(state: FvState, action: FvAction): FvState {
       return isOpen && (action.open === "toggle" || current.by === by) ? { ...state, explainer: null } : state
     }
     case "escape":
-      return state.explainer === null ? state : { ...state, explainer: null }
+      return state.explainer !== null
+        ? { ...state, explainer: null }
+        : state.tour !== null
+          ? { ...state, tour: null }
+          : state
+    case "tour": {
+      if (action.to === "end") {
+        return state.tour === null ? state : { ...state, tour: null }
+      }
+      if (action.to === "start") {
+        return state.tour?.step === 1 && !state.tour.acted ? state : { ...state, tour: { step: 1, acted: false } }
+      }
+      const at = state.tour === null ? -1 : STEPS.indexOf(state.tour.step)
+      const step = STEPS[at + 1]
+      return state.tour === null ? state : { ...state, tour: step === undefined ? null : { step, acted: false } }
+    }
     case "drag": {
       if (action.mode === null) {
         return state.drag?.part === action.part ? patch(state, { drag: null }) : state

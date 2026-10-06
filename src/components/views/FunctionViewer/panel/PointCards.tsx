@@ -193,6 +193,7 @@ export function QCard({ x, y }: { x: number | null; y: number | null }) {
       series="q"
       caption={POINT_ROLES.q}
       data-testid="fv-point-q"
+      data-part="q-card"
       readout={<PointReadout testId="fv-q-readout" x={x} y={y} />}
       note={x === null ? Q_NOTES.empty : Q_NOTES.live}
     />

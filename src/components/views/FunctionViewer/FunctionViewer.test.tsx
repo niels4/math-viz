@@ -1,6 +1,9 @@
+import { getDefaultStore } from "jotai"
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest"
 
 import { act, render, toElement } from "#test"
+
+import { FV_TOUR_KEY, fvTourDoneAtom } from "#src/state/fvTour.ts"
 
 import type { PlaneScene } from "../CartesianPlane/scene.ts"
 
@@ -118,6 +121,8 @@ describe("FunctionViewer", () => {
   })
 
   beforeEach(() => {
+    // These tests are about the page, not its first-minute tour.
+    getDefaultStore().set(fvTourDoneAtom, true)
     drawMock.mockClear()
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
       stubCtx as unknown as CanvasRenderingContext2D,
@@ -618,6 +623,97 @@ describe("FunctionViewer", () => {
       tap()
       pointer(document.body, "pointerdown", "touch")
       expect(explainer("h")).toBeNull()
+    })
+  })
+
+  describe("the tour (D19, FV 08; R1)", () => {
+    const card = () => document.querySelector<HTMLElement>('[data-testid="fv-tour"]')
+    const title = () => card()?.querySelector("h2")?.textContent ?? null
+    const firstVisit = () => {
+      getDefaultStore().set(fvTourDoneAtom, false)
+      return render(<FunctionViewer />)
+    }
+
+    it("runs on a first visit: step 1 about the curve and P, Next on, Skip remembered", async () => {
+      const screen = await firstVisit()
+      expect(card()?.getAttribute("role")).toBe("dialog")
+      expect(title()).toBe("This is a function")
+      expect(spoken(card()?.querySelector("p") ?? document.body)).toBe(
+        "f(x) = x² turns every x into a height. The curve is all the points (x, f(x)) — P is one of them: f(2) = 4.",
+      )
+      expect(card()?.textContent).toContain("Step 1 of 3")
+      // Nothing else had the focus: the dialog takes it, then each step's button.
+      expect(document.activeElement).toBe(card())
+      click(screen, "fv-tour-next")
+      expect(title()).toBe("Change it by dragging")
+      expect(document.activeElement).toBe(byTestId(screen, "fv-tour-next"))
+      expect(document.querySelector('[data-testid="fv-tour-hand"]')).not.toBeNull()
+      click(screen, "fv-tour-skip")
+      expect(card()).toBeNull()
+      expect(localStorage.getItem(FV_TOUR_KEY)).toBe("true")
+    })
+
+    it("doesn't run once remembered, and runs again from the settings menu", async () => {
+      const screen = await render(<FunctionViewer />)
+      expect(card()).toBeNull()
+      click(screen, "settings-button")
+      click(screen, "settings-action-tour")
+      expect(title()).toBe("This is a function")
+    })
+
+    it("moves on from step 1 after 6 s without input, and Esc skips it", async () => {
+      await firstVisit()
+      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
+      act(() => {
+        vi.advanceTimersByTime(5000)
+      })
+      // Any input starts the 6 s over.
+      act(() => {
+        document.body.dispatchEvent(new PointerEvent("pointermove", { bubbles: true }))
+        vi.advanceTimersByTime(5000)
+      })
+      expect(title()).toBe("This is a function")
+      act(() => {
+        vi.advanceTimersByTime(1000)
+      })
+      expect(title()).toBe("Change it by dragging")
+      keydown(document.body, "Escape")
+      expect(card()).toBeNull()
+    })
+
+    it("completes step 2 on a real ruler drag and step 3 once Q follows the pointer", async () => {
+      HTMLDivElement.prototype.setPointerCapture = () => {}
+      HTMLDivElement.prototype.releasePointerCapture = () => {}
+      HTMLDivElement.prototype.hasPointerCapture = () => false
+      vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(ZERO_RECT)
+      vi.stubGlobal("ResizeObserver", undefined)
+      const screen = await firstVisit()
+      click(screen, "fv-tour-next")
+      const ruler = byTestId(screen, "fv-param-k-ruler")
+      const drag = (type: string, clientX: number, buttons: number) =>
+        act(() => {
+          ruler.dispatchEvent(new PointerEvent(type, { bubbles: true, button: 0, buttons, clientX }))
+        })
+      drag("pointerdown", 10, 1)
+      drag("pointermove", 60, 1)
+      // Mid-drag the step waits for the release.
+      expect(title()).toBe("Change it by dragging")
+      act(() => {
+        window.dispatchEvent(new PointerEvent("pointerup"))
+      })
+      expect(title()).toBe("Read it anywhere")
+      expect(byTestId(screen, "fv-tour-next").textContent).toBe("Done")
+      expect(document.querySelector('[data-testid="fv-tour-skip"]')).toBeNull()
+      const canvas = byTestId(screen, "cartesian-canvas")
+      const move = (clientX: number) =>
+        act(() => {
+          canvas.dispatchEvent(new PointerEvent("pointermove", { bubbles: true, clientX, clientY: 0 }))
+        })
+      move(-75)
+      expect(title()).toBe("Read it anywhere")
+      move(-60)
+      expect(card()).toBeNull()
+      expect(localStorage.getItem(FV_TOUR_KEY)).toBe("true")
     })
   })
 })

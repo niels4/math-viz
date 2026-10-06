@@ -199,3 +199,50 @@ export const IN_THE_EQUATION = "In the equation"
 /** An explainer's gestures: the ruler's, as the hint says them. */
 export const explainerGestures = (scale: boolean, reset: number): Phrase[] =>
   gestures([{ text: "Drag the ruler ·" }], scale, reset)
+
+// The first-minute tour (FV 08; decision D19): three steps, each with its
+// title and body as the boards set them (words and maths). Step 1 tells
+// about the curve and P as they are, which on a first visit is R1's
+// f(x) = x² and f(2) = 4.
+export const TOUR = {
+  stepLabel: (step: number, of: number): string => `Step ${step} of ${of}`,
+  skip: "Skip tour",
+  next: "Next",
+  done: "Done",
+  /** The settings menu's item (FV 08 › Rules). */
+  showAgain: "Show the tour again",
+  steps: {
+    1: {
+      title: "This is a function",
+      body: (equation: string, p: string): Phrase[] => [
+        { math: equation },
+        { text: "turns every" },
+        { math: "x" },
+        { text: "into a height. The curve is all the points" },
+        { math: "(x, f(x))" },
+        { text: "— P is one of them:" },
+        { math: `${p}.` },
+      ],
+    },
+    2: {
+      title: "Change it by dragging",
+      body: [
+        { text: "Drag the" },
+        { math: "k" },
+        { text: "ruler sideways: the whole curve moves up or down by" },
+        { math: "k." },
+        { text: "Every ruler works the same way." },
+      ],
+    },
+    3: {
+      title: "Read it anywhere",
+      body: [
+        { text: "Point at the plane:" },
+        { math: "Q" },
+        { text: "sits on the curve under your pointer and its card reads" },
+        { math: "f(x)" },
+        { text: "there. That is the whole instrument." },
+      ],
+    },
+  },
+} as const

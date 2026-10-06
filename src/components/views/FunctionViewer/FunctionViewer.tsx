@@ -1,14 +1,15 @@
 import { useEffect, useId, useMemo, useReducer, useRef } from "react"
 
 import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
+import { motionCssVars } from "#src/util/motion/motion.ts"
 
 import { HintBar } from "../../ui/HintBar.tsx"
 import { MathText } from "../../ui/MathText.tsx"
 import { SettingsMenu } from "../../ui/SettingsMenu.tsx"
 import { ThemeChip } from "../../ui/ThemeChip.tsx"
 import { TopBar } from "../../ui/TopBar.tsx"
-import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
-import { PLANE_KEY_HELP, SECTIONS, VIEW_SUBTITLE, VIEW_TITLE } from "./copy.ts"
+import { CartesianPlane, type CartesianPlaneHandle } from "../CartesianPlane/CartesianPlane"
+import { PLANE_KEY_HELP, SECTIONS, TOUR, VIEW_SUBTITLE, VIEW_TITLE } from "./copy.ts"
 import style from "./FunctionViewer.module.css"
 import { GhostToggle } from "./GhostToggle.tsx"
 import { hintContext, hintFor } from "./model/hints.ts"
@@ -35,6 +36,8 @@ import { TransformExplainer } from "./panel/TransformExplainer.tsx"
 import { TransformGrid } from "./panel/TransformGrid.tsx"
 import { useTermDrags } from "./panel/useTermDrags.ts"
 import { buildPlaneScene } from "./planeScene.ts"
+import { Tour } from "./tour/Tour.tsx"
+import { useHelp } from "./useHelp.ts"
 
 /** FV 07: [ and ] move P along the curve by 0.1. */
 const P_KEY_STEP = 0.1
@@ -45,11 +48,6 @@ const P_GHOST_LINGER_MS = 600
 const PLANE_MARKS: readonly string[] = ["p", "anchor", "stretch"] satisfies FvPlaneMark[]
 
 const isPlaneMark = (id: string | null): id is FvPlaneMark => id !== null && PLANE_MARKS.includes(id)
-
-const boxOf = (el: Element): { x: number; y: number; w: number; h: number } => {
-  const r = el.getBoundingClientRect()
-  return { x: r.left, y: r.top, w: r.width, h: r.height }
-}
 
 export function FunctionViewer() {
   const [state, dispatch] = useReducer(fvReducer, initialFvState)
@@ -91,42 +89,14 @@ export function FunctionViewer() {
     onDrag: (param, mode) => dispatch({ type: "drag", part: param, mode }),
     onReset: (param) => dispatch({ type: "resetParam", param }),
   })
-  // The open explainer (D12): Esc closes it (unless a field took the Esc),
-  // and one a tap opened closes on a press anywhere but its chip and itself.
+  // The explainer and the tour (D12, D19): their listeners, the tour's
+  // memory, and where their targets are.
+  const rootRef = useRef<HTMLDivElement | null>(null)
   const panelRef = useRef<HTMLElement | null>(null)
+  const planeRef = useRef<CartesianPlaneHandle | null>(null)
   const explainerId = useId()
-  const { explainer } = state
-  useEffect(() => {
-    if (explainer === null) {
-      return
-    }
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !event.defaultPrevented) {
-        dispatch({ type: "escape" })
-      }
-    }
-    const onPress = (event: PointerEvent) => {
-      const target = event.target instanceof Element ? event.target : null
-      if (target?.closest(`[data-chip="${explainer.param}"], [data-testid^="fv-explainer-"]`) == null) {
-        dispatch({ type: "explain", param: explainer.param, by: "tap", open: false })
-      }
-    }
-    addEventListener("keydown", onKey)
-    if (explainer.by === "tap") {
-      document.addEventListener("pointerdown", onPress)
-    }
-    return () => {
-      removeEventListener("keydown", onKey)
-      document.removeEventListener("pointerdown", onPress)
-    }
-  }, [explainer])
-  const locateChip = () => {
-    const chip =
-      explainer === null ? null : panelRef.current?.querySelector(`[data-chip="${explainer.param}"]`)
-    return chip == null || panelRef.current === null
-      ? null
-      : { chip: boxOf(chip), panel: boxOf(panelRef.current) }
-  }
+  const { explainer, tour } = state
+  const help = useHelp(state, dispatch, { root: rootRef, panel: panelRef, plane: planeRef })
   // Each panel part reports its hover, focus, drag and edit as its own actions.
   const eventsOf = (part: FvPart): PartEvents => ({
     onHover: (on) => dispatch({ type: "hover", part, on }),
@@ -136,7 +106,7 @@ export function FunctionViewer() {
   })
 
   return (
-    <div className={`${style.page} ${workSansStyles.font}`}>
+    <div ref={rootRef} className={`${style.page} ${workSansStyles.font}`} style={motionCssVars}>
       <TopBar
         className={style.topbar}
         title={VIEW_TITLE}
@@ -144,7 +114,15 @@ export function FunctionViewer() {
         actions={
           <>
             <ThemeChip />
-            <SettingsMenu />
+            <SettingsMenu
+              actions={[
+                {
+                  id: "tour",
+                  label: TOUR.showAgain,
+                  onSelect: () => dispatch({ type: "tour", to: "start" }),
+                },
+              ]}
+            />
           </>
         }
       />
@@ -190,16 +168,9 @@ export function FunctionViewer() {
         <HintBar className={style.hint} hint={hintFor(hintContext(state))} testId="fv-hint" />
         <div className={style.tail} />
       </aside>
-      {explainer !== null && (
-        <TransformExplainer
-          key={explainer.param}
-          param={explainer.param}
-          id={explainerId}
-          locate={locateChip}
-        />
-      )}
-      <main className={style.plane}>
+      <main className={style.plane} data-part="plane">
         <CartesianPlane
+          ref={planeRef}
           scene={scene}
           caption={<MathText text="y = f(x)" />}
           tools={
@@ -246,6 +217,23 @@ export function FunctionViewer() {
           }}
         />
       </main>
+      {tour !== null && help.tourBody !== null && (
+        <Tour
+          step={tour.step}
+          body={help.tourBody}
+          locate={help.locateTour}
+          onNext={() => dispatch({ type: "tour", to: "next" })}
+          onEnd={() => dispatch({ type: "tour", to: "end" })}
+        />
+      )}
+      {explainer !== null && (
+        <TransformExplainer
+          key={explainer.param}
+          param={explainer.param}
+          id={explainerId}
+          locate={help.locateChip}
+        />
+      )}
     </div>
   )
 }

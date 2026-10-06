@@ -404,3 +404,63 @@ describe("explainers (D12)", () => {
     expect(partUi(run(open("a", "tap")), "a").lit).toBe(true)
   })
 })
+
+describe("the tour (D19, FV 08)", () => {
+  const start: FvAction = { type: "tour", to: "start" }
+  const next: FvAction = { type: "tour", to: "next" }
+  const step = (state: FvState) => state.tour?.step ?? null
+
+  it("starts at step 1, goes on with Next, ends after step 3 or at once", () => {
+    expect(step(run(start))).toBe(1)
+    expect(step(run(start, next))).toBe(2)
+    expect(step(run(start, next, next))).toBe(3)
+    expect(step(run(start, next, next, next))).toBeNull()
+    expect(step(run(start, next, { type: "tour", to: "end" }))).toBeNull()
+    // Started again (the settings menu), it begins at step 1.
+    expect(step(run(start, next, start))).toBe(1)
+    // Next with no tour does nothing.
+    expect(run(next).tour).toBeNull()
+  })
+
+  it("completes step 2 when a drag that changed the curve lets go: a ruler's, a term's or a handle's", () => {
+    const atTwo = [start, next]
+    const drag = (part: "k" | "anchor"): FvAction => ({ type: "drag", part, mode: "coarse" })
+    const release = (part: "k" | "anchor"): FvAction => ({ type: "drag", part, mode: null })
+    const kTo1: FvAction = { type: "setParam", param: "k", value: 1 }
+    expect(step(run(...atTwo, drag("k"), kTo1))).toBe(2)
+    expect(step(run(...atTwo, drag("k"), kTo1, release("k")))).toBe(3)
+    expect(
+      step(run(...atTwo, drag("anchor"), { type: "dragHandle", handle: "anchor", to: { x: 1, y: 1 } }, release("anchor"))),
+    ).toBe(3)
+    // A drag that changed nothing, or a change that wasn't a drag (typing), doesn't.
+    expect(step(run(...atTwo, drag("k"), release("k")))).toBe(2)
+    expect(step(run(...atTwo, kTo1))).toBe(2)
+    // P's own drag isn't a transform's.
+    expect(
+      step(run(...atTwo, { type: "drag", part: "p", mode: "coarse" }, { type: "setP", x: 3 }, { type: "drag", part: "p", mode: null })),
+    ).toBe(2)
+  })
+
+  it("completes step 3 once Q has followed the pointer across the plane", () => {
+    const atThree = [start, next, next]
+    expect(step(run(...atThree, { type: "planePointer", x: -1.5 }))).toBe(3)
+    expect(step(run(...atThree, { type: "planePointer", x: -1.5 }, { type: "planePointer", x: -1.2 }))).toBeNull()
+    // Panning hides Q: no reading.
+    expect(
+      step(
+        run(
+          ...atThree,
+          { type: "planePointer", x: -1.5, panning: true },
+          { type: "planePointer", x: -1.2, panning: true },
+        ),
+      ),
+    ).toBe(3)
+  })
+
+  it("is skipped by Esc, after an open explainer has closed", () => {
+    const explained: FvAction = { type: "explain", param: "a", by: "tap", open: true }
+    const once = run(start, explained, { type: "escape" })
+    expect([once.explainer, step(once)]).toEqual([null, 1])
+    expect(step(run(start, explained, { type: "escape" }, { type: "escape" }))).toBeNull()
+  })
+})
