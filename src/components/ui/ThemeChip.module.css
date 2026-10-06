@@ -1,0 +1,41 @@
+@layer components {
+  /* A stadium: 8 px primary dot, 14/600 label, card fill, 1 px border. */
+  .chip {
+    display: inline-flex;
+    flex: none;
+    gap: 8px;
+    align-items: center;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 16px;
+    color: var(--foreground);
+    white-space: nowrap;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    background: var(--primary);
+    border-radius: 50%;
+  }
+
+  .hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Narrow windows keep the title and the settings button. */
+  @media (max-width: 640px) {
+    .chip {
+      display: none;
+    }
+  }
+}
