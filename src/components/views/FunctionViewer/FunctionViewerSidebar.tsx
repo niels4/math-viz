@@ -36,8 +36,8 @@ export type FunctionViewerSidebarProps = {
   setYScale: (next: number) => void
   yOffset: number
   setYOffset: (next: number) => void
-  p1: number
-  setP1: (next: number) => void
+  point1X: number
+  setPoint1X: (next: number) => void
   xExtent: XExtent | null
 }
 
@@ -50,8 +50,8 @@ export function FunctionViewerSidebar({
   setYScale,
   yOffset,
   setYOffset,
-  p1,
-  setP1,
+  point1X,
+  setPoint1X,
   xExtent,
 }: FunctionViewerSidebarProps) {
   return (
@@ -122,14 +122,14 @@ export function FunctionViewerSidebar({
         <h2 className={style.section_title}>Points</h2>
         <Field label="p1">
           <div className={style.control_row}>
-            <NumberField testId="p1-input" {...{ value: p1, onChange: setP1 }} />
+            <NumberField testId="p1-input" {...{ value: point1X, onChange: setPoint1X }} />
             <ExtentSlider
               testId="p1-slider"
               label="p1 position"
-              value={p1}
+              value={point1X}
               min={xExtent?.minX ?? 0}
               max={xExtent?.maxX ?? 0}
-              onChange={setP1}
+              onChange={setPoint1X}
             />
           </div>
         </Field>

@@ -158,6 +158,46 @@ const drawPlotFunction = ({
   ctx.stroke()
 }
 
+export const drawCircle = (
+  { ctx, width, height, zoom, panX, panY }: DrawCartesianPlaneProps,
+  cx: number,
+  cy: number,
+  radius: number,
+  strokeColor: string,
+  fillColor: string,
+  strokeWidth: number,
+) => {
+  if (radius <= 0) {
+    return
+  }
+  const x = xToCtx(width, zoom, panX, cx)
+  const y = yToCtx(height, zoom, panY, cy)
+  const r = radius * zoom
+
+  ctx.save()
+  ctx.beginPath()
+  ctx.arc(x, y, Math.max(0, r), 0, Math.PI * 2)
+  ctx.fillStyle = fillColor
+  ctx.fill()
+  ctx.strokeStyle = strokeColor
+  ctx.lineWidth = strokeWidth
+  ctx.stroke()
+  ctx.restore()
+}
+
+const drawPoint1 = (props: DrawCartesianPlaneProps) => {
+  const { plotFunc, themeVars, zoom, point1X } = props
+  console.log("drawing point 1", point1X)
+  if (point1X == null) {
+    return
+  }
+  if (plotFunc == null || zoom <= 0) {
+    return
+  }
+  const y = plotY(plotFunc, point1X)
+  drawCircle(props, point1X, y, 8 / zoom, themeVars.foreground, themeVars.ordinal05, 2)
+}
+
 type DrawCartesianPlaneProps = {
   ctx: CanvasRenderingContext2D
   themeVars: ThemeVars
@@ -170,6 +210,7 @@ type DrawCartesianPlaneProps = {
   // `| undefined`: callers pass through a destructured optional, which reads
   // as `PlotFunc | undefined` and is rejected under exactOptionalPropertyTypes.
   plotFunc?: PlotFunc | undefined
+  point1X?: number | undefined
 }
 
 export const drawCartesianPlane = (props: DrawCartesianPlaneProps) => {
@@ -182,4 +223,5 @@ export const drawCartesianPlane = (props: DrawCartesianPlaneProps) => {
   drawGrid(props)
   drawScale(props)
   drawPlotFunction(props)
+  drawPoint1(props)
 }

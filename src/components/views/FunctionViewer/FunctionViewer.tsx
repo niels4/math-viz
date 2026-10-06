@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import stixStyles from "#src/style/fonts/stix_two_text/stix_two_text.module.css"
 
@@ -47,6 +47,10 @@ export function FunctionViewer() {
   const [point1X, setPoint1X] = useState(0)
   const [xExtent, setXExtent] = useState<XExtent | null>(null)
 
+  useEffect(() => {
+    console.log("point1", point1X)
+  }, [point1X])
+
   const onSelectFunc = (next: string) => {
     if (isPlotFuncSlug(next)) {
       setFuncSlug(next)
@@ -68,7 +72,7 @@ export function FunctionViewer() {
 
   return (
     <div className={style.page}>
-      <CartesianPlane plotFunc={plotFunc} onExtentChange={setXExtent} />
+      <CartesianPlane {...{ plotFunc, onExtentChange: setXExtent, point1X }} />
       <div className={style.overlay}>
         <header className={style.topbar}>
           <a className={style.brand} href="#">
@@ -105,8 +109,8 @@ export function FunctionViewer() {
             setYScale,
             yOffset,
             setYOffset,
-            p1: point1X,
-            setP1: setPoint1X,
+            point1X,
+            setPoint1X,
             xExtent,
           }}
         />

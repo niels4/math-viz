@@ -26,8 +26,8 @@ const renderSidebar = (props?: { p1?: number; setP1?: (next: number) => void; xE
       setYScale={() => {}}
       yOffset={0}
       setYOffset={() => {}}
-      p1={props?.p1 ?? 2}
-      setP1={props?.setP1 ?? (() => {})}
+      point1X={props?.p1 ?? 2}
+      setPoint1X={props?.setP1 ?? (() => {})}
       xExtent={props?.xExtent ?? { minX: 0, maxX: 10 }}
     />,
   )

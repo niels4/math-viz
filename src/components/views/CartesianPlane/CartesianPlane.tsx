@@ -14,10 +14,11 @@ import { visibleXExtent } from "./util.ts"
 
 export type CartesianPlaneProps = {
   plotFunc?: PlotFunc
+  point1X?: number
   onExtentChange?: ((extent: XExtent) => void) | undefined
 }
 
-export function CartesianPlane({ plotFunc, onExtentChange }: CartesianPlaneProps) {
+export function CartesianPlane({ plotFunc, point1X, onExtentChange }: CartesianPlaneProps) {
   const { themeVars } = useAppTheme()
   const wrapperRef = useRef(null)
   const { width, height } = useResizeObserver(wrapperRef)
@@ -71,10 +72,11 @@ export function CartesianPlane({ plotFunc, onExtentChange }: CartesianPlaneProps
       panX,
       panY,
       plotFunc,
+      point1X,
     })
     // HMR: drawCartesianPlane identity changes only on hot reload, intentional redraw.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [width, height, dpr, zoom, panX, panY, plotFunc, themeVars, drawCartesianPlane])
+  }, [width, height, dpr, zoom, panX, panY, plotFunc, themeVars, point1X, drawCartesianPlane])
 
   return (
     <div ref={wrapperRef} className={style.page}>
