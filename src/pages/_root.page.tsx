@@ -53,6 +53,13 @@ const RootPage = () => {
                     pinch-zoomable cartesian plane.
                   </span>
                 </a>
+                <a href="#dev/views/function-viewer-alpha" className={style.link_card}>
+                  <span className={style.link_title}>Function Viewer Alpha</span>
+                  <span className={style.link_desc}>
+                    An early prototype of the Function Viewer page: an interactive function plotter — graph
+                    f(x) = x, x², x³, sin(x) on a pannable, pinch-zoomable cartesian plane.
+                  </span>
+                </a>
               </div>
             </SectionCard>
             <SectionCard icon={<TableIcon />} title="Components" titleId="toc-components">
