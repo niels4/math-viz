@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 
 import stixStyles from "#src/style/fonts/stix_two_text/stix_two_text.module.css"
+import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
 
 import type { PlotFunc, XExtent } from "../CartesianPlane/types"
 
@@ -72,7 +73,7 @@ export function FunctionViewer() {
   }))
 
   return (
-    <div className={style.page}>
+    <div className={`${style.page} ${workSansStyles.font}`}>
       <header className={style.topbar}>
         <a className={style.brand} href="#">
           <span className={style.brand_icon}>

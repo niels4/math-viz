@@ -7,6 +7,7 @@ export { DataTable, type DataTableRow } from "./DataTable.tsx"
 export { ExtentSlider } from "./ExtentSlider.tsx"
 export { Field } from "./Field.tsx"
 export {
+  ArrowIcon,
   BellIcon,
   ButtonIcon,
   GearIcon,
@@ -16,6 +17,7 @@ export {
   SnowflakeIcon,
   TableIcon,
   TagIcon,
+  TriangleIcon,
 } from "./icons.tsx"
 export { NumberField } from "./NumberField.tsx"
 export { Pagination } from "./Pagination.tsx"

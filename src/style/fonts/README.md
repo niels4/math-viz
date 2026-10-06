@@ -105,7 +105,32 @@ export default function Page() {
 - `font-export` — emits `src/style/fonts/<slug>/<slug>.module.css` as scoped wrapper `.font` (generic, file-hashed) with **local `@font-face` (`src: url("./<File>.woff2")`)** + `font-family` and copies vendored woff2 (e.g. `WorkSans-Variable.woff2`) to viz project. Also writes `workspace/themes/fonts/<slug>/` reference (CSS + woff2 only, no `.ts`). No CDN. Run `oxfmt` after export — no diff expected. Verify offline: `grep -r fonts.googleapis src/style/fonts` should be empty; `npm run build` should emit `dist/assets/*.woff2`.
 - `font-catalog` — `workspace/fonts/catalog.json` is source of truth; `font-gallery` builds `workspace/fonts/galleries/gallery.html` multi-font overview (gallery currently uses CDN for preview — viz remains offline via vendored woff2). No font `.ts` companions — CSS + woff2 is the source of truth.
 
-## 10. Oxfmt + offline verification
+## 10. Symbols subsets — glyphs the latin files lack
+
+The vendored files are Google Fonts' **latin** subsets (U+0000–00FF plus a few punctuation code points), so they lack ≈ Δ π √ ← → ▲ ▼ ⌘ and superscripts beyond ³. Never let a page fall back to a system font for one of these:
+
+- **≈ (U+2248)** ships as small extra faces, declared after the main faces with `unicode-range: U+2248` in both the collection module and `src/style/global.css` (canvas text uses the global faces). The browser fetches them only when a page shows ≈. Canvas text must `await document.fonts.load('<font>', "≈")` before drawing it.
+  - `stix_two_text/STIXTwoMath-Symbols.woff2`: STIX Two **Text** has no ≈ at any size or subset; this one comes from STIX Two **Math** of the same release (2.13 b171), same em, metrics and advance as `=`. Mapped into the "STIX Two Text" family for upright and italic (relations stay upright in math). Static 400; declared `400 700` so bold text uses it unsynthesized.
+  - `roboto_mono/RobotoMono-Symbols-Variable.woff2` + `RobotoMono-Italic-Symbols-Variable.woff2`: from upstream Roboto Mono 3.001 (the vendored version), wght axis kept.
+  - Work Sans has no symbols file yet: no UI text uses ≈.
+- **Arrows, ▲ ▼** are drawn: `ArrowIcon` / `TriangleIcon` in `src/components/ui/icons.tsx`, path data in `src/components/ui/glyphPaths.ts` (also usable on canvas via `new Path2D(d)`).
+- **Exponents** beyond ³ are raised text, not superscript glyphs.
+
+Regenerate or extend (fonttools in a home venv, never a project dependency):
+
+```sh
+uv venv ~/.venvs/fonttools && uv pip install --python ~/.venvs/fonttools/bin/python fonttools brotli
+curl -o STIXTwoMath-Regular.ttf https://raw.githubusercontent.com/stipub/stixfonts/v2.13b171/fonts/static_ttf/STIXTwoMath-Regular.ttf
+curl -o 'RobotoMono[wght].ttf' 'https://raw.githubusercontent.com/google/fonts/main/ofl/robotomono/RobotoMono%5Bwght%5D.ttf'
+curl -o 'RobotoMono-Italic[wght].ttf' 'https://raw.githubusercontent.com/google/fonts/main/ofl/robotomono/RobotoMono-Italic%5Bwght%5D.ttf'
+~/.venvs/fonttools/bin/pyftsubset STIXTwoMath-Regular.ttf --unicodes=U+2248 --layout-features= --no-hinting --name-IDs='*' --flavor=woff2 --drop-tables+=MATH --output-file=src/style/fonts/stix_two_text/STIXTwoMath-Symbols.woff2
+~/.venvs/fonttools/bin/pyftsubset 'RobotoMono[wght].ttf' --unicodes=U+2248 --layout-features= --no-hinting --name-IDs='*' --flavor=woff2 --output-file=src/style/fonts/roboto_mono/RobotoMono-Symbols-Variable.woff2
+~/.venvs/fonttools/bin/pyftsubset 'RobotoMono-Italic[wght].ttf' --unicodes=U+2248 --layout-features= --no-hinting --name-IDs='*' --flavor=woff2 --output-file=src/style/fonts/roboto_mono/RobotoMono-Italic-Symbols-Variable.woff2
+```
+
+To add a code point, append it to `--unicodes` (comma-separated) and to every matching `unicode-range`. Δ and π exist in upstream STIX Two Text and Roboto Mono; √ only in STIX Two Math. The files keep the OFL copyright and licence in their name table. Check every new glyph in a screenshot: a fallback glyph looks fine in code.
+
+## 11. Oxfmt + offline verification
 
 - Font CSS follows same `oxfmt` rules as themes: flat `@font-face` then `.font { font-family: … }`, hex not needed, lowercase where applicable. `@font-face` block is 2-space indent for props, like theme vars.
 - Run `npm run format` (`oxfmt --write`) after adding a new font — `git diff` on new `*.module.css` should be empty.

@@ -2,6 +2,7 @@
  * Family: "STIX Two Text" · id stix-two-text
  * Source: Google Fonts (OFL) → local woff2, no CDN, works offline
  * Files: ./STIXTwoText-Variable.woff2 + ./STIXTwoText-Italic-Variable.woff2 (woff2, OFL, latin) — local, no CDN, works offline
+ * Symbols: ./STIXTwoMath-Symbols.woff2 (≈ U+2248 from STIX Two Math 2.13 b171, OFL) — the Text fonts have no ≈; see README › Symbols subsets
  * Licensing: OFL (Open Font License) — free for commercial use · Cost: Free
  * Usage: CSS Module, per-page. Import as `import fontStyles from "#src/style/fonts/stix_two_text/stix_two_text.module.css"` then wrap equation panels with `className={fontStyles.font}`. File name provides uniqueness via CSS Modules hashing; wrapper is generic .font.
  * Role: math-viz equations ONLY — proper ∫ √ ² ¹ ³ glyphs drawn by type designers (not scaled-down 2). Use for y=x², f'(x)=2x, ∫x² dx panels — never axis ticks or UI.
@@ -22,6 +23,24 @@
   font-weight: 400 700;
   font-style: italic;
   font-display: swap;
+}
+
+@font-face {
+  font-family: "STIX Two Text";
+  src: url("./STIXTwoMath-Symbols.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2248;
+}
+
+@font-face {
+  font-family: "STIX Two Text";
+  src: url("./STIXTwoMath-Symbols.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+2248;
 }
 
 .font {

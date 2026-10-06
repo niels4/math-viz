@@ -1,3 +1,7 @@
+import type { GlyphDirection } from "./glyphPaths.ts"
+
+import { ARROW_BOX, ARROW_PATHS, TRIANGLE_BOX, TRIANGLE_PATHS } from "./glyphPaths.ts"
+
 export function SnowflakeIcon() {
   return (
     <svg
@@ -161,6 +165,40 @@ export function SearchIcon() {
     >
       <circle cx="11" cy="11" r="7" />
       <path d="M20 20l-3.5-3.5" />
+    </svg>
+  )
+}
+
+/** ▲ ▼, drawn: the shipped fonts lack U+25B2 / U+25BC. */
+export function TriangleIcon({ dir, size = TRIANGLE_BOX }: { dir: "up" | "down"; size?: number }) {
+  return (
+    <svg
+      viewBox={`0 0 ${TRIANGLE_BOX} ${TRIANGLE_BOX}`}
+      width={size}
+      height={size}
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d={TRIANGLE_PATHS[dir]} />
+    </svg>
+  )
+}
+
+/** ← → ↑ ↓, drawn: the shipped fonts lack most of U+2190–2193. */
+export function ArrowIcon({ dir, size = ARROW_BOX }: { dir: GlyphDirection; size?: number }) {
+  return (
+    <svg
+      viewBox={`0 0 ${ARROW_BOX} ${ARROW_BOX}`}
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={ARROW_PATHS[dir]} />
     </svg>
   )
 }
