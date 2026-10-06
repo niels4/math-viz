@@ -65,6 +65,15 @@ export const visibleExtent = (vp: Viewport): Extent => ({
   maxY: toMathY(vp, 0),
 })
 
+/** The viewport behind a reported view: an owner's maps for the plane as last drawn. */
+export const viewportOf = ({ zoom, extent }: PlaneView): Viewport => ({
+  width: (extent.maxX - extent.minX) * zoom,
+  height: (extent.maxY - extent.minY) * zoom,
+  zoom,
+  originX: -extent.minX * zoom,
+  originY: extent.maxY * zoom,
+})
+
 /**
  * The pan that brings an off-view point in: along each axis it lies past,
  * it lands a quarter of the plane in from that edge, so its label has room.

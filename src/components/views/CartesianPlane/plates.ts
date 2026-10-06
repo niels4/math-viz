@@ -30,6 +30,9 @@ export const outlined = (ink: Ink): PlateInk => ({ fill: "card", border: ink })
 /** Filled with `ink`, no border: an annotation's plate. */
 export const filled = (ink: Ink): PlateInk => ({ fill: ink, border: null })
 
+/** A plate mid-motion: painted at this opacity, this far from its box (layout and hits keep the box). */
+export type PlateMotion = { alpha: number; dx: number; dy: number }
+
 export type Plate = {
   box: Rect
   radius: number
@@ -37,6 +40,7 @@ export type Plate = {
   /** Inside the box, as Figma's INSIDE stroke. */
   border: { ink: Ink; width: number } | null
   runs: readonly PlacedRun[]
+  motion?: PlateMotion
 }
 
 export type PlateStyle = {

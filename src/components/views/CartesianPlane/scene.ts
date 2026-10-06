@@ -27,6 +27,8 @@ export type PlaneCurve = {
   avoid?: boolean
   /** Context (an original, a reference): painted under the annotations, which paint under the other curves. */
   back?: boolean
+  /** Drawn so far, 0–1: the share of its length inside the plane, from the left (a draw-on's path trim). */
+  drawTo?: number
 }
 
 /**
@@ -56,10 +58,20 @@ export type PlanePoint = {
    * there in the point's ink, and an arrow in `ink` to where it is now.
    */
   was?: MathPoint & { ink: Ink }
+  /** Opacity of the point and all it draws (marker, label, drop lines, tags, edge marker), 0–1. */
+  alpha?: number
+  /** The label's opacity under `alpha`: a label arriving after its point. */
+  labelAlpha?: number
+  /** The label drawn this many px below its place: a label rising into it. */
+  labelRise?: number
+  /** How far the drop lines reach from the point toward the axes, 0–1: lines growing out of it. */
+  reach?: number
+  /** The axis tags drawn this many px from their places toward the point: tags sliding in. */
+  tagShift?: number
 }
 
 /** A full-height dashed line at the pointer's x, under a probe. */
-export type PlaneGuide = { kind: "pointer-x"; x: number }
+export type PlaneGuide = { kind: "pointer-x"; x: number; alpha?: number }
 
 /**
  * A grip on the plane (FV 11): a press on its 44 px box drags it freely,
@@ -76,6 +88,8 @@ export type PlaneHandle = {
   halo?: boolean
   /** Filled with its ink while held. */
   held?: boolean
+  /** Opacity, 0–1. */
+  alpha?: number
 }
 
 /** A straight line between two math points, with px decorations. */
@@ -127,7 +141,12 @@ export type PlaneAnnotation = {
   plates: readonly AnnotationPlate[]
 }
 
+// Motion sets the opacities, the trim, the rise, the reach and the shifts
+// (an owner's tweens, FV 05); the plane draws each frame as it is told.
+// Layout and hit boxes keep the marks where they rest.
 export type PlaneScene = {
+  /** Opacity of the grid, the axes, their ticks and labels, and the O (a first paint fades them in). */
+  gridAlpha?: number
   /** Painted in order: a ghost before the curve it ghosts. */
   curves: readonly PlaneCurve[]
   /** Painted in order, each with its label: the last one on top. */

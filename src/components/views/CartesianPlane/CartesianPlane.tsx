@@ -1,18 +1,22 @@
 import type { KeyboardEvent, PointerEvent, ReactNode, Ref } from "react"
 
-import { useEffect, useEffectEvent, useImperativeHandle, useRef, useState } from "react"
+import { gsap } from "gsap"
+import { useCallback, useEffect, useEffectEvent, useImperativeHandle, useRef, useState } from "react"
 
 import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.ts"
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
-import { useAppTheme } from "#src/state/useAppTheme.ts"
+import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
+import { prefersReducedMotion } from "#src/util/motion/motion.ts"
 
+import type { EdgeArrival } from "./arrivals.ts"
 import type { MarksLayout } from "./marks.ts"
 import type { Rect } from "./rect.ts"
 import type { DrawnPlane } from "./region.ts"
 import type { PlaneScene } from "./scene.ts"
 import type { PlaneView } from "./viewport.ts"
 
+import { arriveEdges } from "./arrivals.ts"
 import style from "./cartesian-plane.module.css"
 import { drawCartesianPlane } from "./drawCartesianPlane"
 import { PLANE_FACES, readoutFaces } from "./faces.ts"
@@ -59,6 +63,12 @@ export type CartesianPlaneHandle = {
    * px), with the axis labels beside them (region.ts); null when none shows.
    */
   regionOf: (ids: readonly string[]) => Rect | null
+  /**
+   * Paints this scene now, and again on every view change, in place of the
+   * scene prop, until null hands the canvas back to the prop: an owner's
+   * animation frames, so its final scene never flashes before them.
+   */
+  drawFrame: (scene: PlaneScene | null) => void
 }
 
 export type CartesianPlaneProps = {
@@ -136,6 +146,18 @@ const useCanvasFonts = (): number => {
     }
   }, [])
   return loads
+}
+
+/** What a paint reads, as last rendered: the plane paints from outside React's renders too. */
+type PaintInputs = {
+  width: number
+  height: number
+  dpr: number
+  zoom: number
+  panX: number
+  panY: number
+  scene: PlaneScene
+  themeVars: ThemeVars
 }
 
 // The chrome's boxes in plane pixels: every overlay part marked data-keep-out,
@@ -219,6 +241,77 @@ export function CartesianPlane({
   const marksRef = useRef<MarksLayout>(NO_MARKS)
   // The whole frame as last drawn: what the owner can ask about.
   const drawnRef = useRef<DrawnPlane | null>(null)
+  // What the next paint reads, the owner's held frame, when each edge
+  // marker appeared, and the ticker's paint while one is arriving.
+  const inputsRef = useRef<PaintInputs | null>(null)
+  const heldRef = useRef<PlaneScene | null>(null)
+  const arrivalsRef = useRef(new Map<string, EdgeArrival>())
+  const tickRef = useRef<(() => void) | null>(null)
+
+  // One frame from the latest inputs: the held scene if the owner holds
+  // one, else the scene prop. Reads refs only, so the owner's frames and the
+  // plane's own motion paint through it between React's renders.
+  const paint = useCallback(function paintFrame() {
+    const inputs = inputsRef.current
+    const ctx = ctxRef.current
+    if (inputs === null || ctx === null) {
+      return
+    }
+    const { width, height, dpr, zoom, panX, panY, themeVars } = inputs
+    const scene = heldRef.current ?? inputs.scene
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    ctx.clearRect(0, 0, width, height)
+    const chrome = measureKeepOut(rootRef.current)
+    const frameVp = makeViewport({ width, height, dpr }, { zoom, panX, panY })
+    const laid = layoutMarks(scene, frameVp, {
+      measure: (face, text) => {
+        ctx.font = face.font
+        return ctx.measureText(text).width
+      },
+      readout: readoutFaces(themeVars.readoutFont),
+      plates: chrome.plates,
+      corners: chrome.corners,
+    })
+    marksRef.current = laid
+    const { marks, arriving } = arriveEdges(
+      laid,
+      arrivalsRef.current,
+      performance.now(),
+      prefersReducedMotion(),
+    )
+    const grid = drawCartesianPlane({
+      ctx,
+      width,
+      height,
+      themeVars,
+      dpr,
+      zoom,
+      panX,
+      panY,
+      scene,
+      marks,
+      keepOut: [...chrome.plates, ...chrome.corners],
+    })
+    drawnRef.current = { vp: frameVp, scene, marks: laid, labels: grid?.labels ?? [] }
+    // An edge marker still arriving paints again on the next tick.
+    if (arriving && tickRef.current === null) {
+      tickRef.current = paintFrame
+      gsap.ticker.add(paintFrame)
+    } else if (!arriving && tickRef.current !== null) {
+      gsap.ticker.remove(tickRef.current)
+      tickRef.current = null
+    }
+  }, [])
+  useEffect(
+    () => () => {
+      if (tickRef.current !== null) {
+        gsap.ticker.remove(tickRef.current)
+        tickRef.current = null
+      }
+    },
+    [],
+  )
+
   useImperativeHandle(
     ref,
     () => ({
@@ -231,8 +324,12 @@ export function CartesianPlane({
         const at = canvas.getBoundingClientRect()
         return { ...region, x: region.x + at.left, y: region.y + at.top }
       },
+      drawFrame: (frame) => {
+        heldRef.current = frame
+        paint()
+      },
     }),
-    [],
+    [paint],
   )
   const markDragRef = useRef<MarkDrag | null>(null)
   const [cursor, setCursor] = useState<Cursor>("probe")
@@ -398,36 +495,8 @@ export function CartesianPlane({
         return
       }
     }
-    const ctx = ctxRef.current
-
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    ctx.clearRect(0, 0, width, height)
-    const chrome = measureKeepOut(rootRef.current)
-    const frameVp = makeViewport({ width, height, dpr }, { zoom, panX, panY })
-    const marks = layoutMarks(scene, frameVp, {
-      measure: (face, text) => {
-        ctx.font = face.font
-        return ctx.measureText(text).width
-      },
-      readout: readoutFaces(themeVars.readoutFont),
-      plates: chrome.plates,
-      corners: chrome.corners,
-    })
-    marksRef.current = marks
-    const grid = drawCartesianPlane({
-      ctx,
-      width,
-      height,
-      themeVars,
-      dpr,
-      zoom,
-      panX,
-      panY,
-      scene,
-      marks,
-      keepOut: [...chrome.plates, ...chrome.corners],
-    })
-    drawnRef.current = { vp: frameVp, scene, marks, labels: grid?.labels ?? [] }
+    inputsRef.current = { width, height, dpr, zoom, panX, panY, scene, themeVars }
+    paint()
     // HMR: drawCartesianPlane identity changes only on hot reload, intentional redraw.
     // fontLoads: redraw once the canvas faces have loaded.
     // eslint-disable-next-line react-hooks/exhaustive-deps

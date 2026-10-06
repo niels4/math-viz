@@ -35,8 +35,9 @@ export const easeSweep = springEase(SPRING_SWEEP)
 export const easeEnter = springEase(SPRING_ENTER)
 export const easeDraw = cubicBezier(...EASE_DRAW_BEZIER)
 
+/** Where there is no matchMedia (jsdom, a server render) there are no frames to show motion in: none. */
 export const prefersReducedMotion = (): boolean =>
-  typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches
+  typeof matchMedia !== "function" || matchMedia("(prefers-reduced-motion: reduce)").matches
 
 /** An ease as a CSS `linear()` timing function, sampled evenly (springs included, overshoot kept). */
 export const cssLinear = (ease: (progress: number) => number, samples = 32): string => {

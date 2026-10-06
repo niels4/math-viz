@@ -6,10 +6,15 @@ import type { Plate } from "../plates.ts"
 
 import { TRIANGLE_INSET } from "../plates.ts"
 
-/** A plate: its fill, its border inside the box (Figma's INSIDE stroke), then its runs. */
+/** A plate: its fill, its border inside the box (Figma's INSIDE stroke), then its runs; mid-motion, faded and moved. */
 export const paintPlate = (ctx: CanvasRenderingContext2D, plate: Plate, theme: ThemeVars) => {
-  const { x, y, w, h } = plate.box
+  const { w, h } = plate.box
+  const x = plate.box.x + (plate.motion?.dx ?? 0)
+  const y = plate.box.y + (plate.motion?.dy ?? 0)
   ctx.save()
+  if (plate.motion !== undefined) {
+    ctx.globalAlpha *= plate.motion.alpha
+  }
   ctx.beginPath()
   ctx.roundRect(x, y, w, h, plate.radius)
   ctx.fillStyle = theme[plate.fill]

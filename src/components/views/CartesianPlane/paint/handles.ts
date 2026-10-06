@@ -19,9 +19,10 @@ export const paintHandleHalos = (
   theme: ThemeVars,
 ) => {
   ctx.save()
-  ctx.globalAlpha = HALO_ALPHA
+  const base = ctx.globalAlpha
   for (const handle of handles) {
     if (handle.halo) {
+      ctx.globalAlpha = base * HALO_ALPHA * (handle.alpha ?? 1)
       ctx.beginPath()
       ctx.arc(handle.x, handle.y, HALO_R, 0, Math.PI * 2)
       ctx.fillStyle = theme[handle.ink]
@@ -39,8 +40,10 @@ export const paintHandles = (
 ) => {
   ctx.save()
   ctx.lineWidth = STROKE
+  const base = ctx.globalAlpha
   for (const handle of handles) {
     const { x, y } = handle
+    ctx.globalAlpha = base * (handle.alpha ?? 1)
     const ink = theme[handle.ink]
     ctx.fillStyle = handle.held ? ink : theme.background
     ctx.strokeStyle = ink

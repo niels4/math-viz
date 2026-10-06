@@ -82,7 +82,7 @@ describe("layoutMarks", () => {
       { x: 364.5, y: 382, w: 57, h: 28 },
       { x: 439.5, y: 269.5, w: 57, h: 28 },
     ])
-    expect(marks.guides).toEqual([393])
+    expect(marks.guides).toEqual([{ x: 393 }])
     // Drop lines from Q to both axes, in Q's ink.
     expect(marks.dropLines).toEqual([
       { ink: "chartPoint2", x1: 393, y1: 283.5, x2: 393, y2: 396 },
@@ -344,5 +344,59 @@ describe("layoutMarks › annotations, handles, where a point was", () => {
     // Now below the view: the ring stays, the edge marker says where the point went.
     const below = stixLayout(scene(x2, [P(2, -9, { was: { x: 2, y: 4, ink: "primary" } })]))
     expect(below.points[0]?.was).toMatchObject({ x: 568, y: 196, arrow: null })
+  })
+})
+
+describe("layoutMarks mid-motion (FV 05)", () => {
+  it("fades and moves a point's parts at paint time, its boxes resting", () => {
+    const rest = layout(scene(x2, [P(2, 4), Q(-1.5, 2.25)], -1.5))
+    const moving = layout({
+      ...scene(x2, [
+        P(2, 4, { alpha: 0.5, labelAlpha: 0.5, labelRise: 8 }),
+        { ...Q(-1.5, 2.25), alpha: 0.4, reach: 0.5, tagShift: 6 },
+      ]),
+      guides: [{ kind: "pointer-x", x: -1.5, alpha: 0.4 }],
+    })
+    const [p, q] = moving.points
+    expect(p?.marker?.alpha).toBe(0.5)
+    expect(p?.label?.motion).toEqual({ alpha: 0.25, dx: 0, dy: 8 })
+    expect(boxOf(p?.label)).toEqual(boxOf(rest.points[0]?.label))
+    expect(q?.label?.motion).toEqual({ alpha: 0.4, dx: 0, dy: 0 })
+    expect(moving.guides).toEqual([{ x: 393, alpha: 0.4 }])
+    // Q's drop lines reach half way to the axes; its tags sit 6 px toward Q
+    // (Q is above the x-axis and left of the y-axis), where they slide in from.
+    expect(moving.dropLines).toEqual([
+      { ink: "chartPoint2", x1: 393, y1: 283.5, x2: 393, y2: 339.75, alpha: 0.4 },
+      { ink: "chartPoint2", x1: 393, y1: 283.5, x2: 430.5, y2: 283.5, alpha: 0.4 },
+    ])
+    expect(moving.tags.map((t) => t.motion)).toEqual([
+      { alpha: 0.4, dx: 0, dy: -6 },
+      { alpha: 0.4, dx: -6, dy: 0 },
+    ])
+    expect(moving.tags.map(boxOf)).toEqual(rest.tags.map(boxOf))
+    expect(moving.tickKeepOut).toEqual(rest.tickKeepOut)
+    expect(moving.hits).toEqual(rest.hits)
+  })
+
+  it("leaves a point at rest as it was", () => {
+    const marks = layout(scene(x2, [P(2, 4, { alpha: 1, labelAlpha: 1, labelRise: 0 })]))
+    expect(marks.points[0]?.marker).toEqual({
+      x: 568,
+      y: 196,
+      style: "bullseye",
+      ink: "chartPoint1",
+      focus: false,
+    })
+    expect(marks.points[0]?.label?.motion).toBeUndefined()
+  })
+
+  it("fades handles and names the edge an off-view point lies past", () => {
+    const marks = layout({
+      ...scene(x2, [P(2, 9, { alpha: 0.5 })]),
+      handles: [{ id: "anchor", x: 0, y: 0, shape: "diamond", ink: "primary", alpha: 0.3 }],
+    })
+    expect(marks.handles[0]?.alpha).toBe(0.3)
+    expect(marks.points[0]?.edgeDir).toBe("up")
+    expect(marks.points[0]?.edge?.motion).toEqual({ alpha: 0.5, dx: 0, dy: 0 })
   })
 })

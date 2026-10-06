@@ -1,10 +1,11 @@
+import { createRef, useState, type Ref } from "react"
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest"
 
 import { act, render, toElement } from "#test"
 
 import type { PlaneScene } from "./scene.ts"
 
-import { CartesianPlane, type PlanePointer } from "./CartesianPlane"
+import { CartesianPlane, type CartesianPlaneHandle, type PlanePointer } from "./CartesianPlane"
 import { drawCartesianPlane } from "./drawCartesianPlane"
 
 vi.mock("./drawCartesianPlane", () => ({
@@ -474,5 +475,49 @@ describe("CartesianPlane marks", () => {
     })
     expect(onKeyDown.mock.calls.map(([e]) => e.key)).toEqual(["[", "ArrowRight"])
     expect(lastDraw().panX).toBeCloseTo(-0.5, 9)
+  })
+})
+
+describe("CartesianPlane frames", () => {
+  beforeEach(() => {
+    drawMock.mockClear()
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
+      stubCtx as unknown as CanvasRenderingContext2D,
+    )
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  const REST: PlaneScene = { curves: [], points: [], guides: [] }
+  const FRAME: PlaneScene = { ...REST, gridAlpha: 0.5 }
+  const NEXT: PlaneScene = { ...REST, gridAlpha: 0.25 }
+  const drawnScene = () => (drawMock.mock.calls.at(-1)?.[0] as { scene: PlaneScene } | undefined)?.scene
+
+  // The owner's scene prop changes on a click, as a state change would.
+  function Owner({ handle }: { handle: Ref<CartesianPlaneHandle> }) {
+    const [scene, setScene] = useState(REST)
+    return (
+      <>
+        <button type="button" data-testid="next" onClick={() => setScene(NEXT)} />
+        <CartesianPlane ref={handle} scene={scene} />
+      </>
+    )
+  }
+
+  it("paints an owner's frame in place of the scene prop until the owner lets go", async () => {
+    const handle = createRef<CartesianPlaneHandle>()
+    const screen = await render(<Owner handle={handle} />)
+    expect(drawnScene()).toBe(REST)
+    act(() => handle.current?.drawFrame(FRAME))
+    expect(drawnScene()).toBe(FRAME)
+    // A new scene prop waits while the frame is held: the view changes, the frame stays.
+    act(() => {
+      toElement(screen.getByTestId("next")).dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+    expect(drawnScene()).toBe(FRAME)
+    act(() => handle.current?.drawFrame(null))
+    expect(drawnScene()).toBe(NEXT)
   })
 })

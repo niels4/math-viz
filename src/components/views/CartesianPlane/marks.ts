@@ -1,10 +1,20 @@
+import type { GlyphDirection } from "#src/components/ui/glyphPaths.ts"
+
 import { formatNumber, formatShort } from "#src/util/format/number.ts"
 
 import type { ReadoutFaces } from "./faces.ts"
 import type { Polyline } from "./placement.ts"
 import type { Measure, Plate, PlateRun, PlateStyle } from "./plates.ts"
 import type { Rect } from "./rect.ts"
-import type { AnnotationPlate, Ink, PlaneAnnotation, PlaneHandle, PlaneScene, PointStyle } from "./scene.ts"
+import type {
+  AnnotationPlate,
+  Ink,
+  PlaneAnnotation,
+  PlaneHandle,
+  PlanePoint,
+  PlaneScene,
+  PointStyle,
+} from "./scene.ts"
 import type { Viewport } from "./viewport.ts"
 
 import { DRAG_TAG_FACES, EDGE_LETTER_FACE, LABEL_LETTER_FACE, NOTE_FACES } from "./faces.ts"
@@ -38,11 +48,15 @@ import { toScreenX, toScreenY } from "./viewport.ts"
 // plates, handles, the pointer guides, drop lines and axis tags, edge
 // markers for points off the view, the markers, where a point was, and
 // labels placed clear of the curve, the chrome, the tags and each other. The
-// boxes that take the pointer come out of the same pass.
+// boxes that take the pointer come out of the same pass. Mid-motion a mark
+// keeps its place: opacities, shifts and a label's rise are paint-time, so
+// the boxes, the keep-outs and the hits stay where the marks rest.
 
-export type DropLine = { ink: Ink; x1: number; y1: number; x2: number; y2: number }
+/** A drop line from its point (or the edge it comes in from) toward its axis; `alpha` only below 1. */
+export type DropLine = { ink: Ink; x1: number; y1: number; x2: number; y2: number; alpha?: number }
 
-export type Marker = { x: number; y: number; style: PointStyle; ink: Ink; focus: boolean }
+/** `alpha` only below 1. */
+export type Marker = { x: number; y: number; style: PointStyle; ink: Ink; focus: boolean; alpha?: number }
 
 /** A straight segment in plane pixels. */
 export type Segment = { x1: number; y1: number; x2: number; y2: number }
@@ -60,6 +74,8 @@ export type PointLayer = {
   marker: Marker | null
   label: Plate | null
   edge: Plate | null
+  /** The edge the point lies past, while it has an edge marker. */
+  edgeDir: GlyphDirection | null
 }
 
 /** An annotation's line in plane pixels, with its px decorations. */
@@ -79,7 +95,12 @@ export type AnnotationMarks = {
   plates: readonly Plate[]
 }
 
-export type HandleMark = Omit<PlaneHandle, "id" | "halo" | "held"> & { halo: boolean; held: boolean }
+export type HandleMark = Omit<PlaneHandle, "id" | "halo" | "held" | "alpha"> & {
+  halo: boolean
+  held: boolean
+  /** Only below 1. */
+  alpha?: number
+}
 
 export type PlaneHit =
   /** A draggable point's 48 px box. */
@@ -92,8 +113,8 @@ export type PlaneHit =
 export type MarksLayout = {
   annotations: readonly AnnotationMarks[]
   handles: readonly HandleMark[]
-  /** Screen x of each pointer guide. */
-  guides: readonly number[]
+  /** Each pointer guide's screen x; `alpha` only below 1. */
+  guides: readonly { x: number; alpha?: number }[]
   dropLines: readonly DropLine[]
   tags: readonly Plate[]
   points: readonly PointLayer[]
@@ -166,6 +187,15 @@ const between = (a: { x: number; y: number }, b: { x: number; y: number }, by: n
     by,
   )
 
+/** An opacity worth recording: only below 1, so marks at rest compare as before. */
+const faded = (alpha: number): { alpha?: number } => (alpha < 1 ? { alpha: Math.max(0, alpha) } : {})
+
+/** A plate faded and moved at paint time; at rest, the plate as laid out. */
+const moved = (plate: Plate, alpha: number, dx: number, dy: number): Plate =>
+  alpha >= 1 && dx === 0 && dy === 0 ? plate : { ...plate, motion: { alpha: Math.max(0, alpha), dx, dy } }
+
+const alphaOf = (p: PlanePoint): number => p.alpha ?? 1
+
 export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions): MarksLayout => {
   const { width, height, originX, originY } = vp
   if (width === 0 || height === 0) {
@@ -189,7 +219,9 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
       return { p, sx: px, sy: py, off: edgeDirection(px, py, width, height) }
     })
 
-  const guides = scene.guides.map((g) => sx(g.x)).filter((x) => within(x, 0, width))
+  const guides = scene.guides
+    .map((g) => ({ x: sx(g.x), ...faded(g.alpha ?? 1) }))
+    .filter((g) => within(g.x, 0, width))
   const dropLines: DropLine[] = []
   const tags: Plate[] = []
   const edges = new Map<string, Plate>()
@@ -201,15 +233,24 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
     if (p.axisTags === true) {
       // In view: drop lines to both axes, a tag on each. Off the view one way,
       // only the axis it still crosses: the line comes in from the edge.
+      // Mid-motion the lines reach part way and the tags sit shifted toward
+      // the point, where they slide in from.
+      const reach = Math.min(1, Math.max(0, p.reach ?? 1))
+      const shift = p.tagShift ?? 0
+      const alpha = faded(alphaOf(p))
       if (xIn) {
-        dropLines.push({ ink: p.ink, x1: px, y1: yIn ? py : py < 0 ? 0 : height, x2: px, y2: originY })
+        const y1 = yIn ? py : py < 0 ? 0 : height
+        dropLines.push({ ink: p.ink, x1: px, y1, x2: px, y2: y1 + (originY - y1) * reach, ...alpha })
         const tag = tagPlate(formatNumber(p.x), p.ink)
-        tags.push(at(tag, xTagBox(px, py, originY, tag.box, height)))
+        const toward = py < originY ? -shift : shift
+        tags.push(moved(at(tag, xTagBox(px, py, originY, tag.box, height)), alphaOf(p), 0, toward))
       }
       if (yIn) {
-        dropLines.push({ ink: p.ink, x1: xIn ? px : px < 0 ? 0 : width, y1: py, x2: originX, y2: py })
+        const x1 = xIn ? px : px < 0 ? 0 : width
+        dropLines.push({ ink: p.ink, x1, y1: py, x2: x1 + (originX - x1) * reach, y2: py, ...alpha })
         const tag = tagPlate(formatShort(p.y), p.ink)
-        tags.push(at(tag, yTagBox(px, py, originX, tag.box, width)))
+        const toward = px > originX ? shift : -shift
+        tags.push(moved(at(tag, yTagBox(px, py, originX, tag.box, width)), alphaOf(p), toward, 0))
       }
     }
     if (off !== null && p.edgeMarker === true) {
@@ -226,7 +267,12 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
       )
       // Clear of the chrome's plates and of the edge markers before it.
       const taken = [...opts.plates, ...[...edges.values()].map((e) => e.box)]
-      const placed = at(marker, edgeMarkerBox(off, { x: px, y: py }, marker.box, vp, taken))
+      const placed = moved(
+        at(marker, edgeMarkerBox(off, { x: px, y: py }, marker.box, vp, taken)),
+        alphaOf(p),
+        0,
+        0,
+      )
       edges.set(p.id, placed)
       hits.push({ kind: "edge", id: p.id, box: placed.box, target: { x: p.x, y: p.y } })
     }
@@ -365,15 +411,19 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
         width,
         height,
       })
-      label = at(content, box)
+      label = moved(at(content, box), alphaOf(p) * (p.labelAlpha ?? 1), 0, p.labelRise ?? 0)
       obstacles.push(box)
     }
     return {
       id: p.id,
       was: was.get(p.id) ?? null,
-      marker: off === null ? { x: px, y: py, style: p.style, ink: p.ink, focus: p.focus === true } : null,
+      marker:
+        off === null
+          ? { x: px, y: py, style: p.style, ink: p.ink, focus: p.focus === true, ...faded(alphaOf(p)) }
+          : null,
       label,
       edge: edges.get(p.id) ?? null,
+      edgeDir: edges.has(p.id) ? off : null,
     }
   })
 
@@ -396,6 +446,7 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
       ink: h.ink,
       halo: h.halo === true,
       held: h.held === true,
+      ...faded(h.alpha ?? 1),
     })),
     guides,
     dropLines,
