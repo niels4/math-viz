@@ -1,0 +1,25 @@
+/* A mini plot's frame (figma0 FV 02 › Mini plot): --background, the
+signature radius, its contents clipped to it. */
+.frame {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  background: var(--background);
+  border-radius: var(--sig-card-radius);
+}
+
+/* Figma's INSIDE stroke: over the plot, within the box. */
+.frame::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  border: 1px solid var(--border);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+}

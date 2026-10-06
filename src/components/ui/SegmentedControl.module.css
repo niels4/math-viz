@@ -1,0 +1,64 @@
+@layer components {
+  /* function-picker-fv: h 36, card fill, 1 px border drawn over the
+  segments, 1 px dividers, the selected segment filled with primary. The
+  outer segments carry the corner radius themselves, so nothing clips the
+  focus ring. */
+  .group {
+    display: flex;
+    align-items: stretch;
+    height: 36px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--sig-card-radius);
+  }
+
+  .divider {
+    flex: none;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .option {
+    display: flex;
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 16px;
+    line-height: 1.25;
+    color: var(--foreground);
+    white-space: nowrap;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .option:first-child {
+    border-radius: calc(var(--sig-card-radius) - 1px) 0 0 calc(var(--sig-card-radius) - 1px);
+  }
+
+  .option:last-child {
+    border-radius: 0 calc(var(--sig-card-radius) - 1px) calc(var(--sig-card-radius) - 1px) 0;
+  }
+
+  .option:hover {
+    background: var(--secondary);
+  }
+
+  .option:active {
+    background: color-mix(in oklch, var(--primary) 26%, transparent);
+  }
+
+  .option[aria-checked="true"] {
+    color: var(--primary-foreground);
+    background: var(--primary);
+  }
+
+  /* Focus = hover + the 3 px ring (FV 07). */
+  .option:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+  }
+}

@@ -1,0 +1,162 @@
+/* One transform (fvControl): the head (28) over the jog ruler (32), 6 apart. */
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Gap 10, or 7 where a flip toggle shares the row (a, b). */
+.head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  height: 28px;
+}
+
+.head[data-flip] {
+  gap: 7px;
+}
+
+/* Fixed decimals (the user's ruling) make a flipped scale's value five
+characters ("−2.00", R8): the field's own 8 px padding stands in for the
+gap before it, so the name keeps its room beside the flip toggle and ↺. */
+.head[data-flip] .value {
+  margin-inline-start: -6px;
+}
+
+/* The letter chip: 26, radius 6, --secondary, the letter in STIX italic 19
+in its 24 px line box. It opens the explainer (D12), so its cursor is help
+(FV 02 › help-popover-fv). */
+.chip {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  line-height: 24px;
+  color: var(--foreground);
+  background: var(--secondary);
+  border-radius: 6px;
+  cursor: help;
+}
+
+/* The name's slot takes the head's slack. Its first line is the head's
+height; a name or badge too wide for what is left wraps to the clipped
+second line, so it shows whole or not at all. Only a long value in a
+scale's head (five or more characters) needs that room. */
+.name_slot {
+  display: flex;
+  flex: 1 1 0;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: center;
+  min-width: 0;
+  height: 28px;
+  overflow: hidden;
+}
+
+.name_slot::before {
+  height: 28px;
+  content: "";
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+}
+
+/* A held modifier's badge (fvControl › Mode badge): a tinted plate, a 1.5 px
+border inside Figma's box, foreground text (--warning text fails 4.5:1 in
+educational-warm). */
+.badge {
+  padding: 2px 7px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 14px;
+  color: var(--foreground);
+  white-space: nowrap;
+  border: 1.5px solid;
+  border-radius: 4px;
+}
+
+.badge[data-mode="fine"] {
+  background: color-mix(in oklch, var(--accent) 24%, transparent);
+  border-color: var(--accent);
+}
+
+.badge[data-mode="snap"] {
+  background: color-mix(in oklch, var(--warning) 24%, transparent);
+  border-color: var(--warning);
+}
+
+/* Lit: its value is the active one (never on refused text). */
+.control[data-lit] .chip {
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.control[data-lit] .name {
+  color: var(--foreground);
+}
+
+/* The flip toggle and ↺: 24, radius 6, ink --foreground-muted. */
+.button {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--foreground-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.button:hover,
+.button:focus-visible {
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+}
+
+/* Off: a 1 px --border outline; on (the value is negative): --primary. */
+.flip {
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.flip:focus-visible {
+  box-shadow:
+    inset 0 0 0 1px var(--border),
+    0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+}
+
+.flip[aria-pressed="true"] {
+  color: var(--primary-foreground);
+  background: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.flip[aria-pressed="true"]:focus-visible {
+  box-shadow:
+    inset 0 0 0 1px var(--primary),
+    0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+}
+
+/* Mid-drag with a modifier the badge and the value need the head: the flip
+toggle and ↺ can't be used then anyway. */
+.control[data-mode="fine"] .button,
+.control[data-mode="snap"] .button {
+  display: none;
+}

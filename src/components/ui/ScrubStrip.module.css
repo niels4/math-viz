@@ -1,67 +1,123 @@
 @layer components {
+  /* The jog ruler (fvTape): 32 px, the signature card radius, ticks, labels
+  and chevrons in --foreground-muted at rest. The border is drawn over the
+  tape (::after), as Figma draws a frame's stroke over its children, and the
+  tape clips what slides past its ends. */
   .strip {
+    --strip-ink: var(--foreground-muted);
+    --strip-fill: var(--card);
+    --strip-stroke: var(--border);
+    --strip-stroke-width: 1px;
+
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 0;
-    min-height: 2.5rem;
-    align-self: stretch;
-    background: color-mix(in oklch, var(--primary) 12%, transparent);
-    border: 1px dashed color-mix(in oklch, var(--primary) 45%, transparent);
-    border-radius: var(--radius);
+    height: 32px;
+    overflow: hidden;
+    color: var(--strip-ink);
+    background: var(--strip-fill);
+    border-radius: var(--sig-card-radius);
+    outline: none;
     cursor: ew-resize;
     touch-action: none;
     user-select: none;
   }
 
-  .strip:hover {
-    background: color-mix(in oklch, var(--primary) 20%, transparent);
-    border-style: solid;
+  .strip::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    border: var(--strip-stroke-width) solid var(--strip-stroke);
+    border-radius: inherit;
+    pointer-events: none;
   }
 
+  /* Hover (its own, or its control's), focus and every drag: a 2 px primary
+  border and foreground ink. Hover fills with --secondary, a drag with
+  primary at 26 %; fine and snap colour the border. */
+  .strip:hover,
+  .strip[data-hot],
+  .strip:focus-visible,
+  .strip[data-mode] {
+    --strip-ink: var(--foreground);
+    --strip-stroke: var(--primary);
+    --strip-stroke-width: 2px;
+  }
+
+  .strip:hover,
+  .strip[data-hot] {
+    --strip-fill: var(--secondary);
+  }
+
+  .strip[data-mode] {
+    --strip-fill: color-mix(in oklch, var(--primary) 26%, transparent);
+  }
+
+  .strip[data-mode="fine"] {
+    --strip-stroke: var(--accent);
+  }
+
+  .strip[data-mode="snap"] {
+    --strip-stroke: var(--warning);
+  }
+
+  /* Focus = hover + the 3 px ring (FV 07). */
   .strip:focus-visible {
-    border-style: solid;
-    border-color: var(--primary);
-    outline: none;
     box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
   }
 
-  .strip_fine {
-    border-style: solid;
-    border-color: var(--accent);
+  /* While its value is typed, the ruler steps back at rest. */
+  .strip[data-dimmed] {
+    --strip-ink: var(--foreground-muted);
+    --strip-fill: var(--card);
+    --strip-stroke: var(--border);
+    --strip-stroke-width: 1px;
+
+    opacity: 0.55;
   }
 
-  .strip_snap {
-    border-style: solid;
-    border-color: var(--warning);
-  }
-
-  /* Floats just outside the strip, above its top-right corner. The row
-  makes room via padding so it never overlaps the field label. */
-  .strip_help {
+  .marks {
     position: absolute;
-    top: -26px;
-    right: 0;
+    top: 0;
+    left: 0;
   }
 
-  .strip_detent {
-    width: 2px;
-    align-self: stretch;
-    margin: 6px 0;
-    background: color-mix(in oklch, var(--foreground) 40%, transparent);
-    border-radius: 999px;
+  .tick {
+    fill: none;
+    stroke: currentcolor;
   }
 
-  .strip_badge {
+  .home {
+    fill: var(--foreground);
+  }
+
+  .index {
+    fill: var(--primary);
+  }
+
+  .chevrons {
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 2px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* The labels' layer: it slides with the ticks and the home notch (data-nudge)
+  when a view nudges its rulers, the index and the chevrons staying put. */
+  .tape {
     position: absolute;
-    top: 2px;
-    right: 6px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--foreground-muted);
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* Roboto Mono 500 12 in Figma's 16 px AUTO line box, 14 px from the top. */
+  .label {
+    position: absolute;
+    top: 14px;
+    font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+    white-space: nowrap;
     pointer-events: none;
   }
 }

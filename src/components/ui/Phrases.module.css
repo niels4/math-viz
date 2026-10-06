@@ -1,0 +1,22 @@
+@layer components {
+  /* Work Sans and STIX in Figma's AUTO line boxes: 14 / 16 and 16 / 20
+  unless the owner sets the sizes (the tour's 15 / 18 and 17 / 21). */
+  .text {
+    font-size: var(--phrase-text-size, 14px);
+    line-height: var(--phrase-text-line, 16px);
+  }
+
+  /* Phrases that wrap as one item, spaced as the owner spaces its items. */
+  .together {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    gap: inherit;
+    align-items: center;
+  }
+
+  .math {
+    font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+    font-size: var(--phrase-math-size, 16px);
+    line-height: var(--phrase-math-line, 20px);
+  }
+}

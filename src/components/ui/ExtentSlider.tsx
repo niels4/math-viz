@@ -1,162 +1,257 @@
-import type { KeyboardEvent, PointerEvent } from "react"
+import {
+  useEffect,
+  useEffectEvent,
+  useImperativeHandle,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type PointerEvent,
+  type ReactNode,
+  type Ref,
+} from "react"
 
-import { useCallback, useEffect, useRef } from "react"
+import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
+import { quantize } from "#src/util/format/number.ts"
 
-import sliderStyles from "./Slider.module.css"
+import style from "./ExtentSlider.module.css"
+import { BASELINE_Y, extentMarks, TICK_LENGTH, TRACK_HEIGHT } from "./extentTicks.ts"
+import { TriangleIcon } from "./icons.tsx"
 
-// Slider emissions are quantized to thousandths, matching the transform
-// scrub strips (quantum 0.002), so drags never leave float tails like
-// 2.5000000001 in the paired NumberField.
-const round3 = (n: number): number => Math.round(n * 1000) / 1000
+export type ExtentSliderHandle = { focus: () => void }
 
-// Bounds readout under the track: display-trimmed only, the slider keeps
-// the exact min/max for positioning and aria.
-const formatBound = (n: number): string => String(round3(n))
+/** Arrow keys (FV 07 › P scrubber): 0.1, Shift 1. */
+const STEP = 0.1
+const STEP_SHIFT = 1
 
-// A traditional (absolute-position) slider bound to a live [min, max]
-// range. The track follows min/max (the Points p1 slider binds them to the
-// grid's visible X extent), the knob sits at the value's fractional
-// position, and an out-of-range value hides the knob instead of clamping
-// it. Pointer handling mirrors ScrubStrip: window-level stoppers plus a
-// buttons guard so a missed release can never leave a drag stuck on.
+const px = (v: number): number => Math.round(v * 100) / 100
+
+const tickPath = (xs: readonly number[], length: number): string =>
+  xs.map((x) => `M${px(x)} ${BASELINE_Y}V${BASELINE_Y + length}`).join("")
+
+/** The lattice point nearest `v` on the range's side (ceil at the low end, floor at the high end). */
+const inward = (v: number, q: number, side: "low" | "high"): number =>
+  quantize((side === "low" ? Math.ceil(v / q - 1e-9) : Math.floor(v / q + 1e-9)) * q, q)
+
+// An absolute slider over a live range (figma0 fvScrubber, FV 07's P
+// scrubber): a track calibrated like an axis that follows its range (the
+// plane's visible x-range), and a thumb the owner draws at the value. A
+// press jumps to the pointer and drags; ← → step 0.1 (Shift 1) with no
+// bounds, Home and End jump to the ends, Enter asks the owner to open its
+// value field. Hover, focus and a drag show the value in a tip above the
+// thumb. A value off the track parks the thumb on the end it lies past, and
+// the tip points that way. Every value it sends sits on `quantum`.
 export function ExtentSlider({
   value,
   min,
   max,
+  quantum,
   onChange,
   label,
+  symbol,
+  format,
+  renderThumb,
+  onEditRequest,
+  onDragChange,
+  className,
   testId,
+  ref,
 }: {
   value: number
   min: number
   max: number
+  /** The value's lattice: drags, keys and the ends land on it. */
+  quantum: number
   onChange: (next: number) => void
+  /** The slider's accessible name. */
   label: string
-  testId: string
+  /** The variable the tip names: "x" prints "x = 2". */
+  symbol: string
+  format: (v: number) => string
+  /** The thumb's mark; `parked` when the value lies off the track. */
+  renderThumb: (parked: boolean) => ReactNode
+  /** Enter: the owner opens its value field. */
+  onEditRequest?: () => void
+  /** A pointer drag starts (true) or ends (false). */
+  onDragChange?: (dragging: boolean) => void
+  className?: string
+  testId?: string
+  ref?: Ref<ExtentSliderHandle>
 }) {
   const trackRef = useRef<HTMLDivElement | null>(null)
+  const { width } = useResizeObserver(trackRef)
   const draggingRef = useRef(false)
-  const span = max - min
-  const valid =
-    Number.isFinite(value) &&
-    Number.isFinite(min) &&
-    Number.isFinite(max) &&
-    Number.isFinite(span) &&
-    span > 0
-  const inRange = valid && value >= min && value <= max
-  const ratio = valid ? (value - min) / span : 0
-  const clamped = Math.min(1, Math.max(0, ratio))
+  const [dragging, setDragging] = useState(false)
+  useImperativeHandle(ref, () => ({ focus: () => trackRef.current?.focus() }), [])
 
-  const setFromClientX = (clientX: number) => {
-    if (!valid) {
-      return
+  const span = max - min
+  const valid = Number.isFinite(value) && Number.isFinite(span) && span > 0
+  const low = valid ? inward(min, quantum, "low") : min
+  const high = valid ? inward(max, quantum, "high") : max
+  const send = (next: number) => {
+    const q = quantize(next, quantum) || 0
+    if (q !== value) {
+      onChange(q)
     }
+  }
+
+  const sendFromClientX = (clientX: number) => {
     const track = trackRef.current
-    if (track === null) {
+    if (!valid || track === null) {
       return
     }
     const rect = track.getBoundingClientRect()
     if (rect.width === 0) {
       return
     }
-    const next = (clientX - rect.left) / rect.width
-    onChange(round3(min + Math.min(1, Math.max(0, next)) * span))
+    const t = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
+    send(Math.min(high, Math.max(low, min + t * span)))
+  }
+
+  const showDragging = (next: boolean) => {
+    draggingRef.current = next
+    setDragging(next)
+    onDragChange?.(next)
+  }
+
+  const stop = () => {
+    if (draggingRef.current) {
+      showDragging(false)
+    }
   }
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    draggingRef.current = true
+    if (event.button !== 0 || !valid) {
+      return
+    }
     event.currentTarget.setPointerCapture(event.pointerId)
-    setFromClientX(event.clientX)
+    showDragging(true)
+    sendFromClientX(event.clientX)
   }
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.buttons === 0) {
-      // No button held: a missed release left the drag stuck on, so drop
-      // it instead of scrubbing from a hover.
-      stopDragging()
-      return
-    }
     if (!draggingRef.current) {
       return
     }
-    setFromClientX(event.clientX)
-  }
-
-  const stopDragging = useCallback(() => {
-    draggingRef.current = false
-  }, [])
-
-  // Letting go stops the drag unconditionally. The element handlers miss
-  // the release when it lands outside the window or focus moves mid-drag,
-  // which used to leave the drag stuck on.
-  useEffect(() => {
-    window.addEventListener("pointerup", stopDragging)
-    window.addEventListener("pointercancel", stopDragging)
-    window.addEventListener("blur", stopDragging)
-    return () => {
-      window.removeEventListener("pointerup", stopDragging)
-      window.removeEventListener("pointercancel", stopDragging)
-      window.removeEventListener("blur", stopDragging)
-    }
-  }, [stopDragging])
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (!valid) {
+    if (event.buttons === 0) {
+      // A missed release left the drag on: drop it instead of scrubbing from a hover.
+      stop()
       return
     }
-    const small = span / 100
-    const big = span / 10
-    if (event.key === "ArrowRight" || event.key === "ArrowUp") {
-      event.preventDefault()
-      onChange(Math.min(max, Math.max(min, round3(value + (event.shiftKey ? big : small)))))
-    } else if (event.key === "ArrowLeft" || event.key === "ArrowDown") {
-      event.preventDefault()
-      onChange(Math.min(max, Math.max(min, round3(value - (event.shiftKey ? big : small)))))
-    } else if (event.key === "Home") {
-      event.preventDefault()
-      onChange(min)
-    } else if (event.key === "End") {
-      event.preventDefault()
-      onChange(max)
+    sendFromClientX(event.clientX)
+  }
+
+  // Letting go anywhere, a lost capture or a lost window focus ends a drag
+  // (AGENTS.md › pointer-capture drags).
+  const onWindowRelease = useEffectEvent(() => stop())
+  useEffect(() => {
+    const release = () => onWindowRelease()
+    window.addEventListener("pointerup", release)
+    window.addEventListener("pointercancel", release)
+    window.addEventListener("blur", release)
+    return () => {
+      window.removeEventListener("pointerup", release)
+      window.removeEventListener("pointercancel", release)
+      window.removeEventListener("blur", release)
+    }
+  }, [])
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    switch (event.key) {
+      case "ArrowRight":
+      case "ArrowUp":
+      case "ArrowLeft":
+      case "ArrowDown": {
+        if (!Number.isFinite(value)) {
+          return
+        }
+        event.preventDefault()
+        const direction = event.key === "ArrowRight" || event.key === "ArrowUp" ? 1 : -1
+        send(value + direction * (event.shiftKey ? STEP_SHIFT : STEP))
+        return
+      }
+      case "Home":
+      case "End":
+        if (valid) {
+          event.preventDefault()
+          send(event.key === "Home" ? low : high)
+        }
+        return
+      case "Enter":
+        if (onEditRequest !== undefined) {
+          event.preventDefault()
+          onEditRequest()
+        }
+        return
+      default:
+        return
     }
   }
 
+  const marks = width > 0 ? extentMarks(min, max, width) : null
+  const parked = !valid ? null : value < min ? "left" : value > max ? "right" : null
+  const thumbX =
+    !valid || width === 0
+      ? null
+      : parked === "left"
+        ? 0
+        : parked === "right"
+          ? width
+          : ((value - min) / span) * width
   return (
-    // Grouping div: keeps the track and its scale row in one control-row
-    // grid cell so the bounds sit under the slider, not across the row.
-    <div>
-      <div
-        ref={trackRef}
-        role="slider"
-        tabIndex={0}
-        aria-label={label}
-        aria-valuemin={min}
-        aria-valuemax={max}
-        aria-valuenow={value}
-        aria-valuetext={String(value)}
-        data-testid={testId}
-        className={sliderStyles.slider_track}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={stopDragging}
-        onPointerCancel={stopDragging}
-        onLostPointerCapture={stopDragging}
-        onKeyDown={handleKeyDown}
-      >
-        <div className={sliderStyles.slider_fill} style={{ width: `${clamped * 100}%` }} />
-        {inRange && (
-          <div
-            className={sliderStyles.slider_knob}
-            style={{ left: `${clamped * 100}%` }}
-            data-testid={`${testId}-knob`}
+    <div
+      ref={trackRef}
+      role="slider"
+      tabIndex={0}
+      aria-label={label}
+      aria-valuemin={min}
+      aria-valuemax={max}
+      aria-valuenow={value}
+      aria-valuetext={format(value)}
+      data-testid={testId}
+      data-dragging={dragging || undefined}
+      data-parked={parked ?? undefined}
+      className={className === undefined ? style.track : `${style.track} ${className}`}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={stop}
+      onPointerCancel={stop}
+      onLostPointerCapture={stop}
+      onKeyDown={handleKeyDown}
+    >
+      {marks !== null && (
+        <svg className={style.marks} width={width} height={TRACK_HEIGHT} aria-hidden="true">
+          <path className={style.baseline} d={`M0 ${BASELINE_Y}H${px(width)}`} />
+          <path className={style.tick} d={tickPath(marks.minor, TICK_LENGTH.minor)} strokeWidth={1} />
+          <path className={style.tick} d={tickPath(marks.major, TICK_LENGTH.major)} strokeWidth={1.5} />
+        </svg>
+      )}
+      {marks?.labels.map((mark) => (
+        <span key={mark.value} className={style.label} style={{ left: mark.left }} aria-hidden="true">
+          {mark.text}
+        </span>
+      ))}
+      {thumbX !== null && (
+        <>
+          <span
+            className={style.thumb}
+            style={{ left: px(thumbX) }}
+            data-testid={testId && `${testId}-thumb`}
+          >
+            {renderThumb(parked !== null)}
+          </span>
+          <span
+            className={style.tip}
+            style={{ "--x": `${px(thumbX)}px`, "--w": `${px(width)}px` } as CSSProperties}
             aria-hidden="true"
-          />
-        )}
-      </div>
-      <div className={sliderStyles.slider_scale} aria-hidden="true">
-        <span data-testid={`${testId}-min`}>{formatBound(min)}</span>
-        <span data-testid={`${testId}-max`}>{formatBound(max)}</span>
-      </div>
+          >
+            {parked === "left" && <TriangleIcon dir="left" width={7} height={10} />}
+            <var>{symbol}</var>
+            <span className={style.tip_value}>= {format(value)}</span>
+            {parked === "right" && <TriangleIcon dir="right" width={7} height={10} />}
+          </span>
+        </>
+      )}
     </div>
   )
 }

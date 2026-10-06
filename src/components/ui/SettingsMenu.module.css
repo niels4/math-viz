@@ -26,6 +26,11 @@
     box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
   }
 
+  /* An overlay as the explainer and the tour card are: --card in a 1 px
+  --border with the theme's card shadow. It opens on the overlays' tokens,
+  the enter spring over dur-base, dropping 4 px from the gear and growing
+  from 98 %; it leaves the same way back in dur-leave (120 ms), linearly,
+  as FV 05's Q leaves. Under reduced motion it only fades, 120 ms each way. */
   .settings_menu {
     position: absolute;
     top: calc(100% + 8px);
@@ -33,12 +38,46 @@
     z-index: 20;
     display: grid;
     gap: 12px;
+    width: max-content;
     min-width: 230px;
     padding: 12px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    box-shadow: 0 12px 32px rgb(0 0 0 / 0.28);
+    box-shadow: var(--sig-card-shadow);
+    transform-origin: top right;
+    transition:
+      opacity var(--motion-dur-base) var(--motion-ease-enter),
+      transform var(--motion-dur-base) var(--motion-ease-enter);
+  }
+
+  @starting-style {
+    .settings_menu {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+  }
+
+  .settings_menu[data-closing] {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+    transition:
+      opacity var(--motion-dur-leave) linear,
+      transform var(--motion-dur-leave) linear;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .settings_menu,
+    .settings_menu[data-closing] {
+      transform: none;
+      transition: opacity var(--motion-dur-reduced-fade) linear;
+    }
+
+    @starting-style {
+      .settings_menu {
+        transform: none;
+      }
+    }
   }
 
   .settings_group_label {
@@ -51,17 +90,16 @@
     color: var(--foreground-muted);
   }
 
+  /* Each item on one line: the menu takes the widest item's width. */
   .settings_option {
     display: flex;
     align-items: center;
     gap: 8px;
     width: 100%;
     padding: 8px 10px;
-    font: inherit;
-    font-size: 0.9rem;
-    font-weight: 600;
     color: var(--foreground);
     text-align: left;
+    white-space: nowrap;
     background: transparent;
     border: 0;
     border-radius: calc(var(--radius) - 4px);
@@ -72,14 +110,29 @@
     background: var(--secondary);
   }
 
-  .settings_option_active {
+  /* Focus = hover + the 3 px ring (FV 07). */
+  .settings_option:focus-visible {
+    background: var(--secondary);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+  }
+
+  /* The checked theme keeps its fill under the pointer and the focus. */
+  .settings_option.settings_option_active {
     color: var(--primary-foreground);
     background: var(--primary);
   }
 
+  /* The view's own items, set off from the themes by a rule. */
+  .settings_actions {
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
   .settings_check {
-    display: inline-block;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
     width: 1.2em;
-    font-weight: 800;
   }
 }

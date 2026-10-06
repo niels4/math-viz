@@ -1,0 +1,60 @@
+/* ghost-toggle-fv (figma0 FV · Recommended › Components): 36 tall, padding
+0 12, gap 8, card with a 1 px --border edge, 2 px --primary while on (the
+border counts in the layout, as Figma's does). Off, the swatch and the text
+sit at 45 %. */
+.toggle {
+  display: flex;
+  flex: none;
+  gap: 8px;
+  align-items: center;
+  height: 36px;
+  padding: 0 12px;
+  color: var(--foreground);
+  white-space: nowrap;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--sig-card-radius);
+  cursor: pointer;
+}
+
+.toggle[aria-pressed="true"] {
+  border: 2px solid var(--primary);
+}
+
+.toggle[aria-pressed="false"] > * {
+  opacity: 0.45;
+}
+
+.toggle:hover {
+  background: var(--secondary);
+}
+
+.toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+}
+
+/* The ghost's own line: 2 px of --foreground-muted dashed 6 4, the first
+dash centred on the start as Figma draws dashes. */
+.swatch {
+  display: block;
+  flex: none;
+  fill: none;
+  stroke: var(--foreground-muted);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  stroke-dashoffset: 3;
+}
+
+/* Line heights in px: Figma's AUTO boxes (Work Sans 14 → 16, STIX 17 → 21). */
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.math {
+  font-size: 17px;
+  line-height: 21px;
+  color: var(--foreground-muted);
+}

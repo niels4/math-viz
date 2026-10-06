@@ -1,0 +1,132 @@
+/* The equation card (fvPanel): card fill, 1 px border, padding 10 16, 4
+between the lines. The live line sits in a 60 px row, the height of its
+stacked fraction, so switching x² for (x − h)/b keeps the panel still. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--sig-card-radius);
+}
+
+.live {
+  display: flex;
+  align-items: center;
+  min-height: 60px;
+  color: var(--foreground);
+}
+
+/* STIX Two Text's AUTO line box is 1.25 em, which Figma rounds up to whole
+px. Tabular figures (STIX's own default): a sliding term keeps its width. */
+.line,
+.form {
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-variant-numeric: tabular-nums;
+  line-height: round(up, 1.25em, 1px);
+}
+
+/* One line, shrunk to fit its row where long values need more (--fit-scale,
+useFitWidth). */
+.line {
+  flex: none;
+  font-size: calc(28px * var(--fit-scale, 1));
+  white-space: nowrap;
+}
+
+/* The dock's equation (R9): the live line alone, no card, STIX 26 in a 56
+px row. The row's height holds, as Figma's frame does: a stacked fraction
+(57.5 px at 26) reaches 1 px past it either side instead of moving the hint
+below. */
+.card[data-compact] {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
+
+.card[data-compact] .live {
+  height: 56px;
+  min-height: 0;
+}
+
+.card[data-compact] .line {
+  font-size: calc(26px * var(--fit-scale, 1));
+}
+
+.form_row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Figma's box ends at the last letter; CSS tracks after it too. */
+.form_label {
+  margin-inline-end: calc(-1 * var(--sig-label-tracking));
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 14px;
+  letter-spacing: var(--sig-label-tracking);
+  text-transform: uppercase;
+  color: var(--foreground-muted);
+}
+
+.form {
+  font-size: 18px;
+  color: var(--foreground-muted);
+}
+
+/* Every slot keeps room for the ghost's 1 px outline, so a value leaving
+its default never moves the line or the panel below it. */
+.form [data-param] {
+  border: 1px solid transparent;
+}
+
+.form [data-ghost] {
+  border-style: dashed;
+  border-color: currentcolor;
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* A term drags like its ruler (D13), selecting no text. A change flashes it
+(FV 05, FV 04): a plate of --primary at 26 % times --flash, which the view's
+motion takes from 0 to 1 and back, over the lit plate and under the text. */
+.card [data-param] {
+  --flash-ink: color-mix(in oklch, var(--primary) calc(26% * var(--flash, 0)), transparent);
+
+  position: relative;
+  background-image: linear-gradient(var(--flash-ink), var(--flash-ink));
+  cursor: ew-resize;
+  touch-action: none;
+  user-select: none;
+}
+
+/* Lit, its value active (FV 04; fvTerm): --primary at 26 % with a 2 px
+--primary underline. Figma grows the live term by the underline (38 px at
+28 px); here the plate reaches 1 px past the term above and below, so the
+line never moves. */
+.line [data-lit] {
+  background-color: color-mix(in oklch, var(--primary) 26%, transparent);
+  box-shadow:
+    0 -1px 0 0 color-mix(in oklch, var(--primary) 26%, transparent),
+    0 1px 0 0 var(--primary),
+    inset 0 -1px 0 0 var(--primary);
+}
+
+/* The form slot already keeps room for its outline: the plate fills that
+room, the outline gives way, the letter turns --foreground. */
+.form [data-lit] {
+  color: var(--foreground);
+  background-color: color-mix(in oklch, var(--primary) 26%, transparent);
+  border-color: transparent;
+  box-shadow: inset 0 -2px 0 0 var(--primary);
+}

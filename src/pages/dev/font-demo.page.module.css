@@ -1,0 +1,118 @@
+.glyphs {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--sig-card-radius);
+  box-shadow: var(--sig-card-shadow);
+  background: var(--card);
+  color: var(--foreground);
+}
+
+.lead {
+  color: var(--foreground-muted);
+}
+
+.rows {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  align-items: baseline;
+  gap: 12px 32px;
+}
+
+.caption {
+  font-size: 14px;
+  letter-spacing: var(--sig-label-tracking);
+  text-transform: uppercase;
+  color: var(--foreground-muted);
+}
+
+/* The design's point readout: f( ) and the relation in STIX 24, numbers 22 in
+the readout family, everything on one baseline. */
+.readout {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: 24px;
+}
+
+.fname {
+  font-style: italic;
+}
+
+.num {
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.mono {
+  font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.stix {
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+}
+
+.rel {
+  padding: 0 7px;
+}
+
+.label {
+  font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.readouts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 40px;
+}
+
+.marks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.marker {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 12px;
+  border: 2px solid var(--chart-point-1);
+  border-radius: 999px;
+  background: var(--card);
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: 20px;
+}
+
+.marker_arrow {
+  align-self: center;
+  display: inline-flex;
+  color: var(--chart-point-1);
+}
+
+.marker_coords {
+  font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 16px;
+  color: var(--foreground-muted);
+}
+
+.key {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  min-width: 32px;
+  height: 21px;
+  padding: 1px 6px 2px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--secondary);
+  color: var(--foreground);
+  font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 600;
+}

@@ -1,0 +1,31 @@
+@layer components {
+  .mark {
+    display: block;
+    flex: none;
+  }
+
+  .ring {
+    fill: var(--background);
+    stroke: var(--foreground);
+  }
+
+  .probe_ring {
+    fill: var(--background);
+    stroke: var(--mark-ink);
+  }
+
+  .core {
+    fill: var(--mark-ink);
+  }
+
+  .centre {
+    fill: var(--foreground);
+  }
+
+  /* Figma's dash pattern 3 2. */
+  .parked {
+    fill: var(--background);
+    stroke: var(--mark-ink);
+    stroke-dasharray: 3 2;
+  }
+}

@@ -1,0 +1,151 @@
+/* help-popover-fv: a 300 px card, padding 16 inside its 1 px border, 10
+between parts (Callout draws the card and its caret). */
+.explainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+}
+
+/* Placed once measured. */
+.unplaced {
+  visibility: hidden;
+}
+
+/* The head: the letter chip (26, radius 6, --primary, STIX italic 19 in
+its 24 px line box), the name (Work Sans 700 16), and right-aligned where
+it acts (Work Sans 13 and f( ) in STIX 15, --foreground-muted). */
+.head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  height: 26px;
+}
+
+.chip {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  line-height: 24px;
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border-radius: 6px;
+}
+
+.name {
+  flex: 1 1 auto;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+}
+
+.where {
+  display: flex;
+  flex: none;
+  gap: 4px;
+  align-items: center;
+  font-size: 13px;
+  line-height: 15px;
+  color: var(--foreground-muted);
+}
+
+.where_math {
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  line-height: 19px;
+}
+
+/* Work Sans 15 at 145 %, which Figma sets as 22 px lines. */
+.sentence {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  text-wrap: wrap;
+}
+
+/* The picture is 268 wide, 2 px past the 266 px content box as on the
+board. */
+.plot {
+  margin-inline-end: -2px;
+}
+
+/* The example's value plate, 8 px in from the plot's top-right: --card in
+a 1 px --border, radius 4, padding 2 6, the maths in STIX 15. */
+.example {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 2px 6px;
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  line-height: 19px;
+  color: var(--foreground);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+/* "In the equation" (caps, the label tracking) and the snippet in STIX 20,
+its letter lit as the form line lights it. */
+.snippet_row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  height: 28px;
+  margin: 0;
+}
+
+/* Figma's box ends at the last letter; CSS tracks after it too. */
+.snippet_label {
+  margin-inline-end: calc(-1 * var(--sig-label-tracking));
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 14px;
+  letter-spacing: var(--sig-label-tracking);
+  text-transform: uppercase;
+  color: var(--foreground-muted);
+}
+
+.snippet {
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  line-height: 25px;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+}
+
+/* fvTerm active: --primary at 26 % with a 2 px --primary rule at its foot,
+inside the term's box (padding 0 3 1, the rule counted: 28 tall). */
+.snippet [data-lit] {
+  padding-bottom: 3px;
+  color: var(--foreground);
+  background: color-mix(in oklch, var(--primary) 26%, transparent);
+  box-shadow: inset 0 -2px 0 0 var(--primary);
+}
+
+.rule {
+  height: 1px;
+  margin: 0;
+  background: var(--border);
+  border: 0;
+}
+
+/* The gestures as fvRich sets them at 13: words 4 px apart, rows 2. */
+.gestures {
+  --phrase-text-size: 13px;
+  --phrase-text-line: 15px;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+  align-items: center;
+  margin: 0;
+  color: var(--foreground-muted);
+}

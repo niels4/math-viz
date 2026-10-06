@@ -19,6 +19,13 @@
     white-space: nowrap;
   }
 
+  /* Focus = the 3 px ring (FV 07), not the browser's outline. */
+  .wordmark:focus-visible {
+    border-radius: 6px;
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+  }
+
   .wordmark_icon {
     display: inline-flex;
     color: var(--primary);
@@ -63,6 +70,65 @@
     margin-left: auto;
   }
 
+  /* A view's header (figma0 top-bar-v2): a 64 px card. Line heights are
+  Figma's AUTO boxes in px, so the title block measures 39 like the board. */
+  .topbar_view {
+    height: 64px;
+    padding: 0 20px;
+    background: var(--background-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--sig-card-radius);
+  }
+
+  .topbar_view .wordmark {
+    font-size: 24px;
+    line-height: 28px;
+  }
+
+  .topbar_view .top_actions {
+    gap: 20px;
+  }
+
+  .separator {
+    flex: none;
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+  }
+
+  .title_block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .title,
+  .subtitle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .one_line {
+    white-space: nowrap;
+  }
+
+  .title {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 23px;
+    color: var(--foreground);
+  }
+
+  .subtitle {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 14px;
+    letter-spacing: var(--sig-label-tracking);
+    text-transform: uppercase;
+    color: var(--foreground-muted);
+  }
+
   @media (max-width: 780px) {
     .topbar {
       flex-wrap: wrap;
@@ -72,6 +138,20 @@
       order: 3;
       flex-basis: 100%;
       max-width: none;
+    }
+  }
+
+  /* A view's header stays one row at any width: the title and subtitle
+  truncate first, then the wordmark keeps only its icon. */
+  @media (max-width: 780px) {
+    .topbar_view {
+      flex-wrap: nowrap;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .topbar_view .wordmark_text {
+      display: none;
     }
   }
 }

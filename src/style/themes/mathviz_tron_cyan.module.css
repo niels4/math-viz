@@ -39,6 +39,19 @@
   --ordinal-10: oklch(0.7845 0.1325 181.91);
   --ordinal-11: oklch(0.7477 0.207 322.16);
   --ordinal-12: oklch(0.9683 0.0069 247.9);
+  /* Function Viewer v2 (figma0 fv-tokens.json, v2-tokens.json). The colours are
+   * aliases and mixes of the palette above, so they follow it; README › 10. */
+  --chart-point-1: var(--ordinal-05);
+  --chart-point-2: var(--ordinal-02);
+  --chart-axis: color-mix(in oklch, var(--foreground-muted) 75%, var(--background));
+  --chart-grid-major: color-mix(in oklch, var(--foreground-muted) 35%, var(--chart-grid));
+  --sig-card-radius: 4px;
+  --sig-card-shadow: none;
+  --sig-curve-glow: transparent;
+  --sig-glow-radius: 10px;
+  --sig-hud-ticks: 1;
+  --sig-label-tracking: 1.12px;
+  --sig-readout-font: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --gradient-primary: linear-gradient(135deg, oklch(0.8442 0.1457 209.29) 0%, oklch(0.7487 0.173 53.99) 100%);
   --gradient-accent: linear-gradient(90deg, oklch(0.7487 0.173 53.99) 0%, oklch(0.8442 0.1457 209.29) 100%);
   --gradient-muted: linear-gradient(180deg, oklch(0.137 0.02 228.74) 0%, oklch(0.1817 0.0213 224.39) 100%);

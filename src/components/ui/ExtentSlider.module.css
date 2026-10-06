@@ -1,0 +1,116 @@
+@layer components {
+  /* fvScrubber: a 36 px track, the 2 px --chart-axis baseline at y 9 with
+  ticks hanging from it, labels' tops at 19. */
+  .track {
+    position: relative;
+    height: 36px;
+    outline: none;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .marks {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .baseline {
+    fill: none;
+    stroke: var(--chart-axis);
+    stroke-width: 2px;
+  }
+
+  .tick {
+    fill: none;
+    stroke: var(--chart-axis);
+  }
+
+  /* Roboto Mono 500 12 in Figma's 16 px line box. */
+  .label {
+    position: absolute;
+    top: 19px;
+    font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+    color: var(--foreground-muted);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  /* The thumb, centred on the value at the baseline (FV 07): 112 % on
+  hover, the 3 px ring on focus, a 34 px primary-26 halo behind it while
+  dragged. */
+  .thumb {
+    position: absolute;
+    top: 9px;
+    display: grid;
+    border-radius: 50%;
+    translate: -50% -50%;
+    pointer-events: none;
+  }
+
+  .track:hover .thumb {
+    scale: 1.12;
+  }
+
+  .track:focus-visible .thumb {
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+  }
+
+  .track[data-dragging] .thumb {
+    scale: none;
+  }
+
+  .track[data-dragging] .thumb::before {
+    position: absolute;
+    inset: -8px;
+    z-index: -1;
+    content: "";
+    background: color-mix(in oklch, var(--primary) 26%, transparent);
+    border-radius: 50%;
+  }
+
+  /* The value tip (FV 07): --foreground plate, radius 5, padding 2 7, gap 4,
+  4 px above the thumb, centred on it but never past the track's ends; the
+  name in STIX italic 14, the value in Roboto Mono 500 13, --background. */
+  .tip {
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: var(--x);
+    z-index: 1;
+    display: none;
+    gap: 4px;
+    align-items: center;
+    height: 22px;
+    padding: 2px 7px;
+    color: var(--background);
+    white-space: nowrap;
+    background: var(--foreground);
+    border-radius: 5px;
+    translate: clamp(calc(-1 * var(--x)), -50%, calc(var(--w) - var(--x) - 100%)) 0;
+    pointer-events: none;
+  }
+
+  .track:hover .tip,
+  .track:focus-visible .tip,
+  .track[data-dragging] .tip {
+    display: flex;
+  }
+
+  .tip var {
+    font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+    font-size: 14px;
+    line-height: 18px;
+  }
+
+  .tip_value {
+    font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 17px;
+  }
+}

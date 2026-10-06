@@ -1,202 +1,215 @@
-import type { KeyboardEvent, PointerEvent } from "react"
+import { useEffect, useEffectEvent, useImperativeHandle, useRef, type KeyboardEvent, type Ref } from "react"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
+import { formatStored } from "#src/util/format/number.ts"
 
-import type { HelpContent } from "./HelpTip.tsx"
-import type { ScrubKind } from "./scrub.ts"
-
-import { HelpTip } from "./HelpTip.tsx"
-import { scrubDelta, wheelDxPx } from "./scrub.ts"
+import {
+  NUDGE_STEP,
+  NUDGE_STEP_SHIFT,
+  nudge,
+  scrubDelta,
+  scrubMode,
+  wheelDxPx,
+  type ScrubKind,
+  type ScrubMode,
+} from "./scrub.ts"
+import { RULER_HEIGHT, TICK_LENGTH, rulerMarks } from "./scrubRuler.ts"
 import stripStyles from "./ScrubStrip.module.css"
+import { useScrubDrag } from "./useScrubDrag.ts"
 
-// A relative (jog-style) scrub strip: dragging emits value deltas from the
-// grab point, so there is no min/max and unbounded params scrub forever.
-// Blender polarity: plain drag is coarse, Shift is fine, Ctrl snaps to
-// integers. Double-click resets, wheel scrubs in notches, arrows nudge.
+export type ScrubStripHandle = { focus: () => void }
+
+const px = (v: number): number => Math.round(v * 100) / 100
+
+const tickPath = (xs: readonly number[], length: number): string =>
+  xs.map((x) => `M${px(x)} 0V${length}`).join("")
+
+// The jog ruler (figma0 transform-control-fv, fvTape; decision D24): a tape
+// of ticks and labels sliding under a fixed index, so the value under the
+// index is the current one. Drag anywhere: right for more, Shift fine, Ctrl
+// or ⌘ snaps (shifts to whole numbers, scales to quarters, D9). The wheel
+// scrubs; ← → nudge 0.01 (Shift 0.1); Enter asks the owner to open its value
+// field; Backspace, Delete or a double-click reset. A scale's ruler is
+// logarithmic and reads its size: the sign is the owner's (a flip toggle).
+// The ticks, labels and home notch carry data-nudge, so a view can slide
+// them under the index (FV 05: the first paint nudges each ruler once).
+// Screen readers meet a spin button: the value has no range, so a slider's
+// would be wrong; its labels are scale marks, read as its value instead.
 export function ScrubStrip({
   value,
   onChange,
+  onReset,
   kind,
-  step,
-  fineScale = 0.1,
-  quantum,
   label,
+  describedBy,
+  onEditRequest,
+  onModeChange,
+  held = null,
+  hot = false,
+  dimmed = false,
+  format = formatStored,
   testId,
-  defaultValue,
-  help,
+  ref,
 }: {
   value: number
   onChange: (next: number) => void
+  /** Double-click, Backspace or Delete: back to the default. */
+  onReset: () => void
   kind: ScrubKind
-  step: number
-  fineScale?: number
-  quantum?: number
+  /** The slider's accessible name. */
   label: string
-  testId: string
-  defaultValue: number
-  help?: HelpContent
+  /** The id of what describes it now, e.g. its owner's open explainer. */
+  describedBy?: string | undefined
+  /** Enter: the owner opens its value field. */
+  onEditRequest?: () => void
+  /** The drag's mode as it starts and changes, null when it ends. */
+  onModeChange?: (mode: ScrubMode | null) => void
+  /** Held from elsewhere (the owner's other grips on the same value): drawn as dragged in that mode. */
+  held?: ScrubMode | null
+  /** Lit as on hover, when the owner's whole control is hovered. */
+  hot?: boolean
+  /** Stepped back while the owner's value is typed. */
+  dimmed?: boolean
+  /** The value as its field prints it, for screen readers. */
+  format?: (v: number) => string
+  testId?: string
+  ref?: Ref<ScrubStripHandle>
 }) {
-  const trackRef = useRef<HTMLDivElement | null>(null)
-  const dragRef = useRef<{ startX: number; startValue: number } | null>(null)
-  const emittedRef = useRef(value)
-  const [mode, setMode] = useState<"fine" | "snap" | null>(null)
-  const q = quantum ?? step * fineScale
+  const stripRef = useRef<HTMLDivElement | null>(null)
+  const { width } = useResizeObserver(stripRef)
+  const { mode, handlers } = useScrubDrag({
+    value,
+    kind,
+    onChange,
+    ...(onModeChange === undefined ? {} : { onModeChange }),
+  })
+  useImperativeHandle(ref, () => ({ focus: () => stripRef.current?.focus() }), [])
 
-  const emit = useCallback(
-    (next: number) => {
-      if (next !== emittedRef.current) {
-        emittedRef.current = next
-        onChange(next)
-      }
-    },
-    [onChange],
-  )
-
-  const scrubTo = (clientX: number, fine: boolean, snap: boolean) => {
-    const drag = dragRef.current
-    if (drag === null) {
-      return
+  const onWheel = useEffectEvent((event: WheelEvent) => {
+    event.preventDefault()
+    const next = scrubDelta({
+      value,
+      dxPx: wheelDxPx(event.deltaY, event.deltaMode),
+      kind,
+      mode: scrubMode(event),
+    })
+    if (next !== value) {
+      onChange(next)
     }
-    setMode(snap ? "snap" : fine ? "fine" : null)
-    emit(
-      scrubDelta({
-        value: drag.startValue,
-        dxPx: clientX - drag.startX,
-        kind,
-        step,
-        fineScale,
-        quantum: q,
-        fine,
-        snap,
-      }),
-    )
-  }
-
-  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    dragRef.current = { startX: event.clientX, startValue: value }
-    emittedRef.current = value
-    event.currentTarget.setPointerCapture(event.pointerId)
-    setMode(event.ctrlKey || event.metaKey ? "snap" : event.shiftKey ? "fine" : null)
-  }
-
-  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.buttons === 0) {
-      // No button held: a missed release left the scrub stuck on, so drop
-      // it instead of scrubbing from a hover.
-      stopScrub()
-      return
-    }
-    if (dragRef.current === null) {
-      return
-    }
-    scrubTo(event.clientX, event.shiftKey, event.ctrlKey || event.metaKey)
-  }
-
-  const stopScrub = useCallback(() => {
-    dragRef.current = null
-    setMode(null)
-  }, [])
-
-  // Letting go stops the scrub unconditionally. The element handlers miss
-  // the release when it lands outside the window or focus moves mid-drag,
-  // which used to leave the scrub stuck on.
-  useEffect(() => {
-    window.addEventListener("pointerup", stopScrub)
-    window.addEventListener("pointercancel", stopScrub)
-    window.addEventListener("blur", stopScrub)
-    return () => {
-      window.removeEventListener("pointerup", stopScrub)
-      window.removeEventListener("pointercancel", stopScrub)
-      window.removeEventListener("blur", stopScrub)
-    }
-  }, [stopScrub])
+  })
 
   // Native non-passive listener so wheel scrubbing never scrolls the page.
   useEffect(() => {
-    const track = trackRef.current
-    if (track === null) {
+    const strip = stripRef.current
+    if (strip === null) {
       return
     }
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault()
-      const snap = e.ctrlKey || e.metaKey
-      emit(
-        scrubDelta({
-          value,
-          dxPx: wheelDxPx(e.deltaY, e.deltaMode),
-          kind,
-          step,
-          fineScale,
-          quantum: q,
-          fine: e.shiftKey,
-          snap,
-        }),
-      )
-    }
-    track.addEventListener("wheel", onWheel, { passive: false })
+    const wheel = (event: WheelEvent) => onWheel(event)
+    strip.addEventListener("wheel", wheel, { passive: false })
     return () => {
-      track.removeEventListener("wheel", onWheel)
+      strip.removeEventListener("wheel", wheel)
     }
-  }, [value, kind, step, fineScale, q, emit])
+  }, [])
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const dir =
-      event.key === "ArrowRight" || event.key === "ArrowUp"
-        ? 1
-        : event.key === "ArrowLeft" || event.key === "ArrowDown"
-          ? -1
-          : 0
-    if (dir === 0) {
-      return
+    switch (event.key) {
+      case "ArrowRight":
+      case "ArrowUp":
+      case "ArrowLeft":
+      case "ArrowDown": {
+        event.preventDefault()
+        const direction = event.key === "ArrowRight" || event.key === "ArrowUp" ? 1 : -1
+        const next = nudge(value, kind, direction * (event.shiftKey ? NUDGE_STEP_SHIFT : NUDGE_STEP))
+        if (next !== value) {
+          onChange(next)
+        }
+        return
+      }
+      case "Enter":
+        if (onEditRequest !== undefined) {
+          event.preventDefault()
+          onEditRequest()
+        }
+        return
+      case "Backspace":
+      case "Delete":
+        event.preventDefault()
+        onReset()
+        return
+      default:
+        return
     }
-    event.preventDefault()
-    emit(
-      scrubDelta({
-        value,
-        dxPx: dir * (event.shiftKey ? 150 : 15),
-        kind,
-        step,
-        fineScale,
-        quantum: q,
-        fine: false,
-        snap: false,
-      }),
-    )
   }
 
+  const marks = width > 0 ? rulerMarks(kind, value, width) : null
+  const c = width / 2
+  const shownMode = mode ?? held
+  // The index line thickens while the tape is held.
+  const indexWidth = shownMode === null ? 2 : 3
   return (
     <div
-      ref={trackRef}
-      role="slider"
+      ref={stripRef}
+      role="spinbutton"
       tabIndex={0}
       aria-label={label}
-      aria-valuenow={value}
-      aria-valuetext={String(value)}
+      aria-describedby={describedBy}
+      aria-valuenow={kind === "multiplicative" ? Math.abs(value) : value}
+      aria-valuetext={format(value)}
       data-testid={testId}
-      title="Drag to scrub · Shift fine · Ctrl snap · double-click resets"
-      className={
-        mode === null
-          ? stripStyles.strip
-          : `${stripStyles.strip} ${mode === "fine" ? stripStyles.strip_fine : stripStyles.strip_snap}`
-      }
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={stopScrub}
-      onPointerCancel={stopScrub}
-      onLostPointerCapture={stopScrub}
-      onDoubleClick={() => onChange(defaultValue)}
+      data-mode={shownMode ?? undefined}
+      data-hot={hot || undefined}
+      data-dimmed={dimmed || undefined}
+      className={stripStyles.strip}
+      {...handlers}
+      onDoubleClick={onReset}
       onKeyDown={handleKeyDown}
     >
-      <div className={stripStyles.strip_detent} aria-hidden="true" />
-      {help !== undefined && (
-        <span className={stripStyles.strip_help}>
-          <HelpTip help={help} label={`${label} help`} />
-        </span>
-      )}
-      {mode !== null && (
-        <span className={stripStyles.strip_badge} aria-hidden="true">
-          {mode}
-        </span>
+      {marks !== null && (
+        <>
+          <svg className={stripStyles.marks} width={width} height={RULER_HEIGHT} aria-hidden="true">
+            <g data-nudge="">
+              <path
+                className={stripStyles.tick}
+                d={tickPath(marks.minor, TICK_LENGTH.minor)}
+                strokeWidth={1}
+              />
+              <path className={stripStyles.tick} d={tickPath(marks.mid, TICK_LENGTH.mid)} strokeWidth={1} />
+              <path
+                className={stripStyles.tick}
+                d={tickPath(marks.major, TICK_LENGTH.major)}
+                strokeWidth={1.5}
+              />
+              {marks.home !== null && (
+                <path
+                  className={stripStyles.home}
+                  d={`M${px(marks.home - 4)} 0H${px(marks.home + 4)}L${px(marks.home)} 6Z`}
+                />
+              )}
+            </g>
+            <rect
+              className={stripStyles.index}
+              x={c - indexWidth / 2}
+              y={0}
+              width={indexWidth}
+              height={RULER_HEIGHT}
+            />
+            <path
+              className={stripStyles.index}
+              d={`M${c - 6} ${RULER_HEIGHT}H${c + 6}L${c} ${RULER_HEIGHT - 7}Z`}
+            />
+            <path
+              className={stripStyles.chevrons}
+              d={`M13 11L8 16L13 21M${width - 13} 11L${width - 8} 16L${width - 13} 21`}
+            />
+          </svg>
+          <span className={stripStyles.tape} data-nudge="" aria-hidden="true">
+            {marks.labels.map((mark) => (
+              <span key={mark.text} className={stripStyles.label} style={{ left: mark.left }}>
+                {mark.text}
+              </span>
+            ))}
+          </span>
+        </>
       )}
     </div>
   )

@@ -100,6 +100,47 @@ html {
   font-display: swap;
 }
 
+/* Glyphs the latin subsets above lack (≈), cut from the same foundries'
+ * fonts (src/style/fonts/README.md › Symbols subsets). unicode-range keeps
+ * them out of the way until a page shows one of those code points; they come
+ * after the main faces so the browser checks them first for that range. */
+
+@font-face {
+  font-family: "STIX Two Text";
+  src: url("./fonts/stix_two_text/STIXTwoMath-Symbols.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2248;
+}
+
+@font-face {
+  font-family: "STIX Two Text";
+  src: url("./fonts/stix_two_text/STIXTwoMath-Symbols.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+2248;
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("./fonts/roboto_mono/RobotoMono-Symbols-Variable.woff2") format("woff2");
+  font-weight: 100 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2248;
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("./fonts/roboto_mono/RobotoMono-Italic-Symbols-Variable.woff2") format("woff2");
+  font-weight: 100 700;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+2248;
+}
+
 /* *** */
 
 /* App takes up full screen */

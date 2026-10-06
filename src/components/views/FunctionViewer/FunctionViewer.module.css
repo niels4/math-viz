@@ -1,243 +1,140 @@
+/* The page frame (figma0 FV · Recommended): pad 16, gap 12, the 64 px top
+bar across, then the panel beside the plane, which takes the rest (936 × 792
+at 1440 × 900). Decision D6: the panel is 460 px wide. */
 .page {
+  --fv-panel-width: 460px;
+
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: var(--fv-panel-width) minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas:
     "topbar topbar"
-    "sidebar main";
-  gap: 8px;
-  padding: 8px;
+    "panel plane";
+  gap: 12px;
   height: 100vh;
   height: 100dvh;
-}
-
-.main {
-  grid-area: main;
-  min-width: 0;
-  min-height: 0;
+  padding: 16px;
 }
 
 .topbar {
   grid-area: topbar;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  grid-template-areas: "brand funcbar actions";
-  column-gap: 28px;
-  align-items: center;
-  gap: 16px;
-  background: var(--background-muted);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 16px 28px;
 }
 
-.func_selector {
-  grid-area: funcbar;
-}
-
-.func_label_hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-.func_row {
-  display: grid;
-  flex: 1;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 20px;
-  align-items: center;
-  min-width: 0;
-}
-
-.func_row select {
-  font-size: 1.15rem;
-}
-
-.func_readout {
-  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
-  font-size: 1.5rem;
-  letter-spacing: 0.05em;
-  color: var(--secondary-foreground);
-  overflow-wrap: anywhere;
-}
-
-.brand {
-  grid-area: brand;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  justify-self: start;
-  font-size: 1.6rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: var(--foreground);
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.brand_icon {
-  display: inline-flex;
-  color: var(--primary);
-}
-
-.actions {
-  grid-area: actions;
+/* Sections 12 apart, padding 18 inside the 1 px border: content 422 wide.
+At 900 px the boards' content is 9.5 px taller than that leaves room for,
+and Figma lets the hint bar into the bottom padding: 8.5 px remain below
+it. So the panel keeps 8.5, and the tail below the hint gives back the
+rest of the 18 wherever there is room. */
+.panel {
   display: flex;
-  justify-self: end;
-  align-items: center;
+  grid-area: panel;
+  flex-direction: column;
   gap: 12px;
-}
-
-/* Mid widths: the wordmark crowds the center title around 600px, so show
-the logo icon alone. */
-@media (max-width: 600px) {
-  .brand_text {
-    display: none;
-  }
-}
-
-/* Narrow screens: the brand, title, and settings crowd each other around
-400px, so drop the center title and let brand/actions take the edges. */
-@media (max-width: 600px) {
-  .func_row {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@media (max-width: 400px) {
-  .topbar {
-    grid-template-columns: auto auto;
-    grid-template-areas:
-      "brand actions"
-      "funcbar funcbar";
-  }
-}
-
-.sidebar {
-  grid-area: sidebar;
-  justify-self: start;
-  display: grid;
-  gap: 16px;
-  align-content: start;
-  max-width: 400px;
+  min-height: 0;
+  padding: 18px 18px 8.5px;
+  overflow-y: auto;
   background: var(--background-muted);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 28px;
+  border-radius: var(--sig-card-radius);
 }
 
-/* Sidebar sections (Transforms, then the two to come): each is a header
-plus its own grid of rows, so siblings stack with the sidebar gap. */
-.section {
-  display: grid;
-  gap: 12px;
+.plane {
+  grid-area: plane;
   min-width: 0;
+  min-height: 0;
 }
 
-.section_title {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--foreground-muted);
+/* Narrower than the panel plus a usable plane: the panel stacks above the
+plane and the page scrolls (plan § 1.8, call 6). */
+@media (max-width: 899px) {
+  .page {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(480px, 1fr);
+    grid-template-areas:
+      "topbar"
+      "panel"
+      "plane";
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .panel {
+    overflow-y: visible;
+  }
 }
 
-/* Input left, scrub strip right: equal halves keep numbers and strips
-usable at the sidebar's narrowest. */
-.control_row {
+/* Decision D16 (layout.ts; FV 06, R9): in a short window the plane spans
+it under the top bar, and the panel becomes a 204 px dock under the plane:
+1 Function (352), 2 Transform (474) and the points, which take the rest.
+Pad 12, gap 10. The DOM order stays the side panel's (panel, then plane),
+so the plane never remounts and the tab order keeps the panel first. */
+.page[data-layout="dock"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(240px, 1fr) auto;
+  grid-template-areas:
+    "topbar"
+    "plane"
+    "panel";
+  gap: 10px;
+  padding: 12px;
+}
+
+.page[data-layout="dock"] .panel {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 352px 474px minmax(0, 1fr);
+  gap: 10px;
+  height: 204px;
+  padding: 0;
+  overflow: visible;
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
+
+/* Sections 1 and 2 as the dock's cards: --background-muted in a 1 px
+--border, padding 10 12, 8 between parts. Section 1's parts take 184 px of
+its 182: nothing shrinks, and the hint reaches 2 px into the bottom
+padding, as on the board. */
+.page[data-layout="dock"] .dock_card {
   gap: 8px;
-  align-items: stretch;
-  margin-top: 8px;
+  min-height: 0;
+  padding: 10px 12px;
+  background: var(--background-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--sig-card-radius);
 }
 
-.scrub_hint {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--foreground-muted);
+.page[data-layout="dock"] .dock_card > * {
+  flex-shrink: 0;
 }
 
-/* Unlayered view styles win over the `@layer components` design system
-regardless of specificity or stylesheet order, so plain classes suffice. */
-.func_readout {
-  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
-  font-size: 1.5rem;
-  padding: 12px 24px;
-  /* Equation-box pattern: tinted fill, accent border, matching foreground.
-  In educational-warm these are the reference colors exactly. */
-  background: var(--secondary);
-  border: 2px solid var(--primary);
-  border-radius: var(--radius);
-  color: var(--secondary-foreground);
-  letter-spacing: normal;
-  line-height: 1.6;
-  overflow-wrap: anywhere;
+/* The points: P's and Q's cards side by side, 10 apart, the dock's height. */
+.page[data-layout="dock"] .dock_points {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
-/* Typeset equation: italic variables, upright sin, stacked fractions,
-juxtaposed coefficients (3(x−1)², never (x−1)² * 3). */
-/* Plain inline flow (not flex) so sup keeps its raised baseline alignment;
-fractions are self-contained inline-flex boxes and lines still wrap. */
-.formula {
-  vertical-align: baseline;
+/* D18: the hint under the equation, the column's width. */
+.page[data-layout="dock"] .hint {
+  margin-inline-end: 0;
 }
 
-.formula_var {
-  font-style: italic;
+/* fvPanel's spacer: 1 px at least, then everything the sections leave. */
+.spacer {
+  flex: 1 0 1px;
 }
 
-/* Italic f leans hard into the opening paren, so f(x) gets a thin space. */
-.formula_fname {
-  font-style: italic;
-  margin-right: 0.2em;
+/* The hint bar at the panel's foot, 424 wide like the cards (M4 call 2). */
+.hint {
+  flex: none;
+  margin-inline-end: -2px;
 }
 
-.formula_eq {
-  margin: 0 0.45em;
-}
-
-.formula_op {
-  margin: 0 0.34em;
-}
-
-.formula_frac {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 0 0.14em;
-  font-size: 0.8em;
-  line-height: 1.2;
-  vertical-align: middle;
-}
-
-.formula_num {
-  padding: 0 0.3em 0.08em;
-}
-
-.formula_den {
-  border-top: 1.5px solid currentcolor;
-  padding: 0.08em 0.3em 0;
-}
-
-.formula sup {
-  margin-left: 0.05em;
-  font-size: 0.68em;
-  line-height: 0;
-}
-
-.formula_sin {
-  font-style: normal;
-  margin-right: 0.06em;
-}
-
-/* Thin space between a leading coefficient and sin: 3 sin(x), not 3sin(x). */
-.formula_coeff + .formula_sin {
-  margin-left: 0.16em;
+/* Up to 9.5 px under the hint bar, the first thing to give way when the
+panel runs short; it sits against the bar (cancelling the panel's gap). */
+.tail {
+  flex: 0 1 9.5px;
+  min-height: 0;
+  margin-top: -12px;
 }

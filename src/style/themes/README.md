@@ -92,7 +92,31 @@ Do not pass theme classes down as props (`cardClass`, `primaryClass`, `toneClass
 - The six `mathviz_*` themes are the project set: arctic-ice, tron-cyan, midnight-violet (dark) + clean-teal, educational-warm, sage-editorial (light).
 - They follow **all** rules above — wrapper `.theme`, oklch values; use `mathviz_arctic_ice.module.css` as the canonical example when generating new themes via the sommelier `theme-export` tool.
 
-## 9. Tooling
+## 9. Derived tokens: aliases and mixes
+
+A token that follows the palette is written as a `var()` alias or a `color-mix(in oklch, …)` of tokens in the same block, never as a copied oklch value, so it changes when the palette does. Canvas code reads every colour token resolved to a plain colour (`readVarsForClass` in `src/state/useAppTheme.ts` sets it as a probe's `color` and reads the computed value back), so mixes work on canvas too.
+
+## 10. Function Viewer v2 tokens
+
+Proposed by figma0 (`scripts/mathviz-claude/payloads/fv-tokens.json`, `v2-tokens.json`), in all six themes:
+
+| Token                  | Value                                                                 | Use                                                  |
+| ---------------------- | --------------------------------------------------------------------- | ---------------------------------------------------- |
+| `--chart-point-1`      | alias of one ordinal per theme (arctic-ice `--ordinal-05`)            | P, the pinned point: dot core, swatch, label border  |
+| `--chart-point-2`      | alias of one ordinal per theme (arctic-ice `--ordinal-03`)            | Q, the pointer point                                 |
+| `--chart-axis`         | `color-mix(in oklch, var(--foreground-muted) 75%, var(--background))` | axes, ticks, tick labels (≥ 3.2:1 on `--background`) |
+| `--chart-grid-major`   | `color-mix(in oklch, var(--foreground-muted) 35%, var(--chart-grid))` | major grid lines                                     |
+| `--sig-card-radius`    | `var(--radius)`; tron-cyan 4px, educational-warm 18px                 | panel corners                                        |
+| `--sig-card-shadow`    | `none`; educational-warm a soft paper shadow                          | panel shadow                                         |
+| `--sig-curve-glow`     | `transparent`; midnight-violet `--primary` at 60 %                    | glow under the plotted curve                         |
+| `--sig-glow-radius`    | 8 / 10 / 14px in the dark themes, `0px` in the light ones             | blur radius of the glows                             |
+| `--sig-hud-ticks`      | `0`; tron-cyan `1`                                                    | HUD ticks on the plane frame, used as `opacity`      |
+| `--sig-label-tracking` | `1.12px`; arctic-ice `2.8px` (0.08em and 0.2em of a 14 px label)      | letter-spacing of caps labels, the same at any size  |
+| `--sig-readout-font`   | Roboto Mono stack; sage-editorial STIX Two Text                       | readout numerals                                     |
+
+The sommelier `theme-export` must emit these too, or a re-export drops them.
+
+## 11. Tooling
 
 - `theme-export` tool must emit this exact format: `src/style/themes/<slug>.module.css` with wrapper `.theme` containing oklch vars only — no nested classes. No global file. File name provides uniqueness via CSS Modules hashing.
 - `color-lab` preview should render the same CSS vars (oklch) for live iteration before export.

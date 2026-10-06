@@ -1,0 +1,63 @@
+/* figma0's fvRender in CSS. Sizes are its rounded px: at the live line's
+28 px a fraction sets 22, an exponent 19 and a grown paren 40; at the form
+line's 18 px, 14, 12 and 26. Figma centres every part on the row; the
+vertical offsets below put each part's baseline where that centring does,
+with STIX Two Text's metrics (ascent 0.762, descent 0.238, line gap 0.25). */
+
+/* A parameter's term ("+ 1") never breaks; its padding is fvTerm's frame
+(0 3 1 3), where the active plate will sit. */
+.term {
+  display: inline-block;
+  padding: 0 3px 1px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.gap {
+  display: inline-block;
+}
+
+/* A self-contained stack in inline flow: numerator, a bar 0.055 em of the
+line's size (at least 1.5 px) and denominator, 2 px apart, the parts
+stretched to the wider one. Its padding is 0.12 em of the line's size. */
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 round(nearest, 0.15em, 1px);
+  font-size: round(nearest, 0.8em, 1px);
+  vertical-align: middle;
+}
+
+.part {
+  padding: 0 4px;
+  line-height: round(up, 1.25em, 1px);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.bar {
+  height: max(1.5px, 0.06875em);
+  background: currentcolor;
+}
+
+/* 0.68 of the line's size, raised as fvRender's exponent frame (bottom
+padding 0.62 of the line's size) raises it. */
+.sup {
+  margin-left: 1px;
+  font-size: round(nearest, 0.68em, 1px);
+  line-height: 0;
+  vertical-align: 0.58em;
+}
+
+.paren {
+  line-height: 1;
+}
+
+/* Grown to 1.42 em around a stacked fraction; centred like the fraction,
+so its baseline drops 0.262 of the growth. */
+.paren_big {
+  font-size: round(nearest, 1.42em, 1px);
+  line-height: 1;
+  vertical-align: -0.0775em;
+}

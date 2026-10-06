@@ -177,5 +177,8 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
     releaseDrag(e.clientX, e.clientY, zoomRef)
   }
 
-  return { zoom, onPointerDown, onPointerMove, onPointerUp }
+  /** Pointers down on the plane: one pans, two or more pinch. */
+  const pointerCount = () => pointersRef.current.size
+
+  return { zoom, setZoom, onPointerDown, onPointerMove, onPointerUp, pointerCount }
 }

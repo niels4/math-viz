@@ -1,0 +1,95 @@
+/* Figma's BASELINE row: STIX 24 in its 30 px line box, the numbers in a 29
+px one, so the row is 32 tall with the STIX boxes 2 px lower. Figma sizes
+each run's box to whole px, rounded up, and draws the run at the box's
+left: the slack is the air the boards show after "(", a number, ")" and
+the relation. Each run here takes the same box: the STIX runs from their
+advances (f( 0.634 em, ")" 0.343, = and ≈ 0.72), a number from its slot
+in ch (readoutFit.ts), which is exact in a monospaced face. A number sits
+right-aligned in tabular figures, so its decimal point holds still. */
+.readout {
+  display: flex;
+  flex: none;
+  align-items: baseline;
+  color: var(--foreground);
+  white-space: nowrap;
+}
+
+.readout[data-empty] {
+  color: var(--foreground-muted);
+}
+
+.math {
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  line-height: 30px;
+}
+
+.open {
+  width: round(up, 0.634em, 1px);
+}
+
+.close {
+  width: round(up, 0.343em, 1px);
+}
+
+/* The relation keeps 7 px each side; its spaces are for screen readers and
+collapse at the box's edges. */
+.rel {
+  box-sizing: content-box;
+  width: round(up, 0.72em, 1px);
+  padding: 0 7px;
+}
+
+.number {
+  min-width: round(up, calc(var(--chars, 0) * 1ch), 1px);
+  font-family: var(--sig-readout-font);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 29px;
+}
+
+/* x's spare room in its slot, before "f(": the slot's whole-px box less
+x's (--chars), so the two always add up to the slot's box. No text, no
+baseline of its own. */
+.room {
+  align-self: stretch;
+  min-width: calc(round(up, calc(var(--slot) * 1ch), 1px) - round(up, calc(var(--chars) * 1ch), 1px));
+}
+
+/* fvNumNode: the exponent at 0.62 of the size, its box 12 px above the
+mantissa's foot, which puts its baseline about 10 px above the mantissa's. */
+.exponent {
+  font-size: 14px;
+  vertical-align: 10px;
+}
+
+/* Compact (the dock's cards, R9): STIX 26 and the numbers at 24 in Figma's
+33 and 32 px line boxes, the exponent at 15. Where the card is narrower
+than the readout's natural width (--natural, in px, from readoutFit.ts),
+everything shrinks by the same factor (--fit, a px per px; 4 px kept for
+the whole-px rounding of five runs) and the row keeps its height. 100cqi
+is the card's readout row. */
+.readout[data-compact] {
+  --fit: min(1px, calc((100cqi - 4px) / var(--natural)));
+}
+
+.readout[data-compact] .math {
+  font-size: calc(26 * var(--fit));
+  line-height: 33px;
+}
+
+.readout[data-compact] .number {
+  font-size: calc(24 * var(--fit));
+  line-height: 32px;
+}
+
+.readout[data-compact] .rel {
+  padding: 0 calc(7 * var(--fit));
+}
+
+.readout[data-compact] .exponent {
+  font-size: calc(15 * var(--fit));
+  vertical-align: calc(11 * var(--fit));
+}

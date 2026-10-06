@@ -1,8 +1,34 @@
-.page {
+/* The plane's frame (figma0 FV · Recommended › Canvas · plane): background,
+signature radius, a 1 px border inside the box. */
+.plane {
   position: relative;
   width: 100%;
   height: 100%;
   min-height: 0;
+  overflow: hidden;
+  background: var(--background);
+  border-radius: var(--sig-card-radius);
+  outline: none;
+}
+
+/* Figma's INSIDE stroke: over the canvas, within the box. */
+.plane::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  border: 1px solid var(--border);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Keyboard focus (FV 07 › The plane: keyboard focus): the frame turns
+--primary, with the 3 px ring around it. */
+.plane:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+}
+
+.plane:focus-visible::after {
+  border-color: var(--primary);
 }
 
 .canvas {
@@ -13,9 +39,33 @@
   width: 100%;
   height: 100%;
   touch-action: none;
+}
+
+/* The cursor says what a press will do (FV 07 › pointer modes): crosshair
+while probing, grab over a draggable point, grabbing while dragging one or
+panning, a link over an edge marker (a click pans its point into view). */
+.canvas[data-cursor="probe"] {
+  cursor: crosshair;
+}
+
+.canvas[data-cursor="grab"] {
   cursor: grab;
 }
 
-.canvas:active {
+.canvas[data-cursor="grabbing"] {
   cursor: grabbing;
+}
+
+.canvas[data-cursor="link"] {
+  cursor: pointer;
+}
+
+/* Bottom-right: the owner's tools, then the zoom control. */
+.tools {
+  position: absolute;
+  right: 28px;
+  bottom: 22px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }

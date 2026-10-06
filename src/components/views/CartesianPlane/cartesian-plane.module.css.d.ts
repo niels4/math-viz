@@ -3,6 +3,7 @@
 // prettier-ignore
 declare const styles: {
   readonly "canvas": string;
-  readonly "page": string;
+  readonly "plane": string;
+  readonly "tools": string;
 };
 export = styles;

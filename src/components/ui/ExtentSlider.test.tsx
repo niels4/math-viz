@@ -1,189 +1,181 @@
 import { useState } from "react"
-import { describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+import { formatNumber } from "#src/util/format/number.ts"
 import { act, render, toElement } from "#test"
 
-import { ExtentSlider } from "./ExtentSlider"
+import { ExtentSlider } from "./ExtentSlider.tsx"
 
-const stubPointerCapture = () => {
+// R2's scrubber: the plane's visible x-range at 100 % over a 396 px track.
+const TRACK = { left: 100, width: 396 }
+const R2 = { min: -9.36, max: 9.36 }
+
+const stubLayout = () => {
   // Unconditional: real Chromium implements these but throws for synthetic
   // pointerIds, and `??=` would keep the throwing version in browsers.
   HTMLDivElement.prototype.setPointerCapture = () => {}
   HTMLDivElement.prototype.releasePointerCapture = () => {}
   HTMLDivElement.prototype.hasPointerCapture = () => false
+  // Real Chromium's ResizeObserver would report the laid-out track over the mock.
+  vi.stubGlobal("ResizeObserver", undefined)
+  vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue({
+    x: TRACK.left,
+    y: 0,
+    left: TRACK.left,
+    top: 0,
+    width: TRACK.width,
+    height: 36,
+    right: TRACK.left + TRACK.width,
+    bottom: 36,
+    toJSON: () => ({}),
+  })
 }
 
-const pointer = (type: string, init: { pointerId: number; clientX: number; buttons?: number }) =>
-  new PointerEvent(type, { bubbles: true, ...init })
+type Seen = { values: number[]; drags: boolean[]; edits: string[] }
 
 function Harness({
-  initial = 5,
-  min = 0,
-  max = 10,
+  initial,
+  range,
   seen,
 }: {
-  initial?: number
-  min?: number
-  max?: number
-  seen?: (next: number) => void
+  initial: number
+  range: { min: number; max: number }
+  seen: Seen
 }) {
   const [value, setValue] = useState(initial)
-  const [range, setRange] = useState({ min, max })
   return (
-    <>
-      <button data-testid="widen" onClick={() => setRange({ min: 0, max: 20 })} />
-      <ExtentSlider
-        testId="s"
-        label="p1 position"
-        {...{ value }}
-        min={range.min}
-        max={range.max}
-        onChange={(next: number) => {
-          seen?.(next)
-          setValue(next)
-        }}
-      />
-    </>
+    <ExtentSlider
+      testId="s"
+      label="x of P"
+      symbol="x"
+      format={formatNumber}
+      value={value}
+      min={range.min}
+      max={range.max}
+      quantum={0.01}
+      onChange={(next) => {
+        seen.values.push(next)
+        setValue(next)
+      }}
+      renderThumb={(parked) => <i data-testid="mark" data-parked={parked || undefined} />}
+      onEditRequest={() => seen.edits.push("Enter")}
+      onDragChange={(dragging) => seen.drags.push(dragging)}
+    />
   )
 }
 
-const renderSlider = async (props?: {
-  initial?: number
-  min?: number
-  max?: number
-  seen?: (next: number) => void
-}) => {
-  stubPointerCapture()
-  const screen = await render(<Harness {...props} />)
-  return { screen, track: toElement(screen.getByTestId("s")) as HTMLDivElement }
+const renderSlider = async (initial = 2, range = R2) => {
+  const seen: Seen = { values: [], drags: [], edits: [] }
+  const screen = await render(<Harness initial={initial} range={range} seen={seen} />)
+  const track = toElement(screen.getByTestId("s")) as HTMLDivElement
+  const thumb = () => document.querySelector('[data-testid="s-thumb"]') as HTMLElement | null
+  const key = (k: string, init: KeyboardEventInit = {}) => {
+    act(() => {
+      track.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: k, ...init }))
+    })
+  }
+  const pointer = (type: string, clientX: number, buttons = 1) => {
+    act(() => {
+      track.dispatchEvent(
+        new PointerEvent(type, { bubbles: true, pointerId: 1, button: 0, buttons, clientX }),
+      )
+    })
+  }
+  return { track, thumb, key, pointer, seen }
 }
 
-const knob = () => document.querySelector('[data-testid="s-knob"]') as HTMLDivElement | null
-
-const stubTrackRect = (track: HTMLDivElement, left: number, width: number) => {
-  track.getBoundingClientRect = () => ({
-    x: left,
-    y: 0,
-    width,
-    height: 14,
-    top: 0,
-    left,
-    right: left + width,
-    bottom: 14,
-    toJSON: () => {},
+describe("ExtentSlider (the P scrubber, FV 07)", () => {
+  beforeEach(stubLayout)
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
-}
 
-describe("ExtentSlider", () => {
-  it("exposes slider semantics with the live min/max/value", async () => {
-    const { track } = await renderSlider({ initial: 2.5, min: -10, max: 10 })
+  it("is a slider over the live range that names its value", async () => {
+    const { track } = await renderSlider(2)
     expect(track.getAttribute("role")).toBe("slider")
-    expect(track.getAttribute("aria-valuemin")).toBe("-10")
-    expect(track.getAttribute("aria-valuemax")).toBe("10")
-    expect(track.getAttribute("aria-valuenow")).toBe("2.5")
+    expect(track.getAttribute("aria-valuemin")).toBe("-9.36")
+    expect(track.getAttribute("aria-valuemax")).toBe("9.36")
+    expect(track.getAttribute("aria-valuenow")).toBe("2")
+    expect(track.getAttribute("aria-valuetext")).toBe("2.00")
   })
 
-  it("sits the knob at the value's fractional position", async () => {
-    await renderSlider({ initial: 5, min: 0, max: 10 })
-    expect(knob()?.style.left).toBe("50%")
+  it("calibrates the track like the x-axis and centres the thumb on the value (R2)", async () => {
+    const { track, thumb } = await renderSlider(2)
+    const labels = [...track.querySelectorAll("span")].filter((s) => /^[−\d]+$/.test(s.textContent))
+    expect(labels.map((s) => s.textContent)).toEqual(["−8", "−6", "−4", "−2", "0", "2", "4", "6", "8"])
+    // (2 + 9.36) / 18.72 of 396 px.
+    expect(thumb()?.style.left).toBe("240.31px")
+    expect(track.textContent).toContain("= 2")
   })
 
-  it("shows the extent bounds under the track", async () => {
-    const { screen } = await renderSlider({ min: -10, max: 10 })
-    expect(toElement(screen.getByTestId("s-min")).textContent).toBe("-10")
-    expect(toElement(screen.getByTestId("s-max")).textContent).toBe("10")
+  it("parks the thumb on the end the value lies past, dashed, the tip pointing the way", async () => {
+    const right = await renderSlider(21.5)
+    expect(right.track.getAttribute("data-parked")).toBe("right")
+    expect(right.thumb()?.style.left).toBe("396px")
+    expect(document.querySelector('[data-testid="mark"]')?.hasAttribute("data-parked")).toBe(true)
   })
 
-  it("trims float tails off the displayed bounds", async () => {
-    const { screen } = await renderSlider({ min: -13.999999999999998, max: 14.000000000000002 })
-    expect(toElement(screen.getByTestId("s-min")).textContent).toBe("-14")
-    expect(toElement(screen.getByTestId("s-max")).textContent).toBe("14")
+  it("parks on the left end too", async () => {
+    const left = await renderSlider(-14.2)
+    expect(left.track.getAttribute("data-parked")).toBe("left")
+    expect(left.thumb()?.style.left).toBe("0px")
   })
 
-  it("follows min/max updates (the grid extent)", async () => {
-    const { screen } = await renderSlider({ initial: 5, min: 0, max: 10 })
-    expect(knob()?.style.left).toBe("50%")
+  it("jumps to a press and drags, on the 0.01 lattice and inside the range", async () => {
+    const { pointer, seen, track } = await renderSlider(2)
+    // A quarter of the way along: −9.36 + 4.68.
+    pointer("pointerdown", TRACK.left + 99)
+    expect(track.getAttribute("aria-valuenow")).toBe("-4.68")
+    pointer("pointermove", TRACK.left + 2000)
+    expect(track.getAttribute("aria-valuenow")).toBe("9.36")
+    pointer("pointerup", TRACK.left + 2000, 0)
+    expect(seen.drags).toEqual([true, false])
+  })
+
+  it("steps 0.1 with the arrows and 1 with Shift, past the range's ends", async () => {
+    const { key, track } = await renderSlider(9.3)
+    key("ArrowRight")
+    expect(track.getAttribute("aria-valuenow")).toBe("9.4")
+    key("ArrowLeft", { shiftKey: true })
+    expect(track.getAttribute("aria-valuenow")).toBe("8.4")
+    key("ArrowDown")
+    expect(track.getAttribute("aria-valuenow")).toBe("8.3")
+  })
+
+  it("jumps to the ends with Home and End, inside the range", async () => {
+    const { key, track } = await renderSlider(2, { min: -9.364, max: 9.366 })
+    key("Home")
+    expect(track.getAttribute("aria-valuenow")).toBe("-9.36")
+    key("End")
+    expect(track.getAttribute("aria-valuenow")).toBe("9.36")
+  })
+
+  it("asks its owner to open the value field on Enter", async () => {
+    const { key, seen } = await renderSlider(2)
+    key("Enter")
+    expect(seen.edits).toEqual(["Enter"])
+  })
+
+  it("ends a drag on a release anywhere, and drops one whose release was missed", async () => {
+    const { pointer, seen } = await renderSlider(2)
+    pointer("pointerdown", TRACK.left + 198)
     act(() => {
-      toElement(screen.getByTestId("widen")).dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      window.dispatchEvent(new PointerEvent("pointerup"))
     })
-    expect(knob()?.style.left).toBe("25%")
-    expect(toElement(screen.getByTestId("s-min")).textContent).toBe("0")
-    expect(toElement(screen.getByTestId("s-max")).textContent).toBe("20")
+    expect(seen.drags).toEqual([true, false])
+    pointer("pointerdown", TRACK.left + 198)
+    pointer("pointermove", TRACK.left + 300, 0)
+    expect(seen.drags).toEqual([true, false, true, false])
+    pointer("pointermove", TRACK.left + 350, 0)
+    expect(seen.values.at(-1)).toBe(0)
   })
 
-  it("hides the knob below min", async () => {
-    await renderSlider({ initial: -1, min: 0, max: 10 })
-    expect(knob()).toBeNull()
-  })
-
-  it("hides the knob above max", async () => {
-    await renderSlider({ initial: 11, min: 0, max: 10 })
-    expect(knob()).toBeNull()
-  })
-
-  it("hides the knob and ignores drags on a degenerate range", async () => {
-    const seen: number[] = []
-    const { track } = await renderSlider({ initial: 0, min: 0, max: 0, seen: (next) => seen.push(next) })
-    expect(knob()).toBeNull()
-    stubTrackRect(track, 100, 200)
-    act(() => {
-      track.dispatchEvent(pointer("pointerdown", { pointerId: 1, clientX: 150 }))
-      track.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: 180, buttons: 1 }))
-      track.dispatchEvent(pointer("pointerup", { pointerId: 1, clientX: 180 }))
-    })
-    expect(seen).toEqual([])
-  })
-
-  it("clicking the track jumps to that fraction of the range", async () => {
-    const { track } = await renderSlider({ initial: 5, min: 0, max: 10 })
-    stubTrackRect(track, 100, 200)
-    act(() => {
-      // 50px into a 200px track: min + 0.25 * span.
-      track.dispatchEvent(pointer("pointerdown", { pointerId: 1, clientX: 150 }))
-      track.dispatchEvent(pointer("pointerup", { pointerId: 1, clientX: 150 }))
-    })
-    expect(track.getAttribute("aria-valuenow")).toBe("2.5")
-  })
-
-  it("quantizes drags to 3 decimals (no float tails)", async () => {
-    const { track } = await renderSlider({ initial: 5, min: 0, max: 10 })
-    stubTrackRect(track, 100, 300)
-    act(() => {
-      // 1px into a 300px track over span 10: 0.0333... rounds to 0.033.
-      track.dispatchEvent(pointer("pointerdown", { pointerId: 1, clientX: 101 }))
-      track.dispatchEvent(pointer("pointerup", { pointerId: 1, clientX: 101 }))
-    })
-    expect(track.getAttribute("aria-valuenow")).toBe("0.033")
-  })
-
-  it("dragging scrubs along the range", async () => {
-    const { track } = await renderSlider({ initial: 0, min: -10, max: 10 })
-    stubTrackRect(track, 100, 200)
-    act(() => {
-      track.dispatchEvent(pointer("pointerdown", { pointerId: 1, clientX: 100 }))
-      track.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: 300, buttons: 1 }))
-      track.dispatchEvent(pointer("pointerup", { pointerId: 1, clientX: 300 }))
-    })
-    expect(track.getAttribute("aria-valuenow")).toBe("10")
-  })
-
-  it("arrow keys nudge by a hundredth of the span", async () => {
-    const { track } = await renderSlider({ initial: 0, min: 0, max: 10 })
-    act(() => {
-      track.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowRight" }))
-    })
-    expect(track.getAttribute("aria-valuenow")).toBe("0.1")
-  })
-
-  it("Home and End jump to min and max", async () => {
-    const { track } = await renderSlider({ initial: 5, min: 0, max: 10 })
-    act(() => {
-      track.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Home" }))
-    })
-    expect(track.getAttribute("aria-valuenow")).toBe("0")
-    act(() => {
-      track.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "End" }))
-    })
-    expect(track.getAttribute("aria-valuenow")).toBe("10")
+  it("shows no thumb and ignores presses over an empty range", async () => {
+    const { pointer, seen, thumb } = await renderSlider(0, { min: 0, max: 0 })
+    expect(thumb()).toBeNull()
+    pointer("pointerdown", TRACK.left + 150)
+    expect(seen.values).toEqual([])
+    expect(seen.drags).toEqual([])
   })
 })
