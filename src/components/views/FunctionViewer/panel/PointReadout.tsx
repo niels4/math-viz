@@ -9,7 +9,7 @@ import { compactReadoutWidth, type ReadoutSlots } from "./readoutFit.ts"
 /** The placeholder for a number with no point (U+2013, the design's dash). */
 const NO_NUMBER = "–"
 
-/** A number run's whole-px box comes from its slot, in characters (PointReadout.module.css). */
+/** y's whole-px box comes from its slot, in characters of the readout face (PointReadout.module.css). */
 const sized = (chars: number): CSSProperties => ({ "--chars": chars }) as CSSProperties
 
 // A point's readout (point-readout-fv › Readout · f(x) = y) on one
@@ -17,8 +17,9 @@ const sized = (chars: number): CSSProperties => ({ "--chars": chars }) as CSSPro
 // readout face at 500 22 (Roboto Mono; STIX in sage-editorial), each at 2
 // decimals. The user's ruling: the decimal points hold still while the
 // point slides through the view. The readout keeps the width of its slots;
-// y sits right-aligned in its own (a blank where a minus would go), and x's
-// spare room goes before "f(", so x's right edge holds still too. = when y
+// y sits right-aligned in its own (a blank where a minus would go), and "f("
+// with x right-aligned in x's, so x's spare room goes before "f(" and x's
+// right edge holds still too. = when y
 // prints exactly, ≈ when it prints rounded; a y beyond fixed digits prints
 // scientific with a raised exponent (FV 10). With no point (null) both
 // numbers are dashes and the readout is muted, so the card keeps its size.
@@ -60,18 +61,11 @@ export function PointReadout({
       aria-hidden={y === null || undefined}
       data-testid={testId}
     >
-      {xChars > xText.length && (
-        <span
-          className={`${style.number} ${style.room}`}
-          style={{ ...sized(xText.length), "--slot": xChars } as CSSProperties}
-          aria-hidden="true"
-        />
-      )}
-      <span className={`${style.math} ${style.open}`}>
-        <MathText text="f(" />
-      </span>
-      <span className={style.number} style={sized(xText.length)}>
-        {xField ?? xText}
+      <span className={style.lead} style={{ "--slot": xChars } as CSSProperties}>
+        <span className={`${style.math} ${style.open}`}>
+          <MathText text="f(" />
+        </span>
+        <span className={`${style.number} ${style.x}`}>{xField ?? xText}</span>
       </span>
       <span className={`${style.math} ${style.close}`}>)</span>
       <span className={`${style.math} ${style.rel}`}> {y === null ? "=" : relation(y)} </span>

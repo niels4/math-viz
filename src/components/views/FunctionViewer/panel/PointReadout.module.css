@@ -3,10 +3,13 @@ px one, so the row is 32 tall with the STIX boxes 2 px lower. Figma sizes
 each run's box to whole px, rounded up, and draws the run at the box's
 left: the slack is the air the boards show after "(", a number, ")" and
 the relation. Each run here takes the same box: the STIX runs from their
-advances (f( 0.634 em, ")" 0.343, = and ≈ 0.72), a number from its slot
-in ch (readoutFit.ts), which is exact in a monospaced face. A number sits
+advances (f( 0.634 em, ")" 0.343, = and ≈ 0.72), x its own text's, and y
+its slot in ch (readoutFit.ts), exact in a monospaced face. A number sits
 right-aligned in tabular figures, so its decimal point holds still. */
 .readout {
+  --math-size: 24px;
+  --number-size: 22px;
+
   display: flex;
   flex: none;
   align-items: baseline;
@@ -20,7 +23,8 @@ right-aligned in tabular figures, so its decimal point holds still. */
 
 .math {
   font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
-  font-size: 24px;
+  font-size: var(--math-size);
+  font-weight: 400;
   line-height: 30px;
 }
 
@@ -45,17 +49,28 @@ collapse at the box's edges. */
   font-family: var(--sig-readout-font);
   font-variant-numeric: tabular-nums;
   text-align: right;
-  font-size: 22px;
+  font-size: var(--number-size);
   font-weight: 500;
   line-height: 29px;
 }
 
-/* x's spare room in its slot, before "f(": the slot's whole-px box less
-x's (--chars), so the two always add up to the slot's box. No text, no
-baseline of its own. */
-.room {
-  align-self: stretch;
-  min-width: calc(round(up, calc(var(--slot) * 1ch), 1px) - round(up, calc(var(--chars) * 1ch), 1px));
+/* "f(" and x, right-aligned in x's slot: "f("'s box and the slot's
+characters in the readout face, in whole px. x's box takes its own text's
+whole-px width, so the slot's spare room goes before "f(" in any face
+(STIX's "." is narrower than its digits, which a box in ch would leave
+between "f(" and x). */
+.lead {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  min-width: calc(round(up, calc(0.634 * var(--math-size)), 1px) + round(up, calc(var(--slot) * 1ch), 1px));
+  font-family: var(--sig-readout-font);
+  font-size: var(--number-size);
+  font-weight: 500;
+}
+
+.x {
+  width: calc-size(max-content, round(up, size, 1px));
 }
 
 /* fvNumNode: the exponent at 0.62 of the size, its box 12 px above the
@@ -73,15 +88,15 @@ the whole-px rounding of five runs) and the row keeps its height. 100cqi
 is the card's readout row. */
 .readout[data-compact] {
   --fit: min(1px, calc((100cqi - 4px) / var(--natural)));
+  --math-size: calc(26 * var(--fit));
+  --number-size: calc(24 * var(--fit));
 }
 
 .readout[data-compact] .math {
-  font-size: calc(26 * var(--fit));
   line-height: 33px;
 }
 
 .readout[data-compact] .number {
-  font-size: calc(24 * var(--fit));
   line-height: 32px;
 }
 

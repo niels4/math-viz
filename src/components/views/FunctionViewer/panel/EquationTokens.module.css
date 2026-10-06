@@ -36,6 +36,14 @@ stretched to the wider one. Its padding is 0.12 em of the line's size. */
   white-space: nowrap;
 }
 
+/* Each letter and operator in a fraction's part takes Figma's text box,
+its width rounded up to whole px, so the parts come out as wide as the
+boards' (x − h: 54 px at the form line's 14, where exact advances give 52). */
+.part :is(var, span:not([class])) {
+  display: inline-block;
+  width: calc-size(max-content, round(up, size, 1px));
+}
+
 .bar {
   height: max(1.5px, 0.06875em);
   background: currentcolor;

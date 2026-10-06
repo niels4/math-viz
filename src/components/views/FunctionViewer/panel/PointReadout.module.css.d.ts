@@ -4,11 +4,12 @@
 declare const styles: {
   readonly "close": string;
   readonly "exponent": string;
+  readonly "lead": string;
   readonly "math": string;
   readonly "number": string;
   readonly "open": string;
   readonly "readout": string;
   readonly "rel": string;
-  readonly "room": string;
+  readonly "x": string;
 };
 export = styles;
