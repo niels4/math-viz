@@ -17,11 +17,11 @@ const defaultFuncSlug = plotFuncSlugs[1]
 
 type PlotFuncSlug = (typeof plotFuncSlugs)[number]
 
-const plotFuncs: Record<PlotFuncSlug, PlotFunc> = {
-  x: { xOffset: 0, xScale: 1, yOffset: 0, yScale: 1, func: (x) => x },
-  x2: { xOffset: 0, xScale: 1, yOffset: 0, yScale: 1, func: (x) => x ** 2 },
-  x3: { xOffset: 0, xScale: 1, yOffset: 0, yScale: 1, func: (x) => x ** 3 },
-  sin: { xOffset: 0, xScale: 1, yOffset: 0, yScale: 1, func: (x) => Math.sin(x) },
+const plotFuncs: Record<PlotFuncSlug, (x: number) => number> = {
+  x: (x) => x,
+  x2: (x) => x ** 2,
+  x3: (x) => x ** 3,
+  sin: (x) => Math.sin(x),
 } as const
 
 const plotFuncLabels: Record<PlotFuncSlug, string> = {
@@ -44,6 +44,10 @@ type FunctionViewerSidebarProps = {
   setXScale: (next: number) => void
   xOffset: number
   setXOffset: (next: number) => void
+  yScale: number
+  setYScale: (next: number) => void
+  yOffset: number
+  setYOffset: (next: number) => void
 }
 
 function FunctionViewerSidebar({
@@ -53,6 +57,10 @@ function FunctionViewerSidebar({
   setXScale,
   xOffset,
   setXOffset,
+  yScale,
+  setYScale,
+  yOffset,
+  setYOffset,
 }: FunctionViewerSidebarProps) {
   return (
     <div className={style.sidebar}>
@@ -77,6 +85,18 @@ function FunctionViewerSidebar({
           {...{ value: String(xOffset), onChange: (val: string) => setXOffset(Number(val)) }}
         />
       </Field>
+      <Field label="Y Scale">
+        <TextField
+          testId="y-scale-input"
+          {...{ value: String(yScale), onChange: (val: string) => setYScale(Number(val)) }}
+        />
+      </Field>
+      <Field label="Y Offset">
+        <TextField
+          testId="y-offset-input"
+          {...{ value: String(yOffset), onChange: (val: string) => setYOffset(Number(val)) }}
+        />
+      </Field>
     </div>
   )
 }
@@ -85,6 +105,8 @@ export function FunctionViewer() {
   const [funcSlug, setFuncSlug] = useState<PlotFuncSlug>(defaultFuncSlug)
   const [xScale, setXScale] = useState(1)
   const [xOffset, setXOffset] = useState(0)
+  const [yScale, setYScale] = useState(1)
+  const [yOffset, setYOffset] = useState(0)
 
   const onSelectFunc = (next: string) => {
     if (isPlotFuncSlug(next)) {
@@ -92,9 +114,17 @@ export function FunctionViewer() {
     }
   }
 
+  const plotFunc: PlotFunc = {
+    xOffset,
+    xScale,
+    yOffset,
+    yScale,
+    func: plotFuncs[funcSlug],
+  }
+
   return (
     <div className={style.page}>
-      <CartesianPlane {...{ plotFunc: plotFuncs[funcSlug] }} />
+      <CartesianPlane {...{ plotFunc }} />
       <div className={style.overlay}>
         <header className={style.topbar}>
           <a className={style.brand} href="#">
@@ -115,6 +145,10 @@ export function FunctionViewer() {
           setXScale={setXScale}
           xOffset={xOffset}
           setXOffset={setXOffset}
+          yScale={yScale}
+          setYScale={setYScale}
+          yOffset={yOffset}
+          setYOffset={setYOffset}
         />
       </div>
     </div>
