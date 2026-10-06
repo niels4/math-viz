@@ -1,68 +1,152 @@
-import type { PointerEvent } from "react"
+import type { PointerEvent, ReactNode } from "react"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.ts"
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import { useAppTheme } from "#src/state/useAppTheme.ts"
+import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
 
-import type { PlotFunc, XExtent } from "./types.ts"
+import type { Rect } from "./rect.ts"
+import type { PlaneScene } from "./scene.ts"
+import type { PlaneView } from "./viewport.ts"
 
 import style from "./cartesian-plane.module.css"
 import { drawCartesianPlane } from "./drawCartesianPlane"
+import { ORIGIN_FACE, TICK_LABEL_FACE } from "./faces.ts"
+import { PlaneChrome } from "./PlaneChrome.tsx"
 import { usePan } from "./usePan.ts"
+import { usePlaneKeys } from "./usePlaneKeys.ts"
 import { useZoom } from "./useZoom.ts"
-import { visibleXExtent } from "./util.ts"
+import { defaultZoom, makeViewport, stepZoom, toMathX, toMathY, visibleExtent } from "./viewport.ts"
+import { ZoomControl } from "./ZoomControl.tsx"
+
+/** D17: the default zoom keeps y ∈ [−5, 5] in view. */
+const DEFAULT_FIT_HALF_RANGE_Y = 5
 
 export type CartesianPlaneProps = {
-  plotFunc?: PlotFunc
-  point1X?: number
-  point2X?: number | undefined
-  onExtentChange?: ((extent: XExtent) => void) | undefined
-  onPoint2Change?: ((x: number | null) => void) | undefined
+  scene: PlaneScene
+  /** Maths beside the caption's caps label, e.g. y = f(x). */
+  caption?: ReactNode
+  captionLabel?: string
+  /** Controls left of the zoom control, bottom-right. */
+  tools?: ReactNode
+  /** The default zoom keeps y ∈ [−fitHalfRangeY, fitHalfRangeY] in view (D17). */
+  fitHalfRangeY?: number
+  onViewChange?: ((view: PlaneView) => void) | undefined
+  /** The math point under the pointer, or null when it leaves the plane. */
+  onPointer?: ((point: { x: number; y: number } | null) => void) | undefined
+}
+
+// Canvas text draws in whatever face has loaded: load the plane's faces, then
+// redraw, so a first frame in fallback faces doesn't stay on screen.
+const useCanvasFonts = (): number => {
+  const [loads, setLoads] = useState(0)
+  useEffect(() => {
+    if (!("fonts" in document)) {
+      return
+    }
+    let live = true
+    void Promise.all([
+      document.fonts.load(TICK_LABEL_FACE.font, "−0123456789."),
+      document.fonts.load(ORIGIN_FACE.font, "O"),
+    ]).then(() => {
+      if (live) {
+        setLoads((n) => n + 1)
+      }
+    })
+    return () => {
+      live = false
+    }
+  }, [])
+  return loads
+}
+
+// The chrome's boxes in plane pixels: every overlay part marked data-keep-out.
+const measureKeepOut = (root: HTMLElement | null): Rect[] => {
+  if (root === null) {
+    return []
+  }
+  const base = root.getBoundingClientRect()
+  return [...root.querySelectorAll("[data-keep-out]")].map((el) => {
+    const r = el.getBoundingClientRect()
+    return { x: r.left - base.left, y: r.top - base.top, w: r.width, h: r.height }
+  })
 }
 
 export function CartesianPlane({
-  plotFunc,
-  point1X,
-  point2X,
-  onExtentChange,
-  onPoint2Change,
+  scene,
+  caption,
+  captionLabel = "Plane",
+  tools,
+  fitHalfRangeY = DEFAULT_FIT_HALF_RANGE_Y,
+  onViewChange,
+  onPointer,
 }: CartesianPlaneProps) {
   const { themeVars } = useAppTheme()
-  const wrapperRef = useRef(null)
-  const { width, height } = useResizeObserver(wrapperRef)
+  const rootRef = useRef<HTMLDivElement | null>(null)
+  const { width, height } = useResizeObserver(rootRef)
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null)
   const dpr = useDevicePixelRatio()
+  const fontLoads = useCanvasFonts()
 
   const pan = usePan()
   const { panX, panY } = pan
-  const { zoom, onPointerDown, onPointerMove, onPointerUp } = useZoom({ canvasRef, pan })
+  const { zoom, setZoom, onPointerDown, onPointerMove, onPointerUp } = useZoom({ canvasRef, pan })
+  const vp = makeViewport({ width, height, dpr }, { zoom, panX, panY })
 
-  // p2 follows the cursor: hover reports the cursor's math x, leaving the
-  // canvas clears it. The zoom handlers run first so gestures keep working.
+  // D17: while the view is still the default one, its zoom follows the
+  // plane's height (the dock's shorter plane zooms out). Adjusted during
+  // render, so no frame draws the old zoom.
+  const fit = defaultZoom(height, fitHalfRangeY)
+  const [shownDefault, setShownDefault] = useState(fit)
+  if (fit !== shownDefault) {
+    setShownDefault(fit)
+    if (zoom === shownDefault && panX === 0 && panY === 0) {
+      setZoom(fit)
+    }
+  }
+
+  const resetView = () => {
+    setZoom(fit)
+    pan.setPanX(0)
+    pan.setPanY(0)
+  }
+  const onKeyDown = usePlaneKeys({ zoom, setZoom, pan, resetView })
+  const onZoomStep = (direction: 1 | -1) => {
+    pan.stopInertia()
+    setZoom((z) => stepZoom(z, direction))
+  }
+
+  // The zoom handlers run first so gestures keep working.
   const onHoverMove = (e: PointerEvent<HTMLCanvasElement>) => {
     onPointerMove(e)
     const rect = e.currentTarget.getBoundingClientRect()
-    onPoint2Change?.((e.clientX - rect.left - Math.floor(width / 2)) / zoom - panX)
+    onPointer?.({ x: toMathX(vp, e.clientX - rect.left), y: toMathY(vp, e.clientY - rect.top) })
   }
   const onHoverLeave = () => {
-    onPoint2Change?.(null)
+    onPointer?.(null)
   }
 
-  // Report the visible X extent so the Points p1 slider can bind its track
-  // to it. The callback lives in a ref so an inline parent closure never
-  // retriggers this effect and loops (p1 edits re-render the parent).
-  const extentRef = useRef<((extent: XExtent) => void) | undefined>(undefined)
+  // Report the view so the owner can bind ranges to it (the P scrubber). The
+  // callback lives in a ref so an inline parent closure never retriggers this
+  // effect and loops (the report re-renders the parent).
+  const viewRef = useRef<((view: PlaneView) => void) | undefined>(undefined)
   useEffect(() => {
-    extentRef.current = onExtentChange
-  }, [onExtentChange])
+    viewRef.current = onViewChange
+  }, [onViewChange])
 
   useEffect(() => {
-    extentRef.current?.(visibleXExtent(width, zoom, panX))
-  }, [width, zoom, panX])
+    if (width === 0 || height === 0) {
+      return
+    }
+    viewRef.current?.({
+      zoom,
+      extent: visibleExtent(makeViewport({ width, height, dpr }, { zoom, panX, panY })),
+    })
+  }, [width, height, dpr, zoom, panX, panY])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -92,26 +176,47 @@ export function CartesianPlane({
       zoom,
       panX,
       panY,
-      plotFunc,
-      point1X,
-      point2X,
+      scene,
+      keepOut: measureKeepOut(rootRef.current),
     })
     // HMR: drawCartesianPlane identity changes only on hot reload, intentional redraw.
+    // fontLoads: redraw once the canvas faces have loaded.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [width, height, dpr, zoom, panX, panY, plotFunc, themeVars, point1X, point2X, drawCartesianPlane])
+  }, [width, height, dpr, zoom, panX, panY, scene, themeVars, fontLoads, drawCartesianPlane])
 
+  // role="application": the plane takes its own keys (arrows pan, + − zoom),
+  // which jsx-a11y doesn't count as interactive.
   return (
-    <div ref={wrapperRef} className={style.page}>
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+    <div
+      ref={rootRef}
+      className={`${style.plane} ${workSansStyles.font}`}
+      role="application"
+      aria-roledescription="plane"
+      aria-label="Plane: arrows pan, + and − zoom, 0 resets the view"
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      tabIndex={0}
+      onKeyDown={onKeyDown}
+      data-testid="cartesian-plane"
+    >
       <canvas
         ref={canvasRef}
         className={style.canvas}
         data-testid="cartesian-canvas"
+        data-zoom={zoom}
+        data-origin-x={vp.originX}
+        data-origin-y={vp.originY}
         onPointerDown={onPointerDown}
         onPointerMove={onHoverMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
         onPointerLeave={onHoverLeave}
       />
+      <PlaneChrome width={width} height={height} zoom={zoom} label={captionLabel} caption={caption} />
+      <div className={style.tools} data-keep-out>
+        {tools}
+        <ZoomControl zoom={zoom} onStep={onZoomStep} />
+      </div>
     </div>
   )
 }

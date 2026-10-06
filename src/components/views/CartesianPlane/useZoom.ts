@@ -177,5 +177,5 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
     releaseDrag(e.clientX, e.clientY, zoomRef)
   }
 
-  return { zoom, onPointerDown, onPointerMove, onPointerUp }
+  return { zoom, setZoom, onPointerDown, onPointerMove, onPointerUp }
 }

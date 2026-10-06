@@ -1,6 +1,6 @@
 import { FINE_DP, quantize, roundTo } from "#src/util/format/number.ts"
 
-import type { XExtent } from "../../CartesianPlane/types.ts"
+import type { PlaneView } from "../../CartesianPlane/viewport.ts"
 import type { BaseFunctionSlug } from "../math/baseFunctions.ts"
 import type { FvState } from "./state.ts"
 
@@ -18,12 +18,20 @@ export type FvAction =
   | { type: "setP"; x: number }
   | { type: "setQ"; x: number | null }
   | { type: "setGhost"; on: boolean }
-  | { type: "setExtent"; extent: XExtent }
+  | { type: "setView"; view: PlaneView }
 
 const withParam = (state: FvState, param: TransformParam, value: number): FvState =>
   state.params[param] === value ? state : { ...state, params: { ...state.params, [param]: value } }
 
 const onPointLattice = (x: number): number => quantize(x, POINT_QUANTUM)
+
+const sameView = (a: PlaneView | null, b: PlaneView): boolean =>
+  a !== null &&
+  a.zoom === b.zoom &&
+  a.extent.minX === b.extent.minX &&
+  a.extent.maxX === b.extent.maxX &&
+  a.extent.minY === b.extent.minY &&
+  a.extent.maxY === b.extent.maxY
 
 // Every transition of the view. Unchanged values return the same state, so
 // pointer moves inside one 0.01 step don't re-render. Decision D15: no
@@ -57,11 +65,7 @@ export function fvReducer(state: FvState, action: FvAction): FvState {
     }
     case "setGhost":
       return action.on === state.ghostOn ? state : { ...state, ghostOn: action.on }
-    case "setExtent": {
-      const { extent } = state
-      return extent?.minX === action.extent.minX && extent.maxX === action.extent.maxX
-        ? state
-        : { ...state, extent: action.extent }
-    }
+    case "setView":
+      return sameView(state.view, action.view) ? state : { ...state, view: action.view }
   }
 }

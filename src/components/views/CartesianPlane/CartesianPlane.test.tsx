@@ -2,12 +2,16 @@ import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vite
 
 import { act, render, toElement } from "#test"
 
+import type { PlaneScene } from "./scene.ts"
+
 import { CartesianPlane } from "./CartesianPlane"
 import { drawCartesianPlane } from "./drawCartesianPlane"
 
 vi.mock("./drawCartesianPlane", () => ({
   drawCartesianPlane: vi.fn<(props: { zoom: number; panX: number; panY: number }) => void>(),
 }))
+
+const EMPTY_SCENE: PlaneScene = { curves: [], points: [] }
 
 const drawMock = drawCartesianPlane as unknown as Mock
 const lastDraw = () => drawMock.mock.calls.at(-1)?.[0] as { zoom: number; panX: number; panY: number }
@@ -35,18 +39,20 @@ const up = (canvas: HTMLCanvasElement, pointerId: number, x: number, y: number) 
   canvas.dispatchEvent(pointer("pointerup", { pointerId, clientX: x, clientY: y }))
 }
 
-const zeroRect = () =>
+const rectOf = (width: number, height: number) =>
   ({
     x: 0,
     y: 0,
-    width: 0,
-    height: 0,
+    width,
+    height,
     top: 0,
     left: 0,
-    right: 0,
-    bottom: 0,
+    right: width,
+    bottom: height,
     toJSON: () => {},
   }) as unknown as DOMRect
+
+const zeroRect = () => rectOf(0, 0)
 
 describe("CartesianPlane pinch zoom", () => {
   beforeEach(() => {
@@ -65,7 +71,7 @@ describe("CartesianPlane pinch zoom", () => {
   })
 
   it("applies the exact finger-distance ratio when moves share one closure", async () => {
-    const screen = await render(<CartesianPlane />)
+    const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
     const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
     // jsdom rects are zero, so the origin doubles as the view center: spread
     // symmetrically about it and pan must stay put while zoom telescopes.
@@ -86,7 +92,7 @@ describe("CartesianPlane pinch zoom", () => {
   })
 
   it("returns to the starting frame after an exact reverse", async () => {
-    const screen = await render(<CartesianPlane />)
+    const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
     const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
     act(() => {
       down(canvas, 1, -100, 0)
@@ -126,7 +132,7 @@ describe("CartesianPlane pinch zoom", () => {
     })
 
     it("quick pinch release schedules no inertia", async () => {
-      const screen = await render(<CartesianPlane />)
+      const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
       const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
       // Fast spread with both fingers still traveling at lift-off: the
       // few-ms release window would otherwise read pinch speed as fling.
@@ -146,7 +152,7 @@ describe("CartesianPlane pinch zoom", () => {
     })
 
     it("fast single-finger flick still schedules inertia", async () => {
-      const screen = await render(<CartesianPlane />)
+      const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
       const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
       act(() => {
         down(canvas, 1, 0, 0)
@@ -162,7 +168,7 @@ describe("CartesianPlane pinch zoom", () => {
   })
 
   it("single-finger drag still pans", async () => {
-    const screen = await render(<CartesianPlane />)
+    const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
     const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
     act(() => {
       down(canvas, 1, 100, 100)
@@ -176,7 +182,7 @@ describe("CartesianPlane pinch zoom", () => {
   })
 })
 
-describe("CartesianPlane p2 hover", () => {
+describe("CartesianPlane pointer", () => {
   beforeEach(() => {
     drawMock.mockClear()
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
@@ -188,20 +194,82 @@ describe("CartesianPlane p2 hover", () => {
     vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(zeroRect())
   })
 
-  it("reports cursor math x on hover and clears it on leave", async () => {
-    const onPoint2Change = vi.fn<(x: number | null) => void>()
-    const screen = await render(<CartesianPlane onPoint2Change={onPoint2Change} />)
+  it("reports the math point under the cursor and clears it on leave", async () => {
+    const onPointer = vi.fn<(point: { x: number; y: number } | null) => void>()
+    const screen = await render(<CartesianPlane scene={EMPTY_SCENE} onPointer={onPointer} />)
     const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
     act(() => {
       // No pointerdown: the zoom handlers ignore it, hover still reports.
       move(canvas, 9, 100, 40)
     })
-    // Zero rect + zoom 50: (100 - 0 - 0) / 50 - 0.
-    expect(onPoint2Change).toHaveBeenLastCalledWith(2)
+    // Zero rect + zoom 50: the origin sits at (0, 0), screen y grows down.
+    expect(onPointer).toHaveBeenLastCalledWith({ x: 2, y: -0.8 })
     act(() => {
       // React derives onPointerLeave from pointerout, not pointerleave.
       canvas.dispatchEvent(new PointerEvent("pointerout", { bubbles: true, relatedTarget: document.body }))
     })
-    expect(onPoint2Change).toHaveBeenLastCalledWith(null)
+    expect(onPointer).toHaveBeenLastCalledWith(null)
+  })
+})
+
+describe("CartesianPlane view controls", () => {
+  beforeEach(() => {
+    drawMock.mockClear()
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
+      stubCtx as unknown as CanvasRenderingContext2D,
+    )
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(zeroRect())
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  const key = (el: Element, k: string) => {
+    el.dispatchEvent(new KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true }))
+  }
+
+  it("pans one grid square per arrow, zooms through the stops, 0 resets", async () => {
+    const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
+    const plane = toElement(screen.getByTestId("cartesian-plane"))
+    act(() => {
+      key(plane, "ArrowRight")
+      key(plane, "ArrowUp")
+    })
+    // One minor square (0.5 at 50 px per unit): the view moves right and up.
+    expect(lastDraw().panX).toBeCloseTo(-0.5, 8)
+    expect(lastDraw().panY).toBeCloseTo(-0.5, 8)
+    act(() => {
+      key(plane, "+")
+    })
+    expect(lastDraw().zoom).toBe(62.5)
+    act(() => {
+      key(plane, "-")
+      key(plane, "-")
+    })
+    expect(lastDraw().zoom).toBe(40)
+    act(() => {
+      key(plane, "0")
+    })
+    expect(lastDraw()).toMatchObject({ zoom: 50, panX: 0, panY: 0 })
+  })
+
+  it("steps the zoom from its control and prints it", async () => {
+    const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
+    const readout = () => toElement(screen.getByTestId("plane-zoom")).textContent
+    expect(readout()).toBe("100%")
+    act(() => {
+      ;(toElement(screen.getByTestId("plane-zoom-out")) as HTMLButtonElement).click()
+    })
+    expect(lastDraw().zoom).toBe(40)
+    expect(readout()).toBe("80%")
+  })
+
+  it("defaults to the zoom that keeps y ∈ [−5, 5] in view (D17)", async () => {
+    // R9's dock plane: 1256 × 408 → 40 px per unit.
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(rectOf(1256, 408))
+    const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
+    expect(lastDraw().zoom).toBe(40)
+    expect(toElement(screen.getByTestId("plane-zoom")).textContent).toBe("80%")
   })
 })

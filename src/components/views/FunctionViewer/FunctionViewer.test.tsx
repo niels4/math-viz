@@ -2,17 +2,18 @@ import { beforeEach, describe, expect, it, vi, type Mock } from "vitest"
 
 import { act, render, toElement } from "#test"
 
-import type { PlotFunc } from "../CartesianPlane/types.ts"
+import type { PlaneScene } from "../CartesianPlane/scene.ts"
 
 import { drawCartesianPlane } from "../CartesianPlane/drawCartesianPlane"
 import { FunctionViewer } from "./FunctionViewer.tsx"
 
 vi.mock("../CartesianPlane/drawCartesianPlane", () => ({
-  drawCartesianPlane: vi.fn<(props: { plotFunc: PlotFunc; point1X: number }) => void>(),
+  drawCartesianPlane: vi.fn<(props: { scene: PlaneScene }) => void>(),
 }))
 
 const drawMock = drawCartesianPlane as unknown as Mock
-const lastDraw = () => drawMock.mock.calls.at(-1)?.[0] as { plotFunc: PlotFunc; point1X: number }
+const lastDraw = () => drawMock.mock.calls.at(-1)?.[0] as { scene: PlaneScene }
+const lastScene = () => lastDraw().scene
 
 const stubCtx = new Proxy({}, { get: () => () => {}, set: () => true })
 
@@ -44,14 +45,20 @@ describe("FunctionViewer", () => {
     expect(toElement(screen.getByTestId("func-readout")).getAttribute("aria-label")).toBe(
       "f(x) = 2(x + 1)² + 1",
     )
-    const { plotFunc } = lastDraw()
-    expect(plotFunc(-1)).toBe(1)
-    expect(plotFunc(0.5)).toBe(5.5)
+    const curve = lastScene().curves[0]
+    expect(curve?.fn(-1)).toBe(1)
+    expect(curve?.fn(0.5)).toBe(5.5)
   })
 
   it("starts P at x = 2 (D4)", async () => {
     const screen = await render(<FunctionViewer />)
     expect((toElement(screen.getByTestId("p1-input")) as HTMLInputElement).value).toBe("2")
-    expect(lastDraw().point1X).toBe(2)
+    expect(lastScene().points[0]).toMatchObject({
+      id: "p",
+      x: 2,
+      y: 4,
+      style: "bullseye",
+      ink: "chartPoint1",
+    })
   })
 })

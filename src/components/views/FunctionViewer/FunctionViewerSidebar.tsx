@@ -1,5 +1,5 @@
 import type { HelpContent } from "../../ui/HelpTip.tsx"
-import type { XExtent } from "../CartesianPlane/types.ts"
+import type { Extent } from "../CartesianPlane/viewport.ts"
 
 import { ExtentSlider } from "../../ui/ExtentSlider.tsx"
 import { Field } from "../../ui/Field"
@@ -39,7 +39,7 @@ export type FunctionViewerSidebarProps = {
   point1X: number
   setPoint1X: (next: number) => void
   point2X: number | null
-  xExtent: XExtent | null
+  xExtent: Pick<Extent, "minX" | "maxX"> | null
 }
 
 export function FunctionViewerSidebar({

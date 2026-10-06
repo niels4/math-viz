@@ -78,6 +78,7 @@ export const themeAtom = atomWithStorage<ThemeSlug>("mathviz-theme", DEFAULT_SLU
 export type ThemeColors = {
   background: string
   foreground: string
+  foregroundMuted: string
   chartLine: string
   chartAccent: string
   chartGrid: string
@@ -108,6 +109,7 @@ export type ThemeVars = ThemeColors & {
 const themeColorMapping: Record<string, keyof ThemeColors> = {
   "--background": "background",
   "--foreground": "foreground",
+  "--foreground-muted": "foregroundMuted",
   "--chart-line": "chartLine",
   "--chart-accent": "chartAccent",
   "--chart-grid": "chartGrid",

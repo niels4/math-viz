@@ -1,0 +1,102 @@
+/* canvas-chrome-v2 (figma0 220 Components v2 › Instrument chrome v2). The
+chrome never glows: glow is for data ink. */
+
+.bracket {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: var(--foreground-muted);
+  stroke-width: 2.5;
+  stroke-linecap: square;
+  pointer-events: none;
+}
+
+.top_left {
+  top: 10px;
+  left: 10px;
+}
+
+.top_right {
+  top: 10px;
+  right: 10px;
+}
+
+.bottom_left {
+  bottom: 10px;
+  left: 10px;
+}
+
+.bottom_right {
+  right: 10px;
+  bottom: 10px;
+}
+
+.hud {
+  position: absolute;
+  inset: 0;
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 1.5;
+  /* 0 or 1 per theme: only tron-cyan shows the ticks. */
+  opacity: var(--sig-hud-ticks);
+  pointer-events: none;
+}
+
+.caption {
+  position: absolute;
+  top: 22px;
+  left: 28px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 12px;
+  background: var(--background);
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.caption_label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: var(--sig-label-tracking);
+  text-transform: uppercase;
+  color: var(--foreground-muted);
+}
+
+.caption_math {
+  font-size: 18px;
+  line-height: normal;
+  color: var(--foreground);
+}
+
+.scale {
+  position: absolute;
+  bottom: 22px;
+  left: 28px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 14px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--sig-card-radius);
+  pointer-events: none;
+}
+
+.scale_bar {
+  display: block;
+  fill: none;
+  stroke: var(--foreground);
+  stroke-width: 2;
+}
+
+/* Figma's AUTO line box for 13 px Roboto Mono is 17 px; Chromium's `normal`
+rounds ascent and descent up to 18 and would make the strip 36 px tall. */
+.scale_label {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 17px;
+  color: var(--foreground-muted);
+}

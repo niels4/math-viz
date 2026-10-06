@@ -1,4 +1,4 @@
-import { useReducer } from "react"
+import { useMemo, useReducer } from "react"
 
 import stixStyles from "#src/style/fonts/stix_two_text/stix_two_text.module.css"
 import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
@@ -7,6 +7,7 @@ import type { TransformParam } from "./math/form.ts"
 
 import { Field } from "../../ui/Field"
 import { SnowflakeIcon } from "../../ui/icons.tsx"
+import { MathText } from "../../ui/MathText.tsx"
 import { Select } from "../../ui/Select"
 import { SettingsMenu } from "../../ui/SettingsMenu.tsx"
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
@@ -15,9 +16,9 @@ import { FunctionViewerSidebar } from "./FunctionViewerSidebar.tsx"
 import { BASE_FUNCTION_SLUGS, BASE_FUNCTIONS, isBaseFunctionSlug } from "./math/baseFunctions.ts"
 import { describeEquation, equationTokens } from "./math/equation.ts"
 import { fvReducer } from "./model/reducer.ts"
-import { curveAt } from "./model/selectors.ts"
 import { initialFvState } from "./model/state.ts"
 import { EquationTokens } from "./panel/EquationTokens.tsx"
+import { buildPlaneScene } from "./planeScene.ts"
 
 const functionOptions = BASE_FUNCTION_SLUGS.map((slug) => ({
   value: slug,
@@ -26,8 +27,10 @@ const functionOptions = BASE_FUNCTION_SLUGS.map((slug) => ({
 
 export function FunctionViewer() {
   const [state, dispatch] = useReducer(fvReducer, initialFvState)
-  const { params } = state
-  const equation = equationTokens(state.fn, params, "live")
+  const { fn, params, pX, qX } = state
+  const equation = equationTokens(fn, params, "live")
+  // Only what the scene shows: a reported view change must not rebuild it.
+  const scene = useMemo(() => buildPlaneScene({ fn, params, pX, qX }), [fn, params, pX, qX])
 
   const setParam = (param: TransformParam) => (value: number) => dispatch({ type: "setParam", param, value })
   const onSelectFunction = (next: string) => {
@@ -83,15 +86,14 @@ export function FunctionViewer() {
         point1X={state.pX}
         setPoint1X={(x) => dispatch({ type: "setP", x })}
         point2X={state.qX}
-        xExtent={state.extent}
+        xExtent={state.view?.extent ?? null}
       />
       <main className={style.main}>
         <CartesianPlane
-          plotFunc={(x) => curveAt(state, x)}
-          point1X={state.pX}
-          point2X={state.qX ?? undefined}
-          onExtentChange={(extent) => dispatch({ type: "setExtent", extent })}
-          onPoint2Change={(x) => dispatch({ type: "setQ", x })}
+          scene={scene}
+          caption={<MathText text="y = f(x)" />}
+          onViewChange={(view) => dispatch({ type: "setView", view })}
+          onPointer={(point) => dispatch({ type: "setQ", x: point === null ? null : point.x })}
         />
       </main>
     </div>

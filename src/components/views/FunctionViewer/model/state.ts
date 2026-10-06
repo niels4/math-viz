@@ -1,4 +1,4 @@
-import type { XExtent } from "../../CartesianPlane/types.ts"
+import type { PlaneView } from "../../CartesianPlane/viewport.ts"
 import type { BaseFunctionSlug } from "../math/baseFunctions.ts"
 
 import { DEFAULT_PARAMS, type TransformParams } from "../math/form.ts"
@@ -22,8 +22,8 @@ export type FvState = {
   qX: number | null
   /** The Original toggle. */
   ghostOn: boolean
-  /** The plane's visible x-range, reported by the plane; null before its first layout. */
-  extent: XExtent | null
+  /** The plane's zoom and visible range, as it reports them; null before its first layout. */
+  view: PlaneView | null
 }
 
 export const initialFvState: FvState = {
@@ -32,5 +32,5 @@ export const initialFvState: FvState = {
   pX: DEFAULT_P_X,
   qX: null,
   ghostOn: DEFAULT_GHOST_ON,
-  extent: null,
+  view: null,
 }

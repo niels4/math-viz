@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest"
 
 import { act, render, toElement } from "#test"
 
-import type { XExtent } from "../CartesianPlane/types.ts"
+import type { Extent } from "../CartesianPlane/viewport.ts"
 
 import { FunctionViewerSidebar } from "./FunctionViewerSidebar.tsx"
 
@@ -19,7 +19,7 @@ const renderSidebar = (props?: {
   p1?: number
   setP1?: (next: number) => void
   p2?: number | null
-  xExtent?: XExtent | null
+  xExtent?: Pick<Extent, "minX" | "maxX"> | null
 }) =>
   render(
     <FunctionViewerSidebar

@@ -4,7 +4,7 @@ import { BASE_FUNCTIONS } from "../math/baseFunctions.ts"
 import { evaluate, isAtDefault, TRANSFORM_PARAMS } from "../math/form.ts"
 
 /** The transformed curve at x: a · g((x − h) / b) + k. */
-export const curveAt = (state: FvState, x: number): number =>
+export const curveAt = (state: Pick<FvState, "fn" | "params">, x: number): number =>
   evaluate(BASE_FUNCTIONS[state.fn].g, state.params, x)
 
 /** Any of a, b, h, k off its default. */

@@ -2,8 +2,8 @@
 // WARNING: THIS FILE IS AUTO GENERATED, PLEASE DO NOT EDIT IT MANUALLY.
 // prettier-ignore
 declare const styles: {
-  readonly "canvas": string;
-  readonly "plane": string;
-  readonly "tools": string;
+  readonly "readout": string;
+  readonly "step": string;
+  readonly "zoom": string;
 };
 export = styles;

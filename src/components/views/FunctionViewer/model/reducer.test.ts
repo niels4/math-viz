@@ -81,8 +81,12 @@ describe("fvReducer", () => {
     expect(fvReducer(state, { type: "setQ", x: 1.229 })).toBe(state)
     expect(fvReducer(state, { type: "setParam", param: "a", value: 1 })).toBe(state)
     expect(fvReducer(state, { type: "setFunction", fn: "x2" })).toBe(state)
-    const withExtent = fvReducer(state, { type: "setExtent", extent: { minX: -9.36, maxX: 9.36 } })
-    expect(fvReducer(withExtent, { type: "setExtent", extent: { minX: -9.36, maxX: 9.36 } })).toBe(withExtent)
+    const view = { zoom: 50, extent: { minX: -9.36, maxX: 9.36, minY: -7.92, maxY: 7.92 } }
+    const withView = fvReducer(state, { type: "setView", view })
+    expect(fvReducer(withView, { type: "setView", view: { ...view, extent: { ...view.extent } } })).toBe(
+      withView,
+    )
+    expect(fvReducer(withView, { type: "setView", view: { ...view, zoom: 40 } }).view?.zoom).toBe(40)
   })
 })
 
