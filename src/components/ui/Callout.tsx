@@ -21,7 +21,9 @@ export type CalloutTone = "plain" | "accent"
 // Each caret in the frame figma0 drew it in, placed so its tip lands on `at`.
 function Caret({ tone, caret }: { tone: CalloutTone; caret: CalloutCaret }) {
   if (tone === "plain") {
-    // 9 × 40, tip at (1, 20); the fill reaches 0.5 px into the card's border.
+    // 9 × 40, tip at (1, 20). The fill stops at the card's border, which
+    // stays whole across the caret's base: the board paints its card over
+    // the caret.
     return caret.side === "left" ? (
       <svg
         className={style.caret}
@@ -30,7 +32,7 @@ function Caret({ tone, caret }: { tone: CalloutTone; caret: CalloutCaret }) {
         style={{ left: -9, top: caret.at - 20 }}
         aria-hidden="true"
       >
-        <polygon className={style.plain_fill} points="9.5,12 1,20 9.5,28" />
+        <polygon className={style.plain_fill} points="9,12 1,20 9,28" />
         <polyline className={style.plain_edge} points="9,12 1,20 9,28" />
       </svg>
     ) : caret.side === "top" ? (
@@ -41,7 +43,7 @@ function Caret({ tone, caret }: { tone: CalloutTone; caret: CalloutCaret }) {
         style={{ top: -9, left: caret.at - 20 }}
         aria-hidden="true"
       >
-        <polygon className={style.plain_fill} points="12,9.5 20,1 28,9.5" />
+        <polygon className={style.plain_fill} points="12,9 20,1 28,9" />
         <polyline className={style.plain_edge} points="12,9 20,1 28,9" />
       </svg>
     ) : (
@@ -52,7 +54,7 @@ function Caret({ tone, caret }: { tone: CalloutTone; caret: CalloutCaret }) {
         style={{ bottom: -9, left: caret.at - 20 }}
         aria-hidden="true"
       >
-        <polygon className={style.plain_fill} points="12,-0.5 20,8 28,-0.5" />
+        <polygon className={style.plain_fill} points="12,0 20,8 28,0" />
         <polyline className={style.plain_edge} points="12,0 20,8 28,0" />
       </svg>
     )

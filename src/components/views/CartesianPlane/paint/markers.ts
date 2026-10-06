@@ -58,20 +58,26 @@ export const paintMarker = (ctx: CanvasRenderingContext2D, marker: Marker, theme
   ctx.restore()
 }
 
-/** Where a point was (fvDrawCanvas: P before): a Ø22 ring, 2 px dashed 3 3 inside its box, in the point's ink. */
+/**
+ * Where a point was (fvDrawCanvas: P before): a Ø22 ring, 2 px dashed inside
+ * its box, in the point's ink. The board's 3 3 pattern comes out as 12 even
+ * dashes, one on each compass point, so the ring divides its length into 12.
+ */
 const WAS_R = 11
 const WAS_WIDTH = 2
-const WAS_DASH = [3, 3]
+const WAS_DASHES = 12
 /** The arrow from where it was: 2 px with a head (fvDrawCanvas: P moved). */
 const WAS_ARROW_WIDTH = 2
 
 export const paintWas = (ctx: CanvasRenderingContext2D, was: WasMark, theme: ThemeVars) => {
+  const r = WAS_R - WAS_WIDTH / 2
+  const dash = (Math.PI * r) / WAS_DASHES
   ctx.save()
   ctx.beginPath()
-  ctx.arc(was.x, was.y, WAS_R - WAS_WIDTH / 2, 0, Math.PI * 2)
+  ctx.arc(was.x, was.y, r, 0, Math.PI * 2)
   ctx.lineWidth = WAS_WIDTH
-  ctx.setLineDash(WAS_DASH)
-  ctx.lineDashOffset = dashPhase(WAS_DASH)
+  ctx.setLineDash([dash, dash])
+  ctx.lineDashOffset = dashPhase([dash])
   ctx.strokeStyle = theme[was.ink]
   ctx.stroke()
   ctx.restore()
