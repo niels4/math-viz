@@ -4,5 +4,6 @@
 declare const styles: {
   readonly "math": string;
   readonly "text": string;
+  readonly "together": string;
 };
 export = styles;

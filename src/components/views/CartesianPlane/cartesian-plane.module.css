@@ -21,8 +21,14 @@ signature radius, a 1 px border inside the box. */
   pointer-events: none;
 }
 
+/* Keyboard focus (FV 07 › The plane: keyboard focus): the frame turns
+--primary, with the 3 px ring around it. */
 .plane:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+}
+
+.plane:focus-visible::after {
+  border-color: var(--primary);
 }
 
 .canvas {

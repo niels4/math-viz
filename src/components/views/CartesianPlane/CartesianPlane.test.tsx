@@ -278,6 +278,34 @@ describe("CartesianPlane view controls", () => {
     expect(readout()).toBe("80%")
   })
 
+  it("takes one tab stop for its zoom control, a spin button over the stops (FV 07)", async () => {
+    const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
+    const control = toElement(screen.getByTestId("plane-zoom-control"))
+    expect(control.getAttribute("role")).toBe("spinbutton")
+    expect(control.tabIndex).toBe(0)
+    expect(toElement(screen.getByTestId("plane-zoom-out")).tabIndex).toBe(-1)
+    expect(toElement(screen.getByTestId("plane-zoom-in")).tabIndex).toBe(-1)
+    expect(control.getAttribute("aria-valuetext")).toBe("100%")
+    act(() => {
+      key(control, "ArrowUp")
+    })
+    expect(lastDraw().zoom).toBe(62.5)
+    expect(control.getAttribute("aria-valuenow")).toBe("125")
+    act(() => {
+      key(control, "ArrowLeft")
+      key(control, "-")
+    })
+    expect(lastDraw().zoom).toBe(40)
+    expect(control.getAttribute("aria-valuetext")).toBe("80%")
+    // A key with Ctrl stays the browser's (page zoom).
+    const event = new KeyboardEvent("keydown", { key: "+", ctrlKey: true, bubbles: true, cancelable: true })
+    act(() => {
+      control.dispatchEvent(event)
+    })
+    expect(event.defaultPrevented).toBe(false)
+    expect(lastDraw().zoom).toBe(40)
+  })
+
   it("defaults to the zoom that keeps y ∈ [−5, 5] in view (D17)", async () => {
     // R9's dock plane: 1256 × 408 → 40 px per unit.
     vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(rectOf(1256, 408))

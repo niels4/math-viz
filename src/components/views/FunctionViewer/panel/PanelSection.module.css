@@ -5,12 +5,33 @@
   min-width: 0;
 }
 
-/* fvStep: 20 px tall; an action sits at the far end. */
+/* A section with an action: a grid whose first row the header and the
+action share, the action at the far end, though it comes last in the DOM
+(the tab order, PanelSection.tsx). */
+.section[data-action] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.section[data-action] > * {
+  grid-column: 1 / -1;
+}
+
+.section[data-action] > :first-child {
+  grid-row: 1;
+}
+
+.section[data-action] > .action {
+  display: flex;
+  grid-row: 1;
+  grid-column: 2;
+  align-self: center;
+}
+
+/* fvStep: 20 px tall. */
 .header_row {
   display: flex;
-  gap: 8px;
   align-items: center;
-  justify-content: space-between;
   height: 20px;
 }
 

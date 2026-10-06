@@ -4,8 +4,11 @@ import { Kbd } from "./Kbd.tsx"
 import { MathText } from "./MathText.tsx"
 import style from "./Phrases.module.css"
 
-/** One phrase of rich UI copy: words, maths (set by MathText) or a key cap. */
-export type Phrase = { text: string } | { math: string } | { key: string }
+/**
+ * One phrase of rich UI copy: words, maths (set by MathText), a key cap, or
+ * phrases that wrap together, as one item (a key and what it does).
+ */
+export type Phrase = { text: string } | { math: string } | { key: string } | { together: readonly Phrase[] }
 
 /** A " ·" separator keeps to the word before it, so a wrapping phrase never starts a row with one. */
 const keepSeparators = (text: string): string => text.replaceAll(" ·", "\u00a0·")
@@ -25,7 +28,8 @@ const items = (phrases: readonly Phrase[], words: boolean): Phrase[] =>
 
 // Rich UI copy as flex items (figma0 fvRich): words in the UI face, maths in
 // STIX two px larger, keys as caps. Each phrase is kept whole, or with
-// `words` each word, as fvRich lays out longer copy. The owner's flex box
+// `words` each word, as fvRich lays out longer copy; `together` keeps a run
+// of phrases on one row. The owner's flex box
 // sets the gaps and the wrapping, and its custom properties the sizes
 // (--phrase-text-size and -line, --phrase-math-size and -line: 14 / 16 and
 // 16 / 20 unless set). The spaces between items are for screen readers,
@@ -34,7 +38,11 @@ export function Phrases({ phrases, words = false }: { phrases: readonly Phrase[]
   return items(phrases, words).map((phrase, i) => (
     <Fragment key={i}>
       {i > 0 && " "}
-      {"key" in phrase ? (
+      {"together" in phrase ? (
+        <span className={style.together}>
+          <Phrases phrases={phrase.together} />
+        </span>
+      ) : "key" in phrase ? (
         <Kbd name={phrase.key} />
       ) : "math" in phrase ? (
         <span className={style.math}>

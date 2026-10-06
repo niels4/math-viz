@@ -243,6 +243,7 @@ export function FunctionViewer() {
               dispatch({ type: "dragHandle", handle: id, to })
             }
           }}
+          onKeyboardFocus={(on) => dispatch({ type: "focus", part: "plane", on })}
           onKeyDown={(e) => {
             const step = e.key === "[" ? -P_KEY_STEP : e.key === "]" ? P_KEY_STEP : 0
             if (step === 0 || e.ctrlKey || e.metaKey || e.altKey) {

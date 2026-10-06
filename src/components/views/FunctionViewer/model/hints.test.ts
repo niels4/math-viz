@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 
 import type { Hint } from "#src/components/ui/HintBar.tsx"
 
+import { phraseWords } from "#src/components/ui/phraseWords.ts"
+
 import type { FvState } from "./state.ts"
 
 import { hintContext, hintFor } from "./hints.ts"
@@ -11,8 +13,7 @@ import { initialFvState } from "./state.ts"
 const run = (...actions: FvAction[]): FvState => actions.reduce(fvReducer, initialFvState)
 
 /** The hint as a screen reader hears it: phrases joined by spaces. */
-const read = (hint: Hint): string =>
-  hint.phrases.map((p) => ("text" in p ? p.text : "math" in p ? p.math : p.key)).join(" ")
+const read = (hint: Hint): string => phraseWords(hint.phrases).join(" ")
 
 const hintOf = (...actions: FvAction[]) => hintFor(hintContext(run(...actions)))
 
@@ -26,6 +27,21 @@ describe("hint contexts (FV 01 › Hint contexts, Components › hint-bar-fv)", 
   it("speaks about the plane while the pointer is on it (R2)", () => {
     expect(read(hintOf({ type: "planePointer", x: -1.5 }))).toBe(
       "Q follows your pointer · drag to pan · scroll to zoom",
+    )
+  })
+
+  it("names the plane's keys while it has the keyboard's focus, until the pointer moves on it (FV 07)", () => {
+    const keys = "← ↑ ↓ → pan · + − zoom · [ ] move P · 0 resets the view"
+    const focused: FvAction = { type: "focus", part: "plane", on: true }
+    expect(read(hintOf(focused))).toBe(keys)
+    // The pointer moving on the plane after it: the pointer's hint.
+    expect(read(hintOf(focused, { type: "planePointer", x: -1.5 }))).toBe(
+      "Q follows your pointer · drag to pan · scroll to zoom",
+    )
+    // A ruler hovered, then the plane focused: the plane's keys.
+    expect(read(hintOf({ type: "hover", part: "k", on: true }, focused))).toBe(keys)
+    expect(read(hintOf(focused, { type: "focus", part: "plane", on: false }))).toBe(
+      "Drag a ruler sideways to reshape the curve · point at the plane to read f(x)",
     )
   })
 

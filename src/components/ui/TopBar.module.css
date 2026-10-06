@@ -19,6 +19,13 @@
     white-space: nowrap;
   }
 
+  /* Focus = the 3 px ring (FV 07), not the browser's outline. */
+  .wordmark:focus-visible {
+    border-radius: 6px;
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+  }
+
   .wordmark_icon {
     display: inline-flex;
     color: var(--primary);

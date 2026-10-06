@@ -146,6 +146,16 @@ export const HINTS = {
     { text: `puts back ${putsBack}` },
   ],
   plane: [{ math: "Q" }, { text: "follows your pointer ·" }, { text: "drag to pan · scroll to zoom" }],
+  /**
+   * The plane under the keyboard's focus: its keys (FV 07 › The plane:
+   * keyboard focus), each with what it does on one row.
+   */
+  planeKeys: [
+    { together: [{ key: "←" }, { key: "↑" }, { key: "↓" }, { key: "→" }, { text: "pan ·" }] },
+    { together: [{ key: "+" }, { key: "−" }, { text: "zoom ·" }] },
+    { together: [{ key: "[" }, { key: "]" }, { text: "move" }, { math: "P" }, { text: "·" }] },
+    { together: [{ key: "0" }, { text: "resets the view" }] },
+  ],
   point: [
     { text: "Drag" },
     { math: "P" },

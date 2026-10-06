@@ -92,7 +92,21 @@ export type CartesianPlaneProps = {
   onMarkDrag?: ((phase: MarkDragPhase, id: string, to: { x: number; y: number }) => void) | undefined
   /** A key on the focused plane, before its own keys: true when the owner took it. */
   onKeyDown?: ((event: KeyboardEvent<HTMLElement>) => boolean) | undefined
+  /**
+   * The plane itself took the keyboard's focus (a focus the browser shows,
+   * as from Tab; a click's focus doesn't count), or lost the focus.
+   */
+  onKeyboardFocus?: ((focused: boolean) => void) | undefined
   ref?: Ref<CartesianPlaneHandle>
+}
+
+/** Whether the browser shows this focus (Tab, not a click); false where :focus-visible is unknown. */
+const focusVisible = (el: Element): boolean => {
+  try {
+    return el.matches(":focus-visible")
+  } catch {
+    return false
+  }
 }
 
 /** The canvas's cursor says what a press will do (FV 07 › pointer modes). */
@@ -188,6 +202,7 @@ export function CartesianPlane({
   onPointer,
   onMarkDrag,
   onKeyDown,
+  onKeyboardFocus,
   ref,
 }: CartesianPlaneProps) {
   const { themeVars } = useAppTheme()
@@ -514,6 +529,16 @@ export function CartesianPlane({
       // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
       onKeyDown={onPlaneKeyDown}
+      onFocus={(event) => {
+        if (event.target === event.currentTarget && focusVisible(event.currentTarget)) {
+          onKeyboardFocus?.(true)
+        }
+      }}
+      onBlur={(event) => {
+        if (event.target === event.currentTarget) {
+          onKeyboardFocus?.(false)
+        }
+      }}
       data-testid="cartesian-plane"
     >
       <canvas

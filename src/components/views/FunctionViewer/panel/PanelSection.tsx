@@ -5,8 +5,10 @@ import style from "./PanelSection.module.css"
 // One numbered section of the panel (fvStep): a step badge and the caps
 // title as the heading that names it, an optional action at the header's
 // far end (section 2's Reset all), then the section's parts, 10 px apart.
-// A quiet section keeps its heading for screen readers only (the dock's
-// points, R9).
+// The action comes last in the DOM, so Tab reaches it after the section's
+// own controls (FV 07: Reset all is stop 6, after the four rulers); the
+// layout sets it in the header's row. A quiet section keeps its heading for
+// screen readers only (the dock's points, R9).
 export function PanelSection({
   step,
   title,
@@ -27,15 +29,16 @@ export function PanelSection({
     <section
       className={className === undefined ? style.section : `${style.section} ${className}`}
       aria-labelledby={id}
+      data-action={action == null ? undefined : true}
     >
       <div className={quiet ? style.quiet : style.header_row}>
         <h2 id={id} className={style.header}>
           <span className={style.step}>{step}</span>
           {title}
         </h2>
-        {action}
       </div>
       {children}
+      {action != null && <div className={style.action}>{action}</div>}
     </section>
   )
 }
