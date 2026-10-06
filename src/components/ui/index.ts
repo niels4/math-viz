@@ -5,6 +5,7 @@ export { Checkbox } from "./Checkbox.tsx"
 export { DataTable, type DataTableRow } from "./DataTable.tsx"
 export { ExtentSlider } from "./ExtentSlider.tsx"
 export { Field } from "./Field.tsx"
+export { HintBar, type Hint } from "./HintBar.tsx"
 export {
   ArrowIcon,
   BellIcon,
@@ -19,6 +20,7 @@ export {
   TagIcon,
   TriangleIcon,
 } from "./icons.tsx"
+export { Kbd } from "./Kbd.tsx"
 export {
   NumberField,
   type NumberFieldEdit,
@@ -26,6 +28,8 @@ export {
   type NumberFieldHandle,
 } from "./NumberField.tsx"
 export { Pagination } from "./Pagination.tsx"
+export { Phrases, type Phrase } from "./Phrases.tsx"
+export { PointMark } from "./PointMark.tsx"
 export { RadioGroup } from "./RadioGroup.tsx"
 export { ScrubStrip, type ScrubStripHandle } from "./ScrubStrip.tsx"
 export { SectionCard } from "./SectionCard.tsx"

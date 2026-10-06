@@ -8,22 +8,22 @@ import { MathText } from "./MathText.tsx"
 describe("mathRuns", () => {
   it("sets single letters italic and the rest upright", () => {
     expect(mathRuns("f(x) =")).toEqual([
-      { text: "f", italic: true, beforeParen: true },
-      { text: "(", italic: false, beforeParen: false },
-      { text: "x", italic: true, beforeParen: false },
-      { text: ") =", italic: false, beforeParen: false },
+      { text: "f", italic: true },
+      { text: "(", italic: false },
+      { text: "x", italic: true },
+      { text: ") =", italic: false },
     ])
   })
 
   it("keeps function names upright", () => {
     expect(mathRuns("sin x")).toEqual([
-      { text: "sin ", italic: false, beforeParen: false },
-      { text: "x", italic: true, beforeParen: false },
+      { text: "sin ", italic: false },
+      { text: "x", italic: true },
     ])
   })
 
   it("leaves numbers and operators as typed", () => {
-    expect(mathRuns("+ 1.5")).toEqual([{ text: "+ 1.5", italic: false, beforeParen: false }])
+    expect(mathRuns("+ 1.5")).toEqual([{ text: "+ 1.5", italic: false }])
   })
 })
 

@@ -10,8 +10,12 @@ export type NumberFieldHandle = { edit: () => void }
 /** How an edit ended: Enter, Esc, or focus leaving the field. */
 export type NumberFieldEnd = "commit" | "cancel" | "blur"
 
-/** Text the field refused: "invalid" when it isn't a number, or the owner's reason from `validate`. */
-export type NumberFieldEdit = { error: string | null }
+/**
+ * An open edit: the text's refusal, "invalid" when it isn't a number or the
+ * owner's reason from `validate` (null while acceptable), and the value Esc
+ * puts back.
+ */
+export type NumberFieldEdit = { error: string | null; base: number }
 
 /** ↑ ↓ while typing (FV 07's edit hint: "nudge 0.01"). */
 const NUDGE = 0.01
@@ -36,6 +40,7 @@ export function NumberField({
   format = formatStored,
   label,
   testId,
+  className,
   tabIndex = 0,
   hot = false,
   muted = false,
@@ -52,6 +57,8 @@ export function NumberField({
   /** The field's accessible name. */
   label: string
   testId?: string
+  /** The owner's styles for the input. Unlayered, they win over the field's own. */
+  className?: string
   /** -1 when the owner opens the field itself (a ruler's Enter), so a control keeps one tab stop. */
   tabIndex?: number
   /** Boxed, as on its control's hover. */
@@ -75,7 +82,7 @@ export function NumberField({
     editRef.current = next
     setEdit(next)
     if ((before === null) !== (next === null) || before?.error !== next?.error) {
-      onEditChange?.(next === null ? null : { error: next.error })
+      onEditChange?.(next === null ? null : { error: next.error, base: next.base })
     }
   }
 
@@ -181,7 +188,7 @@ export function NumberField({
         data-editing={edit === null ? undefined : true}
         readOnly={edit === null}
         value={edit === null ? format(value) : edit.text}
-        className={fieldStyles.field}
+        className={className === undefined ? fieldStyles.field : `${fieldStyles.field} ${className}`}
         // A click opens the field with its text selected: left to itself, the
         // click would put the caret where it landed.
         onMouseDown={(event) => {

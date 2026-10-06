@@ -1,0 +1,32 @@
+@layer components {
+  /* A key cap (kbd-fv): 21 px tall, padding 1 6 2, --secondary with a
+  1 px --border edge, 2 px at the bottom, inside the box; the name in Roboto
+  Mono 600 12 in Figma's 16 px line box, or an 18 × 14 arrow. */
+  .key {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    height: 21px;
+    padding: 1px 6px 2px;
+    font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    color: var(--foreground);
+    white-space: nowrap;
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+  }
+
+  .spoken {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

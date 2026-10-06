@@ -1,0 +1,13 @@
+@layer components {
+  /* Work Sans 14 and STIX 16 in Figma's AUTO line boxes. */
+  .text {
+    font-size: 14px;
+    line-height: 16px;
+  }
+
+  .math {
+    font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+    font-size: 16px;
+    line-height: 20px;
+  }
+}

@@ -110,10 +110,13 @@ describe("NumberField", () => {
     expect(seen.commits).toEqual([])
     expect(input.getAttribute("aria-invalid")).toBe("true")
     expect(input.value).toBe("1.0.4")
-    expect(seen.edits).toEqual([{ error: null }, { error: "invalid" }])
+    expect(seen.edits).toEqual([
+      { error: null, base: 1.04 },
+      { error: "invalid", base: 1.04 },
+    ])
     type("1.0")
     expect(input.getAttribute("aria-invalid")).toBeNull()
-    expect(seen.edits.at(-1)).toEqual({ error: null })
+    expect(seen.edits.at(-1)).toEqual({ error: null, base: 1.04 })
   })
 
   it("refuses what the owner refuses", async () => {
@@ -123,7 +126,7 @@ describe("NumberField", () => {
     press("Enter")
     expect(seen.commits).toEqual([])
     expect(input.getAttribute("aria-invalid")).toBe("true")
-    expect(seen.edits.at(-1)).toEqual({ error: "not-positive" })
+    expect(seen.edits.at(-1)).toEqual({ error: "not-positive", base: 1.04 })
   })
 
   it("Esc puts the value back", async () => {
@@ -180,6 +183,6 @@ describe("NumberField", () => {
     })
     expect(document.activeElement).toBe(input)
     expect(input.readOnly).toBe(false)
-    expect(seen.edits).toEqual([{ error: null }])
+    expect(seen.edits).toEqual([{ error: null, base: 1.04 }])
   })
 })

@@ -1,0 +1,39 @@
+@layer components {
+  /* The bar measures its own width, so its height can depend on it. */
+  .frame {
+    container-type: inline-size;
+  }
+
+  /* hint-bar-fv: 48 px, padding 6 12, --background inside a 1 px --border,
+  the signature radius. Two rows (40 px) overflow the 34 px content box
+  into the padding, centred, as Figma lays them out. An error hint turns
+  border and copy --destructive. */
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+    place-content: center flex-start;
+    align-items: center;
+    height: 48px;
+    padding: 6px 12px;
+    overflow: hidden;
+    color: var(--foreground-muted);
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--sig-card-radius);
+  }
+
+  /* Narrower than the longest phrase needs (302 px of copy, "Drag a ruler
+  sideways to reshape the curve ·"), a hint can take three rows: the box
+  takes their height, still the same for every hint. */
+  @container (width < 340px) {
+    .bar {
+      height: 72px;
+    }
+  }
+
+  .bar[data-tone="error"] {
+    color: var(--destructive);
+    border-color: var(--destructive);
+  }
+}

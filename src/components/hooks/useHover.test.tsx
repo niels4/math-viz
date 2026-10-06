@@ -5,9 +5,9 @@ import { act, render, toElement } from "#test"
 
 import { useHover } from "./useHover.ts"
 
-function Probe() {
+function Probe({ reports }: { reports: boolean[] }) {
   const ref = useRef<HTMLDivElement | null>(null)
-  const hover = useHover(ref)
+  const hover = useHover(ref, (hovered) => reports.push(hovered))
   return (
     <>
       <div
@@ -33,8 +33,9 @@ const move = (from: HTMLElement | null, to: HTMLElement) => {
 }
 
 describe("useHover", () => {
-  it("follows the pointer in and out", async () => {
-    const screen = await render(<Probe />)
+  it("follows the pointer in and out, and reports each change", async () => {
+    const reports: boolean[] = []
+    const screen = await render(<Probe reports={reports} />)
     const probe = toElement(screen.getByTestId("probe"))
     const inner = toElement(screen.getByTestId("inner"))
     const outside = toElement(screen.getByTestId("outside"))
@@ -42,10 +43,12 @@ describe("useHover", () => {
     expect(probe.hasAttribute("data-hovered")).toBe(true)
     move(inner, outside)
     expect(probe.hasAttribute("data-hovered")).toBe(false)
+    expect(reports).toEqual([true, false])
   })
 
   it("ends on a pointerover elsewhere when the leave never came", async () => {
-    const screen = await render(<Probe />)
+    const reports: boolean[] = []
+    const screen = await render(<Probe reports={reports} />)
     const probe = toElement(screen.getByTestId("probe"))
     const inner = toElement(screen.getByTestId("inner"))
     move(null, inner)
@@ -53,5 +56,6 @@ describe("useHover", () => {
     // Chromium's quirk: no pointerout from the input, only the next pointerover.
     move(null, toElement(screen.getByTestId("outside")))
     expect(probe.hasAttribute("data-hovered")).toBe(false)
+    expect(reports).toEqual([true, false])
   })
 })

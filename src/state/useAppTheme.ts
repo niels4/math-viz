@@ -132,6 +132,12 @@ const themeColorMapping: Record<string, keyof ThemeColors> = {
   "--ordinal-12": "ordinal12",
 }
 
+/** A canvas colour as CSS, so DOM parts match the canvas's inks: "chartPoint1" → "var(--chart-point-1)". */
+export const themeColorVar = (key: keyof ThemeColors): string => {
+  const cssVar = Object.keys(themeColorMapping).find((name) => themeColorMapping[name] === key)
+  return cssVar === undefined ? "currentcolor" : `var(${cssVar})`
+}
+
 // Each colour token goes through a probe's computed `color`, so aliases and
 // color-mix() tokens reach the canvas as plain colours it can parse.
 const readVarsForClass = (className: string): ThemeVars => {

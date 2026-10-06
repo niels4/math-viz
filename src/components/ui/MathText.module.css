@@ -1,5 +1,0 @@
-/* Italic correction: an italic letter leans into an upright "(", so f(x)
-keeps a thin space between f and its parenthesis. */
-.before_paren {
-  margin-right: 0.2em;
-}
