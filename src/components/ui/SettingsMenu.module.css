@@ -27,10 +27,14 @@
   }
 
   /* An overlay as the explainer and the tour card are: --card in a 1 px
-  --border with the theme's card shadow. It opens on the overlays' tokens,
-  the enter spring over dur-base, dropping 4 px from the gear and growing
-  from 98 %; it leaves the same way back in dur-leave (120 ms), linearly,
-  as FV 05's Q leaves. Under reduced motion it only fades, 120 ms each way. */
+  --border with the theme's card shadow. It comes out of the gear: growing
+  from 90 % at its top right corner and dropping 8 px on the enter spring
+  at the spring's own pace (dur-enter-settle: in place by 200 ms, 5 % over
+  at 270 ms), while it fades in over dur-fast, linearly. The fade stays off
+  the spring: Firefox paints an opacity eased past 1 washed out. It leaves
+  the same way back, linearly, in dur-menu-leave (200 ms). Under reduced
+  motion it only fades, 120 ms each way. Squeezed into 120 ms or less,
+  either way reads as a pop. */
   .settings_menu {
     position: absolute;
     top: calc(100% + 8px);
@@ -47,23 +51,23 @@
     box-shadow: var(--sig-card-shadow);
     transform-origin: top right;
     transition:
-      opacity var(--motion-dur-base) var(--motion-ease-enter),
-      transform var(--motion-dur-base) var(--motion-ease-enter);
+      opacity var(--motion-dur-fast) linear,
+      transform var(--motion-dur-enter-settle) var(--motion-ease-enter);
   }
 
   @starting-style {
     .settings_menu {
       opacity: 0;
-      transform: translateY(-4px) scale(0.98);
+      transform: translateY(-8px) scale(0.9);
     }
   }
 
   .settings_menu[data-closing] {
     opacity: 0;
-    transform: translateY(-4px) scale(0.98);
+    transform: translateY(-8px) scale(0.9);
     transition:
-      opacity var(--motion-dur-leave) linear,
-      transform var(--motion-dur-leave) linear;
+      opacity var(--motion-dur-menu-leave) linear,
+      transform var(--motion-dur-menu-leave) linear;
   }
 
   @media (prefers-reduced-motion: reduce) {
