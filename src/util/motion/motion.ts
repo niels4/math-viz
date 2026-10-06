@@ -17,6 +17,8 @@ export const DURATION_MS = {
   draw: 900,
   /** Between siblings in a staged entrance. */
   stagger: 80,
+  /** Things leaving: Q and its card's values (FV 05 › Pointer leaves the plane), an overlay closing. */
+  leave: 120,
 } as const
 
 /** Under prefers-reduced-motion: no interpolation, no draw-on, no nudge; fades at most this long. */
@@ -35,8 +37,21 @@ export const easeSweep = springEase(SPRING_SWEEP)
 export const easeEnter = springEase(SPRING_ENTER)
 export const easeDraw = cubicBezier(...EASE_DRAW_BEZIER)
 
-export const prefersReducedMotion = (): boolean =>
-  typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches
+/**
+ * How much motion to show: full; reduced (prefers-reduced-motion: fades of
+ * at most REDUCED_FADE_MS, nothing that travels); or none where there is no
+ * matchMedia (jsdom, a server render), which has no frames to show it in.
+ */
+export type MotionLevel = "full" | "reduced" | "none"
+
+export const motionLevel = (): MotionLevel =>
+  typeof matchMedia !== "function"
+    ? "none"
+    : matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "reduced"
+      : "full"
+
+export const prefersReducedMotion = (): boolean => motionLevel() !== "full"
 
 /** An ease as a CSS `linear()` timing function, sampled evenly (springs included, overshoot kept). */
 export const cssLinear = (ease: (progress: number) => number, samples = 32): string => {
@@ -50,6 +65,7 @@ export const motionCssVars = {
   "--motion-dur-base": `${DURATION_MS.base}ms`,
   "--motion-dur-draw": `${DURATION_MS.draw}ms`,
   "--motion-stagger": `${DURATION_MS.stagger}ms`,
+  "--motion-dur-leave": `${DURATION_MS.leave}ms`,
   "--motion-dur-reduced-fade": `${REDUCED_FADE_MS}ms`,
   "--motion-ease-draw": `cubic-bezier(${EASE_DRAW_BEZIER.join(", ")})`,
   "--motion-ease-enter": cssLinear(easeEnter.ease),

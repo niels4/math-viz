@@ -30,6 +30,7 @@ import {
   pOffView,
 } from "./model/selectors.ts"
 import { initialFvState, type FvPart, type FvPlaneMark, type PartEvents } from "./model/state.ts"
+import { useFvMotion } from "./motion/useFvMotion.ts"
 import { EquationCard } from "./panel/EquationCard.tsx"
 import { FunctionPicker } from "./panel/FunctionPicker.tsx"
 import { PanelSection } from "./panel/PanelSection.tsx"
@@ -38,7 +39,7 @@ import { readoutSlots } from "./panel/readoutFit.ts"
 import { TransformExplainer } from "./panel/TransformExplainer.tsx"
 import { TransformGrid } from "./panel/TransformGrid.tsx"
 import { useTermDrags } from "./panel/useTermDrags.ts"
-import { buildPlaneScene } from "./planeScene.ts"
+import { buildPlaneScene, type PlaneSceneInput } from "./planeScene.ts"
 import { Tour } from "./tour/Tour.tsx"
 import { useHelp } from "./useHelp.ts"
 
@@ -66,23 +67,23 @@ export function FunctionViewer() {
   const fine = fineParams(state)
   const slots = readoutSlots(state.view?.extent ?? null)
   // Only what the scene shows: a reported view change must not rebuild it.
-  const scene = useMemo(
-    () =>
-      buildPlaneScene({
-        fn,
-        params,
-        pX,
-        qX,
-        ghostOn,
-        pLit: pLitNow,
-        active: activeNow,
-        handleLit: gripLit,
-        handleHeld: gripHeld,
-        pWas,
-        fine,
-      }),
+  const sceneInput = useMemo(
+    (): PlaneSceneInput => ({
+      fn,
+      params,
+      pX,
+      qX,
+      ghostOn,
+      pLit: pLitNow,
+      active: activeNow,
+      handleLit: gripLit,
+      handleHeld: gripHeld,
+      pWas,
+      fine,
+    }),
     [fn, params, pX, qX, ghostOn, pLitNow, activeNow, gripLit, gripHeld, pWas, fine],
   )
+  const scene = useMemo(() => buildPlaneScene(sceneInput), [sceneInput])
   // A transform's drag let go: P's ghost and its "moved" stay a moment.
   const lingering = state.drag === null && state.pBefore !== null
   useEffect(() => {
@@ -105,7 +106,9 @@ export function FunctionViewer() {
   const planeRef = useRef<CartesianPlaneHandle | null>(null)
   const explainerId = useId()
   const { explainer, tour } = state
-  const help = useHelp(state, dispatch, { root: rootRef, panel: panelRef, plane: planeRef })
+  // FV 05: the plane's motion; the tour waits for the first paint (FV 08).
+  const painted = useFvMotion(state, sceneInput, { plane: planeRef, root: rootRef })
+  const help = useHelp(state, dispatch, { root: rootRef, panel: panelRef, plane: planeRef }, painted)
   // Each panel part reports its hover, focus, drag and edit as its own actions.
   const eventsOf = (part: FvPart): PartEvents => ({
     onHover: (on) => dispatch({ type: "hover", part, on }),
@@ -163,7 +166,7 @@ export function FunctionViewer() {
           params={params}
           uiOf={(param) => partUi(state, param)}
           eventsOf={eventsOf}
-          onChange={(param, value) => dispatch({ type: "setParam", param, value })}
+          onChange={(param, value, typed) => dispatch({ type: "setParam", param, value, jump: typed })}
           onReset={(param) => dispatch({ type: "resetParam", param })}
           onResetAll={() => dispatch({ type: "resetAll" })}
           onFlip={(param) => dispatch({ type: "flip", param })}

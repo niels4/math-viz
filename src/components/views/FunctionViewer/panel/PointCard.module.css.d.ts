@@ -15,6 +15,8 @@ declare const styles: {
   readonly "off_mark": string;
   readonly "readout_row": string;
   readonly "scrubber": string;
+  readonly "value": string;
+  readonly "values-in": string;
   readonly "x_field": string;
 };
 export = styles;

@@ -1,4 +1,4 @@
-import { useRef, type ComponentPropsWithRef, type ReactNode } from "react"
+import { useRef, useState, type ComponentPropsWithRef, type ReactNode } from "react"
 
 import { useHover } from "#src/components/hooks/useHover.ts"
 import { ExtentSlider, type ExtentSliderHandle } from "#src/components/ui/ExtentSlider.tsx"
@@ -48,6 +48,7 @@ function PointCard({
   readout,
   note,
   compact = false,
+  noteFade,
   children,
   ...rest
 }: {
@@ -62,6 +63,8 @@ function PointCard({
   /** The note under the card's parts; none in P's compact card. */
   note: readonly Phrase[] | null
   compact?: boolean
+  /** The note fading in as it changes (Q's card, FV 05): each new key starts the fade again. */
+  noteFade?: { dir: "in" | "out"; key: number } | undefined
   children?: ReactNode
 } & ComponentPropsWithRef<"div">) {
   const offView = off !== undefined && off !== null ? off : null
@@ -95,7 +98,7 @@ function PointCard({
       {compact && <div className={style.readout_row}>{readout}</div>}
       {children}
       {note !== null && (
-        <p className={style.note}>
+        <p key={noteFade?.key} className={style.note} data-fade={noteFade?.dir}>
           <Phrases phrases={note} words={compact} />
         </p>
       )}
@@ -214,7 +217,9 @@ export function PCard({
 }
 
 // Q's card: live while the pointer is on the plane, placeholders while not.
-// Both states have the same rows, so the card never changes height.
+// Both states have the same rows, so the card never changes height. As the
+// pointer enters or leaves the plane its values fade in (FV 05): the readout
+// and the note mount afresh on each change, which starts their fade again.
 export function QCard({
   x,
   y,
@@ -228,6 +233,13 @@ export function QCard({
   compact?: boolean
 }) {
   const notes = compact ? COMPACT_Q_NOTES : Q_NOTES
+  const live = x !== null
+  const [shown, setShown] = useState({ live, changes: 0 })
+  if (shown.live !== live) {
+    setShown({ live, changes: shown.changes + 1 })
+  }
+  const fade =
+    shown.changes === 0 ? undefined : { dir: live ? ("in" as const) : ("out" as const), key: shown.changes }
   return (
     <PointCard
       series="q"
@@ -235,8 +247,13 @@ export function QCard({
       compact={compact}
       data-testid="fv-point-q"
       data-part="q-card"
-      readout={<PointReadout testId="fv-q-readout" x={x} y={y} slots={slots} compact={compact} />}
-      note={x === null ? notes.empty : notes.live}
+      readout={
+        <span key={shown.changes} className={style.value} data-fade={fade?.dir}>
+          <PointReadout testId="fv-q-readout" x={x} y={y} slots={slots} compact={compact} />
+        </span>
+      }
+      note={live ? notes.live : notes.empty}
+      noteFade={fade}
     />
   )
 }

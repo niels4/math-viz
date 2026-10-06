@@ -41,11 +41,12 @@ const ring = (
 export const paintMarker = (ctx: CanvasRenderingContext2D, marker: Marker, theme: ThemeVars) => {
   const { x, y } = marker
   ctx.save()
+  const alpha = ctx.globalAlpha * (marker.alpha ?? 1)
   if (marker.focus) {
-    ctx.globalAlpha = HALO_ALPHA
+    ctx.globalAlpha = alpha * HALO_ALPHA
     disc(ctx, x, y, HALO_R, theme.primary)
-    ctx.globalAlpha = 1
   }
+  ctx.globalAlpha = alpha
   disc(ctx, x, y, KNOCKOUT_R, theme.background)
   if (marker.style === "bullseye") {
     ring(ctx, x, y, KNOCKOUT_R, 2.5, theme.foreground)

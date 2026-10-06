@@ -97,9 +97,14 @@ its default never moves the line or the panel below it. */
   white-space: nowrap;
 }
 
-/* A term drags like its ruler (D13), selecting no text. */
+/* A term drags like its ruler (D13), selecting no text. A change flashes it
+(FV 05, FV 04): a plate of --primary at 26 % times --flash, which the view's
+motion takes from 0 to 1 and back, over the lit plate and under the text. */
 .card [data-param] {
+  --flash-ink: color-mix(in oklch, var(--primary) calc(26% * var(--flash, 0)), transparent);
+
   position: relative;
+  background-image: linear-gradient(var(--flash-ink), var(--flash-ink));
   cursor: ew-resize;
   touch-action: none;
   user-select: none;
@@ -110,7 +115,7 @@ its default never moves the line or the panel below it. */
 28 px); here the plate reaches 1 px past the term above and below, so the
 line never moves. */
 .line [data-lit] {
-  background: color-mix(in oklch, var(--primary) 26%, transparent);
+  background-color: color-mix(in oklch, var(--primary) 26%, transparent);
   box-shadow:
     0 -1px 0 0 color-mix(in oklch, var(--primary) 26%, transparent),
     0 1px 0 0 var(--primary),
@@ -121,7 +126,7 @@ line never moves. */
 room, the outline gives way, the letter turns --foreground. */
 .form [data-lit] {
   color: var(--foreground);
-  background: color-mix(in oklch, var(--primary) 26%, transparent);
+  background-color: color-mix(in oklch, var(--primary) 26%, transparent);
   border-color: transparent;
   box-shadow: inset 0 -2px 0 0 var(--primary);
 }

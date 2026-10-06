@@ -510,3 +510,26 @@ describe("the tour (D19, FV 08)", () => {
     expect(step(run(start, explained, { type: "escape" }, { type: "escape" }))).toBeNull()
   })
 })
+
+describe("how the curve changed (FV 05)", () => {
+  it("says jump for a typed value, a reset, Reset all and a flip", () => {
+    expect(run({ type: "setParam", param: "a", value: 2, jump: true }).change).toBe("jump")
+    expect(run(...R3, { type: "resetParam", param: "k" }).change).toBe("jump")
+    expect(run(...R3, { type: "resetAll" }).change).toBe("jump")
+    expect(run({ type: "flip", param: "a" }).change).toBe("jump")
+  })
+
+  it("says direct for a ruler's, a key's or a handle's change, switch for a new function", () => {
+    expect(run({ type: "setParam", param: "a", value: 2, jump: true }, ...R3).change).toBe("direct")
+    expect(run({ type: "dragHandle", handle: "anchor", to: { x: 1, y: 2 } }).change).toBe("direct")
+    expect(run({ type: "setFunction", fn: "sin" }).change).toBe("switch")
+  })
+
+  it("says nothing new when the curve stays", () => {
+    const typed = run({ type: "setParam", param: "a", value: 2, jump: true })
+    const same = fvReducer(typed, { type: "setParam", param: "a", value: 2 })
+    expect(same).toBe(typed)
+    expect(fvReducer(typed, { type: "setP", x: 1 }).change).toBe("jump")
+    expect(run({ type: "resetAll" }).change).toBe("direct")
+  })
+})

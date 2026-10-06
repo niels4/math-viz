@@ -101,6 +101,14 @@
     stroke-linejoin: round;
   }
 
+  /* The labels' layer: it slides with the ticks and the home notch (data-nudge)
+  when a view nudges its rulers, the index and the chevrons staying put. */
+  .tape {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
   /* Roboto Mono 500 12 in Figma's 16 px AUTO line box, 14 px from the top. */
   .label {
     position: absolute;

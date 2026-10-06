@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react"
 
+import { usePresence } from "#src/components/hooks/usePresence.ts"
 import { DARK_THEME_SLUGS, LIGHT_THEME_SLUGS, appThemes } from "#src/state/useAppTheme.ts"
+import { DURATION_MS, motionCssVars, motionLevel } from "#src/util/motion/motion.ts"
 
 import { useAppTheme } from "../../state/useAppTheme.ts"
 import { GearIcon } from "./icons.tsx"
@@ -9,10 +11,15 @@ import menuStyles from "./SettingsMenu.module.css"
 /** A view's own item in the settings menu, under the themes: "Show the tour again". */
 export type SettingsAction = { id: string; label: string; onSelect: () => void }
 
+// The top bar's gear and its menu: the themes, dark then light, and a
+// view's own items under them. The menu opens with the enter spring and
+// leaves in 120 ms (SettingsMenu.module.css; the motion tokens ride along
+// on the wrapper, as on any page); while it leaves it takes no input.
 export function SettingsMenu({ actions = [] }: { actions?: readonly SettingsAction[] }) {
   const { themeSlug, setThemeSlug } = useAppTheme()
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement | null>(null)
+  const presence = usePresence(open, motionLevel() === "none" ? 0 : DURATION_MS.leave)
 
   useEffect(() => {
     if (!open) {
@@ -35,7 +42,7 @@ export function SettingsMenu({ actions = [] }: { actions?: readonly SettingsActi
   ] as const
 
   return (
-    <div ref={wrapRef} className={menuStyles.settings_wrap}>
+    <div ref={wrapRef} className={menuStyles.settings_wrap} style={motionCssVars}>
       <button
         type="button"
         data-testid="settings-button"
@@ -48,13 +55,15 @@ export function SettingsMenu({ actions = [] }: { actions?: readonly SettingsActi
       >
         <GearIcon />
       </button>
-      {open ? (
+      {presence !== "closed" ? (
         <div
           id="settings-theme-menu"
           role="menu"
           tabIndex={-1}
           aria-label="Theme settings"
           data-testid="settings-menu"
+          data-closing={presence === "closing" || undefined}
+          inert={presence === "closing"}
           className={menuStyles.settings_menu}
           onKeyDown={(event) => {
             if (event.key === "Escape") {

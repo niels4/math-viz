@@ -31,6 +31,8 @@ const tickPath = (xs: readonly number[], length: number): string =>
 // scrubs; ← → nudge 0.01 (Shift 0.1); Enter asks the owner to open its value
 // field; Backspace, Delete or a double-click reset. A scale's ruler is
 // logarithmic and reads its size: the sign is the owner's (a flip toggle).
+// The ticks, labels and home notch carry data-nudge, so a view can slide
+// them under the index (FV 05: the first paint nudges each ruler once).
 export function ScrubStrip({
   value,
   onChange,
@@ -163,19 +165,25 @@ export function ScrubStrip({
       {marks !== null && (
         <>
           <svg className={stripStyles.marks} width={width} height={RULER_HEIGHT} aria-hidden="true">
-            <path className={stripStyles.tick} d={tickPath(marks.minor, TICK_LENGTH.minor)} strokeWidth={1} />
-            <path className={stripStyles.tick} d={tickPath(marks.mid, TICK_LENGTH.mid)} strokeWidth={1} />
-            <path
-              className={stripStyles.tick}
-              d={tickPath(marks.major, TICK_LENGTH.major)}
-              strokeWidth={1.5}
-            />
-            {marks.home !== null && (
+            <g data-nudge="">
               <path
-                className={stripStyles.home}
-                d={`M${px(marks.home - 4)} 0H${px(marks.home + 4)}L${px(marks.home)} 6Z`}
+                className={stripStyles.tick}
+                d={tickPath(marks.minor, TICK_LENGTH.minor)}
+                strokeWidth={1}
               />
-            )}
+              <path className={stripStyles.tick} d={tickPath(marks.mid, TICK_LENGTH.mid)} strokeWidth={1} />
+              <path
+                className={stripStyles.tick}
+                d={tickPath(marks.major, TICK_LENGTH.major)}
+                strokeWidth={1.5}
+              />
+              {marks.home !== null && (
+                <path
+                  className={stripStyles.home}
+                  d={`M${px(marks.home - 4)} 0H${px(marks.home + 4)}L${px(marks.home)} 6Z`}
+                />
+              )}
+            </g>
             <rect
               className={stripStyles.index}
               x={c - indexWidth / 2}
@@ -192,11 +200,13 @@ export function ScrubStrip({
               d={`M13 11L8 16L13 21M${width - 13} 11L${width - 8} 16L${width - 13} 21`}
             />
           </svg>
-          {marks.labels.map((mark) => (
-            <span key={mark.text} className={stripStyles.label} style={{ left: mark.left }}>
-              {mark.text}
-            </span>
-          ))}
+          <span className={stripStyles.tape} data-nudge="">
+            {marks.labels.map((mark) => (
+              <span key={mark.text} className={stripStyles.label} style={{ left: mark.left }}>
+                {mark.text}
+              </span>
+            ))}
+          </span>
         </>
       )}
     </div>

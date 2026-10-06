@@ -70,6 +70,14 @@ export type FvTourStep = 1 | 2 | 3
  */
 export type FvTour = { step: FvTourStep; acted: boolean }
 
+/**
+ * How the curve last changed (FV 05): a jump the plane springs to (a typed
+ * value, a reset, a double-click, Reset all, a flip), a direct change it
+ * follows 1 : 1 (a drag, an arrow key, the wheel, a handle), or a new
+ * function it draws on.
+ */
+export type FvChange = "jump" | "direct" | "switch"
+
 export type FvState = {
   /** The base function g. */
   fn: BaseFunctionSlug
@@ -99,6 +107,7 @@ export type FvState = {
   pBefore: FvPBefore | null
   explainer: FvExplainer | null
   tour: FvTour | null
+  change: FvChange
 }
 
 export const initialFvState: FvState = {
@@ -118,6 +127,7 @@ export const initialFvState: FvState = {
   pBefore: null,
   explainer: null,
   tour: null,
+  change: "direct",
 }
 
 /** What a panel part reports about itself; the view turns each report into its part's action. */

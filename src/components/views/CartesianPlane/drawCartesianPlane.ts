@@ -55,7 +55,10 @@ export const drawCartesianPlane = (props: DrawCartesianPlaneProps): GridLayout |
     originWidth: measure(ORIGIN_FACE, "O"),
     keepOut: [...props.keepOut, ...marks.tickKeepOut],
   })
+  ctx.save()
+  ctx.globalAlpha = Math.max(0, Math.min(1, scene.gridAlpha ?? 1))
   paintGrid(ctx, grid, themeVars, vp)
+  ctx.restore()
   const curves = (back: boolean) => {
     for (const curve of scene.curves) {
       if ((curve.back === true) === back) {

@@ -20,16 +20,16 @@ export const paintGuides = (
 ) => {
   ctx.save()
   ctx.lineCap = "butt"
-  if (marks.guides.length > 0) {
-    ctx.strokeStyle = theme.foregroundMuted
-    ctx.lineWidth = GUIDE_WIDTH
-    ctx.setLineDash(GUIDE_DASH)
-    ctx.lineDashOffset = dashPhase(GUIDE_DASH)
+  const base = ctx.globalAlpha
+  ctx.strokeStyle = theme.foregroundMuted
+  ctx.lineWidth = GUIDE_WIDTH
+  ctx.setLineDash(GUIDE_DASH)
+  ctx.lineDashOffset = dashPhase(GUIDE_DASH)
+  for (const guide of marks.guides) {
+    ctx.globalAlpha = base * (guide.alpha ?? 1)
     ctx.beginPath()
-    for (const x of marks.guides) {
-      ctx.moveTo(x, 0)
-      ctx.lineTo(x, height)
-    }
+    ctx.moveTo(guide.x, 0)
+    ctx.lineTo(guide.x, height)
     ctx.stroke()
   }
   ctx.lineWidth = DROP_WIDTH
@@ -39,6 +39,7 @@ export const paintGuides = (
     if (line.x1 === line.x2 && line.y1 === line.y2) {
       continue
     }
+    ctx.globalAlpha = base * (line.alpha ?? 1)
     ctx.strokeStyle = theme[line.ink]
     ctx.beginPath()
     ctx.moveTo(line.x1, line.y1)

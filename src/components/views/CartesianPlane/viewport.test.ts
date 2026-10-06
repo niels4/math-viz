@@ -11,6 +11,7 @@ import {
   toMathY,
   toScreenX,
   toScreenY,
+  viewportOf,
   visibleExtent,
   ZOOM_STOPS,
   zoomLabel,
@@ -128,5 +129,21 @@ describe("panIntoView", () => {
 
   it("leaves a point in view where it is", () => {
     expect(panIntoView(vp, { panX: 0.5, panY: -1 }, { x: 2, y: 4 })).toEqual({ panX: 0.5, panY: -1 })
+  })
+})
+
+describe("viewportOf", () => {
+  it("rebuilds the viewport an owner hears about", () => {
+    for (const vp of [
+      makeViewport({ width: 936, height: 792, dpr: 1 }, view(50)),
+      makeViewport({ width: 1256, height: 408, dpr: 2 }, view(40, 1.3, -0.7)),
+    ]) {
+      const back = viewportOf({ zoom: vp.zoom, extent: visibleExtent(vp) })
+      expect(back.width).toBeCloseTo(vp.width, 9)
+      expect(back.height).toBeCloseTo(vp.height, 9)
+      expect(back.originX).toBeCloseTo(vp.originX, 9)
+      expect(back.originY).toBeCloseTo(vp.originY, 9)
+      expect(back.zoom).toBe(vp.zoom)
+    }
   })
 })

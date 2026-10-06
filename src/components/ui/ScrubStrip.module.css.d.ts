@@ -8,6 +8,7 @@ declare const styles: {
   readonly "label": string;
   readonly "marks": string;
   readonly "strip": string;
+  readonly "tape": string;
   readonly "tick": string;
 };
 export = styles;
