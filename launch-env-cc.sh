@@ -81,7 +81,9 @@ figma0="/opt/dev/agent/code/agents/claude/figma0"
 # user, so OS file permissions are the security boundary.
 # --effort max: the user's choice for the first full-design runs (2026-10-06).
 # A new worktree shows Claude Code's trust dialog once; answer it in the pane.
-tmux send-keys -t "$agent" "MATHVIZ_WTR_PORT=$port MATHVIZ_DISK_PORT=$port2 FIGMA0=$figma0 claude --dangerously-skip-permissions --effort max" C-m
+# Exported in the pane's shell, so a driver that restarts Claude there keeps them.
+tmux send-keys -t "$agent" "export MATHVIZ_WTR_PORT=$port MATHVIZ_DISK_PORT=$port2 FIGMA0=$figma0" C-m
+tmux send-keys -t "$agent" "claude --dangerously-skip-permissions --effort max" C-m
 
 tmux select-window -t "$agent"
 if [[ $detach -eq 1 ]]; then
