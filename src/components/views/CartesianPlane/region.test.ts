@@ -65,12 +65,12 @@ describe("curveBox", () => {
 describe("regionOf", () => {
   it("spans R1's curve, P with its label, and the x labels under them (the tour's first hole)", () => {
     const region = regionOf(drawn(R1), ["f", "p"])
-    // P's label sits at R2's box (590, 141.8), 108 wide; the x labels −2 … 4
-    // (centres 368 … 668) hang 9 px under the x-axis at 396.
+    // P's label sits at R2's place (590, 141.8), 169 wide with fixed decimals;
+    // the x labels −2 … 4 (centres 368 … 668) hang 9 px under the x-axis at 396.
     expect(round(region)).toEqual({
       x: 326.25,
       y: 2.25,
-      right: 698,
+      right: 759,
       bottom: r2(405 + lineBox(TICK_LABEL_FACE)),
     })
   })
@@ -78,7 +78,7 @@ describe("regionOf", () => {
   it("leaves out what isn't named, and the labels of an axis that doesn't cross the parts", () => {
     const pOnly = regionOf(drawn(R1), ["p"])
     // P's marker (568, 196) ± 12 and its label; the x-axis at 396 lies below them.
-    expect(round(pOnly)).toEqual({ x: 556, y: 141.8, right: 698, bottom: 208 })
+    expect(round(pOnly)).toEqual({ x: 556, y: 141.8, right: 759, bottom: 208 })
   })
 
   it("takes a point's edge marker while it is off the view", () => {

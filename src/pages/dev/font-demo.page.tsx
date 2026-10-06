@@ -2,7 +2,7 @@ import { ArrowIcon, TriangleIcon } from "#src/components/ui/icons.tsx"
 import robotoMonoStyles from "#src/style/fonts/roboto_mono/roboto_mono.module.css"
 import stixStyles from "#src/style/fonts/stix_two_text/stix_two_text.module.css"
 import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
-import { formatNumber, formatShort, relation } from "#src/util/format/number.ts"
+import { formatNumber, formatTick, relation } from "#src/util/format/number.ts"
 
 import style from "./font-demo.page.module.css"
 
@@ -19,7 +19,7 @@ function Readout({ x, y, numerals }: { x: number; y: number; numerals: "mono" | 
     <span className={style.readout}>
       <span className={style.fname}>f</span>(<span className={num}>{formatNumber(x)}</span>)
       <span className={style.rel}>{relation(y)}</span>
-      <span className={num}>{formatShort(y)}</span>
+      <span className={num}>{formatNumber(y)}</span>
     </span>
   )
 }
@@ -48,9 +48,9 @@ function GlyphSpecimen() {
             <Readout key={r.x} {...r} numerals="stix" />
           ))}
         </span>
-        <span className={style.caption}>Label · Roboto Mono</span>
+        <span className={style.caption}>Label and tick · Roboto Mono</span>
         <span className={style.label}>
-          Q (3.14, {formatShort(2e-6)}) · {formatShort(Math.sin(3.14))}
+          Q (3.14, {formatNumber(Math.sin(3.14))}) · {formatTick(2e-6)}
         </span>
         <span className={style.caption}>Drawn</span>
         <span className={style.marks}>
@@ -60,7 +60,7 @@ function GlyphSpecimen() {
             </span>
             <var>P</var>
             <span className={style.marker_coords}>
-              ({formatNumber(-3)}, {formatShort(10.5625)})
+              ({formatNumber(-3)}, {formatNumber(10.5625)})
             </span>
           </span>
           <span className={style.marker}>

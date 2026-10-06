@@ -18,6 +18,13 @@
   gap: 7px;
 }
 
+/* Fixed decimals (the user's ruling) make a flipped scale's value five
+characters ("−2.00", R8): the field's own 8 px padding stands in for the
+gap before it, so the name keeps its room beside the flip toggle and ↺. */
+.head[data-flip] .value {
+  margin-inline-start: -6px;
+}
+
 /* The letter chip: 26, radius 6, --secondary, the letter in STIX italic 19
 in its 24 px line box. It opens the explainer (D12), so its cursor is help
 (FV 02 › help-popover-fv). */

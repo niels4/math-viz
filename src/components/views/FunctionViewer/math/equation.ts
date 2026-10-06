@@ -4,12 +4,22 @@ import type { BaseFunctionSlug } from "./baseFunctions.ts"
 
 import { INNER_STEPS, isAtDefault, type TransformParam, type TransformParams } from "./form.ts"
 
-// The equation as tokens (port of figma0's fvEqTokens, prelude-fv.js). The
-// live line prints values and hides a parameter at its default; the form
-// line prints every letter. One renderer (panel/EquationTokens) sets both,
-// and `describeEquation` reads the same tokens as plain text for aria.
+// The equation as tokens (port of figma0's fvEqTokens, prelude-fv.js, with
+// the user's fixed decimals as in its teEqTokens: 2.00(x + 1.00)² + 1.00, and
+// a = −1 prints −1.00 like any value). The live line prints values and hides
+// a parameter at its default; the form line prints every letter. One
+// renderer (panel/EquationTokens) sets both, and `describeEquation` reads
+// the same tokens as plain text for aria.
 
 export type EquationMode = "live" | "form"
+
+/** What the live line holds while values are dragged. */
+export type LiveHold = {
+  /** Terms kept at their defaults ("+ 0.00"): they are being dragged. */
+  keep?: readonly TransformParam[]
+  /** Values a fine drag holds at 3 decimals (number.ts › formatStored). */
+  fine?: readonly TransformParam[]
+}
 
 export type EquationToken =
   | { kind: "text"; text: string }
@@ -29,18 +39,18 @@ const text = (s: string): EquationToken => ({ kind: "text", text: s })
 const EXPONENT: Partial<Record<BaseFunctionSlug, string>> = { x2: "2", x3: "3" }
 
 // The sign rule: h > 0 prints x − h, h < 0 prints x + |h|; k likewise after
-// the body. A kept term at 0 takes the form's own operator: x − 0, + 0.
-const signed = (v: number, positive: string, negative: string): string =>
-  `${v >= 0 ? positive : negative} ${formatStored(Math.abs(v))}`
+// the body. A kept term at 0 takes the form's own operator: x − 0.00, + 0.00.
+const signed = (v: number, fine: boolean, positive: string, negative: string): string =>
+  `${v >= 0 ? positive : negative} ${formatStored(Math.abs(v), fine)}`
 
 export function equationTokens(
   fn: BaseFunctionSlug,
   params: TransformParams,
   mode: EquationMode,
-  /** The live line keeps these terms at their defaults ("+ 0"): they are being dragged. */
-  keep: readonly TransformParam[] = [],
+  { keep = [], fine = [] }: LiveHold = {},
 ): EquationToken[] {
   const form = mode === "form"
+  const held = (p: TransformParam) => fine.includes(p)
   const shown = (p: TransformParam) => form || !isAtDefault(params, p) || keep.includes(p)
   const term = (p: TransformParam, s: string): EquationToken => ({
     kind: "param",
@@ -63,9 +73,9 @@ export function equationTokens(
         last?.kind === "text" ? [...inner.slice(0, -1), text(`${last.text} `)] : [...inner, text(" ")]
       inner = form
         ? [...head, text(" − "), term("h", "h")]
-        : [...head, term("h", signed(params.h, MINUS, "+"))]
+        : [...head, term("h", signed(params.h, held("h"), MINUS, "+"))]
     } else {
-      inner = [{ kind: "frac", num: inner, den: [term("b", form ? "b" : formatStored(params.b))] }]
+      inner = [{ kind: "frac", num: inner, den: [term("b", form ? "b" : formatStored(params.b, held("b")))] }]
       hasFrac = true
     }
   }
@@ -86,7 +96,7 @@ export function equationTokens(
 
   const tokens: EquationToken[] = [text("f(x) = ")]
   if (shown("a")) {
-    tokens.push(term("a", form ? "a" : params.a === -1 ? MINUS : formatStored(params.a)))
+    tokens.push(term("a", form ? "a" : formatStored(params.a, held("a"))))
     if (fn === "sin") {
       tokens.push(text(" "))
     }
@@ -99,7 +109,7 @@ export function equationTokens(
     tokens.push(...body)
   }
   if (shown("k")) {
-    tokens.push(text(" "), term("k", form ? "+ k" : signed(params.k, "+", MINUS)))
+    tokens.push(text(" "), term("k", form ? "+ k" : signed(params.k, held("k"), "+", MINUS)))
   }
   return tokens
 }

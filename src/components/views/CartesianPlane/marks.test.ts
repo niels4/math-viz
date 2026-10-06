@@ -73,13 +73,16 @@ const boxOf = (plate: { box: { x: number; y: number; w: number; h: number } } | 
       }
 
 describe("layoutMarks", () => {
-  it("lays out R2: P's label, Q's probe, its tags and label at the snapshot's boxes", () => {
+  // The snapshot's places; the boxes are as wide as fixed decimals make
+  // them (the user's ruling): "(2.00, 4.00)" where the board prints "(2, 4)".
+  // A label left of its point keeps the board's right edge.
+  it("lays out R2: P's label, Q's probe, its tags and label at the snapshot's places", () => {
     const marks = layout(scene(x2, [P(2, 4), Q(-1.5, 2.25)], -1.5))
     const [p, q] = marks.points
-    expect(boxOf(p?.label)).toEqual({ x: 590, y: 141.8, w: 108, h: 41 })
-    expect(boxOf(q?.label)).toEqual({ x: 199, y: 296.7, w: 172, h: 41 })
+    expect(boxOf(p?.label)).toEqual({ x: 590, y: 141.8, w: 169, h: 41 })
+    expect(boxOf(q?.label)).toEqual({ x: 189, y: 296.7, w: 182, h: 41 })
     expect(marks.tags.map(boxOf)).toEqual([
-      { x: 364.5, y: 382, w: 57, h: 28 },
+      { x: 360, y: 382, w: 66, h: 28 },
       { x: 439.5, y: 269.5, w: 57, h: 28 },
     ])
     expect(marks.guides).toEqual([393])
@@ -91,31 +94,31 @@ describe("layoutMarks", () => {
     expect(p?.marker).toEqual({ x: 568, y: 196, style: "bullseye", ink: "chartPoint1", focus: false })
   })
 
-  it("prints coordinates by the number rule: x at 2 dp, y short, U+2212 minus", () => {
+  it("prints coordinates by the number rule: 2 decimals, U+2212 minus", () => {
     const marks = layout(scene(x2, [P(2, 4), Q(-1.5, 2.25)], -1.5))
     const texts = (plate: { runs: readonly { kind: string; text?: string }[] } | null | undefined) =>
       plate?.runs.map((r) => r.text ?? `<${r.kind}>`)
-    expect(texts(marks.points[0]?.label)).toEqual(["P", "(2, 4)"])
-    expect(texts(marks.points[1]?.label)).toEqual(["Q", "(−1.5, 2.25)"])
-    expect(marks.tags.map(texts)).toEqual([["−1.5"], ["2.25"]])
+    expect(texts(marks.points[0]?.label)).toEqual(["P", "(2.00, 4.00)"])
+    expect(texts(marks.points[1]?.label)).toEqual(["Q", "(−1.50, 2.25)"])
+    expect(marks.tags.map(texts)).toEqual([["−1.50"], ["2.25"]])
   })
 
   it("skips the tick labels under a tag: the tags, 4 px larger", () => {
     const marks = layout(scene(x2, [P(2, 4), Q(-1.5, 2.25)], -1.5))
     expect(marks.tickKeepOut).toEqual([
-      { x: 360.5, y: 378, w: 65, h: 36 },
+      { x: 356, y: 378, w: 74, h: 36 },
       { x: 435.5, y: 265.5, w: 65, h: 36 },
     ])
   })
 
   it("lays out R3 and R4: P's label clears the curve, Q's label goes up-left", () => {
     const r3Marks = layout(scene(r3, [P(0.5, 5.5)]), 597)
-    expect(boxOf(r3Marks.points[0]?.label)).toEqual({ x: 515, y: 66.8, w: 149, h: 41 })
+    expect(boxOf(r3Marks.points[0]?.label)).toEqual({ x: 515, y: 66.8, w: 169, h: 41 })
     const r4 = layout(scene(r3, [P(0.5, 5.5), Q(-2, 3)], -2), 597)
-    expect(boxOf(r4.points[1]?.label)).toEqual({ x: 225, y: 191.8, w: 121, h: 41 })
+    expect(boxOf(r4.points[1]?.label)).toEqual({ x: 164, y: 191.8, w: 182, h: 41 })
     expect(r4.tags.map(boxOf)).toEqual([
-      { x: 348.5, y: 382, w: 39, h: 28 },
-      { x: 453, y: 232, w: 30, h: 28 },
+      { x: 335, y: 382, w: 66, h: 28 },
+      { x: 439.5, y: 232, w: 57, h: 28 },
     ])
   })
 
@@ -123,8 +126,8 @@ describe("layoutMarks", () => {
     const marks = layout(scene(x2, [P(2, 4, { focus: true, axisTags: true })]))
     expect(marks.points[0]?.marker?.focus).toBe(true)
     expect(marks.tags.map(boxOf)).toEqual([
-      { x: 553, y: 382, w: 30, h: 28 },
-      { x: 453, y: 182, w: 30, h: 28 },
+      { x: 539.5, y: 382, w: 57, h: 28 },
+      { x: 439.5, y: 182, w: 57, h: 28 },
     ])
     expect(marks.dropLines.map((l) => l.ink)).toEqual(["chartPoint1", "chartPoint1"])
   })
@@ -135,10 +138,14 @@ describe("layoutMarks", () => {
     const [p] = marks.points
     expect(p?.marker).toBeNull()
     expect(p?.label).toBeNull()
-    expect(p?.edge?.runs.map((r) => (r.kind === "text" ? r.text : r.dir))).toEqual(["up", "P", "(2, 8)"])
-    // "▲ P (2, 8)": runs of 12, 11 and 55 px, 8 apart, inside 2 + 8 and 12 + 2:
-    // 118 wide, centred on P's x at the top.
-    expect(boxOf(p?.edge)).toEqual({ x: 509, y: 22, w: 118, h: 39 })
+    expect(p?.edge?.runs.map((r) => (r.kind === "text" ? r.text : r.dir))).toEqual([
+      "up",
+      "P",
+      "(2.00, 8.00)",
+    ])
+    // "▲ P (2.00, 8.00)": runs of 12, 11 and 109 px, 8 apart, inside 2 + 8 and
+    // 12 + 2: 172 wide, centred on P's x at the top.
+    expect(boxOf(p?.edge)).toEqual({ x: 482, y: 22, w: 172, h: 39 })
     expect(marks.hits).toContainEqual({ kind: "edge", id: "p", box: p?.edge?.box, target: { x: 2, y: 8 } })
   })
 
@@ -246,7 +253,7 @@ describe("layoutMarks › annotations, handles, where a point was", () => {
       ink: "chartPoint1",
       arrow: { x1: 493, y1: 158, x2: 493, y2: 135, ink: "primary" },
     })
-    expect(boxOf(marks.points[0]?.label)).toEqual({ x: 515, y: 66.8, w: 149, h: 41 })
+    expect(boxOf(marks.points[0]?.label)).toEqual({ x: 515, y: 66.8, w: 169, h: 41 })
   })
 
   it("lays out R6: the anchor's drop lines, h under the x-axis, k left of the y-axis", () => {
@@ -284,7 +291,7 @@ describe("layoutMarks › annotations, handles, where a point was", () => {
       { x: 402, y: 329.5, w: 62, h: 33 },
     ])
     expect(marks.handles[0]).toMatchObject({ halo: true, held: true })
-    expect(boxOf(marks.points[0]?.label)).toEqual({ x: 343, y: 191.8, w: 128, h: 41 })
+    expect(boxOf(marks.points[0]?.label)).toEqual({ x: 302, y: 191.8, w: 169, h: 41 })
   })
 
   it("lays out R7: a's unit box and its plate on the third ring, clear of the ghost", () => {

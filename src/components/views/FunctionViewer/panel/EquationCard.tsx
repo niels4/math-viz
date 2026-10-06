@@ -42,6 +42,7 @@ export function EquationCard({
   params,
   lit,
   keep,
+  fine,
   tip,
   onPointer,
   onLeave,
@@ -54,6 +55,8 @@ export function EquationCard({
   lit: readonly TransformParam[]
   /** Parameters whose live term stays at its default: they are being dragged. */
   keep: readonly TransformParam[]
+  /** Parameters a drag holds at 3 decimals: their terms and tips print them so. */
+  fine: readonly TransformParam[]
   /** The parameter whose term shows its tip (the one under the pointer), or null. */
   tip: TransformParam | null
   /** The pointer on the card, over a term or between them. */
@@ -64,7 +67,7 @@ export function EquationCard({
 }) {
   // Only the term under the pointer hangs the tip, in the line it is in.
   const [line, setLine] = useState<Line | null>(null)
-  const live = equationTokens(fn, params, "live", keep)
+  const live = equationTokens(fn, params, "live", { keep, fine })
   const form = equationTokens(fn, params, "form")
   const said = describeEquation(live)
   const rowRef = useRef<HTMLOutputElement | null>(null)
@@ -79,7 +82,9 @@ export function EquationCard({
     lit,
     bindTerm,
     renderUnder: (param: TransformParam) =>
-      param === tip && which === line ? <TermTip param={param} value={params[param]} /> : null,
+      param === tip && which === line ? (
+        <TermTip param={param} value={params[param]} fine={fine.includes(param)} />
+      ) : null,
   })
   return (
     <div

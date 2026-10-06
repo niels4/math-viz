@@ -19,9 +19,22 @@ export const useFitWidth = (
     }
     const fit = () => {
       inner.style.setProperty("--fit-scale", "1")
-      const natural = inner.getBoundingClientRect().width
       const room = outer.clientWidth - SLACK
-      inner.style.setProperty("--fit-scale", natural > room && room > 0 ? String(room / natural) : "1")
+      const natural = inner.getBoundingClientRect().width
+      if (room <= 0 || natural <= room) {
+        return
+      }
+      const first = room / natural
+      inner.style.setProperty("--fit-scale", String(first))
+      // Whole-px parts (a fraction's padding, rounded margins) don't shrink
+      // with the font: the width is a part that scales plus a fixed part.
+      // A second look tells the two apart and solves for the room.
+      const width = inner.getBoundingClientRect().width
+      if (width > room) {
+        const scaling = (natural - width) / (1 - first)
+        const solved = (room - (natural - scaling)) / scaling
+        inner.style.setProperty("--fit-scale", String(solved > 0 ? solved : first))
+      }
     }
     fit()
     if (typeof ResizeObserver !== "function") {

@@ -16,6 +16,7 @@ const BASE: PlaneSceneInput = {
   handleLit: null,
   handleHeld: null,
   pWas: null,
+  fine: [],
 }
 const R3 = { a: 2, b: 1, h: -1, k: 1 }
 
@@ -97,7 +98,7 @@ describe("buildPlaneScene", () => {
       lines: [{ from: { x: -1, y: 0 }, to: { x: -1, y: 1 }, width: 2.5, startTick: 9, arrow: true }],
       plates: [
         {
-          runs: [{ text: "k", italic: true }, { text: "= 1" }],
+          runs: [{ text: "k", italic: true }, { text: "= 1.00" }],
           size: "md",
           place: { kind: "beside", at: { x: -1, y: 0.5 } },
         },
@@ -110,7 +111,7 @@ describe("buildPlaneScene", () => {
     expect(h?.lines).toEqual([
       { from: { x: 0, y: 1 }, to: { x: -1, y: 1 }, width: 2.5, startTick: 9, arrow: true },
     ])
-    expect(h?.plates[0]?.runs).toEqual([{ text: "h", italic: true }, { text: "= −1" }])
+    expect(h?.plates[0]?.runs).toEqual([{ text: "h", italic: true }, { text: "= −1.00" }])
     expect(h?.plates[0]?.place).toEqual({ kind: "above", at: { x: -0.5, y: 1 }, gap: 16 })
   })
 
@@ -123,7 +124,7 @@ describe("buildPlaneScene", () => {
     expect(a?.plates[0]?.place).toEqual({ kind: "beside", at: { x: 0, y: 2 } })
     const [b] = buildPlaneScene({ ...BASE, params: R3, active: "b" }).annotations ?? []
     expect(b?.lines[4]).toEqual({ from: { x: -1, y: 1 }, to: { x: 0, y: 1 }, width: 3, endTicks: 7 })
-    expect(b?.plates[0]?.runs).toEqual([{ text: "b", italic: true }, { text: "= 1" }])
+    expect(b?.plates[0]?.runs).toEqual([{ text: "b", italic: true }, { text: "= 1.00" }])
   })
 
   it("drops a dragged anchor's h and k onto the axes, over the curve (R6)", () => {
@@ -149,6 +150,15 @@ describe("buildPlaneScene", () => {
       { from: { x: 0.5, y: 1 }, to: { x: 0.5, y: 3 }, width: 3 },
     ])
     expect(box?.plates.map((p) => p.runs[0]?.text)).toEqual(["b", "a"])
+  })
+
+  it("prints a plate's value at 3 decimals while a fine drag holds it (the user's ruling)", () => {
+    const plate = (fine: readonly ("a" | "b" | "h" | "k")[]) =>
+      buildPlaneScene({ ...BASE, params: R3, active: "k", fine }).annotations?.[0]?.plates[0]?.runs[1]
+    expect(plate([])).toEqual({ text: "= 1.00" })
+    expect(plate(["k"])).toEqual({ text: "= 1.000" })
+    const typed = buildPlaneScene({ ...BASE, params: { ...R3, k: 1.235 }, active: "k" })
+    expect(typed.annotations?.[0]?.plates[0]?.runs[1]).toEqual({ text: "= 1.235" })
   })
 
   it("marks where a transform's drag found P, with an arrow in --primary (R5)", () => {

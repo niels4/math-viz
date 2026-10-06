@@ -9,6 +9,7 @@ import {
   activeParams,
   curveAt,
   draggedParams,
+  fineParams,
   ghostVisible,
   handleHeld,
   handleLit,
@@ -189,7 +190,7 @@ describe("parts: hover, focus, drag, edit", () => {
       { type: "drag", part: "h", mode: "coarse" },
       { type: "drag", part: "h", mode: "fine" },
     )
-    expect(dragging.drag).toEqual({ part: "h", mode: "fine" })
+    expect(dragging.drag).toEqual({ part: "h", mode: "fine", fine: ["h"] })
     expect(fvReducer(dragging, { type: "drag", part: "k", mode: null })).toBe(dragging)
     expect(fvReducer(dragging, { type: "drag", part: "h", mode: null }).drag).toBeNull()
     const refused = run({ type: "edit", part: "b", edit: { error: "zero-scale", base: 1.04 } })
@@ -207,14 +208,43 @@ describe("parts: hover, focus, drag, edit", () => {
       { type: "edit", part: "k", edit: { error: null, base: 0 } },
     )
     // The open field leads (FV 04: one active value at a time): only k is lit.
-    expect(partUi(state, "a")).toEqual({ hovered: true, lit: false, mode: null, edit: null })
-    expect(partUi(state, "p")).toEqual({ hovered: false, lit: false, mode: "coarse", edit: null })
+    expect(partUi(state, "a")).toEqual({ hovered: true, lit: false, mode: null, fine: false, edit: null })
+    expect(partUi(state, "p")).toEqual({
+      hovered: false,
+      lit: false,
+      mode: "coarse",
+      fine: false,
+      edit: null,
+    })
     expect(partUi(state, "k")).toEqual({
       hovered: false,
       lit: true,
       mode: null,
+      fine: false,
       edit: { error: null, base: 0 },
     })
+  })
+
+  // The user's ruling (plan M10b): a fine drag shows 3 decimals for its whole
+  // length, and a value with a third keeps it while any drag moves it.
+  it("holds 3 decimals for what a drag moves once it goes fine, until it lets go", () => {
+    const coarse = run({ type: "drag", part: "k", mode: "coarse" })
+    expect(fineParams(coarse)).toEqual([])
+    const fine = fvReducer(coarse, { type: "drag", part: "k", mode: "fine" })
+    expect(fineParams(fine)).toEqual(["k"])
+    expect(partUi(fine, "k").fine).toBe(true)
+    const back = fvReducer(fine, { type: "drag", part: "k", mode: "coarse" })
+    expect(fineParams(back)).toEqual(["k"])
+    expect(fineParams(fvReducer(back, { type: "drag", part: "k", mode: null }))).toEqual([])
+    expect(fineParams(run({ type: "drag", part: "h", mode: "fine" }))).toEqual(["h"])
+  })
+
+  it("holds a third decimal a dragged value starts with, and only that value's", () => {
+    const typed = run({ type: "setParam", param: "a", value: 1.035 })
+    expect(fineParams(fvReducer(typed, { type: "drag", part: "a", mode: "coarse" }))).toEqual(["a"])
+    expect(fineParams(fvReducer(typed, { type: "drag", part: "stretch", mode: "coarse" }))).toEqual(["a"])
+    expect(fineParams(fvReducer(typed, { type: "drag", part: "anchor", mode: "coarse" }))).toEqual([])
+    expect(fineParams(fvReducer(typed, { type: "drag", part: "p", mode: "coarse" }))).toEqual([])
   })
 })
 
@@ -430,21 +460,37 @@ describe("the tour (D19, FV 08)", () => {
     expect(step(run(...atTwo, drag("k"), kTo1))).toBe(2)
     expect(step(run(...atTwo, drag("k"), kTo1, release("k")))).toBe(3)
     expect(
-      step(run(...atTwo, drag("anchor"), { type: "dragHandle", handle: "anchor", to: { x: 1, y: 1 } }, release("anchor"))),
+      step(
+        run(
+          ...atTwo,
+          drag("anchor"),
+          { type: "dragHandle", handle: "anchor", to: { x: 1, y: 1 } },
+          release("anchor"),
+        ),
+      ),
     ).toBe(3)
     // A drag that changed nothing, or a change that wasn't a drag (typing), doesn't.
     expect(step(run(...atTwo, drag("k"), release("k")))).toBe(2)
     expect(step(run(...atTwo, kTo1))).toBe(2)
     // P's own drag isn't a transform's.
     expect(
-      step(run(...atTwo, { type: "drag", part: "p", mode: "coarse" }, { type: "setP", x: 3 }, { type: "drag", part: "p", mode: null })),
+      step(
+        run(
+          ...atTwo,
+          { type: "drag", part: "p", mode: "coarse" },
+          { type: "setP", x: 3 },
+          { type: "drag", part: "p", mode: null },
+        ),
+      ),
     ).toBe(2)
   })
 
   it("completes step 3 once Q has followed the pointer across the plane", () => {
     const atThree = [start, next, next]
     expect(step(run(...atThree, { type: "planePointer", x: -1.5 }))).toBe(3)
-    expect(step(run(...atThree, { type: "planePointer", x: -1.5 }, { type: "planePointer", x: -1.2 }))).toBeNull()
+    expect(
+      step(run(...atThree, { type: "planePointer", x: -1.5 }, { type: "planePointer", x: -1.2 })),
+    ).toBeNull()
     // Panning hides Q: no reading.
     expect(
       step(

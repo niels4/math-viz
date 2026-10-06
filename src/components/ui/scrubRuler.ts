@@ -5,7 +5,7 @@
 // equal distances and the ruler reads a scale's size. Both rates are the
 // drag's own (scrub.ts), so the tape tracks the pointer exactly.
 
-import { formatNumber } from "#src/util/format/number.ts"
+import { formatMark } from "#src/util/format/number.ts"
 
 import { SCRUB_STEP, type ScrubKind } from "./scrub.ts"
 
@@ -59,7 +59,7 @@ export const rulerMarks = (kind: ScrubKind, value: number, width: number): Ruler
   const marks: RulerMarks = { minor: [], mid: [], major: [], labels: [], home: null }
   const inside = (x: number) => x >= 1 && x <= width - 1
   const label = (x: number, u: number) => {
-    const text = formatNumber(u)
+    const text = formatMark(u)
     const w = labelWidth(text)
     const left = Math.round(x - w / 2)
     if (

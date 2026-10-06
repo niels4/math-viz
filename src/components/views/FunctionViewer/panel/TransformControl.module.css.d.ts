@@ -10,5 +10,6 @@ declare const styles: {
   readonly "head": string;
   readonly "name": string;
   readonly "name_slot": string;
+  readonly "value": string;
 };
 export = styles;

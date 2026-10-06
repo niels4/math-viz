@@ -43,6 +43,7 @@ export function ScrubStrip({
   held = null,
   hot = false,
   dimmed = false,
+  format = formatStored,
   testId,
   ref,
 }: {
@@ -65,6 +66,8 @@ export function ScrubStrip({
   hot?: boolean
   /** Stepped back while the owner's value is typed. */
   dimmed?: boolean
+  /** The value as its field prints it, for screen readers. */
+  format?: (v: number) => string
   testId?: string
   ref?: Ref<ScrubStripHandle>
 }) {
@@ -147,7 +150,7 @@ export function ScrubStrip({
       aria-label={label}
       aria-describedby={describedBy}
       aria-valuenow={kind === "multiplicative" ? Math.abs(value) : value}
-      aria-valuetext={formatStored(value)}
+      aria-valuetext={format(value)}
       data-testid={testId}
       data-mode={shownMode ?? undefined}
       data-hot={hot || undefined}

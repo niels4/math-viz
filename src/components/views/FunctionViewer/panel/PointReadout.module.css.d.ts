@@ -9,5 +9,6 @@ declare const styles: {
   readonly "open": string;
   readonly "readout": string;
   readonly "rel": string;
+  readonly "room": string;
 };
 export = styles;

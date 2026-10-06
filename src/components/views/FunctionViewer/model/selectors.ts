@@ -79,18 +79,29 @@ export const activeParams = (state: FvState): readonly TransformParam[] => {
   return a === null ? [] : isHandle(a) ? HANDLE_PARAMS[a] : [a]
 }
 
-/** The parameters a drag is changing (a ruler's, a term's, both of a handle's): their live terms stay put. */
-export const draggedParams = (state: FvState): readonly TransformParam[] => {
-  const part = state.drag?.part ?? null
-  return part === null ? [] : isParam(part) ? [part] : isHandle(part) ? HANDLE_PARAMS[part] : []
-}
+/** The parameters a part's drag changes: a ruler's or a term's one, a handle's two. */
+export const paramsOf = (part: FvPart): readonly TransformParam[] =>
+  isParam(part) ? [part] : isHandle(part) ? HANDLE_PARAMS[part] : []
+
+/** The parameters a drag is changing: their live terms stay put. */
+export const draggedParams = (state: FvState): readonly TransformParam[] =>
+  state.drag === null ? [] : paramsOf(state.drag.part)
+
+/** The values a drag holds at 3 decimals (FvDrag › fine): every place that prints them holds them too. */
+export const fineParams = (state: FvState): readonly TransformParam[] => state.drag?.fine ?? []
 
 /**
  * What a part draws of its own state: the pointer on it, lit as a partner
  * of the active value, its drag's mode (a handle's drag holds both its
- * parameters, coarse), its open edit.
+ * parameters, coarse), its value held at 3 decimals by a drag, its open edit.
  */
-export type PartUi = { hovered: boolean; lit: boolean; mode: ScrubMode | null; edit: NumberFieldEdit | null }
+export type PartUi = {
+  hovered: boolean
+  lit: boolean
+  mode: ScrubMode | null
+  fine: boolean
+  edit: NumberFieldEdit | null
+}
 
 export const partUi = (state: FvState, part: FvPart): PartUi => {
   const { drag } = state
@@ -100,6 +111,7 @@ export const partUi = (state: FvState, part: FvPart): PartUi => {
     hovered: state.hover === part,
     lit: isParam(part) && activeParams(state).includes(part),
     mode: drag?.part === part ? drag.mode : heldByHandle ? "coarse" : null,
+    fine: isParam(part) && fineParams(state).includes(part),
     edit: state.edit?.part === part ? { error: state.edit.error, base: state.edit.base } : null,
   }
 }

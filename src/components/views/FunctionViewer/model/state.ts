@@ -30,8 +30,13 @@ export const HANDLE_PARAMS: Readonly<Record<FvHandle, readonly [TransformParam, 
  */
 export type FvPart = TransformParam | "p" | "plane" | "eq" | FvHandle
 
-/** A drag in progress: a ruler's or a term's mode (fine, snap), or "coarse" for P and the handles. */
-export type FvDrag = { part: FvPart; mode: ScrubMode }
+/**
+ * A drag in progress: a ruler's or a term's mode (fine, snap), or "coarse"
+ * for P and the handles; and the values it holds at 3 decimals until it lets
+ * go: those it found with a third, and all it moves once it has gone fine
+ * (the user's ruling: precision never changes mid-drag).
+ */
+export type FvDrag = { part: FvPart; mode: ScrubMode; fine: readonly TransformParam[] }
 
 /** What the pointer can be over on the plane: P's marker or a handle (each grabs), or the empty plane (null). */
 export type FvPlaneMark = "p" | FvHandle

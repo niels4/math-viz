@@ -3,8 +3,9 @@ px one, so the row is 32 tall with the STIX boxes 2 px lower. Figma sizes
 each run's box to whole px, rounded up, and draws the run at the box's
 left: the slack is the air the boards show after "(", a number, ")" and
 the relation. Each run here takes the same box: the STIX runs from their
-advances (f( 0.634 em, ")" 0.343, = and ≈ 0.72), a number from its length
-in ch, which is exact in a monospaced face. */
+advances (f( 0.634 em, ")" 0.343, = and ≈ 0.72), a number from its slot
+in ch (readoutFit.ts), which is exact in a monospaced face. A number sits
+right-aligned in tabular figures, so its decimal point holds still. */
 .readout {
   display: flex;
   flex: none;
@@ -42,9 +43,19 @@ collapse at the box's edges. */
 .number {
   min-width: round(up, calc(var(--chars, 0) * 1ch), 1px);
   font-family: var(--sig-readout-font);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
   font-size: 22px;
   font-weight: 500;
   line-height: 29px;
+}
+
+/* x's spare room in its slot, before "f(": the slot's whole-px box less
+x's (--chars), so the two always add up to the slot's box. No text, no
+baseline of its own. */
+.room {
+  align-self: stretch;
+  min-width: calc(round(up, calc(var(--slot) * 1ch), 1px) - round(up, calc(var(--chars) * 1ch), 1px));
 }
 
 /* fvNumNode: the exponent at 0.62 of the size, its box 12 px above the

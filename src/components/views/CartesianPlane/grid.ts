@@ -1,4 +1,4 @@
-import { formatShort } from "#src/util/format/number.ts"
+import { formatTick } from "#src/util/format/number.ts"
 
 import type { Rect } from "./rect.ts"
 import type { Viewport } from "./viewport.ts"
@@ -162,7 +162,7 @@ export const layoutGrid = (
     if (!between(cx, LABEL_EDGE_X, width - LABEL_EDGE_X)) {
       continue
     }
-    const text = formatShort(u)
+    const text = formatTick(u)
     const w = labelWidth(text)
     const label: GridLabel = { axis: "x", text, box: { x: cx - w / 2, y: top, w, h: boxH } }
     if (clear(label.box)) {
@@ -174,7 +174,7 @@ export const layoutGrid = (
   // there is no room, and along the nearest edge while the axis is out of view.
   const yTexts = majorYs
     .filter((u) => between(toScreenY(vp, u), LABEL_EDGE_Y, height - LABEL_EDGE_Y))
-    .map((u) => ({ u, text: formatShort(u) }))
+    .map((u) => ({ u, text: formatTick(u) }))
   const widths = yTexts.map(({ text }) => labelWidth(text))
   const widest = Math.max(0, ...widths)
   const leftAligned = originX < 0 || (originX <= width && originX - LABEL_GAP_Y - widest < EDGE_PAD)

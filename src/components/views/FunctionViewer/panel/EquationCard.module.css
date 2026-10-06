@@ -19,10 +19,11 @@ stacked fraction, so switching x² for (x − h)/b keeps the panel still. */
 }
 
 /* STIX Two Text's AUTO line box is 1.25 em, which Figma rounds up to whole
-px. */
+px. Tabular figures (STIX's own default): a sliding term keeps its width. */
 .line,
 .form {
   font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-variant-numeric: tabular-nums;
   line-height: round(up, 1.25em, 1px);
 }
 

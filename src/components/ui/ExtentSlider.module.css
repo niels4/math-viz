@@ -108,6 +108,7 @@
 
   .tip_value {
     font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
     font-size: 13px;
     font-weight: 500;
     line-height: 17px;

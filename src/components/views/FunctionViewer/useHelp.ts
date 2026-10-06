@@ -4,7 +4,7 @@ import { useEffect, useRef, type RefObject } from "react"
 import type { Phrase } from "#src/components/ui/Phrases.tsx"
 
 import { fvTourDoneAtom } from "#src/state/fvTour.ts"
-import { formatNumber, formatShort, relation } from "#src/util/format/number.ts"
+import { formatNumber, relation } from "#src/util/format/number.ts"
 
 import type { CartesianPlaneHandle } from "../CartesianPlane/CartesianPlane"
 import type { Rect } from "../CartesianPlane/rect.ts"
@@ -105,7 +105,7 @@ export const useHelp = (state: FvState, dispatch: (action: FvAction) => void, re
       : tour.step === 1
         ? TOUR.steps[1].body(
             describeEquation(equationTokens(fn, params, "live")),
-            `f(${formatNumber(pX)}) ${relation(pY)} ${formatShort(pY)}`,
+            `f(${formatNumber(pX)}) ${relation(pY)} ${formatNumber(pY)}`,
           )
         : TOUR.steps[tour.step].body
   return { locateChip, locateTour, tourBody }

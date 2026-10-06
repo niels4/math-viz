@@ -5,6 +5,7 @@ import { FlipIcon, ResetIcon } from "#src/components/ui/icons.tsx"
 import { MathText } from "#src/components/ui/MathText.tsx"
 import { NumberField, type NumberFieldHandle } from "#src/components/ui/NumberField.tsx"
 import { ScrubStrip, type ScrubStripHandle } from "#src/components/ui/ScrubStrip.tsx"
+import { formatStored } from "#src/util/format/number.ts"
 
 import type { PartUi } from "../model/selectors.ts"
 import type { FvExplainBy, PartEvents } from "../model/state.ts"
@@ -62,7 +63,9 @@ export function TransformControl({
   const fieldRef = useRef<NumberFieldHandle | null>(null)
   const controlRef = useRef<HTMLDivElement | null>(null)
   const hover = useHover(controlRef, events.onHover)
-  const { hovered, lit, mode, edit } = ui
+  const { hovered, lit, mode, fine, edit } = ui
+  // Fixed decimals (the user's ruling): 3 while a drag holds them.
+  const format = (v: number) => formatStored(v, fine)
   useImperativeHandle(ref, () => ({ focus: () => rulerRef.current?.focus() }), [])
 
   // The chip's rest timer, and the kind of pointer that last pressed it:
@@ -190,8 +193,10 @@ export function TransformControl({
           value={value}
           onCommit={onChange}
           validate={(next) => (acceptsValue(param, next) ? null : ZERO_SCALE)}
+          format={format}
           label={`${name}, value`}
           testId={`fv-param-${param}-field`}
+          className={style.value}
           tabIndex={-1}
           hot={hovered && mode === null}
           muted={!changed}
@@ -216,6 +221,7 @@ export function TransformControl({
         held={mode}
         hot={(hovered || lit) && edit === null}
         dimmed={typing}
+        format={format}
         testId={`fv-param-${param}-ruler`}
       />
     </div>

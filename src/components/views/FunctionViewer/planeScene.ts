@@ -58,14 +58,16 @@ export type PlaneSceneInput = Pick<FvState, "fn" | "params" | "pX" | "qX" | "gho
   handleHeld: FvHandle | null
   /** f(P) where a transform's drag found it, while P's ghost shows (FV 04); null otherwise. */
   pWas: number | null
+  /** The values a drag holds at 3 decimals (selectors.fineParams): their plates print them so. */
+  fine: readonly TransformParam[]
 }
 
 const mid = (a: MathPoint, b: MathPoint): MathPoint => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 })
 
-/** "k = 1" as maths: the letter italic, the value by the number rule (stored = shown). */
-const valueRuns = (param: TransformParam, params: TransformParams): MathRun[] => [
+/** "k = 1.00" as maths: the letter italic, the value by the number rule (stored = shown). */
+const valueRuns = (param: TransformParam, params: TransformParams, fine: boolean): MathRun[] => [
   { text: param, italic: true },
-  { text: `= ${formatStored(params[param])}` },
+  { text: `= ${formatStored(params[param], fine)}` },
 ]
 
 /** The unit box's four sides, from the anchor to the unit point. */
@@ -94,7 +96,7 @@ const annotationsFor = (state: PlaneSceneInput): PlaneAnnotation[] => {
   const unit = unitPoint(BASE_FUNCTIONS[state.fn], params)
   const corner = { x: unit.x, y: anchor.y }
   const plate = (param: TransformParam, place: AnnotationPlate["place"], size: "md" | "sm" = "md") => ({
-    runs: valueRuns(param, params),
+    runs: valueRuns(param, params, state.fine.includes(param)),
     size,
     place,
   })

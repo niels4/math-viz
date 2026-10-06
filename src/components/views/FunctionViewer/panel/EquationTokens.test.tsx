@@ -28,16 +28,16 @@ describe("EquationTokens", () => {
       el.textContent,
     ])
     expect(terms).toEqual([
-      ["a", "2"],
-      ["h", "+ 1"],
-      ["k", "+ 1"],
+      ["a", "2.00"],
+      ["h", "+ 1.00"],
+      ["k", "+ 1.00"],
     ])
   })
 
   it("stacks the scale as a fraction, with no code operators", async () => {
     const root = await renderEquation("x2", { ...DEFAULT_PARAMS, b: 2, h: 1 }, "live")
     const den = root.querySelector('[data-param="b"]')
-    expect(den?.textContent).toBe("2")
+    expect(den?.textContent).toBe("2.00")
     expect(root.textContent).not.toContain("*")
     expect(root.textContent).not.toContain("/")
   })

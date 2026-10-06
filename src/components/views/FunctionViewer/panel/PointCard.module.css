@@ -107,6 +107,7 @@ before the readout. Figma counts the edge in the layout: 84 × 24 for +1. */
 
 .moved_value {
   font-family: var(--sig-readout-font);
+  font-variant-numeric: tabular-nums;
   font-size: 14px;
   font-weight: 500;
   line-height: 18px;

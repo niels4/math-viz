@@ -1,4 +1,4 @@
-import { formatNumber, formatShort } from "#src/util/format/number.ts"
+import { formatNumber } from "#src/util/format/number.ts"
 
 import type { ReadoutFaces } from "./faces.ts"
 import type { Polyline } from "./placement.ts"
@@ -149,7 +149,7 @@ const WAS_ARROW_MIN = 26
 /** A plate keeps clear of where a point was: its ring and its arrow, 14 px around. */
 const WAS_CLEAR = 14
 
-const coords = (x: number, y: number): string => `(${formatNumber(x)}, ${formatShort(y)})`
+const coords = (x: number, y: number): string => `(${formatNumber(x)}, ${formatNumber(y)})`
 
 const centred = (x: number, y: number, size: number): Rect => ({
   x: x - size / 2,
@@ -208,7 +208,7 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
       }
       if (yIn) {
         dropLines.push({ ink: p.ink, x1: xIn ? px : px < 0 ? 0 : width, y1: py, x2: originX, y2: py })
-        const tag = tagPlate(formatShort(p.y), p.ink)
+        const tag = tagPlate(formatNumber(p.y), p.ink)
         tags.push(at(tag, yTagBox(px, py, originX, tag.box, width)))
       }
     }

@@ -38,6 +38,7 @@ between runs, radius 6, all --foreground with --background text. It hangs
 /* Maths in STIX 16, its 20 px line box. */
 .math {
   font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-variant-numeric: tabular-nums;
   font-size: 16px;
   line-height: 20px;
 }

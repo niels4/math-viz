@@ -4,17 +4,21 @@ import { MathText } from "#src/components/ui/MathText.tsx"
 import { formatNumber, numberParts, relation } from "#src/util/format/number.ts"
 
 import style from "./PointReadout.module.css"
-import { compactReadoutWidth } from "./readoutFit.ts"
+import { compactReadoutWidth, type ReadoutSlots } from "./readoutFit.ts"
 
 /** The placeholder for a number with no point (U+2013, the design's dash). */
 const NO_NUMBER = "–"
 
-/** A number run's whole-px box comes from its length (PointReadout.module.css). */
-const sized = (text: string): CSSProperties => ({ "--chars": text.length }) as CSSProperties
+/** A number run's whole-px box comes from its slot, in characters (PointReadout.module.css). */
+const sized = (chars: number): CSSProperties => ({ "--chars": chars }) as CSSProperties
 
 // A point's readout (point-readout-fv › Readout · f(x) = y) on one
 // baseline: "f(", ")" and the relation in STIX 24, the numbers in the
-// readout face at 500 22 (Roboto Mono; STIX in sage-editorial). = when y
+// readout face at 500 22 (Roboto Mono; STIX in sage-editorial), each at 2
+// decimals. The user's ruling: the decimal points hold still while the
+// point slides through the view. The readout keeps the width of its slots;
+// y sits right-aligned in its own (a blank where a minus would go), and x's
+// spare room goes before "f(", so x's right edge holds still too. = when y
 // prints exactly, ≈ when it prints rounded; a y beyond fixed digits prints
 // scientific with a raised exponent (FV 10). With no point (null) both
 // numbers are dashes and the readout is muted, so the card keeps its size.
@@ -25,18 +29,27 @@ export function PointReadout({
   x,
   y,
   xField,
+  slots = null,
   compact = false,
   testId,
 }: {
   x: number | null
   y: number | null
   xField?: ReactNode
+  /** The slots the plane's visible range asks for (readoutFit.ts); null keeps each number's own width. */
+  slots?: ReadoutSlots | null
   compact?: boolean
   testId?: string
 }) {
   const xText = x === null ? NO_NUMBER : formatNumber(x)
   const parts = y === null ? null : numberParts(y)
-  const fit = compact ? ({ "--natural": compactReadoutWidth(xText, parts) } as CSSProperties) : undefined
+  const yText = parts?.kind === "fixed" ? parts.text : NO_NUMBER
+  // A dash keeps its own width: an empty readout isn't sliding.
+  const xChars = x === null ? xText.length : Math.max(xText.length, slots?.x ?? 0)
+  const yChars = y === null ? yText.length : Math.max(yText.length, slots?.y ?? 0)
+  const fit = compact
+    ? ({ "--natural": compactReadoutWidth(xChars, parts, yChars) } as CSSProperties)
+    : undefined
   return (
     <span
       className={style.readout}
@@ -45,10 +58,17 @@ export function PointReadout({
       data-empty={y === null || undefined}
       data-testid={testId}
     >
+      {xChars > xText.length && (
+        <span
+          className={`${style.number} ${style.room}`}
+          style={{ ...sized(xText.length), "--slot": xChars } as CSSProperties}
+          aria-hidden="true"
+        />
+      )}
       <span className={`${style.math} ${style.open}`}>
         <MathText text="f(" />
       </span>
-      <span className={style.number} style={sized(xText)}>
+      <span className={style.number} style={sized(xText.length)}>
         {xField ?? xText}
       </span>
       <span className={`${style.math} ${style.close}`}>)</span>
@@ -58,8 +78,8 @@ export function PointReadout({
           {parts.mantissa}×10<span className={style.exponent}>{parts.exponent}</span>
         </span>
       ) : (
-        <span className={style.number} style={sized(parts?.text ?? NO_NUMBER)}>
-          {parts?.text ?? NO_NUMBER}
+        <span className={style.number} style={sized(yChars)}>
+          {yText}
         </span>
       )}
     </span>

@@ -12,6 +12,7 @@ import { formatNumber } from "#src/util/format/number.ts"
 import type { Extent } from "../../CartesianPlane/viewport.ts"
 import type { PartUi } from "../model/selectors.ts"
 import type { PartEvents } from "../model/state.ts"
+import type { ReadoutSlots } from "./readoutFit.ts"
 
 import {
   COMPACT_POINT_ROLES,
@@ -113,6 +114,7 @@ export function PCard({
   extent,
   off,
   moved,
+  slots,
   ui,
   events,
   onChange,
@@ -121,6 +123,8 @@ export function PCard({
   x: number
   y: number
   extent: Pick<Extent, "minX" | "maxX"> | null
+  /** The readout's slots for the plane's visible range. */
+  slots: ReadoutSlots | null
   off: "above" | "below" | null
   /** How far a transform's drag has moved f(P), while it shows; null otherwise. */
   moved: number | null
@@ -165,6 +169,7 @@ export function PCard({
           testId="fv-p-readout"
           x={x}
           y={y}
+          slots={slots}
           compact={compact}
           xField={
             <NumberField
@@ -210,7 +215,18 @@ export function PCard({
 
 // Q's card: live while the pointer is on the plane, placeholders while not.
 // Both states have the same rows, so the card never changes height.
-export function QCard({ x, y, compact = false }: { x: number | null; y: number | null; compact?: boolean }) {
+export function QCard({
+  x,
+  y,
+  slots,
+  compact = false,
+}: {
+  x: number | null
+  y: number | null
+  /** The readout's slots for the plane's visible range. */
+  slots: ReadoutSlots | null
+  compact?: boolean
+}) {
   const notes = compact ? COMPACT_Q_NOTES : Q_NOTES
   return (
     <PointCard
@@ -219,7 +235,7 @@ export function QCard({ x, y, compact = false }: { x: number | null; y: number |
       compact={compact}
       data-testid="fv-point-q"
       data-part="q-card"
-      readout={<PointReadout testId="fv-q-readout" x={x} y={y} compact={compact} />}
+      readout={<PointReadout testId="fv-q-readout" x={x} y={y} slots={slots} compact={compact} />}
       note={x === null ? notes.empty : notes.live}
     />
   )

@@ -1,10 +1,11 @@
 @layer components {
-  /* The readout font at 500 17 in Figma's 22 px line box, on a box-less
-  wrapper the input inherits from: global.css's unlayered
+  /* The readout font at 500 17 in Figma's 22 px line box, tabular figures,
+  on a box-less wrapper the input inherits from: global.css's unlayered
   `input { font: inherit }` beats a font set on the input in this layer. */
   .font {
     display: contents;
     font-family: var(--sig-readout-font);
+    font-variant-numeric: tabular-nums;
     font-size: 17px;
     font-weight: 500;
     line-height: 22px;

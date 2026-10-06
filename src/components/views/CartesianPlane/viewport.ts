@@ -1,4 +1,4 @@
-import { formatNumber } from "#src/util/format/number.ts"
+import { formatMark } from "#src/util/format/number.ts"
 
 import type { ViewState } from "./types.ts"
 
@@ -92,7 +92,7 @@ export const zoomPercent = (zoom: number): number => (zoom / BASE_ZOOM) * 100
 /** The zoom control's readout: whole percent, one decimal below 10 % (6.3 %, 0.5 %). */
 export const zoomLabel = (zoom: number): string => {
   const percent = zoomPercent(zoom)
-  return `${formatNumber(percent, percent < 10 ? 1 : 0)}%`
+  return `${formatMark(percent, percent < 10 ? 1 : 0)}%`
 }
 
 const clean = (v: number): number => Number(v.toPrecision(12))
@@ -135,4 +135,4 @@ export const defaultZoom = (height: number, fitHalfRangeY: number): number => {
 export const scaleBarUnits = (zoom: number): number => SCALE_BAR_PX / zoom
 
 /** The scale bar's label: "1 u", "1.25 u". */
-export const scaleLabel = (zoom: number): string => `${formatNumber(scaleBarUnits(zoom))} u`
+export const scaleLabel = (zoom: number): string => `${formatMark(scaleBarUnits(zoom))} u`

@@ -20,6 +20,7 @@ import {
   activeParams,
   curveAt,
   draggedParams,
+  fineParams,
   handleHeld,
   handleLit,
   isTransformed,
@@ -33,6 +34,7 @@ import { EquationCard } from "./panel/EquationCard.tsx"
 import { FunctionPicker } from "./panel/FunctionPicker.tsx"
 import { PanelSection } from "./panel/PanelSection.tsx"
 import { PCard, QCard } from "./panel/PointCards.tsx"
+import { readoutSlots } from "./panel/readoutFit.ts"
 import { TransformExplainer } from "./panel/TransformExplainer.tsx"
 import { TransformGrid } from "./panel/TransformGrid.tsx"
 import { useTermDrags } from "./panel/useTermDrags.ts"
@@ -61,6 +63,8 @@ export function FunctionViewer() {
   const gripLit = handleLit(state)
   const gripHeld = handleHeld(state)
   const pWas = state.pBefore !== null && state.pBefore.x === pX ? state.pBefore.y : null
+  const fine = fineParams(state)
+  const slots = readoutSlots(state.view?.extent ?? null)
   // Only what the scene shows: a reported view change must not rebuild it.
   const scene = useMemo(
     () =>
@@ -75,8 +79,9 @@ export function FunctionViewer() {
         handleLit: gripLit,
         handleHeld: gripHeld,
         pWas,
+        fine,
       }),
-    [fn, params, pX, qX, ghostOn, pLitNow, activeNow, gripLit, gripHeld, pWas],
+    [fn, params, pX, qX, ghostOn, pLitNow, activeNow, gripLit, gripHeld, pWas, fine],
   )
   // A transform's drag let go: P's ghost and its "moved" stay a moment.
   const lingering = state.drag === null && state.pBefore !== null
@@ -145,6 +150,7 @@ export function FunctionViewer() {
             params={params}
             lit={activeParams(state)}
             keep={draggedParams(state)}
+            fine={fine}
             tip={state.hover === "eq" ? state.eqOver : null}
             onPointer={(over) => dispatch({ type: "eqPointer", over })}
             onLeave={() => dispatch({ type: "hover", part: "eq", on: false })}
@@ -173,12 +179,13 @@ export function FunctionViewer() {
             extent={state.view?.extent ?? null}
             off={pOffView(state)}
             moved={pMoved(state)}
+            slots={slots}
             ui={partUi(state, "p")}
             events={eventsOf("p")}
             onChange={(x) => dispatch({ type: "setP", x })}
             compact={dock}
           />
-          <QCard x={qX} y={qX === null ? null : curveAt(state, qX)} compact={dock} />
+          <QCard x={qX} y={qX === null ? null : curveAt(state, qX)} slots={slots} compact={dock} />
         </PanelSection>
         {!dock && (
           <>

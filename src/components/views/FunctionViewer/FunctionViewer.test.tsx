@@ -135,7 +135,7 @@ describe("FunctionViewer", () => {
     typeParam(screen, "h", "-1")
     typeParam(screen, "k", "1")
     expect(toElement(screen.getByTestId("func-readout")).getAttribute("aria-label")).toBe(
-      "f(x) = 2(x + 1)² + 1",
+      "f(x) = 2.00(x + 1.00)² + 1.00",
     )
     const curve = curveF()
     expect(curve?.fn(-1)).toBe(1)
@@ -195,7 +195,7 @@ describe("FunctionViewer", () => {
     expect(document.querySelector('[data-testid$="-reset"]')).toBeNull()
     expect(document.querySelector('[data-testid="fv-reset-all"]')).toBeNull()
     expect(byTestId(screen, "fv-param-a-flip").getAttribute("aria-pressed")).toBe("false")
-    expect((byTestId(screen, "fv-param-b-field") as HTMLInputElement).value).toBe("1")
+    expect((byTestId(screen, "fv-param-b-field") as HTMLInputElement).value).toBe("1.00")
   })
 
   it("flips a scale, resets one and resets all (R8, FV 07 › Reset)", async () => {
@@ -205,14 +205,19 @@ describe("FunctionViewer", () => {
     typeParam(screen, "h", "-1")
     click(screen, "fv-param-a-flip")
     expect(byTestId(screen, "fv-param-a-flip").getAttribute("aria-pressed")).toBe("true")
-    expect(valueOf(screen, "a")).toBe("−2")
-    expect(byTestId(screen, "func-readout").getAttribute("aria-label")).toBe("f(x) = −2(x + 1)² + 4")
+    expect(valueOf(screen, "a")).toBe("−2.00")
+    expect(byTestId(screen, "func-readout").getAttribute("aria-label")).toBe("f(x) = −2.00(x + 1.00)² + 4.00")
     expect(curveF()?.fn(0.5)).toBe(-0.5)
     click(screen, "fv-param-k-reset")
-    expect(valueOf(screen, "k")).toBe("0")
+    expect(valueOf(screen, "k")).toBe("0.00")
     expect(document.querySelector('[data-testid="fv-param-k-reset"]')).toBeNull()
     click(screen, "fv-reset-all")
-    expect(["a", "b", "h", "k"].map((param) => valueOf(screen, param))).toEqual(["1", "1", "0", "0"])
+    expect(["a", "b", "h", "k"].map((param) => valueOf(screen, param))).toEqual([
+      "1.00",
+      "1.00",
+      "0.00",
+      "0.00",
+    ])
     expect(document.querySelector('[data-testid="fv-reset-all"]')).toBeNull()
   })
 
@@ -222,10 +227,10 @@ describe("FunctionViewer", () => {
     const field = byTestId(screen, "fv-param-b-field") as HTMLInputElement
     expect(field.getAttribute("aria-invalid")).toBe("true")
     expect(field.value).toBe("0")
-    expect(valueOf(screen, "b")).toBe("1")
+    expect(valueOf(screen, "b")).toBe("1.00")
     expect(byTestId(screen, "fv-param-b").hasAttribute("data-error")).toBe(true)
     keydown(field, "Escape")
-    expect(field.value).toBe("1")
+    expect(field.value).toBe("1.00")
     expect(byTestId(screen, "fv-param-b").hasAttribute("data-error")).toBe(false)
   })
 
@@ -245,16 +250,16 @@ describe("FunctionViewer", () => {
       setInput(field, "1.5")
     })
     keydown(field, "Enter")
-    expect(valueOf(screen, "k")).toBe("1.5")
+    expect(valueOf(screen, "k")).toBe("1.50")
     expect(document.activeElement).toBe(ruler)
     keydown(ruler, "Backspace")
-    expect(valueOf(screen, "k")).toBe("0")
+    expect(valueOf(screen, "k")).toBe("0.00")
   })
 
-  it("starts P at x = 2 (D4): its card reads f(2) = 4", async () => {
+  it("starts P at x = 2 (D4): its card reads f(2.00) = 4.00", async () => {
     const screen = await render(<FunctionViewer />)
-    expect((byTestId(screen, "fv-p-field") as HTMLInputElement).value).toBe("2")
-    expect(readout(screen, "fv-p-readout")).toBe("f(2) = 4")
+    expect((byTestId(screen, "fv-p-field") as HTMLInputElement).value).toBe("2.00")
+    expect(readout(screen, "fv-p-readout")).toBe("f(2.00) = 4.00")
     expect(byTestId(screen, "fv-point-p").textContent).toContain("Pinned")
     expect(pointOf("p")).toMatchObject({
       id: "p",
@@ -271,7 +276,7 @@ describe("FunctionViewer", () => {
     typeParam(screen, "h", "-1")
     typeParam(screen, "k", "1")
     typeInto(screen, "fv-p-field", "0.5")
-    expect(readout(screen, "fv-p-readout")).toBe("f(0.5) = 5.5")
+    expect(readout(screen, "fv-p-readout")).toBe("f(0.50) = 5.50")
     expect(pointOf("p")).toMatchObject({ x: 0.5, y: 5.5 })
     // P lands on 0.12, and f(0.12) = 3.5088 prints rounded.
     typeInto(screen, "fv-p-field", "0.123")
@@ -291,7 +296,7 @@ describe("FunctionViewer", () => {
     act(() => {
       canvas.dispatchEvent(new PointerEvent("pointermove", { bubbles: true, clientX: -75, clientY: -112.5 }))
     })
-    expect(readout(screen, "fv-q-readout")).toBe("f(−1.5) = 2.25")
+    expect(readout(screen, "fv-q-readout")).toBe("f(−1.50) = 2.25")
     expect(spoken(q)).toContain("x follows your pointer · y = f(x)")
     expect(hint(screen)).toBe("Q follows your pointer · drag to pan · scroll to zoom")
     act(() => {
@@ -310,7 +315,7 @@ describe("FunctionViewer", () => {
     expect(hint(screen)).toBe("Drag P along the curve · Left arrow Right arrow nudge 0.1")
     keydown(scrubber, "ArrowRight")
     keydown(scrubber, "ArrowRight", { shiftKey: true })
-    expect(readout(screen, "fv-p-readout")).toBe("f(3.1) = 9.61")
+    expect(readout(screen, "fv-p-readout")).toBe("f(3.10) = 9.61")
     keydown(scrubber, "Enter")
     const field = byTestId(screen, "fv-p-field") as HTMLInputElement
     expect(document.activeElement).toBe(field)
@@ -319,7 +324,7 @@ describe("FunctionViewer", () => {
       setInput(field, "-1.5")
     })
     keydown(field, "Enter")
-    expect(readout(screen, "fv-p-readout")).toBe("f(−1.5) = 2.25")
+    expect(readout(screen, "fv-p-readout")).toBe("f(−1.50) = 2.25")
     expect(document.activeElement).toBe(scrubber)
   })
 
@@ -350,7 +355,7 @@ describe("FunctionViewer", () => {
       window.dispatchEvent(new PointerEvent("pointerup"))
     })
     typeParam(screen, "b", "1.0.4")
-    expect(hint(screen)).toBe("Type a number such as 1.5 · Esc puts back 1")
+    expect(hint(screen)).toBe("Type a number such as 1.5 · Esc puts back 1.00")
     expect(byTestId(screen, "fv-hint").getAttribute("data-tone")).toBe("error")
   })
   it("shows the Original toggle while a transform is set, and the ghost while it is on (D7)", async () => {
@@ -390,10 +395,10 @@ describe("FunctionViewer", () => {
     const plane = byTestId(screen, "cartesian-plane")
     expect(plane.getAttribute("aria-label")).toContain("[ and ] move P")
     keydown(plane, "]")
-    expect(readout(screen, "fv-p-readout")).toBe("f(2.1) = 4.41")
+    expect(readout(screen, "fv-p-readout")).toBe("f(2.10) = 4.41")
     keydown(plane, "[")
     keydown(plane, "[")
-    expect(readout(screen, "fv-p-readout")).toBe("f(1.9) = 3.61")
+    expect(readout(screen, "fv-p-readout")).toBe("f(1.90) = 3.61")
     expect(pointOf("p")).toMatchObject({ x: 1.9, y: 3.61 })
   })
 
@@ -418,7 +423,7 @@ describe("FunctionViewer", () => {
       )
     // k's term in both lines and k's control light; the tip names the value the term means.
     expect(lit()).toEqual(["k", "k", "fv-param-k"])
-    expect(spoken(byTestId(screen, "fv-term-tip-k"))).toBe("k= 1· vertical shift")
+    expect(spoken(byTestId(screen, "fv-term-tip-k"))).toBe("k= 1.00· vertical shift")
     expect(hint(screen)).toBe("Drag to change k · Shift fine · Ctrl whole steps · double-click: back to 0")
     expect(lastScene().annotations?.[0]?.lines[0]).toMatchObject({
       from: { x: -1, y: 0 },
@@ -457,11 +462,11 @@ describe("FunctionViewer", () => {
     at("pointerdown", 10, 1)
     at("pointermove", 60, 1)
     // 50 px right is one unit for a shift, as on its ruler; k's ruler shows the drag.
-    expect(valueOf(screen, "k")).toBe("1")
+    expect(valueOf(screen, "k")).toBe("1.00")
     expect(byTestId(screen, "fv-param-k-ruler").getAttribute("data-mode")).toBe("coarse")
     at("pointermove", 10, 1)
-    // Back at 0 mid-drag, the live line keeps the term: "+ 0".
-    expect(document.querySelector('[data-line="live"] [data-param="k"]')?.textContent).toBe("+ 0")
+    // Back at 0 mid-drag, the live line keeps the term: "+ 0.00".
+    expect(document.querySelector('[data-line="live"] [data-param="k"]')?.textContent).toBe("+ 0.00")
     act(() => {
       window.dispatchEvent(new PointerEvent("pointerup"))
     })
@@ -473,7 +478,65 @@ describe("FunctionViewer", () => {
       window.dispatchEvent(new PointerEvent("pointerup"))
       formK.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }))
     })
-    expect(valueOf(screen, "k")).toBe("0")
+    expect(valueOf(screen, "k")).toBe("0.00")
+  })
+
+  // The user's ruling (plan M10b): fixed decimals, 3 for a fine drag's
+  // whole length, wherever the value prints.
+  it("holds 3 decimals for a fine drag's whole length, in the field, the term and the plate", async () => {
+    HTMLSpanElement.prototype.setPointerCapture = () => {}
+    HTMLSpanElement.prototype.releasePointerCapture = () => {}
+    HTMLSpanElement.prototype.hasPointerCapture = () => false
+    const screen = await render(<FunctionViewer />)
+    const formK = document.querySelector('[data-line="form"] [data-param="k"]')
+    if (formK === null) {
+      throw new Error("no form k slot")
+    }
+    const at = (type: string, clientX: number, shiftKey: boolean) =>
+      act(() => {
+        formK.dispatchEvent(
+          new PointerEvent(type, { bubbles: true, button: 0, buttons: 1, clientX, shiftKey }),
+        )
+      })
+    const field = () => (byTestId(screen, "fv-param-k-field") as HTMLInputElement).value
+    const term = () => document.querySelector('[data-line="live"] [data-param="k"]')?.textContent
+    const plate = () => lastScene().annotations?.[0]?.plates[0]?.runs[1]?.text
+    at("pointerdown", 10, true)
+    expect([field(), valueOf(screen, "k"), term()]).toEqual(["0.000", "0.000", "+ 0.000"])
+    // Fine: 50 px is a tenth of a unit.
+    at("pointermove", 60, true)
+    expect([field(), valueOf(screen, "k"), term(), plate()]).toEqual(["0.100", "0.100", "+ 0.100", "= 0.100"])
+    // Shift let go mid-drag: coarse again, still 3 decimals.
+    at("pointermove", 110, false)
+    expect([field(), term(), plate()]).toEqual(["1.100", "+ 1.100", "= 1.100"])
+    act(() => {
+      window.dispatchEvent(new PointerEvent("pointerup"))
+    })
+    expect([field(), valueOf(screen, "k")]).toEqual(["1.10", "1.10"])
+  })
+
+  it("keeps each readout number in a slot as wide as the plane's view prints it", async () => {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      return this.closest('[data-testid="cartesian-plane"]') !== null &&
+        this.closest("[data-keep-out]") === null
+        ? PLANE_RECT
+        : ZERO_RECT
+    })
+    vi.stubGlobal("ResizeObserver", undefined)
+    const screen = await render(<FunctionViewer />)
+    // 600 × 600 at 50 px per unit: x and y run −6 … 6, "−6.00" the widest.
+    // Each run's box in characters: x's spare room before "f(" fills x's
+    // slot (--slot, less x's own --chars); y sits in its slot after "=".
+    const boxes = (id: string) =>
+      [...byTestId(screen, id).children].flatMap((part) => {
+        const css = (part as HTMLElement).style
+        const [slot, chars] = [css.getPropertyValue("--slot"), css.getPropertyValue("--chars")]
+        return chars === "" ? [] : [slot === "" ? Number(chars) : `${slot} − ${chars}`]
+      })
+    expect(readout(screen, "fv-p-readout")).toBe("f(2.00) = 4.00")
+    expect(boxes("fv-p-readout")).toEqual(["5 − 4", 4, 5])
+    // Q with no point keeps its dashes' own width.
+    expect(boxes("fv-q-readout")).toEqual([1, 1])
   })
 
   it("drags the anchor on the plane: h and k follow, P's ghost and badge show, then go (R6, FV 04)", async () => {
@@ -526,12 +589,12 @@ describe("FunctionViewer", () => {
     expect(byTestId(screen, "fv-param-k").hasAttribute("data-lit")).toBe(true)
     at("pointerdown", -1, 1, 1)
     at("pointermove", 1.5, 1, 1)
-    expect([valueOf(screen, "h"), valueOf(screen, "k")]).toEqual(["1.5", "1"])
+    expect([valueOf(screen, "h"), valueOf(screen, "k")]).toEqual(["1.50", "1.00"])
     expect(hint(screen)).toBe("Moving the anchor sets h and k · Shift locks one axis")
     expect(lastScene().handles?.[0]).toMatchObject({ x: 1.5, y: 1, held: true, halo: true })
-    // P keeps its x (D15): f(0.5) went from 5.5 to 3.
-    expect(readout(screen, "fv-p-readout")).toBe("f(0.5) = 3")
-    expect(spoken(byTestId(screen, "fv-p-moved"))).toBe("moved−2.5")
+    // P keeps its x (D15): f(0.50) went from 5.50 to 3.00.
+    expect(readout(screen, "fv-p-readout")).toBe("f(0.50) = 3.00")
+    expect(spoken(byTestId(screen, "fv-p-moved"))).toBe("moved−2.50")
     expect(pointOf("p")?.was).toEqual({ x: 0.5, y: 5.5, ink: "primary" })
     // Let go: both stay 600 ms, then go (FV 04 › Rules).
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
@@ -681,7 +744,7 @@ describe("FunctionViewer", () => {
       const q = byTestId(screen, "fv-point-q")
       expect(spoken(p)).toContain("Pinned")
       expect(spoken(p)).not.toContain("here or along the curve")
-      expect(readout(screen, "fv-p-readout")).toBe("f(2) = 4")
+      expect(readout(screen, "fv-p-readout")).toBe("f(2.00) = 4.00")
       expect(spoken(q)).toContain("Pointer")
       expect(spoken(q)).toContain("Point at the plane")
       expect(spoken(q)).not.toContain("to place")
@@ -691,7 +754,7 @@ describe("FunctionViewer", () => {
           new PointerEvent("pointermove", { bubbles: true, clientX: -75, clientY: -112.5 }),
         )
       })
-      expect(readout(screen, "fv-q-readout")).toBe("f(−1.5) = 2.25")
+      expect(readout(screen, "fv-q-readout")).toBe("f(−1.50) = 2.25")
       expect(spoken(q)).toContain("x follows your pointer")
       expect(spoken(q)).not.toContain("y = f(x)")
     })
@@ -705,8 +768,8 @@ describe("FunctionViewer", () => {
       setShort(true)
       expect(layout()).toBe("dock")
       expect(byTestId(screen, "cartesian-canvas")).toBe(canvas)
-      expect(valueOf(screen, "a")).toBe("2")
-      expect(byTestId(screen, "func-readout").getAttribute("aria-label")).toBe("f(x) = 2x²")
+      expect(valueOf(screen, "a")).toBe("2.00")
+      expect(byTestId(screen, "func-readout").getAttribute("aria-label")).toBe("f(x) = 2.00x²")
       setShort(false)
       expect(layout()).toBe("side")
       expect(byTestId(screen, "cartesian-canvas")).toBe(canvas)
@@ -727,7 +790,7 @@ describe("FunctionViewer", () => {
       expect(card()?.getAttribute("role")).toBe("dialog")
       expect(title()).toBe("This is a function")
       expect(spoken(card()?.querySelector("p") ?? document.body)).toBe(
-        "f(x) = x² turns every x into a height. The curve is all the points (x, f(x)) — P is one of them: f(2) = 4.",
+        "f(x) = x² turns every x into a height. The curve is all the points (x, f(x)) — P is one of them: f(2.00) = 4.00.",
       )
       expect(card()?.textContent).toContain("Step 1 of 3")
       // Nothing else had the focus: the dialog takes it, then each step's button.

@@ -3,7 +3,7 @@
 
 import type { Phrase } from "#src/components/ui/Phrases.tsx"
 
-import { formatNumber } from "#src/util/format/number.ts"
+import { DISPLAY_DP, formatMark, formatNumber, roundTo } from "#src/util/format/number.ts"
 
 import { ZERO_SCALE, type TransformParam } from "./math/form.ts"
 
@@ -41,8 +41,8 @@ export const GROUP_MATH = "f( )"
 
 export const RESET_ALL = "Reset all"
 
-export const resetLabel = (param: TransformParam, to: number): string =>
-  `Reset ${param} to ${formatNumber(to)}`
+/** A default is a constant of the copy, so it keeps the short form ("Reset a to 1"). */
+export const resetLabel = (param: TransformParam, to: number): string => `Reset ${param} to ${formatMark(to)}`
 
 /** The flip toggles (FV 13): a turns the curve upside down, b mirrors it. */
 export const FLIP_LABELS: Readonly<Record<"a" | "b", string>> = {
@@ -74,8 +74,7 @@ export const P_NOTE: readonly Phrase[] = [
  * in the shipped fonts, so it says "moved" (FV 04 › Rationale).
  */
 export const MOVED_LABEL = "moved"
-export const movedBy = (dy: number): string =>
-  `${dy > 0 && formatNumber(dy) !== "0" ? "+" : ""}${formatNumber(dy)}`
+export const movedBy = (dy: number): string => `${roundTo(dy, DISPLAY_DP) > 0 ? "+" : ""}${formatNumber(dy)}`
 
 /** Q's note: what it does while the pointer is on the plane, and how to place it while not. */
 export const Q_NOTES = {
@@ -112,7 +111,7 @@ const gestures = (lead: readonly Phrase[], scale: boolean, reset: number): Phras
   { key: "Shift" },
   { text: "fine ·" },
   { key: "Ctrl" },
-  { text: `${scale ? "quarter" : "whole"} steps · double-click: back to ${formatNumber(reset)}` },
+  { text: `${scale ? "quarter" : "whole"} steps · double-click: back to ${formatMark(reset)}` },
 ]
 
 // The hint line (hint-bar-fv; decision D8). model/hints.ts picks the

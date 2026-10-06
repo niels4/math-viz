@@ -95,13 +95,13 @@ describe("ScrubStrip", () => {
     expect(strip.getAttribute("tabindex")).toBe("0")
     expect(strip.getAttribute("aria-label")).toBe("k: Vertical shift")
     expect(strip.getAttribute("aria-valuenow")).toBe("-1.5")
-    expect(now()).toBe("−1.5")
+    expect(now()).toBe("−1.50")
   })
 
   it("a scale's ruler reads its size; the text keeps the sign", async () => {
     const { strip, now } = await renderStrip({ initial: -2, kind: "multiplicative" })
     expect(strip.getAttribute("aria-valuenow")).toBe("2")
-    expect(now()).toBe("−2")
+    expect(now()).toBe("−2.00")
   })
 
   it("drags right for more, 50 px per unit, from the press", async () => {
@@ -112,7 +112,7 @@ describe("ScrubStrip", () => {
       pointer("pointermove", { clientX: 200, buttons: 1 }),
       pointer("pointerup", { clientX: 200 }),
     )
-    expect(now()).toBe("3")
+    expect(now()).toBe("3.00")
     expect(seen.modes).toEqual(["coarse", null])
   })
 
@@ -124,7 +124,7 @@ describe("ScrubStrip", () => {
       pointer("pointermove", { clientX: 150, buttons: 1, shiftKey: true }),
     )
     // 50 px coarse: +1. Pressing Shift mid-drag moves nothing.
-    expect(now()).toBe("2")
+    expect(now()).toBe("2.00")
     dispatch(pointer("pointermove", { clientX: 160, buttons: 1, shiftKey: true }))
     // 10 px at a tenth of the speed: +0.02, on the 0.001 lattice.
     expect(now()).toBe("2.02")
@@ -141,12 +141,12 @@ describe("ScrubStrip", () => {
   it("Ctrl snaps at once, held from the press or pressed mid-drag (D9)", async () => {
     const { dispatch, now, seen } = await renderStrip({ initial: 1.3 })
     dispatch(pointer("pointerdown", { clientX: 100, ctrlKey: true }))
-    expect(now()).toBe("1")
+    expect(now()).toBe("1.00")
     dispatch(pointer("pointerup", { clientX: 100 }))
     dispatch(pointer("pointerdown", { clientX: 100 }), pointer("pointermove", { clientX: 117, buttons: 1 }))
     expect(now()).toBe("1.34")
     dispatch(key("keydown", { key: "Control", ctrlKey: true }))
-    expect(now()).toBe("1")
+    expect(now()).toBe("1.00")
     dispatch(pointer("pointerup", { clientX: 117 }))
     expect(seen.modes).toEqual(["snap", null, "coarse", "snap", null])
   })
@@ -193,7 +193,7 @@ describe("ScrubStrip", () => {
     })
     expect(event.defaultPrevented).toBe(true)
     // One notch up: 15px at 0.02 units/px from 1.
-    expect(now()).toBe("1.3")
+    expect(now()).toBe("1.30")
   })
 
   it("only the primary button drags", async () => {

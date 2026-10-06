@@ -97,7 +97,7 @@ describe("ExtentSlider (the P scrubber, FV 07)", () => {
     expect(track.getAttribute("aria-valuemin")).toBe("-9.36")
     expect(track.getAttribute("aria-valuemax")).toBe("9.36")
     expect(track.getAttribute("aria-valuenow")).toBe("2")
-    expect(track.getAttribute("aria-valuetext")).toBe("2")
+    expect(track.getAttribute("aria-valuetext")).toBe("2.00")
   })
 
   it("calibrates the track like the x-axis and centres the thumb on the value (R2)", async () => {

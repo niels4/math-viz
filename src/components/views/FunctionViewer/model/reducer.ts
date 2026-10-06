@@ -1,7 +1,7 @@
 import type { NumberFieldEdit } from "#src/components/ui/NumberField.tsx"
 import type { ScrubMode } from "#src/components/ui/scrub.ts"
 
-import { FINE_DP, quantize, roundTo } from "#src/util/format/number.ts"
+import { FINE_DP, quantize, roundTo, storedDp } from "#src/util/format/number.ts"
 
 import type { MathPoint } from "../../CartesianPlane/scene.ts"
 import type { PlaneView } from "../../CartesianPlane/viewport.ts"
@@ -16,7 +16,7 @@ import {
   TRANSFORM_PARAMS,
   type TransformParam,
 } from "../math/form.ts"
-import { curveAt } from "./selectors.ts"
+import { curveAt, paramsOf } from "./selectors.ts"
 
 /** Points sit on 0.01, so a marker, its label, its tags and its readout print one value. */
 export const POINT_QUANTUM = 0.01
@@ -242,24 +242,35 @@ function transition(state: FvState, action: FvAction): FvState {
         return state.tour === null ? state : { ...state, tour: null }
       }
       if (action.to === "start") {
-        return state.tour?.step === 1 && !state.tour.acted ? state : { ...state, tour: { step: 1, acted: false } }
+        return state.tour?.step === 1 && !state.tour.acted
+          ? state
+          : { ...state, tour: { step: 1, acted: false } }
       }
       const at = state.tour === null ? -1 : STEPS.indexOf(state.tour.step)
       const step = STEPS[at + 1]
-      return state.tour === null ? state : { ...state, tour: step === undefined ? null : { step, acted: false } }
+      return state.tour === null
+        ? state
+        : { ...state, tour: step === undefined ? null : { step, acted: false } }
     }
     case "drag": {
       if (action.mode === null) {
         return state.drag?.part === action.part ? patch(state, { drag: null }) : state
       }
       if (state.drag?.part === action.part) {
-        return state.drag.mode === action.mode
-          ? state
-          : patch(state, { drag: { part: action.part, mode: action.mode } })
+        if (state.drag.mode === action.mode) {
+          return state
+        }
+        // Gone fine: what it moves keeps 3 decimals until it lets go.
+        const fine = action.mode === "fine" ? paramsOf(action.part) : state.drag.fine
+        return patch(state, { drag: { part: action.part, mode: action.mode, fine } })
       }
-      // A new drag: a transform's takes P where it is now (FV 04).
+      // A new drag holds 3 decimals for the values it finds with a third (all
+      // of them if it starts fine); a transform's takes P where it is now (FV 04).
+      const fine = paramsOf(action.part).filter(
+        (p) => action.mode === "fine" || storedDp(state.params[p]) === FINE_DP,
+      )
       return patch(state, {
-        drag: { part: action.part, mode: action.mode },
+        drag: { part: action.part, mode: action.mode, fine },
         pBefore: isTransformDrag(action.part)
           ? { x: state.pX, y: curveAt(state, state.pX), moved: false }
           : null,

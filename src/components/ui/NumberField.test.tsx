@@ -173,7 +173,7 @@ describe("NumberField", () => {
       input.blur()
     })
     expect(seen.commits).toEqual([2.5])
-    expect(input.value).toBe("2.5")
+    expect(input.value).toBe("2.50")
   })
 
   it("the owner opens it with edit()", async () => {

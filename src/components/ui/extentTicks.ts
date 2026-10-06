@@ -5,7 +5,7 @@
 // on whole numbers. Each step comes from pixel spacing: ticks at least 4 px
 // apart, labels at least 32, and steps grow 1-2-5 as the range widens.
 
-import { formatShort } from "#src/util/format/number.ts"
+import { formatTick } from "#src/util/format/number.ts"
 
 /** Minimum spacing in px: ticks, labels. */
 export const TICK_MIN_PX = 4
@@ -70,7 +70,7 @@ export const extentMarks = (min: number, max: number, width: number): ExtentMark
   const labels: ExtentMarks["labels"] = []
   for (let n = Math.ceil(min / labelStep); n * labelStep <= max; n++) {
     const value = n * labelStep
-    const text = formatShort(value)
+    const text = formatTick(value)
     const box = Math.ceil(text.length * LABEL_CHAR_PX)
     const left = Math.round(at(value) - box / 2)
     // Whole or not at all: a label never hangs past the track.
