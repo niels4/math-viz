@@ -31,7 +31,8 @@ export function TransformGrid({
   params: TransformParams
   uiOf: (param: TransformParam) => PartUi
   eventsOf: (param: TransformParam) => PartEvents
-  onChange: (param: TransformParam, value: number) => void
+  /** A value from a control: typed into its field, or from its ruler. */
+  onChange: (param: TransformParam, value: number, typed: boolean) => void
   onReset: (param: TransformParam) => void
   onResetAll: () => void
   onFlip: (param: "a" | "b") => void
@@ -91,7 +92,7 @@ export function TransformGrid({
                   value={params[param]}
                   ui={uiOf(param)}
                   events={eventsOf(param)}
-                  onChange={(value) => onChange(param, value)}
+                  onChange={(value, typed) => onChange(param, value, typed)}
                   onReset={() => onReset(param)}
                   onExplain={(by, open) => onExplain(param, by, open)}
                   explainerId={explaining?.param === param ? explaining.id : undefined}

@@ -13,6 +13,8 @@ declare const styles: {
   readonly "note": string;
   readonly "off_mark": string;
   readonly "scrubber": string;
+  readonly "value": string;
+  readonly "values-in": string;
   readonly "x_field": string;
 };
 export = styles;

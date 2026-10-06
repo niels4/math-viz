@@ -1,4 +1,4 @@
-import { useRef, type ComponentPropsWithRef, type ReactNode } from "react"
+import { useRef, useState, type ComponentPropsWithRef, type ReactNode } from "react"
 
 import { useHover } from "#src/components/hooks/useHover.ts"
 import { ExtentSlider, type ExtentSliderHandle } from "#src/components/ui/ExtentSlider.tsx"
@@ -40,6 +40,7 @@ function PointCard({
   badge,
   readout,
   note,
+  noteFade,
   children,
   ...rest
 }: {
@@ -52,6 +53,8 @@ function PointCard({
   badge?: ReactNode
   readout: ReactNode
   note: readonly Phrase[]
+  /** The note fading in as it changes (Q's card, FV 05): each new key starts the fade again. */
+  noteFade?: { dir: "in" | "out"; key: number } | undefined
   children?: ReactNode
 } & ComponentPropsWithRef<"div">) {
   return (
@@ -77,7 +80,7 @@ function PointCard({
         {readout}
       </div>
       {children}
-      <p className={style.note}>
+      <p key={noteFade?.key} className={style.note} data-fade={noteFade?.dir}>
         <Phrases phrases={note} />
       </p>
     </div>
@@ -186,16 +189,30 @@ export function PCard({
 }
 
 // Q's card: live while the pointer is on the plane, placeholders while not.
-// Both states have the same rows, so the card never changes height.
+// Both states have the same rows, so the card never changes height. As the
+// pointer enters or leaves the plane its values fade in (FV 05): the readout
+// and the note mount afresh on each change, which starts their fade again.
 export function QCard({ x, y }: { x: number | null; y: number | null }) {
+  const live = x !== null
+  const [shown, setShown] = useState({ live, changes: 0 })
+  if (shown.live !== live) {
+    setShown({ live, changes: shown.changes + 1 })
+  }
+  const fade =
+    shown.changes === 0 ? undefined : { dir: live ? ("in" as const) : ("out" as const), key: shown.changes }
   return (
     <PointCard
       series="q"
       caption={POINT_ROLES.q}
       data-testid="fv-point-q"
       data-part="q-card"
-      readout={<PointReadout testId="fv-q-readout" x={x} y={y} />}
-      note={x === null ? Q_NOTES.empty : Q_NOTES.live}
+      readout={
+        <span key={shown.changes} className={style.value} data-fade={fade?.dir}>
+          <PointReadout testId="fv-q-readout" x={x} y={y} />
+        </span>
+      }
+      note={live ? Q_NOTES.live : Q_NOTES.empty}
+      noteFade={fade}
     />
   )
 }

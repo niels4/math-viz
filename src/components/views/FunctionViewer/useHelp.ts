@@ -32,10 +32,16 @@ export type HelpRefs = {
 // The help parts' wiring (decisions D12, D19). Esc closes the explainer,
 // else skips the tour (FV 07, FV 08), unless a field took the Esc; an
 // explainer a tap opened closes on a press anywhere but its chip and
-// itself. The tour starts on a first visit, and once it ends (finished,
-// skipped, or done by its last action) the browser remembers it. Gives the
-// explainer and the tour where their targets are, and step 1's body.
-export const useHelp = (state: FvState, dispatch: (action: FvAction) => void, refs: HelpRefs) => {
+// itself. The tour starts on a first visit once the page has painted
+// (`painted`: FV 08 › Flow, after FV 05's draw-on), and once it ends
+// (finished, skipped, or done by its last action) the browser remembers it.
+// Gives the explainer and the tour where their targets are, and step 1's body.
+export const useHelp = (
+  state: FvState,
+  dispatch: (action: FvAction) => void,
+  refs: HelpRefs,
+  painted: boolean,
+) => {
   const { explainer, tour, fn, params, pX } = state
 
   const listening = explainer !== null || tour !== null
@@ -68,10 +74,10 @@ export const useHelp = (state: FvState, dispatch: (action: FvAction) => void, re
 
   const [tourDone, setTourDone] = useAtom(fvTourDoneAtom)
   useEffect(() => {
-    if (!tourDone) {
+    if (!tourDone && painted) {
       dispatch({ type: "tour", to: "start" })
     }
-  }, [tourDone, dispatch])
+  }, [tourDone, painted, dispatch])
   const tourShown = useRef(false)
   useEffect(() => {
     if (tour !== null) {

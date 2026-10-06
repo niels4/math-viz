@@ -5,7 +5,7 @@ import { FINE_DP, quantize, roundTo } from "#src/util/format/number.ts"
 
 import type { MathPoint } from "../../CartesianPlane/scene.ts"
 import type { PlaneView } from "../../CartesianPlane/viewport.ts"
-import type { FvExplainBy, FvHandle, FvPart, FvPlaneMark, FvState } from "./state.ts"
+import type { FvChange, FvExplainBy, FvHandle, FvPart, FvPlaneMark, FvState } from "./state.ts"
 
 import { BASE_FUNCTIONS, type BaseFunctionSlug } from "../math/baseFunctions.ts"
 import {
@@ -23,7 +23,8 @@ export const POINT_QUANTUM = 0.01
 
 export type FvAction =
   | { type: "setFunction"; fn: BaseFunctionSlug }
-  | { type: "setParam"; param: TransformParam; value: number }
+  /** A value set: typed (`jump`, FV 05's value jump), or by a drag, a key or the wheel. */
+  | { type: "setParam"; param: TransformParam; value: number; jump?: boolean }
   | { type: "resetParam"; param: TransformParam }
   | { type: "resetAll" }
   | { type: "flip"; param: "a" | "b" }
@@ -111,8 +112,28 @@ const sameView = (a: PlaneView | null, b: PlaneView): boolean =>
 // each hold one part; a part leaving clears only its own claim, so a leave
 // that arrives after the next part's enter changes nothing.
 export function fvReducer(state: FvState, action: FvAction): FvState {
-  return trackTour(state, trackP(state, transition(state, action)))
+  return trackTour(state, trackP(state, tagChange(state, action, transition(state, action))))
 }
+
+/** FV 05: how an action changes the curve, for the plane's motion. */
+const changeOf = (action: FvAction): FvChange => {
+  switch (action.type) {
+    case "setFunction":
+      return "switch"
+    case "resetParam":
+    case "resetAll":
+    case "flip":
+      return "jump"
+    case "setParam":
+      return action.jump === true ? "jump" : "direct"
+    default:
+      return "direct"
+  }
+}
+
+/** Says how the curve changed when it did. */
+const tagChange = (prev: FvState, action: FvAction, next: FvState): FvState =>
+  next.params === prev.params && next.fn === prev.fn ? next : patch(next, { change: changeOf(action) })
 
 const STEPS = [1, 2, 3] as const
 

@@ -1,9 +1,8 @@
 import { getDefaultStore } from "jotai"
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest"
 
-import { act, render, toElement } from "#test"
-
 import { FV_TOUR_KEY, fvTourDoneAtom } from "#src/state/fvTour.ts"
+import { act, render, toElement } from "#test"
 
 import type { PlaneScene } from "../CartesianPlane/scene.ts"
 
@@ -89,6 +88,17 @@ const hint = (screen: Screen) => spoken(byTestId(screen, "fv-hint"))
 
 const IDLE = "Drag a ruler sideways to reshape the curve · point at the plane to read f(x)"
 
+/** A browser's matchMedia that prefers motion: no query matches. */
+const FULL_MOTION = (query: string) =>
+  ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  }) as unknown as MediaQueryList
+
 const ZERO_RECT = {
   x: 0,
   y: 0,
@@ -121,12 +131,24 @@ describe("FunctionViewer", () => {
   })
 
   beforeEach(() => {
+    // These tests are about the page's states, not its motion (motion/
+    // fvMotion.test.ts): no matchMedia, no motion, in the browser project too.
+    vi.stubGlobal("matchMedia", undefined)
     // These tests are about the page, not its first-minute tour.
     getDefaultStore().set(fvTourDoneAtom, true)
     drawMock.mockClear()
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
       stubCtx as unknown as CanvasRenderingContext2D,
     )
+  })
+
+  it("draws its first paint on the plane when the page moves (FV 05 › Draw-on timeline)", async () => {
+    vi.stubGlobal("matchMedia", FULL_MOTION)
+    await render(<FunctionViewer />)
+    // The first frame: the grid about to fade in, no curve drawn yet, P not in.
+    expect(lastScene().gridAlpha).toBeLessThan(0.01)
+    expect(curveF()?.drawTo).toBeLessThan(0.01)
+    expect(pointOf("p")?.alpha).toBe(0)
   })
 
   it("prints R3's equation and plots its curve, vertex at (−1, 1) (D1)", async () => {
@@ -294,10 +316,14 @@ describe("FunctionViewer", () => {
     expect(readout(screen, "fv-q-readout")).toBe("f(−1.5) = 2.25")
     expect(spoken(q)).toContain("x follows your pointer · y = f(x)")
     expect(hint(screen)).toBe("Q follows your pointer · drag to pan · scroll to zoom")
+    // FV 05: the values fade in as the pointer enters, and again as it leaves.
+    const fades = () => [...q.querySelectorAll("[data-fade]")].map((el) => el.getAttribute("data-fade"))
+    expect(fades()).toEqual(["in", "in"])
     act(() => {
       canvas.dispatchEvent(new PointerEvent("pointerout", { bubbles: true, relatedTarget: document.body }))
     })
     expect(readout(screen, "fv-q-readout")).toBe("f(–) = –")
+    expect(fades()).toEqual(["out", "out"])
     expect(hint(screen)).toBe(IDLE)
   })
 
@@ -633,6 +659,12 @@ describe("FunctionViewer", () => {
       getDefaultStore().set(fvTourDoneAtom, false)
       return render(<FunctionViewer />)
     }
+
+    it("waits for the first paint's draw-on when the page moves (FV 08 › Flow)", async () => {
+      vi.stubGlobal("matchMedia", FULL_MOTION)
+      await firstVisit()
+      expect(card()).toBeNull()
+    })
 
     it("runs on a first visit: step 1 about the curve and P, Next on, Skip remembered", async () => {
       const screen = await firstVisit()

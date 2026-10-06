@@ -45,7 +45,8 @@ export function TransformControl({
   value: number
   ui: PartUi
   events: PartEvents
-  onChange: (next: number) => void
+  /** The value typed into the field (FV 05: a jump), or the ruler's (direct). */
+  onChange: (next: number, typed: boolean) => void
   onReset: () => void
   /** The scales' flip toggle: a turns the curve upside down, b mirrors it (FV 13). */
   onFlip?: () => void
@@ -188,7 +189,7 @@ export function TransformControl({
         <NumberField
           ref={fieldRef}
           value={value}
-          onCommit={onChange}
+          onCommit={(next) => onChange(next, true)}
           validate={(next) => (acceptsValue(param, next) ? null : ZERO_SCALE)}
           label={`${name}, value`}
           testId={`fv-param-${param}-field`}
@@ -206,7 +207,7 @@ export function TransformControl({
       <ScrubStrip
         ref={rulerRef}
         value={value}
-        onChange={onChange}
+        onChange={(next) => onChange(next, false)}
         onReset={onReset}
         kind={scale ? "multiplicative" : "additive"}
         label={name}

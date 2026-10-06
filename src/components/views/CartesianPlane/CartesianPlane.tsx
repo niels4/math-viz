@@ -7,7 +7,7 @@ import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.t
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
-import { prefersReducedMotion } from "#src/util/motion/motion.ts"
+import { motionLevel } from "#src/util/motion/motion.ts"
 
 import type { EdgeArrival } from "./arrivals.ts"
 import type { MarksLayout } from "./marks.ts"
@@ -273,12 +273,11 @@ export function CartesianPlane({
       corners: chrome.corners,
     })
     marksRef.current = laid
-    const { marks, arriving } = arriveEdges(
-      laid,
-      arrivalsRef.current,
-      performance.now(),
-      prefersReducedMotion(),
-    )
+    const level = motionLevel()
+    const { marks, arriving } =
+      level === "none"
+        ? { marks: laid, arriving: false }
+        : arriveEdges(laid, arrivalsRef.current, performance.now(), level === "reduced")
     const grid = drawCartesianPlane({
       ctx,
       width,

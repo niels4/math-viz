@@ -142,3 +142,33 @@ on the boards. */
   height: 20px;
   color: var(--foreground-muted);
 }
+
+/* Q's values in their own box, the readout's own size. */
+.value {
+  display: flex;
+  flex: none;
+}
+
+/* FV 05: Q's values fade in as the pointer enters the plane (160 ms on the
+enter spring) and as it leaves (back to placeholders, 120 ms); under
+reduced motion both take 120 ms. */
+[data-fade="in"] {
+  animation: values-in var(--motion-dur-fast) var(--motion-ease-enter) both;
+}
+
+[data-fade="out"] {
+  animation: values-in var(--motion-dur-leave) linear both;
+}
+
+@keyframes values-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-fade] {
+    animation-duration: var(--motion-dur-reduced-fade);
+    animation-timing-function: linear;
+  }
+}
