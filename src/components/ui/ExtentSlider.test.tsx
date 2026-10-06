@@ -16,6 +16,8 @@ const stubLayout = () => {
   HTMLDivElement.prototype.setPointerCapture = () => {}
   HTMLDivElement.prototype.releasePointerCapture = () => {}
   HTMLDivElement.prototype.hasPointerCapture = () => false
+  // Real Chromium's ResizeObserver would report the laid-out track over the mock.
+  vi.stubGlobal("ResizeObserver", undefined)
   vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue({
     x: TRACK.left,
     y: 0,
@@ -86,6 +88,7 @@ describe("ExtentSlider (the P scrubber, FV 07)", () => {
   beforeEach(stubLayout)
   afterEach(() => {
     vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
 
   it("is a slider over the live range that names its value", async () => {
