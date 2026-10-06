@@ -64,6 +64,20 @@ export const formatNumber = (v: number, dp: number = DISPLAY_DP): string => {
  */
 export const formatStored = (v: number): string => formatNumber(v, FINE_DP)
 
+/**
+ * Typed text back to a number: what a value field accepts. Either minus
+ * (U+2212 as printed, or the keyboard's hyphen), no other text; null when
+ * the text is not one finite number ("", "1.0.4", "Infinity").
+ */
+export const parseNumber = (text: string): number | null => {
+  const s = text.trim().replaceAll(MINUS, "-")
+  if (s === "" || !/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s)) {
+    return null
+  }
+  const n = Number(s)
+  return Number.isFinite(n) ? n : null
+}
+
 const formatInteger = (n: number): string => withSign(n < 0, String(Math.abs(n)))
 
 /**

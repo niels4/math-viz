@@ -7,6 +7,7 @@ import {
   formatStored,
   MINUS,
   numberParts,
+  parseNumber,
   quantize,
   relation,
   roundTo,
@@ -145,5 +146,22 @@ describe("formatStored", () => {
     expect(formatStored(1.04)).toBe("1.04")
     expect(formatStored(2)).toBe("2")
     expect(formatStored(-0.5)).toBe("−0.5")
+  })
+})
+
+describe("parseNumber", () => {
+  it("reads what a field prints, either minus", () => {
+    expect(parseNumber("1.04")).toBe(1.04)
+    expect(parseNumber(`${MINUS}2`)).toBe(-2)
+    expect(parseNumber(" -0.5 ")).toBe(-0.5)
+    expect(parseNumber(".5")).toBe(0.5)
+    expect(parseNumber("2.")).toBe(2)
+    expect(parseNumber("1e3")).toBe(1000)
+  })
+
+  it("refuses anything that is not one finite number", () => {
+    for (const text of ["", " ", "-", "1.0.4", "abc", "0x10", "Infinity", "1e999", "1,5"]) {
+      expect(parseNumber(text)).toBeNull()
+    }
   })
 })
