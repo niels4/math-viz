@@ -37,6 +37,7 @@
     z-index: 20;
     display: grid;
     gap: 12px;
+    width: max-content;
     min-width: 230px;
     padding: 12px;
     background: var(--card);
@@ -88,17 +89,16 @@
     color: var(--foreground-muted);
   }
 
+  /* Each item on one line: the menu takes the widest item's width. */
   .settings_option {
     display: flex;
     align-items: center;
     gap: 8px;
     width: 100%;
     padding: 8px 10px;
-    font: inherit;
-    font-size: 0.9rem;
-    font-weight: 600;
     color: var(--foreground);
     text-align: left;
+    white-space: nowrap;
     background: transparent;
     border: 0;
     border-radius: calc(var(--radius) - 4px);
@@ -109,7 +109,15 @@
     background: var(--secondary);
   }
 
-  .settings_option_active {
+  /* Focus = hover + the 3 px ring (FV 07). */
+  .settings_option:focus-visible {
+    background: var(--secondary);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+  }
+
+  /* The checked theme keeps its fill under the pointer and the focus. */
+  .settings_option.settings_option_active {
     color: var(--primary-foreground);
     background: var(--primary);
   }
@@ -121,8 +129,9 @@
   }
 
   .settings_check {
-    display: inline-block;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
     width: 1.2em;
-    font-weight: 800;
   }
 }
