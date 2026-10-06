@@ -11,10 +11,22 @@ export const curveAt = (state: Pick<FvState, "fn" | "params">, x: number): numbe
   evaluate(BASE_FUNCTIONS[state.fn].g, state.params, x)
 
 /** Any of a, b, h, k off its default. */
-export const isTransformed = (state: FvState): boolean => !isIdentity(state.params)
+export const isTransformed = (state: Pick<FvState, "params">): boolean => !isIdentity(state.params)
 
 /** Decision D7: the dashed original shows while its toggle is on and a transform is set. */
-export const ghostVisible = (state: FvState): boolean => state.ghostOn && isTransformed(state)
+export const ghostVisible = (state: Pick<FvState, "ghostOn" | "params">): boolean =>
+  state.ghostOn && isTransformed(state)
+
+/**
+ * P's partners light together (FV 04 › Y1): while P's card is hovered or
+ * focused, P is dragged, or the pointer is on P's marker, P's marker takes
+ * its halo and drops its coordinates on both axes.
+ */
+export const pLit = (state: FvState): boolean =>
+  state.hover === "p" ||
+  state.focus === "p" ||
+  state.drag?.part === "p" ||
+  (state.hover === "plane" && state.planeOver === "p")
 
 /** What a part draws of its own state: the pointer on it, its drag's mode, its open edit. */
 export type PartUi = { hovered: boolean; mode: ScrubMode | null; edit: NumberFieldEdit | null }

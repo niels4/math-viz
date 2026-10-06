@@ -4,7 +4,7 @@ import type { FvState } from "./state.ts"
 
 import { DEFAULT_PARAMS } from "../math/form.ts"
 import { fvReducer, type FvAction } from "./reducer.ts"
-import { curveAt, ghostVisible, isTransformed, partUi, pOffView } from "./selectors.ts"
+import { curveAt, ghostVisible, isTransformed, partUi, pLit, pOffView } from "./selectors.ts"
 import { DEFAULT_GHOST_ON, DEFAULT_P_X, initialFvState } from "./state.ts"
 
 const run = (...actions: FvAction[]): FvState => actions.reduce(fvReducer, initialFvState)
@@ -123,6 +123,29 @@ describe("parts: hover, focus, drag, edit", () => {
     )
     expect(on).toMatchObject({ qX: -1.5, hover: "plane", lead: "hover" })
     expect(fvReducer(on, { type: "planePointer", x: null })).toMatchObject({ qX: null, hover: null })
+  })
+
+  it("hides Q over P's marker, while P is dragged and while the plane pans (FV 07)", () => {
+    const overP = run({ type: "planePointer", x: 1.99, over: "p" })
+    expect(overP).toMatchObject({ qX: null, planeOver: "p", hover: "plane" })
+    expect(run({ type: "planePointer", x: 1, panning: true })).toMatchObject({ qX: null, planeOver: null })
+    // Back on the empty plane, Q follows again; off the plane, nothing is over.
+    const back = fvReducer(overP, { type: "planePointer", x: 1 })
+    expect(back).toMatchObject({ qX: 1, planeOver: null })
+    expect(fvReducer(overP, { type: "planePointer", x: null })).toMatchObject({
+      planeOver: null,
+      hover: null,
+    })
+  })
+
+  it("lights P while its card is hovered or focused, it is dragged, or the pointer is on it (FV 04)", () => {
+    expect(pLit(initialFvState)).toBe(false)
+    expect(pLit(run({ type: "hover", part: "p", on: true }))).toBe(true)
+    expect(pLit(run({ type: "focus", part: "p", on: true }))).toBe(true)
+    expect(pLit(run({ type: "drag", part: "p", mode: "coarse" }))).toBe(true)
+    expect(pLit(run({ type: "planePointer", x: 2, over: "p" }))).toBe(true)
+    expect(pLit(run({ type: "planePointer", x: 2 }))).toBe(false)
+    expect(pLit(run({ type: "hover", part: "k", on: true }))).toBe(false)
   })
 
   it("a leave clears only its own part, so a late leave changes nothing", () => {

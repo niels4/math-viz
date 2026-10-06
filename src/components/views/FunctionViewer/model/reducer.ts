@@ -5,7 +5,7 @@ import { FINE_DP, quantize, roundTo } from "#src/util/format/number.ts"
 
 import type { PlaneView } from "../../CartesianPlane/viewport.ts"
 import type { BaseFunctionSlug } from "../math/baseFunctions.ts"
-import type { FvPart, FvState } from "./state.ts"
+import type { FvPart, FvPlaneMark, FvState } from "./state.ts"
 
 import { acceptsValue, DEFAULT_PARAMS, type TransformParam } from "../math/form.ts"
 
@@ -19,8 +19,12 @@ export type FvAction =
   | { type: "resetAll" }
   | { type: "flip"; param: "a" | "b" }
   | { type: "setP"; x: number }
-  /** The pointer on the plane at x (Q follows it), or off it. */
-  | { type: "planePointer"; x: number | null }
+  /**
+   * The pointer on the plane at x, or off it (null). Q follows it over the
+   * empty plane; over P's marker, while P is dragged and while the plane
+   * pans, Q hides (FV 07 › pointer modes).
+   */
+  | { type: "planePointer"; x: number | null; over?: FvPlaneMark; panning?: boolean }
   | { type: "setGhost"; on: boolean }
   | { type: "setView"; view: PlaneView }
   /** The pointer enters or leaves a part. */
@@ -84,9 +88,20 @@ export function fvReducer(state: FvState, action: FvAction): FvState {
     }
     case "planePointer": {
       if (action.x === null || !Number.isFinite(action.x)) {
-        return patch(state, { qX: null, hover: state.hover === "plane" ? null : state.hover })
+        return patch(state, {
+          qX: null,
+          planeOver: null,
+          hover: state.hover === "plane" ? null : state.hover,
+        })
       }
-      return patch(state, { qX: onPointLattice(action.x), hover: "plane", lead: "hover" })
+      const over = action.over ?? null
+      const probing = over === null && action.panning !== true
+      return patch(state, {
+        qX: probing ? onPointLattice(action.x) : null,
+        planeOver: over,
+        hover: "plane",
+        lead: "hover",
+      })
     }
     case "setGhost":
       return action.on === state.ghostOn ? state : { ...state, ghostOn: action.on }

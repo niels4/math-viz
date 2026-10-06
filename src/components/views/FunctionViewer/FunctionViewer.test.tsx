@@ -14,8 +14,15 @@ vi.mock("../CartesianPlane/drawCartesianPlane", () => ({
 const drawMock = drawCartesianPlane as unknown as Mock
 const lastDraw = () => drawMock.mock.calls.at(-1)?.[0] as { scene: PlaneScene }
 const lastScene = () => lastDraw().scene
+/** The transformed curve, whatever the scene paints before it (the ghost original). */
+const curveF = () => lastScene().curves.find((c) => c.id === "f")
+const pointOf = (id: string) => lastScene().points.find((p) => p.id === id)
 
-const stubCtx = new Proxy({}, { get: () => () => {}, set: () => true })
+// Every context call is a no-op; text measures 0 px wide.
+const stubCtx = new Proxy(
+  {},
+  { get: (_, key) => (key === "measureText" ? () => ({ width: 0 }) : () => {}), set: () => true },
+)
 
 const setInput = (input: HTMLInputElement, next: string) => {
   const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set
@@ -111,7 +118,7 @@ describe("FunctionViewer", () => {
     expect(toElement(screen.getByTestId("func-readout")).getAttribute("aria-label")).toBe(
       "f(x) = 2(x + 1)² + 1",
     )
-    const curve = lastScene().curves[0]
+    const curve = curveF()
     expect(curve?.fn(-1)).toBe(1)
     expect(curve?.fn(0.5)).toBe(5.5)
     // The form line keeps every letter; only b, still at its default, is a ghost slot (D13).
@@ -129,7 +136,7 @@ describe("FunctionViewer", () => {
     })
     expect(toElement(screen.getByTestId("fv-fn-sin")).getAttribute("aria-checked")).toBe("true")
     expect(toElement(screen.getByTestId("func-readout")).getAttribute("aria-label")).toBe("f(x) = sin(x)")
-    expect(lastScene().curves[0]?.fn(Math.PI / 2)).toBe(1)
+    expect(curveF()?.fn(Math.PI / 2)).toBe(1)
   })
 
   it("names the view and the live theme in its top bar", async () => {
@@ -181,7 +188,7 @@ describe("FunctionViewer", () => {
     expect(byTestId(screen, "fv-param-a-flip").getAttribute("aria-pressed")).toBe("true")
     expect(valueOf(screen, "a")).toBe("−2")
     expect(byTestId(screen, "func-readout").getAttribute("aria-label")).toBe("f(x) = −2(x + 1)² + 4")
-    expect(lastScene().curves[0]?.fn(0.5)).toBe(-0.5)
+    expect(curveF()?.fn(0.5)).toBe(-0.5)
     click(screen, "fv-param-k-reset")
     expect(valueOf(screen, "k")).toBe("0")
     expect(document.querySelector('[data-testid="fv-param-k-reset"]')).toBeNull()
@@ -230,7 +237,7 @@ describe("FunctionViewer", () => {
     expect((byTestId(screen, "fv-p-field") as HTMLInputElement).value).toBe("2")
     expect(readout(screen, "fv-p-readout")).toBe("f(2) = 4")
     expect(byTestId(screen, "fv-point-p").textContent).toContain("Pinned")
-    expect(lastScene().points[0]).toMatchObject({
+    expect(pointOf("p")).toMatchObject({
       id: "p",
       x: 2,
       y: 4,
@@ -246,7 +253,7 @@ describe("FunctionViewer", () => {
     typeParam(screen, "k", "1")
     typeInto(screen, "fv-p-field", "0.5")
     expect(readout(screen, "fv-p-readout")).toBe("f(0.5) = 5.5")
-    expect(lastScene().points[0]).toMatchObject({ x: 0.5, y: 5.5 })
+    expect(pointOf("p")).toMatchObject({ x: 0.5, y: 5.5 })
     // P lands on 0.12, and f(0.12) = 3.5088 prints rounded.
     typeInto(screen, "fv-p-field", "0.123")
     expect(readout(screen, "fv-p-readout")).toBe("f(0.12) ≈ 3.51")
@@ -324,5 +331,48 @@ describe("FunctionViewer", () => {
     typeParam(screen, "b", "1.0.4")
     expect(hint(screen)).toBe("Type a number such as 1.5 · Esc puts back 1")
     expect(byTestId(screen, "fv-hint").getAttribute("data-tone")).toBe("error")
+  })
+  it("shows the Original toggle while a transform is set, and the ghost while it is on (D7)", async () => {
+    const screen = await render(<FunctionViewer />)
+    expect(document.querySelector('[data-testid="fv-ghost-toggle"]')).toBeNull()
+    typeParam(screen, "a", "2")
+    const toggle = byTestId(screen, "fv-ghost-toggle")
+    expect(toggle.getAttribute("aria-pressed")).toBe("true")
+    expect(toggle.getAttribute("aria-label")).toBe("Original, y = x squared")
+    expect(toggle.textContent).toContain("y = x²")
+    expect(lastScene().curves.map((c) => c.id)).toEqual(["original", "f"])
+    click(screen, "fv-ghost-toggle")
+    expect(toggle.getAttribute("aria-pressed")).toBe("false")
+    expect(lastScene().curves.map((c) => c.id)).toEqual(["f"])
+    click(screen, "fv-ghost-toggle")
+    expect(lastScene().curves.map((c) => c.id)).toEqual(["original", "f"])
+    click(screen, "fv-reset-all")
+    expect(document.querySelector('[data-testid="fv-ghost-toggle"]')).toBeNull()
+  })
+
+  it("lights P on the plane while its card is hovered: halo, drop lines, tags (FV 04 › Y1)", async () => {
+    const screen = await render(<FunctionViewer />)
+    expect(pointOf("p")).toMatchObject({ focus: false, axisTags: false })
+    const card = byTestId(screen, "fv-point-p")
+    act(() => {
+      card.dispatchEvent(new PointerEvent("pointerover", { bubbles: true, relatedTarget: document.body }))
+    })
+    expect(pointOf("p")).toMatchObject({ focus: true, axisTags: true })
+    act(() => {
+      card.dispatchEvent(new PointerEvent("pointerout", { bubbles: true, relatedTarget: document.body }))
+    })
+    expect(pointOf("p")).toMatchObject({ focus: false, axisTags: false })
+  })
+
+  it("moves P along the curve with [ and ] on the plane (FV 07)", async () => {
+    const screen = await render(<FunctionViewer />)
+    const plane = byTestId(screen, "cartesian-plane")
+    expect(plane.getAttribute("aria-label")).toContain("[ and ] move P")
+    keydown(plane, "]")
+    expect(readout(screen, "fv-p-readout")).toBe("f(2.1) = 4.41")
+    keydown(plane, "[")
+    keydown(plane, "[")
+    expect(readout(screen, "fv-p-readout")).toBe("f(1.9) = 3.61")
+    expect(pointOf("p")).toMatchObject({ x: 1.9, y: 3.61 })
   })
 })

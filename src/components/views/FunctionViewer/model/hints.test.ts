@@ -29,6 +29,14 @@ describe("hint contexts (FV 01 › Hint contexts, Components › hint-bar-fv)", 
     )
   })
 
+  it("speaks about P while the pointer is on P's marker or drags it", () => {
+    const point = "Drag P along the curve · ← → nudge 0.1"
+    expect(read(hintOf({ type: "planePointer", x: 2, over: "p" }))).toBe(point)
+    expect(
+      read(hintOf({ type: "planePointer", x: 2, over: "p" }, { type: "drag", part: "p", mode: "coarse" })),
+    ).toBe(point)
+  })
+
   it("names a shift and its reset value while its control is hovered or dragged (R5)", () => {
     const k = "Drag to change k · Shift fine · Ctrl whole steps · double-click: back to 0"
     expect(read(hintOf({ type: "hover", part: "k", on: true }))).toBe(k)

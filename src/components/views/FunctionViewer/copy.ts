@@ -75,6 +75,13 @@ export const Q_NOTES = {
   empty: [{ text: "Point at the plane to place" }, { math: "Q" }],
 } as const satisfies Record<string, readonly Phrase[]>
 
+/** The Original toggle (ghost-toggle-fv): its label, and the original g it draws dashed. */
+export const ORIGINAL_LABEL = "Original"
+export const originalMath = (g: string): string => `y = ${g}`
+
+/** The plane's keys this view adds to its own, as read aloud (FV 07). */
+export const PLANE_KEY_HELP = "[ and ] move P"
+
 /** P's scrubber and the field its Enter opens, as screen readers name them. */
 export const P_SCRUBBER_LABEL = "x of P"
 export const P_FIELD_LABEL = "x of P, value"

@@ -20,6 +20,9 @@ export type FvPart = TransformParam | "p" | "plane"
 /** A drag in progress: a ruler's mode (fine, snap), or "coarse" for P's scrubber. */
 export type FvDrag = { part: FvPart; mode: ScrubMode }
 
+/** What the pointer can be over on the plane: P's marker (it grabs P), or the empty plane (null). */
+export type FvPlaneMark = "p"
+
 /** A value being typed: the refusal of its text, if any, and the value Esc puts back. */
 export type FvEdit = { part: FvPart; error: string | null; base: number }
 
@@ -38,6 +41,8 @@ export type FvState = {
   view: PlaneView | null
   /** The part under the pointer. */
   hover: FvPart | null
+  /** While the pointer is on the plane: the mark under it or being dragged. */
+  planeOver: FvPlaneMark | null
   /** The part holding the keyboard focus. */
   focus: FvPart | null
   /** Which of the two moved last: the hint speaks about that one first. */
@@ -54,6 +59,7 @@ export const initialFvState: FvState = {
   ghostOn: DEFAULT_GHOST_ON,
   view: null,
   hover: null,
+  planeOver: null,
   focus: null,
   lead: "hover",
   drag: null,

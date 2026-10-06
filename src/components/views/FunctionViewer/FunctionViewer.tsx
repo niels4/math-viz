@@ -8,11 +8,12 @@ import { SettingsMenu } from "../../ui/SettingsMenu.tsx"
 import { ThemeChip } from "../../ui/ThemeChip.tsx"
 import { TopBar } from "../../ui/TopBar.tsx"
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
-import { SECTIONS, VIEW_SUBTITLE, VIEW_TITLE } from "./copy.ts"
+import { PLANE_KEY_HELP, SECTIONS, VIEW_SUBTITLE, VIEW_TITLE } from "./copy.ts"
 import style from "./FunctionViewer.module.css"
+import { GhostToggle } from "./GhostToggle.tsx"
 import { hintContext, hintFor } from "./model/hints.ts"
 import { fvReducer } from "./model/reducer.ts"
-import { curveAt, partUi, pOffView } from "./model/selectors.ts"
+import { curveAt, isTransformed, partUi, pLit, pOffView } from "./model/selectors.ts"
 import { initialFvState, type FvPart, type PartEvents } from "./model/state.ts"
 import { EquationCard } from "./panel/EquationCard.tsx"
 import { FunctionPicker } from "./panel/FunctionPicker.tsx"
@@ -21,11 +22,18 @@ import { PCard, QCard } from "./panel/PointCards.tsx"
 import { TransformGrid } from "./panel/TransformGrid.tsx"
 import { buildPlaneScene } from "./planeScene.ts"
 
+/** FV 07: [ and ] move P along the curve by 0.1. */
+const P_KEY_STEP = 0.1
+
 export function FunctionViewer() {
   const [state, dispatch] = useReducer(fvReducer, initialFvState)
-  const { fn, params, pX, qX } = state
+  const { fn, params, pX, qX, ghostOn } = state
+  const lit = pLit(state)
   // Only what the scene shows: a reported view change must not rebuild it.
-  const scene = useMemo(() => buildPlaneScene({ fn, params, pX, qX }), [fn, params, pX, qX])
+  const scene = useMemo(
+    () => buildPlaneScene({ fn, params, pX, qX, ghostOn, pLit: lit }),
+    [fn, params, pX, qX, ghostOn, lit],
+  )
   // Each panel part reports its hover, focus, drag and edit as its own actions.
   const eventsOf = (part: FvPart): PartEvents => ({
     onHover: (on) => dispatch({ type: "hover", part, on }),
@@ -81,8 +89,45 @@ export function FunctionViewer() {
         <CartesianPlane
           scene={scene}
           caption={<MathText text="y = f(x)" />}
+          tools={
+            isTransformed(state) && (
+              <GhostToggle fn={fn} on={ghostOn} onChange={(on) => dispatch({ type: "setGhost", on })} />
+            )
+          }
+          keyHelp={PLANE_KEY_HELP}
           onViewChange={(view) => dispatch({ type: "setView", view })}
-          onPointer={(point) => dispatch({ type: "planePointer", x: point === null ? null : point.x })}
+          onPointer={(pointer) =>
+            dispatch(
+              pointer === null
+                ? { type: "planePointer", x: null }
+                : {
+                    type: "planePointer",
+                    x: pointer.x,
+                    ...(pointer.over === "p" && { over: "p" as const }),
+                    panning: pointer.panning,
+                  },
+            )
+          }
+          onMarkDrag={(phase, id, to) => {
+            if (id !== "p") {
+              return
+            }
+            // P's x follows the pointer along the curve; the card and the
+            // hint read the drag as P's.
+            if (phase === "move") {
+              dispatch({ type: "setP", x: to.x })
+            } else {
+              dispatch({ type: "drag", part: "p", mode: phase === "start" ? "coarse" : null })
+            }
+          }}
+          onKeyDown={(e) => {
+            const step = e.key === "[" ? -P_KEY_STEP : e.key === "]" ? P_KEY_STEP : 0
+            if (step === 0 || e.ctrlKey || e.metaKey || e.altKey) {
+              return false
+            }
+            dispatch({ type: "setP", x: pX + step })
+            return true
+          }}
         />
       </main>
     </div>

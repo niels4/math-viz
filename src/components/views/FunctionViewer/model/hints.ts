@@ -17,10 +17,11 @@ export type HintContext =
   | { kind: "plane" }
   | { kind: "point" }
 
-const partContext = (part: FvPart | null): HintContext =>
+// P's marker on the plane speaks as P does: the pointer there grabs P.
+const partContext = (state: FvState, part: FvPart | null): HintContext =>
   part === null
     ? { kind: "idle" }
-    : part === "p"
+    : part === "p" || (part === "plane" && state.planeOver === "p")
       ? { kind: "point" }
       : part === "plane"
         ? { kind: "plane" }
@@ -37,10 +38,10 @@ export const hintContext = (state: FvState): HintContext => {
     return edit.error === null ? { kind: "edit" } : { kind: "error", error: edit.error, base: edit.base }
   }
   if (drag !== null) {
-    return drag.mode === "coarse" ? partContext(drag.part) : { kind: drag.mode }
+    return drag.mode === "coarse" ? partContext(state, drag.part) : { kind: drag.mode }
   }
   const [first, second] = state.lead === "focus" ? [state.focus, state.hover] : [state.hover, state.focus]
-  return partContext(first ?? second)
+  return partContext(state, first ?? second)
 }
 
 export const hintFor = (context: HintContext): Hint => {
