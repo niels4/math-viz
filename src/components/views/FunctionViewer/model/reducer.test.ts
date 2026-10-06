@@ -41,8 +41,17 @@ describe("fvReducer", () => {
     expect(Object.is(run({ type: "setParam", param: "k", value: -0.0001 }).params.k, 0)).toBe(true)
   })
 
+  it("never stores a scale of 0; a shift of 0 is fine", () => {
+    expect(run({ type: "setParam", param: "b", value: 0 })).toBe(initialFvState)
+    expect(run({ type: "setParam", param: "a", value: 0.0004 })).toBe(initialFvState)
+    expect(
+      run({ type: "setParam", param: "k", value: 1 }, { type: "setParam", param: "k", value: 0 }).params.k,
+    ).toBe(0)
+  })
+
   it("ignores values that are not numbers", () => {
     expect(run({ type: "setParam", param: "a", value: Number.NaN })).toBe(initialFvState)
+    expect(run({ type: "setParam", param: "h", value: Number.NaN })).toBe(initialFvState)
     expect(run({ type: "setP", x: Number.POSITIVE_INFINITY })).toBe(initialFvState)
   })
 

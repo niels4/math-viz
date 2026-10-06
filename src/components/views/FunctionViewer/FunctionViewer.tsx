@@ -2,8 +2,6 @@ import { useMemo, useReducer } from "react"
 
 import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
 
-import type { TransformParam } from "./math/form.ts"
-
 import { MathText } from "../../ui/MathText.tsx"
 import { SettingsMenu } from "../../ui/SettingsMenu.tsx"
 import { ThemeChip } from "../../ui/ThemeChip.tsx"
@@ -17,6 +15,7 @@ import { initialFvState } from "./model/state.ts"
 import { EquationCard } from "./panel/EquationCard.tsx"
 import { FunctionPicker } from "./panel/FunctionPicker.tsx"
 import { PanelSection } from "./panel/PanelSection.tsx"
+import { TransformGrid } from "./panel/TransformGrid.tsx"
 import { buildPlaneScene } from "./planeScene.ts"
 
 export function FunctionViewer() {
@@ -24,8 +23,6 @@ export function FunctionViewer() {
   const { fn, params, pX, qX } = state
   // Only what the scene shows: a reported view change must not rebuild it.
   const scene = useMemo(() => buildPlaneScene({ fn, params, pX, qX }), [fn, params, pX, qX])
-
-  const setParam = (param: TransformParam) => (value: number) => dispatch({ type: "setParam", param, value })
 
   return (
     <div className={`${style.page} ${workSansStyles.font}`}>
@@ -45,17 +42,15 @@ export function FunctionViewer() {
           <FunctionPicker value={fn} onChange={(next) => dispatch({ type: "setFunction", fn: next })} />
           <EquationCard fn={fn} params={params} />
         </PanelSection>
-        {/* The pre-v2 controls as sections 2 and 3 until M5 and M6: X/Y Scale and
-        Offset map to b, h, a, k; X Offset is the real shift h (D1). */}
+        <TransformGrid
+          params={params}
+          onChange={(param, value) => dispatch({ type: "setParam", param, value })}
+          onReset={(param) => dispatch({ type: "resetParam", param })}
+          onResetAll={() => dispatch({ type: "resetAll" })}
+          onFlip={(param) => dispatch({ type: "flip", param })}
+        />
+        {/* The pre-v2 points controls as section 3 until M6. */}
         <FunctionViewerSidebar
-          xScale={params.b}
-          setXScale={setParam("b")}
-          xOffset={params.h}
-          setXOffset={setParam("h")}
-          yScale={params.a}
-          setYScale={setParam("a")}
-          yOffset={params.k}
-          setYOffset={setParam("k")}
           point1X={state.pX}
           setPoint1X={(x) => dispatch({ type: "setP", x })}
           point2X={state.qX}

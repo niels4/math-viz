@@ -132,25 +132,6 @@ export function GearIcon() {
   )
 }
 
-export function HelpIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="16"
-      height="16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M9.6 9.6a2.5 2.5 0 1 1 3.3 2.4c-.8.3-1 .9-1 1.8" />
-      <circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none" />
-    </svg>
-  )
-}
-
 export function SearchIcon() {
   return (
     <svg
@@ -199,6 +180,41 @@ export function ArrowIcon({ dir, size = ARROW_BOX }: { dir: GlyphDirection; size
       aria-hidden="true"
     >
       <path d={ARROW_PATHS[dir]} />
+    </svg>
+  )
+}
+
+/** ↺ (fvResetGlyph): a 270° arc with its head at the start, in a 16 × 16 box. */
+export function ResetIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+      <path
+        d="M12.213 4.465A5.5 5.5 0 1 1 4.465 3.787"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+      <path d="M9.013 0.865L14.813 2.065L11.813 6.865Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** ↕ (flip upside down) or ↔ (mirror), the flip toggle's glyphs (FV 13), in a 14 × 14 box. */
+export function FlipIcon({ axis }: { axis: "vertical" | "horizontal" }) {
+  return (
+    <svg viewBox="0 0 14 14" width="14" height="14" fill="currentColor" aria-hidden="true">
+      {axis === "vertical" ? (
+        <>
+          <path d="M7 2V12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <path d="M3.5 5L7 0.5L10.5 5ZM3.5 9L7 13.5L10.5 9Z" />
+        </>
+      ) : (
+        <>
+          <path d="M2 7H12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <path d="M5 3.5L0.5 7L5 10.5ZM9 3.5L13.5 7L9 10.5Z" />
+        </>
+      )}
     </svg>
   )
 }

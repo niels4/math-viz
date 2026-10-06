@@ -23,14 +23,6 @@ const renderSidebar = (props?: {
 }) =>
   render(
     <FunctionViewerSidebar
-      xScale={1}
-      setXScale={() => {}}
-      xOffset={0}
-      setXOffset={() => {}}
-      yScale={1}
-      setYScale={() => {}}
-      yOffset={0}
-      setYOffset={() => {}}
       point1X={props?.p1 ?? 2}
       setPoint1X={props?.setP1 ?? (() => {})}
       point2X={props?.p2 ?? null}
@@ -69,12 +61,17 @@ describe("FunctionViewerSidebar Points", () => {
     expect(knob?.style.left).toBe("50%")
   })
 
-  it("typing in p1 propagates to state", async () => {
+  it("a value typed into p1 reaches the state on Enter", async () => {
     const setP1 = vi.fn<(next: number) => void>()
     const screen = await renderSidebar({ setP1 })
     const input = toElement(screen.getByTestId("p1-input")) as HTMLInputElement
     act(() => {
+      input.focus()
       setInput(input, "7")
+    })
+    expect(setP1).not.toHaveBeenCalled()
+    act(() => {
+      input.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter" }))
     })
     expect(setP1).toHaveBeenCalledWith(7)
   })

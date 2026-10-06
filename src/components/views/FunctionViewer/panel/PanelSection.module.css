@@ -5,9 +5,18 @@
   min-width: 0;
 }
 
-/* fvStep: 20 px tall, gap 8; the badge a 20 px --secondary disc with the
-number in Roboto Mono 600 12, the title Work Sans 600 13 caps. Line heights
-are Figma's AUTO boxes in px. */
+/* fvStep: 20 px tall; an action sits at the far end. */
+.header_row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  height: 20px;
+}
+
+/* The badge a 20 px --secondary disc with the number in Roboto Mono 600 12,
+gap 8, the title Work Sans 600 13 caps. Line heights are Figma's AUTO boxes
+in px. */
 .header {
   display: flex;
   gap: 8px;

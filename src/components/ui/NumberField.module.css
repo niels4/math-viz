@@ -1,0 +1,53 @@
+@layer components {
+  /* The readout font at 500 17 in Figma's 22 px line box, on a box-less
+  wrapper the input inherits from: global.css's unlayered
+  `input { font: inherit }` beats a font set on the input in this layer. */
+  .font {
+    display: contents;
+    font-family: var(--sig-readout-font);
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 22px;
+  }
+
+  /* The value field (fvControl › Value field): h 28, padding 2 8, radius 6,
+  right-aligned, as wide as its text and at least 50, never squeezed (a
+  clipped value would misread). At rest it is bare
+  text; its control's hover boxes it, typing gives it a 2 px primary border,
+  refused text a destructive one. Borders are inside, as in Figma. */
+  .field {
+    flex: none;
+    field-sizing: content;
+    min-width: 50px;
+    height: 28px;
+    padding: 2px 8px;
+    color: var(--foreground);
+    text-align: right;
+    caret-color: var(--primary);
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    outline: none;
+    cursor: text;
+  }
+
+  .field[data-muted] {
+    color: var(--foreground-muted);
+  }
+
+  .field[data-hot] {
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  .field[data-editing] {
+    color: var(--foreground);
+    background: var(--card);
+    box-shadow: inset 0 0 0 2px var(--primary);
+  }
+
+  .field[aria-invalid="true"] {
+    color: var(--destructive);
+    box-shadow: inset 0 0 0 2px var(--destructive);
+  }
+}

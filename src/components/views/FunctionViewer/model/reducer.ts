@@ -4,7 +4,7 @@ import type { PlaneView } from "../../CartesianPlane/viewport.ts"
 import type { BaseFunctionSlug } from "../math/baseFunctions.ts"
 import type { FvState } from "./state.ts"
 
-import { DEFAULT_PARAMS, type TransformParam } from "../math/form.ts"
+import { acceptsValue, DEFAULT_PARAMS, type TransformParam } from "../math/form.ts"
 
 /** Points sit on 0.01, so a marker, its label, its tags and its readout print one value. */
 export const POINT_QUANTUM = 0.01
@@ -40,12 +40,15 @@ export function fvReducer(state: FvState, action: FvAction): FvState {
   switch (action.type) {
     case "setFunction":
       return action.fn === state.fn ? state : { ...state, fn: action.fn }
-    case "setParam":
+    case "setParam": {
       // No hidden digits (Specs › Numbers): a stored value prints whole at
-      // 3 dp. `|| 0` keeps −0 out of the state.
-      return Number.isFinite(action.value)
-        ? withParam(state, action.param, roundTo(action.value, FINE_DP) || 0)
-        : state
+      // 3 dp. `|| 0` keeps −0 out of the state; a scale never stores 0.
+      if (!Number.isFinite(action.value)) {
+        return state
+      }
+      const value = roundTo(action.value, FINE_DP) || 0
+      return acceptsValue(action.param, value) ? withParam(state, action.param, value) : state
+    }
     case "resetParam":
       return withParam(state, action.param, DEFAULT_PARAMS[action.param])
     case "resetAll":

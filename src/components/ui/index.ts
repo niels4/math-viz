@@ -2,7 +2,6 @@ export { AlertStack, type AlertItem, type AlertKind } from "./AlertStack.tsx"
 export { Badge, type BadgeVariant } from "./Badge.tsx"
 export { Button, type ButtonVariant } from "./Button.tsx"
 export { Checkbox } from "./Checkbox.tsx"
-export { HelpTip, type HelpContent, type HelpRow } from "./HelpTip.tsx"
 export { DataTable, type DataTableRow } from "./DataTable.tsx"
 export { ExtentSlider } from "./ExtentSlider.tsx"
 export { Field } from "./Field.tsx"
@@ -10,8 +9,9 @@ export {
   ArrowIcon,
   BellIcon,
   ButtonIcon,
+  FlipIcon,
   GearIcon,
-  HelpIcon,
+  ResetIcon,
   SearchIcon,
   SlidersIcon,
   SnowflakeIcon,
@@ -19,10 +19,15 @@ export {
   TagIcon,
   TriangleIcon,
 } from "./icons.tsx"
-export { NumberField } from "./NumberField.tsx"
+export {
+  NumberField,
+  type NumberFieldEdit,
+  type NumberFieldEnd,
+  type NumberFieldHandle,
+} from "./NumberField.tsx"
 export { Pagination } from "./Pagination.tsx"
 export { RadioGroup } from "./RadioGroup.tsx"
-export { ScrubStrip } from "./ScrubStrip.tsx"
+export { ScrubStrip, type ScrubStripHandle } from "./ScrubStrip.tsx"
 export { SectionCard } from "./SectionCard.tsx"
 export { SegmentedControl, type SegmentedOption } from "./SegmentedControl.tsx"
 export { Select } from "./Select.tsx"

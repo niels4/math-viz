@@ -21,8 +21,20 @@ export const DEFAULT_PARAMS: TransformParams = { a: 1, b: 1, h: 0, k: 0 }
 export const isAtDefault = (params: TransformParams, param: TransformParam): boolean =>
   params[param] === DEFAULT_PARAMS[param]
 
+/** No parameter off its default. */
+export const isIdentity = (params: TransformParams): boolean =>
+  TRANSFORM_PARAMS.every((param) => isAtDefault(params, param))
+
 /** Scales multiply (a, b) and shifts add (h, k). */
 export const isScale = (param: TransformParam): param is "a" | "b" => param === "a" || param === "b"
+
+/**
+ * Whether a parameter may hold a value: any finite number, except a scale
+ * of 0, which squashes the curve flat (FV 07's "values that teach"; D9
+ * keeps drags and snaps off 0 too).
+ */
+export const acceptsValue = (param: TransformParam, value: number): boolean =>
+  Number.isFinite(value) && !(isScale(param) && value === 0)
 
 /**
  * The inner input g receives, as the steps applied to x in order: subtract

@@ -6,7 +6,6 @@ declare const styles: {
   readonly "page": string;
   readonly "panel": string;
   readonly "plane": string;
-  readonly "scrub_hint": string;
   readonly "topbar": string;
 };
 export = styles;

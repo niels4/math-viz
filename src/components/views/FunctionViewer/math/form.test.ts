@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest"
 
 import { BASE_FUNCTION_SLUGS, BASE_FUNCTIONS } from "./baseFunctions.ts"
 import {
+  acceptsValue,
   anchorPoint,
   DEFAULT_PARAMS,
   evaluate,
   innerInput,
   isAtDefault,
+  isIdentity,
   unitPoint,
   xForInner,
   type TransformParams,
@@ -81,5 +83,21 @@ describe("isAtDefault", () => {
     expect(isAtDefault(R3, "b")).toBe(true)
     expect(isAtDefault(R3, "a")).toBe(false)
     expect(isAtDefault(params({ k: -0 }), "k")).toBe(true)
+  })
+})
+
+describe("isIdentity and acceptsValue", () => {
+  it("is the identity only with every parameter at its default", () => {
+    expect(isIdentity(DEFAULT_PARAMS)).toBe(true)
+    expect(isIdentity({ ...DEFAULT_PARAMS, h: -1 })).toBe(false)
+  })
+
+  it("takes any finite number, but never a scale of 0", () => {
+    expect(acceptsValue("h", 0)).toBe(true)
+    expect(acceptsValue("k", -12)).toBe(true)
+    expect(acceptsValue("a", -2)).toBe(true)
+    expect(acceptsValue("a", 0)).toBe(false)
+    expect(acceptsValue("b", 0)).toBe(false)
+    expect(acceptsValue("k", Number.NaN)).toBe(false)
   })
 })
