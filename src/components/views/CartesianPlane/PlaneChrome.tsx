@@ -28,7 +28,8 @@ export type PlaneChromeProps = {
 
 // canvas-chrome-v2 over the plane: corner brackets, HUD ticks (shown where
 // --sig-hud-ticks is 1, tron-cyan), the caption plate top-left and the scale
-// bar bottom-left. Parts marked data-keep-out push tick labels away.
+// bar bottom-left. Parts marked data-keep-out push tick labels and point
+// labels away; edge markers step past the plates, not the corners.
 export function PlaneChrome({ width, height, zoom, label, caption }: PlaneChromeProps) {
   return (
     <>
@@ -38,7 +39,7 @@ export function PlaneChrome({ width, height, zoom, label, caption }: PlaneChrome
           className={`${style.bracket} ${style[corner]}`}
           viewBox="0 0 28 28"
           aria-hidden="true"
-          data-keep-out
+          data-keep-out="corner"
         >
           <path d={BRACKET_PATHS[corner]} />
         </svg>

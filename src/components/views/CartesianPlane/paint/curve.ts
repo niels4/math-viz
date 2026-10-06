@@ -4,6 +4,7 @@ import type { PlaneCurve } from "../scene.ts"
 import type { Viewport } from "../viewport.ts"
 
 import { toMathX, toScreenY } from "../viewport.ts"
+import { dashPhase } from "./guides.ts"
 
 /** Off-view samples clamp this far past the edges, inside canvas coordinate limits. */
 const OVERSHOOT_PX = 10_000
@@ -23,6 +24,13 @@ export const paintCurve = (
   ctx.lineWidth = curve.width
   ctx.lineCap = "round"
   ctx.lineJoin = "round"
+  if (curve.dash !== undefined) {
+    ctx.setLineDash([...curve.dash])
+    ctx.lineDashOffset = dashPhase(curve.dash)
+  }
+  if (curve.alpha !== undefined) {
+    ctx.globalAlpha = curve.alpha
+  }
   if (curve.glow === true && theme.glowRadius > 0) {
     // A transparent --sig-curve-glow draws no shadow; shadowBlur ignores the
     // transform, so it is scaled to device pixels here.

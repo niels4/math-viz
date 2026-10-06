@@ -79,6 +79,8 @@ export type ThemeColors = {
   background: string
   foreground: string
   foregroundMuted: string
+  card: string
+  primary: string
   chartLine: string
   chartAccent: string
   chartGrid: string
@@ -104,12 +106,19 @@ export type ThemeColors = {
 export type ThemeVars = ThemeColors & {
   /** Blur radius of the curve glow in px (`--sig-glow-radius`). */
   glowRadius: number
+  /** The readout font-family list (`--sig-readout-font`): Roboto Mono, STIX Two Text in sage-editorial. */
+  readoutFont: string
 }
+
+/** The readout family where a theme names none. */
+const DEFAULT_READOUT_FONT = `"Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace`
 
 const themeColorMapping: Record<string, keyof ThemeColors> = {
   "--background": "background",
   "--foreground": "foreground",
   "--foreground-muted": "foregroundMuted",
+  "--card": "card",
+  "--primary": "primary",
   "--chart-line": "chartLine",
   "--chart-accent": "chartAccent",
   "--chart-grid": "chartGrid",
@@ -153,8 +162,13 @@ const readVarsForClass = (className: string): ThemeVars => {
     colors[outKey] = cs.color
   }
   const glowRadius = Number.parseFloat(cs.getPropertyValue("--sig-glow-radius"))
+  const readoutFont = cs.getPropertyValue("--sig-readout-font").trim()
   el.remove()
-  return { ...(colors as ThemeColors), glowRadius: Number.isFinite(glowRadius) ? glowRadius : 0 }
+  return {
+    ...(colors as ThemeColors),
+    glowRadius: Number.isFinite(glowRadius) ? glowRadius : 0,
+    readoutFont: readoutFont === "" ? DEFAULT_READOUT_FONT : readoutFont,
+  }
 }
 
 export function useAppTheme() {

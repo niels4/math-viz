@@ -65,6 +65,27 @@ export const visibleExtent = (vp: Viewport): Extent => ({
   maxY: toMathY(vp, 0),
 })
 
+/**
+ * The pan that brings an off-view point in: along each axis it lies past,
+ * it lands a quarter of the plane in from that edge, so its label has room.
+ * An axis it is within keeps its pan.
+ */
+export const panIntoView = (
+  vp: Viewport,
+  pan: { panX: number; panY: number },
+  point: { x: number; y: number },
+): { panX: number; panY: number } => {
+  const sx = toScreenX(vp, point.x)
+  const sy = toScreenY(vp, point.y)
+  const towards = (s: number, size: number): number =>
+    s < 0 ? size / 4 - s : s > size ? (size * 3) / 4 - s : 0
+  // Screen x follows panX; screen y moves against panY.
+  return {
+    panX: pan.panX + towards(sx, vp.width) / vp.zoom,
+    panY: pan.panY - towards(sy, vp.height) / vp.zoom,
+  }
+}
+
 /** The zoom as a percentage: 100 % = BASE_ZOOM. */
 export const zoomPercent = (zoom: number): number => (zoom / BASE_ZOOM) * 100
 

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   defaultZoom,
   makeViewport,
+  panIntoView,
   scaleBarUnits,
   scaleLabel,
   stepZoom,
@@ -100,5 +101,32 @@ describe("labels", () => {
     expect(zoomLabel(31.5)).toBe("63%")
     expect(zoomLabel(3.15)).toBe("6.3%")
     expect(zoomLabel(0.25)).toBe("0.5%")
+  })
+})
+
+describe("panIntoView", () => {
+  const vp = makeViewport({ width: 936, height: 792, dpr: 1 }, { zoom: 50, panX: 0, panY: 0 })
+
+  it("brings a point above the view a quarter of the plane below the top edge", () => {
+    // FV 10 X1: x³'s P (2, 8) lies 4 px above the view.
+    const next = panIntoView(vp, { panX: 0, panY: 0 }, { x: 2, y: 8 })
+    expect(next.panX).toBe(0)
+    const moved = makeViewport({ width: 936, height: 792, dpr: 1 }, { zoom: 50, ...next })
+    expect(moved.originY - 8 * 50).toBeCloseTo(792 / 4, 9)
+  })
+
+  it("brings a point past the right or left edge a quarter in, keeping the other axis", () => {
+    const right = panIntoView(vp, { panX: 0, panY: 1 }, { x: 12, y: 0 })
+    expect(right.panY).toBe(1)
+    const moved = makeViewport({ width: 936, height: 792, dpr: 1 }, { zoom: 50, ...right })
+    expect(moved.originX + 12 * 50).toBeCloseTo((936 * 3) / 4, 9)
+    const left = panIntoView(vp, { panX: 0, panY: 0 }, { x: -20, y: -9 })
+    const both = makeViewport({ width: 936, height: 792, dpr: 1 }, { zoom: 50, ...left })
+    expect(both.originX - 20 * 50).toBeCloseTo(936 / 4, 9)
+    expect(both.originY + 9 * 50).toBeCloseTo((792 * 3) / 4, 9)
+  })
+
+  it("leaves a point in view where it is", () => {
+    expect(panIntoView(vp, { panX: 0.5, panY: -1 }, { x: 2, y: 4 })).toEqual({ panX: 0.5, panY: -1 })
   })
 })

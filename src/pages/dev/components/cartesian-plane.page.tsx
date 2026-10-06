@@ -8,6 +8,7 @@ import { CartesianPlane } from "#src/components/views/CartesianPlane/CartesianPl
 const SCENE: PlaneScene = {
   curves: [{ id: "y", fn: (x) => x, ink: "chartLine", width: 3.5, glow: true }],
   points: [],
+  guides: [],
 }
 
 export default function CartesianPlanePage() {

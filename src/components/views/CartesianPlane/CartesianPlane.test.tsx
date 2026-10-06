@@ -4,22 +4,23 @@ import { act, render, toElement } from "#test"
 
 import type { PlaneScene } from "./scene.ts"
 
-import { CartesianPlane } from "./CartesianPlane"
+import { CartesianPlane, type PlanePointer } from "./CartesianPlane"
 import { drawCartesianPlane } from "./drawCartesianPlane"
 
 vi.mock("./drawCartesianPlane", () => ({
   drawCartesianPlane: vi.fn<(props: { zoom: number; panX: number; panY: number }) => void>(),
 }))
 
-const EMPTY_SCENE: PlaneScene = { curves: [], points: [] }
+const EMPTY_SCENE: PlaneScene = { curves: [], points: [], guides: [] }
 
 const drawMock = drawCartesianPlane as unknown as Mock
 const lastDraw = () => drawMock.mock.calls.at(-1)?.[0] as { zoom: number; panX: number; panY: number }
 
+// Every context call is a no-op; text measures 0 px wide.
 const stubCtx = new Proxy(
   {},
   {
-    get: () => () => {},
+    get: (_, key) => (key === "measureText" ? () => ({ width: 0 }) : () => {}),
     set: () => true,
   },
 )
@@ -195,7 +196,7 @@ describe("CartesianPlane pointer", () => {
   })
 
   it("reports the math point under the cursor and clears it on leave", async () => {
-    const onPointer = vi.fn<(point: { x: number; y: number } | null) => void>()
+    const onPointer = vi.fn<(pointer: PlanePointer | null) => void>()
     const screen = await render(<CartesianPlane scene={EMPTY_SCENE} onPointer={onPointer} />)
     const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
     act(() => {
@@ -203,7 +204,7 @@ describe("CartesianPlane pointer", () => {
       move(canvas, 9, 100, 40)
     })
     // Zero rect + zoom 50: the origin sits at (0, 0), screen y grows down.
-    expect(onPointer).toHaveBeenLastCalledWith({ x: 2, y: -0.8 })
+    expect(onPointer).toHaveBeenLastCalledWith({ x: 2, y: -0.8, over: null, panning: false })
     act(() => {
       // React derives onPointerLeave from pointerout, not pointerleave.
       canvas.dispatchEvent(new PointerEvent("pointerout", { bubbles: true, relatedTarget: document.body }))
@@ -271,5 +272,147 @@ describe("CartesianPlane view controls", () => {
     const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
     expect(lastDraw().zoom).toBe(40)
     expect(toElement(screen.getByTestId("plane-zoom")).textContent).toBe("80%")
+  })
+})
+
+describe("CartesianPlane marks", () => {
+  // A 600 × 600 plane at 100 % (D17 keeps 50 px per unit): the origin at
+  // (300, 300). The chrome measures empty, so nothing keeps marks away.
+  beforeEach(() => {
+    drawMock.mockClear()
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
+      stubCtx as unknown as CanvasRenderingContext2D,
+    )
+    HTMLCanvasElement.prototype.setPointerCapture = () => {}
+    HTMLCanvasElement.prototype.releasePointerCapture = () => {}
+    HTMLCanvasElement.prototype.hasPointerCapture = () => false
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      return this.closest("[data-keep-out]") === null ? rectOf(600, 600) : zeroRect()
+    })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  const press = (canvas: HTMLCanvasElement, type: string, x: number, y: number, buttons: number) =>
+    canvas.dispatchEvent(
+      new PointerEvent(type, {
+        bubbles: true,
+        pointerId: 1,
+        isPrimary: true,
+        button: 0,
+        buttons,
+        clientX: x,
+        clientY: y,
+      }),
+    )
+
+  const POINT_SCENE: PlaneScene = {
+    curves: [],
+    points: [{ id: "m", x: 1, y: 1, style: "bullseye", ink: "chartPoint1", draggable: true }],
+    guides: [],
+  }
+
+  it("drags a draggable point instead of panning, and says where the pointer moved it", async () => {
+    const onMarkDrag = vi.fn<(phase: string, id: string, to: { x: number; y: number }) => void>()
+    const onPointer = vi.fn<(pointer: PlanePointer | null) => void>()
+    const screen = await render(
+      <CartesianPlane scene={POINT_SCENE} onMarkDrag={onMarkDrag} onPointer={onPointer} />,
+    )
+    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
+    act(() => {
+      // Over the point, 4 px off its centre (350, 250): its 48 px box takes the pointer.
+      press(canvas, "pointermove", 354, 246, 0)
+    })
+    expect(onPointer).toHaveBeenLastCalledWith({ x: 1.08, y: 1.08, over: "m", panning: false })
+    expect(canvas.dataset["cursor"]).toBe("grab")
+    act(() => {
+      press(canvas, "pointerdown", 354, 246, 1)
+    })
+    expect(onMarkDrag).toHaveBeenLastCalledWith("start", "m", { x: 1, y: 1 })
+    expect(canvas.dataset["cursor"]).toBe("grabbing")
+    act(() => {
+      press(canvas, "pointermove", 404, 246, 1)
+    })
+    // The grab's 4 px offset stays: the point moves as far as the pointer.
+    expect(onMarkDrag).toHaveBeenLastCalledWith("move", "m", { x: 2, y: 1 })
+    expect(lastDraw().panX).toBe(0)
+    act(() => {
+      press(canvas, "pointerup", 404, 246, 0)
+    })
+    expect(onMarkDrag.mock.calls.at(-1)?.[0]).toBe("end")
+  })
+
+  it("ends a point's drag on a move with no button held", async () => {
+    const onMarkDrag = vi.fn<(phase: string, id: string, to: { x: number; y: number }) => void>()
+    const screen = await render(<CartesianPlane scene={POINT_SCENE} onMarkDrag={onMarkDrag} />)
+    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
+    act(() => {
+      press(canvas, "pointerdown", 350, 250, 1)
+      press(canvas, "pointermove", 360, 250, 0)
+    })
+    expect(onMarkDrag.mock.calls.map(([phase]) => phase)).toEqual(["start", "end"])
+  })
+
+  it("pans from the empty plane and says so while it does (a probe hides)", async () => {
+    const onPointer = vi.fn<(pointer: PlanePointer | null) => void>()
+    const screen = await render(<CartesianPlane scene={POINT_SCENE} onPointer={onPointer} />)
+    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
+    act(() => {
+      press(canvas, "pointermove", 100, 100, 0)
+    })
+    expect(canvas.dataset["cursor"]).toBe("probe")
+    act(() => {
+      press(canvas, "pointerdown", 100, 100, 1)
+      press(canvas, "pointermove", 150, 100, 1)
+    })
+    expect(onPointer).toHaveBeenLastCalledWith(expect.objectContaining({ over: null, panning: true }))
+    expect(lastDraw().panX).toBe(1)
+    act(() => {
+      press(canvas, "pointerup", 150, 100, 0)
+    })
+    expect(onPointer).toHaveBeenLastCalledWith(expect.objectContaining({ panning: false }))
+  })
+
+  it("pans a point off the view into it when its edge marker is clicked", async () => {
+    const scene: PlaneScene = {
+      curves: [],
+      points: [{ id: "far", x: 0, y: 100, style: "ring", ink: "chartPoint2", name: "F", edgeMarker: true }],
+      guides: [],
+    }
+    const screen = await render(<CartesianPlane scene={scene} />)
+    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
+    act(() => {
+      // The marker sits on the top edge, centred on x = 0, 22 px down.
+      press(canvas, "pointermove", 300, 40, 0)
+    })
+    expect(canvas.dataset["cursor"]).toBe("link")
+    act(() => {
+      press(canvas, "pointerdown", 300, 40, 1)
+      press(canvas, "pointerup", 300, 40, 0)
+    })
+    // y = 100 lands a quarter of the plane below the top: 150 px.
+    expect(lastDraw().panY).toBe(-(150 + 4700) / 50)
+    expect(lastDraw().panX).toBe(0)
+  })
+
+  it("hands the owner the plane's keys first, and names them", async () => {
+    const onKeyDown = vi.fn<(e: { key: string }) => boolean>((e) => e.key === "[")
+    const screen = await render(
+      <CartesianPlane scene={EMPTY_SCENE} keyHelp="[ and ] move P" onKeyDown={onKeyDown} />,
+    )
+    const plane = toElement(screen.getByTestId("cartesian-plane"))
+    expect(plane.getAttribute("aria-label")).toBe(
+      "Plane: arrows pan, + and − zoom, 0 resets the view, [ and ] move P",
+    )
+    act(() => {
+      plane.dispatchEvent(new KeyboardEvent("keydown", { key: "[", bubbles: true, cancelable: true }))
+      plane.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, cancelable: true }),
+      )
+    })
+    expect(onKeyDown.mock.calls.map(([e]) => e.key)).toEqual(["[", "ArrowRight"])
+    expect(lastDraw().panX).toBeCloseTo(-0.5, 9)
   })
 })

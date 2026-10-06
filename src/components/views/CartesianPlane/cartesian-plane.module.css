@@ -33,11 +33,25 @@ signature radius, a 1 px border inside the box. */
   width: 100%;
   height: 100%;
   touch-action: none;
+}
+
+/* The cursor says what a press will do (FV 07 › pointer modes): crosshair
+while probing, grab over a draggable point, grabbing while dragging one or
+panning, a link over an edge marker (a click pans its point into view). */
+.canvas[data-cursor="probe"] {
+  cursor: crosshair;
+}
+
+.canvas[data-cursor="grab"] {
   cursor: grab;
 }
 
-.canvas:active {
+.canvas[data-cursor="grabbing"] {
   cursor: grabbing;
+}
+
+.canvas[data-cursor="link"] {
+  cursor: pointer;
 }
 
 /* Bottom-right: the owner's tools, then the zoom control. */

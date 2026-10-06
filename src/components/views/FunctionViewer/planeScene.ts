@@ -25,5 +25,6 @@ export const buildPlaneScene = (state: PlaneSceneInput): PlaneScene => {
         ? []
         : [{ id: "q", x: state.qX, y: f(state.qX), style: "ring" as const, ink: POINT_INK.q }]),
     ],
+    guides: [],
   }
 }
