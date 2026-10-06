@@ -14,9 +14,9 @@ AGENTS.md above holds the project conventions and is shared with the PI agents t
 
 ## Session
 
-`launch-env-cc.sh` starts tmux session `math-viz-cc-<branch>` with windows editor, shell, repl, server, bridge (figma0's Figma bridge daemon, below) and agent, all in the checkout. The server window runs your two vite servers, both serving this worktree, on ports from 5180 up: `server.1` with live-edit relay (`$MATHVIZ_WTR_PORT`) and `server.2` disk-only (`$MATHVIZ_DISK_PORT`). Screenshot and test against `$MATHVIZ_DISK_PORT` only, because your edits land on disk and live-edit buffers stay on the other one. The user's own servers run their checkout on 5173 and 5174: they show the user's code, not yours, so never point a check at them and never stop them.
+`launch-env-cc.sh` starts tmux session `math-viz-cc-<branch>` with windows editor, shell, repl, server and agent, all in the checkout. The server window runs your two vite servers, both serving this worktree, on ports from 5180 up: `server.1` with live-edit relay (`$MATHVIZ_WTR_PORT`) and `server.2` disk-only (`$MATHVIZ_DISK_PORT`). Screenshot and test against `$MATHVIZ_DISK_PORT` only, because your edits land on disk and live-edit buffers stay on the other one. The user's own servers run their checkout on 5173 and 5174: they show the user's code, not yours, so never point a check at them and never stop them.
 
-The session owns every long-running service (both vites, the bridge daemon) and restarts each on its own if it exits; claude0 keeps them that way. Don't start servers or daemons yourself, in the background or in another window: a stray one holds a port, outlives your session and gets mistaken for yours. If a service stays down, say so in the progress file and your next message, and carry on with work that doesn't need it.
+The session owns its long-running services (both vites; the Figma bridge daemon runs in the shared `figma-bridge` session) and restarts each on its own if it exits; claude0 keeps them that way. Don't start servers or daemons yourself, in the background or in another window: a stray one holds a port, outlives your session and gets mistaken for yours. If a service stays down, say so in the progress file and your next message, and carry on with work that doesn't need it.
 
 ## Implementing figma0's designs
 
@@ -30,7 +30,7 @@ figma0 is the Claude agent that designs math-viz in Figma. It owns the design an
 | Token payloads | `$FIGMA0/scripts/mathviz-claude/payloads/*.json`: proposed tokens with per-theme values |
 | Figma file | MathViz-claude, key `yj7gdCaBuQw4X2806iUHRc` |
 
-Start from the exports and payloads. When you need an exact value they don't show (spacing, size, radius, which token a fill binds to), read the live file through figma0's bridge:
+Start from the exports and payloads. For exact values (spacing, size, radius, text styling, which token a fill binds to), read the snapshots in `$FIGMA0/exports/snapshots/`: JSON dumps of whole boards with every node's absolute box, auto-layout, paints with token names, text and component props (`index.json` lists them; `jq` them, they are large). They need no Figma and any number of agents can read them at once. Only when a value is missing from them, read the live file through the bridge:
 
 ```bash
 M=$FIGMA0/scripts/mathviz-claude/mv.js
@@ -39,7 +39,7 @@ node $M exec .local/figma/<probe>.js              # async Plugin-API body ending
 node $M export <nodeId> .local/figma/<name>.png --scale 2
 ```
 
-Probes only read: no property sets, no `create*`, no `remove()`, because a stray write lands in the user's design file and in figma0's frozen boards. Keep probes in `.local/figma/`. The daemon runs in your session's `bridge` window (see Session). If `health` stays disconnected, the plugin isn't running, so ask the user once and carry on from exports meanwhile. A timed-out exec keeps running inside Figma, so wait for it to finish before sending the next one.
+Probes only read: no property sets, no `create*`, no `remove()`, because a stray write lands in the user's design file and in figma0's frozen boards. Keep probes in `.local/figma/`. The daemon runs in tmux session `figma-bridge`; if `mv.js` reports it unreachable, run `$FIGMA0/scripts/mathviz-claude/bridge-session.sh`, which starts it there and does nothing when it already runs. To refresh or add a snapshot: `$FIGMA0/scripts/mathviz-claude/snapshot.sh <nodeId> <name>`. If `health` stays disconnected, the plugin isn't running, so ask the user once and carry on from exports meanwhile. A timed-out exec keeps running inside Figma, so wait for it to finish before sending the next one.
 
 The design is the spec for layout, hierarchy, copy, interaction and motion. Change the shared components (`src/components/`) and themes as far as the design needs; other views that use them must keep working, which `npm test` and a look at their pages confirm. Code values stay the source of truth for tokens: a design colour maps to the theme variable it is bound to, never a literal, so all six themes keep working. A proposed token goes into all six theme files under `src/style/themes/`. When the design and the running code disagree on behaviour the design doesn't show, keep the code's behaviour and note it. When the design is ambiguous or can't be built as drawn (a glyph the shipped fonts lack, an interaction the board only implies), pick the reading closest to its Specs and Decisions boards, record the call in the task's progress file, and keep going.
 

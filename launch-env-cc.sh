@@ -49,7 +49,6 @@ tmux new-window -t "=$session" -n "shell" -c "$checkout"
 tmux new-window -t "=$session" -n "repl" -c "$checkout"
 tmux new-window -t "=$session" -n "server" -c "$checkout"
 tmux split-window -t "=${session}:=server.1" -c "$checkout"
-tmux new-window -t "=$session" -n "bridge" -c "$checkout"
 tmux new-window -t "=$session" -n "agent" -c "$checkout"
 
 editor="=${session}:=editor.1"
@@ -73,14 +72,10 @@ tmux send-keys -t "$server1" "npm i; tmux wait-for -S $deps; $(keep "npm run dev
 # user's unsaved live-edit buffers on the other port.
 tmux send-keys -t "$server2" "tmux wait-for $deps; $(keep "DISABLE_WTR=1 npm run dev -- --port $port2 --strictPort")" C-m
 
-# figma0's Figma bridge daemon, for read-only design probes. Skipped when
-# something (figma0's own daemon) already holds its port.
+# The Figma bridge daemon is shared by every agent, so it lives in its own
+# tmux session (figma-bridge), not this one; this only makes sure it runs.
 figma0="/opt/dev/agent/code/agents/claude/figma0"
-if lsof -nP -iTCP:8790 -sTCP:LISTEN >/dev/null 2>&1; then
-  tmux send-keys -t "=${session}:=bridge.1" "# bridge port 8790 already in use; mv.js health uses that daemon" C-m
-else
-  tmux send-keys -t "=${session}:=bridge.1" "$(keep "node $figma0/scripts/mathviz-claude/bridge-daemon.js")" C-m
-fi
+"$figma0/scripts/mathviz-claude/bridge-session.sh"
 
 # Permission bypass is deliberate: agents run as the unprivileged `agent` OS
 # user, so OS file permissions are the security boundary.
