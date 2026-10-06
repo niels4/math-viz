@@ -1,45 +1,46 @@
 # math-viz
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules, plus **per-page CSS Module themes** as examples to get started.
+Interactive math visualizations for the browser, built with React, TypeScript and Vite.
 
-## Themes & Fonts — CSS Modules per page (no global pollution, offline)
+**Live:** https://niels4.github.io/math-viz/
 
-- Styles live in `src/style/` as siblings: `src/style/themes/` (CSS Module themes) and `src/style/fonts/` (CSS Module fonts with local woff2, no CDN), plus `src/style/global.css`. See `src/style/themes/README.md` and `src/style/fonts/README.md` for full rules (vars, naming, usage, `oxfmt` format, offline woff2).
-- Themes: the six `mathviz_*` themes (arctic-ice, clean-teal, educational-warm, midnight-violet, sage-editorial, tron-cyan). Each is a scoped wrapper `.<name>_theme` containing vars + one-level-deep `_` utilities.
-- Fonts: `inter` (variable 100-900), `fraunces` (variable opsz/SOFT/WONK), `bebas_neue` (brutalist 400) — each `src/style/fonts/<name>/<name>.module.css` is a scoped wrapper `.<name>` / `.<name>_theme` with local `@font-face` (`./<File>.woff2`, works offline). No `html`/`body`/`:root` globals, no CDN.
-- **Import rule (project-level)**: use `#src/style/...` — e.g. `import styles from "#src/style/themes/mathviz_arctic_ice.module.css"`, `import fontStyles from "#src/style/fonts/work_sans/work_sans.module.css"`, `import "#src/style/global.css"`. Nearby/sibling files (e.g. `./_root.page.module.css`) stay relative.
-- Demo pages: `src/pages/dev/theme-demo.page.tsx` (`#dev/theme-demo`) shows all six themes co-existing per-section; `src/pages/dev/font-demo.page.tsx` (`#dev/font-demo`) shows all three fonts co-existing. New pages theme via `#src/style/...` imports and a `className={styles.<name>_theme}` wrapper.
-- Sommelier workflows: `color-extract` → `color-catalog` → `color-lab` (single-theme lab at `http://localhost:8788/color-lab.html`) → `theme-export` → `src/style/themes/<name>.module.css`; `font-extract` → `font-catalog` → `font-lab` (`http://localhost:8788/font-lab.html`) → `font-export` → `src/style/fonts/<name>/<name>.module.css` (CSS + woff2, offline). Galleries at `http://localhost:8788/color-gallery.html` and `font-gallery.html`.
+## Demos
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+- **Function Viewer** (`#demos/function-viewer`): pick a base function (x, x², x³, sin x) and transform it as a·f((x − h)/b) + k with rulers, handles on the curve or draggable equation terms. Pin a point P, probe a second point Q with the pointer, and read both as `f(x) = y`. Six themes, full keyboard support, reduced motion respected.
 
-Currently, two official plugins are available:
+## Dev pages
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Developer-facing pages under `#dev/...`: the theme and font demos, the component library, the bare Cartesian plane, and Function Viewer Alpha, the first prototype of the Function Viewer, kept as a record.
 
-## React Compiler
+## Run it
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev                # Vite dev server
+npm test                   # lint, typecheck and unit tests (jsdom)
+npm run test:run:browser   # the same tests in headless Chromium
+npm run build              # typecheck, then build into docs/
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Deploy
+
+GitHub Pages serves the committed `docs/` folder of `main`. Run `npm run build` and commit `docs/` together with the change it builds.
+
+## Stack
+
+- Vite 8, React 19 with the React Compiler, TypeScript 7
+- Canvas 2D for the Cartesian plane and GSAP for motion; R3F and d3 are set up for 3D panels and scales
+- Six themes as CSS Modules with oklch colours, and self-hosted fonts (Work Sans, STIX Two Text, Roboto Mono), so the app works offline
+- oxlint, oxfmt, and Vitest in jsdom and Chromium
+
+## Layout
+
+| Path                    | What                                                      |
+| ----------------------- | --------------------------------------------------------- |
+| `src/pages/`            | file-system routes with hash routing: `demos/` and `dev/` |
+| `src/components/views/` | views such as the Function Viewer and the Cartesian plane |
+| `src/components/ui/`    | shared UI components                                      |
+| `src/style/`            | themes, fonts and global CSS                              |
+| `docs/`                 | the built site for GitHub Pages (generated)               |
+
+Project conventions for contributors and coding agents are in `AGENTS.md`.
