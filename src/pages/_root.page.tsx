@@ -21,6 +21,23 @@ const RootPage = () => {
             version="v0.0.0"
             subtitle="Browser math visualizations — interactive charts and 3D panels built with React, R3F, and d3."
           />
+          <section aria-labelledby="toc-demos" className={style.dev_intro}>
+            <h2 id="toc-demos">Demos</h2>
+            <p>Finished interactive views, built from the MathViz design system.</p>
+          </section>
+          <div className={style.grid}>
+            <SectionCard icon={<SlidersIcon />} title="Views" titleId="toc-demo-views">
+              <div className={style.links}>
+                <a href="#demos/function-viewer" className={style.link_card}>
+                  <span className={style.link_title}>Function Viewer</span>
+                  <span className={style.link_desc}>
+                    Interactive function plotter — graph f(x) = x, x², x³, sin(x) on a pannable,
+                    pinch-zoomable cartesian plane.
+                  </span>
+                </a>
+              </div>
+            </SectionCard>
+          </div>
           <section aria-labelledby="toc-dev" className={style.dev_intro}>
             <h2 id="toc-dev">Dev</h2>
             <p>Developer-facing test pages — our own mini ad-hoc storyboard with no external dependency</p>
@@ -46,13 +63,6 @@ const RootPage = () => {
             </SectionCard>
             <SectionCard icon={<SlidersIcon />} title="Views" titleId="toc-views">
               <div className={style.links}>
-                <a href="#dev/views/function-viewer" className={style.link_card}>
-                  <span className={style.link_title}>Function Viewer</span>
-                  <span className={style.link_desc}>
-                    Interactive function plotter — graph f(x) = x, x², x³, sin(x) on a pannable,
-                    pinch-zoomable cartesian plane.
-                  </span>
-                </a>
                 <a href="#dev/views/function-viewer-alpha" className={style.link_card}>
                   <span className={style.link_title}>Function Viewer Alpha</span>
                   <span className={style.link_desc}>
