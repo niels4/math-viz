@@ -3,7 +3,7 @@ export { Badge, type BadgeVariant } from "./Badge.tsx"
 export { Button, type ButtonVariant } from "./Button.tsx"
 export { Checkbox } from "./Checkbox.tsx"
 export { DataTable, type DataTableRow } from "./DataTable.tsx"
-export { ExtentSlider } from "./ExtentSlider.tsx"
+export { ExtentSlider, type ExtentSliderHandle } from "./ExtentSlider.tsx"
 export { Field } from "./Field.tsx"
 export { HintBar, type Hint } from "./HintBar.tsx"
 export {

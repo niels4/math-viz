@@ -3,6 +3,9 @@ import { useId, useRef } from "react"
 import { ResetIcon } from "#src/components/ui/icons.tsx"
 import { MathText } from "#src/components/ui/MathText.tsx"
 
+import type { PartUi } from "../model/selectors.ts"
+import type { PartEvents } from "../model/state.ts"
+
 import { GROUP_MATH, RESET_ALL, SECTIONS, TRANSFORM_GROUPS } from "../copy.ts"
 import { isIdentity, isScale, type TransformParam, type TransformParams } from "../math/form.ts"
 import { PanelSection } from "./PanelSection.tsx"
@@ -16,12 +19,16 @@ import style from "./TransformGrid.module.css"
 // to a's ruler as it leaves.
 export function TransformGrid({
   params,
+  uiOf,
+  eventsOf,
   onChange,
   onReset,
   onResetAll,
   onFlip,
 }: {
   params: TransformParams
+  uiOf: (param: TransformParam) => PartUi
+  eventsOf: (param: TransformParam) => PartEvents
   onChange: (param: TransformParam, value: number) => void
   onReset: (param: TransformParam) => void
   onResetAll: () => void
@@ -76,6 +83,8 @@ export function TransformGrid({
                   }}
                   param={param}
                   value={params[param]}
+                  ui={uiOf(param)}
+                  events={eventsOf(param)}
                   onChange={(value) => onChange(param, value)}
                   onReset={() => onReset(param)}
                   {...(isScale(param) ? { onFlip: () => onFlip(param) } : {})}

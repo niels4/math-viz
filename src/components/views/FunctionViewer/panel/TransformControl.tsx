@@ -1,21 +1,19 @@
-import { useImperativeHandle, useRef, useState, type Ref } from "react"
-
-import type { ScrubMode } from "#src/components/ui/scrub.ts"
+import { useImperativeHandle, useRef, type Ref } from "react"
 
 import { useHover } from "#src/components/hooks/useHover.ts"
 import { FlipIcon, ResetIcon } from "#src/components/ui/icons.tsx"
 import { MathText } from "#src/components/ui/MathText.tsx"
-import { NumberField, type NumberFieldEdit, type NumberFieldHandle } from "#src/components/ui/NumberField.tsx"
+import { NumberField, type NumberFieldHandle } from "#src/components/ui/NumberField.tsx"
 import { ScrubStrip, type ScrubStripHandle } from "#src/components/ui/ScrubStrip.tsx"
 
+import type { PartUi } from "../model/selectors.ts"
+import type { PartEvents } from "../model/state.ts"
+
 import { FLIP_LABELS, modeBadge, PARAM_NAMES, resetLabel } from "../copy.ts"
-import { acceptsValue, DEFAULT_PARAMS, isScale, type TransformParam } from "../math/form.ts"
+import { acceptsValue, DEFAULT_PARAMS, isScale, ZERO_SCALE, type TransformParam } from "../math/form.ts"
 import style from "./TransformControl.module.css"
 
 export type TransformControlHandle = { focus: () => void }
-
-/** The field's refusal of a typed scale of 0 (FV 07: "A scale of 0 squashes the curve flat"). */
-const ZERO_SCALE = "zero-scale"
 
 // One transform (figma0 transform-control-fv; decision D24): the letter
 // chip, the short name (a held modifier's badge mid-drag), a flip toggle for
@@ -23,10 +21,13 @@ const ZERO_SCALE = "zero-scale"
 // jog ruler below. The ruler is the control's tab stop: Enter types into the
 // field and the focus comes back after. The control lights (chip in
 // --primary) while hovered, focused, dragged or typed into, but not on
-// refused text, as on the Components board.
+// refused text, as on the Components board. Its hover, drag and edit live
+// in the view's state (`ui`), which hears of them through `events`.
 export function TransformControl({
   param,
   value,
+  ui,
+  events,
   onChange,
   onReset,
   onFlip,
@@ -34,6 +35,8 @@ export function TransformControl({
 }: {
   param: TransformParam
   value: number
+  ui: PartUi
+  events: PartEvents
   onChange: (next: number) => void
   onReset: () => void
   /** The scales' flip toggle: a turns the curve upside down, b mirrors it (FV 13). */
@@ -46,10 +49,8 @@ export function TransformControl({
   const rulerRef = useRef<ScrubStripHandle | null>(null)
   const fieldRef = useRef<NumberFieldHandle | null>(null)
   const controlRef = useRef<HTMLDivElement | null>(null)
-  const hover = useHover(controlRef)
-  const hovered = hover.hovered
-  const [mode, setMode] = useState<ScrubMode | null>(null)
-  const [edit, setEdit] = useState<NumberFieldEdit | null>(null)
+  const hover = useHover(controlRef, events.onHover)
+  const { hovered, mode, edit } = ui
   useImperativeHandle(ref, () => ({ focus: () => rulerRef.current?.focus() }), [])
 
   const changed = value !== DEFAULT_PARAMS[param]
@@ -66,6 +67,12 @@ export function TransformControl({
       data-mode={mode ?? undefined}
       onPointerEnter={hover.onPointerEnter}
       onPointerLeave={hover.onPointerLeave}
+      onFocus={() => events.onFocus(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          events.onFocus(false)
+        }
+      }}
     >
       <div className={style.head} data-flip={onFlip === undefined ? undefined : true}>
         <span className={style.chip} data-testid={`fv-param-${param}-chip`} aria-hidden="true">
@@ -116,7 +123,7 @@ export function TransformControl({
           tabIndex={-1}
           hot={hovered && mode === null}
           muted={!changed}
-          onEditChange={setEdit}
+          onEditChange={events.onEdit}
           onEditEnd={(how) => {
             if (how !== "blur") {
               rulerRef.current?.focus()
@@ -132,7 +139,7 @@ export function TransformControl({
         kind={scale ? "multiplicative" : "additive"}
         label={name}
         onEditRequest={() => fieldRef.current?.edit()}
-        onModeChange={setMode}
+        onModeChange={events.onDrag}
         hot={hovered && edit === null}
         dimmed={typing}
         testId={`fv-param-${param}-ruler`}

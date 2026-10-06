@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi, type Mock } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest"
 
 import { act, render, toElement } from "#test"
 
@@ -57,7 +57,45 @@ const click = (screen: Screen, id: string) => {
 const valueOf = (screen: Screen, param: string) =>
   byTestId(screen, `fv-param-${param}-ruler`).getAttribute("aria-valuetext")
 
+const typeInto = (screen: Screen, id: string, text: string) => {
+  const field = byTestId(screen, id) as HTMLInputElement
+  act(() => {
+    field.focus()
+    setInput(field, text)
+  })
+  keydown(field, "Enter")
+}
+
+/** A readout as it reads: a typed x (P's field) by its value. */
+const readout = (screen: Screen, id: string) =>
+  [...byTestId(screen, id).children]
+    .map((part) => part.querySelector("input")?.value ?? part.textContent)
+    .join("")
+
+/** Text as read aloud: the no-break spaces that keep a "·" with its word read as spaces. */
+const spoken = (el: Element) => el.textContent.replaceAll("\u00a0", " ")
+
+const hint = (screen: Screen) => spoken(byTestId(screen, "fv-hint"))
+
+const IDLE = "Drag a ruler sideways to reshape the curve · point at the plane to read f(x)"
+
+const ZERO_RECT = {
+  x: 0,
+  y: 0,
+  width: 0,
+  height: 0,
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  toJSON: () => ({}),
+} as DOMRect
+
 describe("FunctionViewer", () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   beforeEach(() => {
     drawMock.mockClear()
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
@@ -187,9 +225,11 @@ describe("FunctionViewer", () => {
     expect(valueOf(screen, "k")).toBe("0")
   })
 
-  it("starts P at x = 2 (D4)", async () => {
+  it("starts P at x = 2 (D4): its card reads f(2) = 4", async () => {
     const screen = await render(<FunctionViewer />)
-    expect((toElement(screen.getByTestId("p1-input")) as HTMLInputElement).value).toBe("2")
+    expect((byTestId(screen, "fv-p-field") as HTMLInputElement).value).toBe("2")
+    expect(readout(screen, "fv-p-readout")).toBe("f(2) = 4")
+    expect(byTestId(screen, "fv-point-p").textContent).toContain("Pinned")
     expect(lastScene().points[0]).toMatchObject({
       id: "p",
       x: 2,
@@ -197,5 +237,92 @@ describe("FunctionViewer", () => {
       style: "bullseye",
       ink: "chartPoint1",
     })
+  })
+
+  it("reads R3 on P's card: transforms and a typed x (FV 01 › Numbers)", async () => {
+    const screen = await render(<FunctionViewer />)
+    typeParam(screen, "a", "2")
+    typeParam(screen, "h", "-1")
+    typeParam(screen, "k", "1")
+    typeInto(screen, "fv-p-field", "0.5")
+    expect(readout(screen, "fv-p-readout")).toBe("f(0.5) = 5.5")
+    expect(lastScene().points[0]).toMatchObject({ x: 0.5, y: 5.5 })
+    // P lands on 0.12, and f(0.12) = 3.5088 prints rounded.
+    typeInto(screen, "fv-p-field", "0.123")
+    expect(readout(screen, "fv-p-readout")).toBe("f(0.12) ≈ 3.51")
+  })
+
+  it("shows Q's placeholders until the pointer is on the plane, at one height (R2, R3)", async () => {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(ZERO_RECT)
+    const screen = await render(<FunctionViewer />)
+    const q = byTestId(screen, "fv-point-q")
+    expect(readout(screen, "fv-q-readout")).toBe("f(–) = –")
+    expect(spoken(q)).toContain("Point at the plane to place Q")
+    const canvas = byTestId(screen, "cartesian-canvas")
+    // A zero rect at 100 %: the origin at (0, 0), 50 px per unit.
+    act(() => {
+      canvas.dispatchEvent(new PointerEvent("pointermove", { bubbles: true, clientX: -75, clientY: -112.5 }))
+    })
+    expect(readout(screen, "fv-q-readout")).toBe("f(−1.5) = 2.25")
+    expect(spoken(q)).toContain("x follows your pointer · y = f(x)")
+    expect(hint(screen)).toBe("Q follows your pointer · drag to pan · scroll to zoom")
+    act(() => {
+      canvas.dispatchEvent(new PointerEvent("pointerout", { bubbles: true, relatedTarget: document.body }))
+    })
+    expect(readout(screen, "fv-q-readout")).toBe("f(–) = –")
+    expect(hint(screen)).toBe(IDLE)
+  })
+
+  it("moves P from its scrubber: ← → 0.1, Shift 1, Enter types its x (FV 07)", async () => {
+    const screen = await render(<FunctionViewer />)
+    const scrubber = byTestId(screen, "fv-p-scrubber")
+    act(() => {
+      scrubber.focus()
+    })
+    expect(hint(screen)).toBe("Drag P along the curve · Left arrow Right arrow nudge 0.1")
+    keydown(scrubber, "ArrowRight")
+    keydown(scrubber, "ArrowRight", { shiftKey: true })
+    expect(readout(screen, "fv-p-readout")).toBe("f(3.1) = 9.61")
+    keydown(scrubber, "Enter")
+    const field = byTestId(screen, "fv-p-field") as HTMLInputElement
+    expect(document.activeElement).toBe(field)
+    expect(hint(screen)).toBe("Enter apply · Esc cancel · Up arrow Down arrow nudge 0.01")
+    act(() => {
+      setInput(field, "-1.5")
+    })
+    keydown(field, "Enter")
+    expect(readout(screen, "fv-p-readout")).toBe("f(−1.5) = 2.25")
+    expect(document.activeElement).toBe(scrubber)
+  })
+
+  it("speaks in the hint about the control under the pointer, a drag, and refused text", async () => {
+    HTMLDivElement.prototype.setPointerCapture = () => {}
+    HTMLDivElement.prototype.releasePointerCapture = () => {}
+    HTMLDivElement.prototype.hasPointerCapture = () => false
+    const screen = await render(<FunctionViewer />)
+    expect(hint(screen)).toBe(IDLE)
+    const a = byTestId(screen, "fv-param-a")
+    act(() => {
+      a.dispatchEvent(new PointerEvent("pointerover", { bubbles: true, relatedTarget: document.body }))
+    })
+    expect(hint(screen)).toBe("Drag to change a · Shift fine · Ctrl quarter steps · double-click: back to 1")
+    act(() => {
+      a.dispatchEvent(new PointerEvent("pointerout", { bubbles: true, relatedTarget: document.body }))
+    })
+    expect(hint(screen)).toBe(IDLE)
+    // R5: holding k's ruler.
+    const ruler = byTestId(screen, "fv-param-k-ruler")
+    act(() => {
+      ruler.dispatchEvent(
+        new PointerEvent("pointerdown", { bubbles: true, button: 0, buttons: 1, clientX: 10 }),
+      )
+    })
+    expect(hint(screen)).toBe("Drag to change k · Shift fine · Ctrl whole steps · double-click: back to 0")
+    act(() => {
+      window.dispatchEvent(new PointerEvent("pointerup"))
+    })
+    typeParam(screen, "b", "1.0.4")
+    expect(hint(screen)).toBe("Type a number such as 1.5 · Esc puts back 1")
+    expect(byTestId(screen, "fv-hint").getAttribute("data-tone")).toBe("error")
   })
 })

@@ -1,9 +1,11 @@
 // The Function Viewer's user-facing strings, so wording changes in one place.
 // Maths in a string is set by MathText (italic letters, upright names).
 
+import type { Phrase } from "#src/components/ui/Phrases.tsx"
+
 import { formatNumber } from "#src/util/format/number.ts"
 
-import type { TransformParam } from "./math/form.ts"
+import { ZERO_SCALE, type TransformParam } from "./math/form.ts"
 
 export const VIEW_TITLE = "Function Viewer"
 export const VIEW_SUBTITLE = "Functions · transformations"
@@ -51,3 +53,80 @@ export const FLIP_LABELS: Readonly<Record<"a" | "b", string>> = {
 /** The badge that takes the name's place while a modifier is held mid-drag. */
 export const modeBadge = (mode: "fine" | "snap", scale: boolean): string =>
   mode === "fine" ? "Fine ×0.1" : scale ? "Snap ¼" : "Snap 1"
+
+/** Decision D2: the pinned point is P, the one under the pointer Q. */
+export const POINT_NAMES = { p: "P", q: "Q" } as const
+
+/** Section 3's cards (point-readout-fv): each point's role beside its letter. */
+export const POINT_ROLES = { p: "Pinned", q: "Follows pointer" } as const
+
+/** P's role while f(P) lies outside the plane's visible y-range. */
+export const OFF_VIEW_ROLES = { above: "Above the view", below: "Below the view" } as const
+
+export const P_NOTE: readonly Phrase[] = [
+  { text: "Drag" },
+  { math: "P" },
+  { text: "here or along the curve" },
+]
+
+/** Q's note: what it does while the pointer is on the plane, and how to place it while not. */
+export const Q_NOTES = {
+  live: [{ math: "x" }, { text: "follows your pointer ·" }, { math: "y = f(x)" }],
+  empty: [{ text: "Point at the plane to place" }, { math: "Q" }],
+} as const satisfies Record<string, readonly Phrase[]>
+
+/** P's scrubber and the field its Enter opens, as screen readers name them. */
+export const P_SCRUBBER_LABEL = "x of P"
+export const P_FIELD_LABEL = "x of P, value"
+
+// The hint line (hint-bar-fv; decision D8). model/hints.ts picks the
+// context; FV 01 › Behaviour rules says what each one covers.
+export const HINTS = {
+  idle: [
+    { text: "Drag a ruler sideways to reshape the curve ·" },
+    { text: "point at the plane to read" },
+    { math: "f(x)" },
+  ],
+  /**
+   * A control hovered, focused or dragged: its letter and its own reset
+   * value (R7's copy says "back to 0" for a too; plan § 1.8 call 1), and
+   * the snap a scale gets, quarters (call 2).
+   */
+  transform: (param: TransformParam, scale: boolean, reset: number): Phrase[] => [
+    { text: "Drag to change" },
+    { math: param },
+    { text: "·" },
+    { key: "Shift" },
+    { text: "fine ·" },
+    { key: "Ctrl" },
+    { text: `${scale ? "quarter" : "whole"} steps · double-click: back to ${formatNumber(reset)}` },
+  ],
+  fine: [{ key: "Shift" }, { text: "Fine: a tenth of the speed, steps of 0.001" }],
+  snap: [{ key: "Ctrl" }, { text: "Snapping to whole numbers (scales: quarters)" }],
+  edit: [
+    { key: "Enter" },
+    { text: "apply ·" },
+    { key: "Esc" },
+    { text: "cancel ·" },
+    { key: "↑" },
+    { key: "↓" },
+    { text: "nudge 0.01" },
+  ],
+  /** Refused text: why, by the field's error code, and the value Esc puts back (FV 07). */
+  refused: (error: string, putsBack: string): Phrase[] => [
+    {
+      text: `${error === ZERO_SCALE ? "A scale of 0 squashes the curve flat. Try 0.1" : "Type a number such as 1.5"} ·`,
+    },
+    { key: "Esc" },
+    { text: `puts back ${putsBack}` },
+  ],
+  plane: [{ math: "Q" }, { text: "follows your pointer ·" }, { text: "drag to pan · scroll to zoom" }],
+  point: [
+    { text: "Drag" },
+    { math: "P" },
+    { text: "along the curve ·" },
+    { key: "←" },
+    { key: "→" },
+    { text: "nudge 0.1" },
+  ],
+} as const

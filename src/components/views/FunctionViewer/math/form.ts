@@ -36,6 +36,9 @@ export const isScale = (param: TransformParam): param is "a" | "b" => param === 
 export const acceptsValue = (param: TransformParam, value: number): boolean =>
   Number.isFinite(value) && !(isScale(param) && value === 0)
 
+/** A value field's refusal code for a typed scale of 0 (FV 07: "A scale of 0 squashes the curve flat"). */
+export const ZERO_SCALE = "zero-scale"
+
 /**
  * The inner input g receives, as the steps applied to x in order: subtract
  * h, then divide by b. The order is D1: ["b", "h"] would be the old

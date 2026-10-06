@@ -20,14 +20,18 @@ at 1440 × 900). Decision D6: the panel is 460 px wide. */
   grid-area: topbar;
 }
 
-/* Sections 12 apart, padding 18 inside the 1 px border: content 422 wide. */
+/* Sections 12 apart, padding 18 inside the 1 px border: content 422 wide.
+At 900 px the boards' content is 9.5 px taller than that leaves room for,
+and Figma lets the hint bar into the bottom padding: 8.5 px remain below
+it. So the panel keeps 8.5, and the tail below the hint gives back the
+rest of the 18 wherever there is room. */
 .panel {
   display: flex;
   grid-area: panel;
   flex-direction: column;
   gap: 12px;
   min-height: 0;
-  padding: 18px;
+  padding: 18px 18px 8.5px;
   overflow-y: auto;
   background: var(--background-muted);
   border: 1px solid var(--border);
@@ -59,12 +63,21 @@ plane and the page scrolls (plan § 1.8, call 6). */
   }
 }
 
-/* The pre-v2 points controls in section 3, until M6 replaces them. Input
-left, slider right: equal halves keep both usable. */
-.control_row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 8px;
-  align-items: stretch;
-  margin-top: 8px;
+/* fvPanel's spacer: 1 px at least, then everything the sections leave. */
+.spacer {
+  flex: 1 0 1px;
+}
+
+/* The hint bar at the panel's foot, 424 wide like the cards (M4 call 2). */
+.hint {
+  flex: none;
+  margin-inline-end: -2px;
+}
+
+/* Up to 9.5 px under the hint bar, the first thing to give way when the
+panel runs short; it sits against the bar (cancelling the panel's gap). */
+.tail {
+  flex: 0 1 9.5px;
+  min-height: 0;
+  margin-top: -12px;
 }

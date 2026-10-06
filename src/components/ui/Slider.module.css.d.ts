@@ -4,7 +4,6 @@
 declare const styles: {
   readonly "slider_fill": string;
   readonly "slider_knob": string;
-  readonly "slider_scale": string;
   readonly "slider_track": string;
 };
 export = styles;

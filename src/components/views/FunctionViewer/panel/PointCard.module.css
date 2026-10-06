@@ -1,0 +1,112 @@
+/* point-readout-fv: --card inside a 1 px --border, the signature radius,
+padding 12 14, 8 between rows (P 130 px tall, Q 86). fvPanel sizes the
+cards from the Specs' 424 px content, so they overhang the 422 px content
+by 2 px, as on the boards (M4 call 2). */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-inline-end: -2px;
+  padding: 12px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--sig-card-radius);
+}
+
+/* While P is dragged: a 2 px --primary border. Its inner pixel is a shadow,
+so nothing moves; Figma grows the card to 132 px instead. */
+.card[data-dragging] {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+/* The head: 32 tall, 8 apart. */
+.head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  height: 32px;
+}
+
+/* The point's letter in STIX italic 20, its 25 px line box. */
+.letter {
+  flex: none;
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  line-height: 25px;
+  color: var(--foreground);
+}
+
+/* The caption's slot takes the head's slack. Its first line is the head's
+height; a caption too wide for what is left wraps to the clipped second
+line, so it shows whole or not at all. */
+.caption_slot {
+  display: flex;
+  flex: 1 1 0;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: center;
+  min-width: 0;
+  height: 32px;
+  overflow: hidden;
+}
+
+.caption_slot::before {
+  height: 32px;
+  content: "";
+}
+
+/* Caps 12 (Work Sans 600, the label tracking), muted; --foreground off
+the view. Figma's box ends at the last letter; CSS tracks after it too. */
+.caption {
+  margin-inline-end: calc(-1 * var(--sig-label-tracking));
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 14px;
+  letter-spacing: var(--sig-label-tracking);
+  text-transform: uppercase;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+}
+
+.caption[data-off] {
+  color: var(--foreground);
+}
+
+/* Off the view: a 10 × 9 --warning triangle before the caption. */
+.off_mark {
+  display: grid;
+  flex: none;
+  color: var(--warning);
+}
+
+/* P's x in the readout is its value field: bare readout text at rest, boxed
+while typed (NumberField's edit and error states). */
+.x_field {
+  min-width: 0;
+  height: 29px;
+  padding: 0;
+  font-family: var(--sig-readout-font);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 29px;
+}
+
+.x_field[data-editing] {
+  padding: 0 5px;
+}
+
+/* fvScrubber's track is 396 wide, 2 px past the card's 394 px content, as
+on the boards. */
+.scrubber {
+  margin-inline-end: -2px;
+}
+
+/* The note: Work Sans 14 and STIX 16, 4 apart, muted, 20 tall. */
+.note {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  height: 20px;
+  color: var(--foreground-muted);
+}

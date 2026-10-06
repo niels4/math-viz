@@ -1,8 +1,11 @@
+import type { NumberFieldEdit } from "#src/components/ui/NumberField.tsx"
+import type { ScrubMode } from "#src/components/ui/scrub.ts"
+
 import { FINE_DP, quantize, roundTo } from "#src/util/format/number.ts"
 
 import type { PlaneView } from "../../CartesianPlane/viewport.ts"
 import type { BaseFunctionSlug } from "../math/baseFunctions.ts"
-import type { FvState } from "./state.ts"
+import type { FvPart, FvState } from "./state.ts"
 
 import { acceptsValue, DEFAULT_PARAMS, type TransformParam } from "../math/form.ts"
 
@@ -16,12 +19,27 @@ export type FvAction =
   | { type: "resetAll" }
   | { type: "flip"; param: "a" | "b" }
   | { type: "setP"; x: number }
-  | { type: "setQ"; x: number | null }
+  /** The pointer on the plane at x (Q follows it), or off it. */
+  | { type: "planePointer"; x: number | null }
   | { type: "setGhost"; on: boolean }
   | { type: "setView"; view: PlaneView }
+  /** The pointer enters or leaves a part. */
+  | { type: "hover"; part: FvPart; on: boolean }
+  /** The keyboard focus enters or leaves a part. */
+  | { type: "focus"; part: FvPart; on: boolean }
+  /** A drag on a part starts or changes mode, or ends (null). */
+  | { type: "drag"; part: FvPart; mode: ScrubMode | null }
+  /** A part's value field opens or changes its refusal, or closes (null). */
+  | { type: "edit"; part: FvPart; edit: NumberFieldEdit | null }
 
 const withParam = (state: FvState, param: TransformParam, value: number): FvState =>
   state.params[param] === value ? state : { ...state, params: { ...state.params, [param]: value } }
+
+/** The state with `fields` set, or the same state when they already hold those values. */
+const patch = (state: FvState, fields: Partial<FvState>): FvState =>
+  (Object.keys(fields) as (keyof FvState)[]).every((key) => Object.is(state[key], fields[key]))
+    ? state
+    : { ...state, ...fields }
 
 const onPointLattice = (x: number): number => quantize(x, POINT_QUANTUM)
 
@@ -35,7 +53,9 @@ const sameView = (a: PlaneView | null, b: PlaneView): boolean =>
 
 // Every transition of the view. Unchanged values return the same state, so
 // pointer moves inside one 0.01 step don't re-render. Decision D15: no
-// transform action touches P's x; P's y follows the curve.
+// transform action touches P's x; P's y follows the curve. Hover and focus
+// each hold one part; a part leaving clears only its own claim, so a leave
+// that arrives after the next part's enter changes nothing.
 export function fvReducer(state: FvState, action: FvAction): FvState {
   switch (action.type) {
     case "setFunction":
@@ -62,13 +82,43 @@ export function fvReducer(state: FvState, action: FvAction): FvState {
       const pX = onPointLattice(action.x)
       return pX === state.pX ? state : { ...state, pX }
     }
-    case "setQ": {
-      const qX = action.x === null || !Number.isFinite(action.x) ? null : onPointLattice(action.x)
-      return qX === state.qX ? state : { ...state, qX }
+    case "planePointer": {
+      if (action.x === null || !Number.isFinite(action.x)) {
+        return patch(state, { qX: null, hover: state.hover === "plane" ? null : state.hover })
+      }
+      return patch(state, { qX: onPointLattice(action.x), hover: "plane", lead: "hover" })
     }
     case "setGhost":
       return action.on === state.ghostOn ? state : { ...state, ghostOn: action.on }
     case "setView":
       return sameView(state.view, action.view) ? state : { ...state, view: action.view }
+    case "hover":
+      return action.on
+        ? patch(state, { hover: action.part, lead: "hover" })
+        : state.hover === action.part
+          ? patch(state, { hover: null })
+          : state
+    case "focus":
+      return action.on
+        ? patch(state, { focus: action.part, lead: "focus" })
+        : state.focus === action.part
+          ? patch(state, { focus: null })
+          : state
+    case "drag":
+      if (action.mode === null) {
+        return state.drag?.part === action.part ? patch(state, { drag: null }) : state
+      }
+      return state.drag?.part === action.part && state.drag.mode === action.mode
+        ? state
+        : patch(state, { drag: { part: action.part, mode: action.mode } })
+    case "edit": {
+      if (action.edit === null) {
+        return state.edit?.part === action.part ? patch(state, { edit: null }) : state
+      }
+      const { error, base } = action.edit
+      return state.edit?.part === action.part && state.edit.error === error && state.edit.base === base
+        ? state
+        : patch(state, { edit: { part: action.part, error, base } })
+    }
   }
 }
