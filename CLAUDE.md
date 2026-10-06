@@ -11,6 +11,7 @@ AGENTS.md above holds the project conventions and is shared with the PI agents t
 | skills in `.pi/skills/` | `r3f-viz-stack`, `style-match` and `tslsp` are linked into `.claude/skills/` and load as skills. `code-review` is not linked, because it would shadow Claude Code's built-in skill of that name: read `.pi/skills/code-review/SKILL.md` as a file when reviewing |
 | `pi-lsp-client` diagnostics | not available; use `tslsp` and `npm run typecheck` |
 | `read` on a screenshot | the Read tool shows you the PNG |
+| escapes in source | Write and Edit decode `\u00a0` in their content to the character itself, so an escape meant for the file lands as an invisible no-break space: write such strings through a script (`\\u00a0` in Python) and check with `grep -rlP '\x{00a0}' src` |
 
 ## Session
 
