@@ -74,12 +74,18 @@ export const themeAtom = atomWithStorage<ThemeSlug>("mathviz-theme", DEFAULT_SLU
   getOnInit: true,
 })
 
-export type ThemeVars = {
+/** Theme colours as canvas code needs them: each one a plain, resolved colour. */
+export type ThemeColors = {
   background: string
   foreground: string
   chartLine: string
   chartAccent: string
   chartGrid: string
+  chartGridMajor: string
+  chartAxis: string
+  chartPoint1: string
+  chartPoint2: string
+  curveGlow: string
   ordinal01: string
   ordinal02: string
   ordinal03: string
@@ -94,14 +100,22 @@ export type ThemeVars = {
   ordinal12: string
 }
 
-type ThemeVarKey = keyof ThemeVars
+export type ThemeVars = ThemeColors & {
+  /** Blur radius of the curve glow in px (`--sig-glow-radius`). */
+  glowRadius: number
+}
 
-const themeVarMapping: Record<string, ThemeVarKey> = {
+const themeColorMapping: Record<string, keyof ThemeColors> = {
   "--background": "background",
   "--foreground": "foreground",
   "--chart-line": "chartLine",
   "--chart-accent": "chartAccent",
   "--chart-grid": "chartGrid",
+  "--chart-grid-major": "chartGridMajor",
+  "--chart-axis": "chartAxis",
+  "--chart-point-1": "chartPoint1",
+  "--chart-point-2": "chartPoint2",
+  "--sig-curve-glow": "curveGlow",
   "--ordinal-01": "ordinal01",
   "--ordinal-02": "ordinal02",
   "--ordinal-03": "ordinal03",
@@ -116,19 +130,23 @@ const themeVarMapping: Record<string, ThemeVarKey> = {
   "--ordinal-12": "ordinal12",
 }
 
+// Each colour token goes through a probe's computed `color`, so aliases and
+// color-mix() tokens reach the canvas as plain colours it can parse.
 const readVarsForClass = (className: string): ThemeVars => {
-  const out: Partial<ThemeVars> = {}
+  const colors: Partial<ThemeColors> = {}
   const el = document.createElement("div")
   el.className = className
   el.setAttribute("aria-hidden", "true")
   el.style.cssText = "position:absolute;visibility:hidden;pointer-events:none;"
   document.body.appendChild(el)
   const cs = getComputedStyle(el)
-  for (const [cssVar, outKey] of Object.entries(themeVarMapping)) {
-    out[outKey] = cs.getPropertyValue(cssVar).trim()
+  for (const [cssVar, outKey] of Object.entries(themeColorMapping)) {
+    el.style.color = `var(${cssVar})`
+    colors[outKey] = cs.color
   }
+  const glowRadius = Number.parseFloat(cs.getPropertyValue("--sig-glow-radius"))
   el.remove()
-  return out as ThemeVars
+  return { ...(colors as ThemeColors), glowRadius: Number.isFinite(glowRadius) ? glowRadius : 0 }
 }
 
 export function useAppTheme() {
