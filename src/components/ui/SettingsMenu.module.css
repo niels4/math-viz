@@ -32,7 +32,7 @@
   at the spring's own pace (dur-enter-settle: in place by 200 ms, 5 % over
   at 270 ms), while it fades in over dur-fast, linearly. The fade stays off
   the spring: Firefox paints an opacity eased past 1 washed out. It leaves
-  the same way back, linearly, in dur-menu-leave (200 ms). Under reduced
+  the same way back, linearly, in dur-overlay-leave (200 ms). Under reduced
   motion it only fades, 120 ms each way. Squeezed into 120 ms or less,
   either way reads as a pop. */
   .settings_menu {
@@ -66,8 +66,8 @@
     opacity: 0;
     transform: translateY(-8px) scale(0.9);
     transition:
-      opacity var(--motion-dur-menu-leave) linear,
-      transform var(--motion-dur-menu-leave) linear;
+      opacity var(--motion-dur-overlay-leave) linear,
+      transform var(--motion-dur-overlay-leave) linear;
   }
 
   @media (prefers-reduced-motion: reduce) {

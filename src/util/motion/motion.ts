@@ -17,7 +17,7 @@ export const DURATION_MS = {
   draw: 900,
   /** Between siblings in a staged entrance. */
   stagger: 80,
-  /** Things leaving: Q and its card's values (FV 05 › Pointer leaves the plane), an overlay closing. */
+  /** Things leaving: Q and its card's values (FV 05 › Pointer leaves the plane). */
   leave: 120,
 } as const
 
@@ -46,11 +46,11 @@ export const easeDraw = cubicBezier(...EASE_DRAW_BEZIER)
 export const ENTER_SETTLE_MS = Math.round(easeEnter.settle * 1000)
 
 /**
- * The settings menu leaving (no board draws it): linear, as things leave in
- * FV 05, and long enough to be seen going; dur-leave's 120 ms reads as a
- * blink on a card that size.
+ * An overlay leaving: the settings menu, the explainer and the tour card (no
+ * board draws it). Linear, as things leave in FV 05, and long enough to be
+ * seen going; dur-leave's 120 ms reads as a blink on a card that size.
  */
-export const MENU_LEAVE_MS = 200
+export const OVERLAY_LEAVE_MS = 200
 
 /**
  * How much motion to show: full; reduced (prefers-reduced-motion: fades of
@@ -68,6 +68,12 @@ export const motionLevel = (): MotionLevel =>
 
 export const prefersReducedMotion = (): boolean => motionLevel() !== "full"
 
+/** How long an overlay stays on its way out: as long as its CSS takes to leave. */
+export const overlayLeaveMs = (): number => {
+  const level = motionLevel()
+  return level === "none" ? 0 : level === "reduced" ? REDUCED_FADE_MS : OVERLAY_LEAVE_MS
+}
+
 /** An ease as a CSS `linear()` timing function, sampled evenly (springs included, overshoot kept). */
 export const cssLinear = (ease: (progress: number) => number, samples = 32): string => {
   const stops = Array.from({ length: samples + 1 }, (_, i) => String(Number(ease(i / samples).toFixed(4))))
@@ -82,7 +88,7 @@ export const motionCssVars = {
   "--motion-stagger": `${DURATION_MS.stagger}ms`,
   "--motion-dur-leave": `${DURATION_MS.leave}ms`,
   "--motion-dur-enter-settle": `${ENTER_SETTLE_MS}ms`,
-  "--motion-dur-menu-leave": `${MENU_LEAVE_MS}ms`,
+  "--motion-dur-overlay-leave": `${OVERLAY_LEAVE_MS}ms`,
   "--motion-dur-reduced-fade": `${REDUCED_FADE_MS}ms`,
   "--motion-ease-draw": `cubic-bezier(${EASE_DRAW_BEZIER.join(", ")})`,
   "--motion-ease-enter": cssLinear(easeEnter.ease),

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 
 import { usePresence } from "#src/components/hooks/usePresence.ts"
 import { DARK_THEME_SLUGS, LIGHT_THEME_SLUGS, appThemes } from "#src/state/useAppTheme.ts"
-import { MENU_LEAVE_MS, REDUCED_FADE_MS, motionCssVars, motionLevel } from "#src/util/motion/motion.ts"
+import { motionCssVars, overlayLeaveMs } from "#src/util/motion/motion.ts"
 
 import { useAppTheme } from "../../state/useAppTheme.ts"
 import { CheckIcon, GearIcon } from "./icons.tsx"
@@ -17,12 +17,6 @@ type OpenAt = "checked" | "last"
 const itemsOf = (menu: HTMLElement | null): HTMLElement[] => [
   ...(menu?.querySelectorAll<HTMLElement>('[role="menuitemradio"], [role="menuitem"]') ?? []),
 ]
-
-/** How long the menu stays on its way out: as long as its CSS takes to leave. */
-const leaveMs = (): number => {
-  const level = motionLevel()
-  return level === "none" ? 0 : level === "reduced" ? REDUCED_FADE_MS : MENU_LEAVE_MS
-}
 
 // The top bar's gear and its menu: the themes, dark then light, and a
 // view's own items under them. The menu comes out of the gear on the enter
@@ -39,7 +33,7 @@ export function SettingsMenu({ actions = [] }: { actions?: readonly SettingsActi
   const wrapRef = useRef<HTMLDivElement | null>(null)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const menuRef = useRef<HTMLDivElement | null>(null)
-  const presence = usePresence(open !== null, leaveMs())
+  const presence = usePresence(open !== null, overlayLeaveMs())
 
   const close = (refocus: boolean) => {
     setOpen(null)

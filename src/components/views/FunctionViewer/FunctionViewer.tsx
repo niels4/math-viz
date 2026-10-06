@@ -2,7 +2,7 @@ import { useEffect, useId, useMemo, useReducer, useRef } from "react"
 
 import { useLeaving } from "#src/components/hooks/usePresence.ts"
 import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
-import { DURATION_MS, motionCssVars, motionLevel } from "#src/util/motion/motion.ts"
+import { motionCssVars, overlayLeaveMs } from "#src/util/motion/motion.ts"
 
 import { HintBar } from "../../ui/HintBar.tsx"
 import { MathText } from "../../ui/MathText.tsx"
@@ -108,8 +108,8 @@ export function FunctionViewer() {
   const planeRef = useRef<CartesianPlaneHandle | null>(null)
   const explainerId = useId()
   const { explainer, tour } = state
-  // The overlays stay on screen while they leave (the overlays' motion).
-  const leaveMs = motionLevel() === "none" ? 0 : DURATION_MS.leave
+  // The overlays stay on screen while they leave (ui/Callout's motion).
+  const leaveMs = overlayLeaveMs()
   const explainerShown = useLeaving(explainer?.param ?? null, leaveMs)
   const tourShown = useLeaving(tour?.step ?? null, leaveMs)
   // FV 05: the plane's motion; the tour waits for the first paint (FV 08).

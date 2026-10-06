@@ -17,31 +17,37 @@
     border: 2px solid var(--primary);
   }
 
-  /* It opens on the overlays' motion, as the settings menu does: from
-  its caret's tip, growing from 98 % and coming 4 px toward its place, on
-  the enter spring over dur-base; it leaves the same way back in dur-leave
-  (120 ms), linearly. Gliding, it also springs between places. Under
-  reduced motion it only fades, 120 ms each way, and jumps between places. */
-  .callout {
-    --callout-from: translateX(-4px) scale(0.98);
-    --callout-move:
-      opacity var(--motion-dur-base) var(--motion-ease-enter),
-      transform var(--motion-dur-base) var(--motion-ease-enter);
+  /* It comes out of its caret as the settings menu comes out of the gear:
+  growing from 90 % at the caret and coming 8 px out of it, on the enter
+  spring at the spring's own pace (dur-enter-settle: in place by 200 ms,
+  5 % over at 270 ms), while it fades in over dur-fast, linearly. The fade
+  stays off the spring: Firefox paints an opacity eased past 1 washed out.
+  It leaves the same way back, linearly, in dur-overlay-leave (200 ms).
+  Gliding, it also springs between places. Under reduced motion it only
+  fades, 120 ms each way, and jumps between places.
 
-    transform-origin: 0 var(--caret-at);
+  The 8 px ride in the origin: 90 % about a point 80 px out past the caret's
+  edge is 90 % about the caret, moved 8 px toward what it points at, frame
+  for frame (scale s about o + d is scale s about o, moved (1 - s) d). An
+  owner measures its callout before placing it, which gives the callout its
+  first style, and its transition its start, with the caret where it sat
+  unplaced, so a translate would set off from that side. The origin follows
+  the caret live: a card placed above its chip still rises out of its caret. */
+  .callout {
+    --callout-from: scale(0.9);
+    --callout-move:
+      opacity var(--motion-dur-fast) linear, transform var(--motion-dur-enter-settle) var(--motion-ease-enter);
+
+    transform-origin: -80px var(--caret-at);
     transition: var(--callout-move);
   }
 
   .callout[data-caret="top"] {
-    --callout-from: translateY(-4px) scale(0.98);
-
-    transform-origin: var(--caret-at) 0;
+    transform-origin: var(--caret-at) -80px;
   }
 
   .callout[data-caret="bottom"] {
-    --callout-from: translateY(4px) scale(0.98);
-
-    transform-origin: var(--caret-at) 100%;
+    transform-origin: var(--caret-at) calc(100% + 80px);
   }
 
   .callout[data-glide] {
@@ -62,8 +68,8 @@
     opacity: 0;
     transform: var(--callout-from);
     transition:
-      opacity var(--motion-dur-leave) linear,
-      transform var(--motion-dur-leave) linear;
+      opacity var(--motion-dur-overlay-leave) linear,
+      transform var(--motion-dur-overlay-leave) linear;
   }
 
   @media (prefers-reduced-motion: reduce) {

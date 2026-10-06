@@ -1,13 +1,14 @@
 /* The spotlight (FV 08): the page under --background at 62 %, holes where
 the step's idea lives. Under the settings menu, above everything else, and
-it takes no input. It fades in and out with the card (the overlays'
-timing, ui/Callout); under reduced motion over 120 ms each way. */
+it takes no input. It fades in and out with the card (ui/Callout): in over
+dur-fast, out over dur-overlay-leave, both linear; under reduced motion
+over 120 ms each way. */
 .scrim {
   position: fixed;
   inset: 0;
   z-index: 15;
   pointer-events: none;
-  transition: opacity var(--motion-dur-base) var(--motion-ease-enter);
+  transition: opacity var(--motion-dur-fast) linear;
 }
 
 @starting-style {
@@ -18,7 +19,7 @@ timing, ui/Callout); under reduced motion over 120 ms each way. */
 
 .scrim[data-closing] {
   opacity: 0;
-  transition: opacity var(--motion-dur-leave) linear;
+  transition: opacity var(--motion-dur-overlay-leave) linear;
 }
 
 @media (prefers-reduced-motion: reduce) {

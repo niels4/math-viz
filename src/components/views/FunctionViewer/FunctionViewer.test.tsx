@@ -2,7 +2,7 @@ import { getDefaultStore } from "jotai"
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest"
 
 import { FV_TOUR_KEY, fvTourDoneAtom } from "#src/state/fvTour.ts"
-import { act, render, selectionMayStart, toElement } from "#test"
+import { act, isBrowser, render, selectionMayStart, toElement } from "#test"
 
 import type { PlaneScene } from "../CartesianPlane/scene.ts"
 
@@ -95,16 +95,18 @@ const hint = (screen: Screen) => spoken(byTestId(screen, "fv-hint"))
 
 const IDLE = "Drag a ruler sideways to reshape the curve · point at the plane to read f(x)"
 
-/** A browser's matchMedia that prefers motion: no query matches. */
-const FULL_MOTION = (query: string) =>
+/** A browser's matchMedia that prefers motion (no query matches), or reduced motion. */
+const motionPrefs = (reduce: boolean) => (query: string) =>
   ({
-    matches: false,
+    matches: reduce && query.includes("reduce"),
     media: query,
     onchange: null,
     addEventListener: () => {},
     removeEventListener: () => {},
     dispatchEvent: () => false,
   }) as unknown as MediaQueryList
+
+const FULL_MOTION = motionPrefs(false)
 
 const ZERO_RECT = {
   x: 0,
@@ -707,8 +709,13 @@ describe("FunctionViewer", () => {
       expect(explainer("k")).toBeNull()
     })
 
-    it("leaves on the overlays' motion: on screen and inert for 120 ms, then gone", async () => {
-      vi.stubGlobal("matchMedia", FULL_MOTION)
+    // It goes back into its caret as the settings menu goes into the gear
+    // (ui/Callout.module.css), a 120 ms fade under reduced motion.
+    it.each([
+      { motion: "full motion", reduce: false, ms: 200 },
+      { motion: "reduced motion", reduce: true, ms: 120 },
+    ])("leaves with $motion: on screen and inert for $ms ms, then gone", async ({ reduce, ms }) => {
+      vi.stubGlobal("matchMedia", motionPrefs(reduce))
       const screen = await render(<FunctionViewer />)
       const ruler = byTestId(screen, "fv-param-k-ruler")
       act(() => {
@@ -724,7 +731,11 @@ describe("FunctionViewer", () => {
       // Closed for the page at once: the ruler no longer points at it.
       expect(ruler.hasAttribute("aria-describedby")).toBe(false)
       act(() => {
-        vi.advanceTimersByTime(120)
+        vi.advanceTimersByTime(ms - 1)
+      })
+      expect(explainer("k")?.hasAttribute("inert")).toBe(true)
+      act(() => {
+        vi.advanceTimersByTime(1)
       })
       expect(explainer("k")).toBeNull()
     })
@@ -877,8 +888,11 @@ describe("FunctionViewer", () => {
       expect(title()).toBe("This is a function")
     })
 
-    it("leaves on the overlays' motion: the card and the scrim stay 120 ms, inert, then go", async () => {
-      vi.stubGlobal("matchMedia", FULL_MOTION)
+    it.each([
+      { motion: "full motion", reduce: false, ms: 200 },
+      { motion: "reduced motion", reduce: true, ms: 120 },
+    ])("leaves with $motion: the card and the scrim stay $ms ms, inert, then go", async ({ reduce, ms }) => {
+      vi.stubGlobal("matchMedia", motionPrefs(reduce))
       const screen = await render(<FunctionViewer />)
       click(screen, "settings-button")
       click(screen, "settings-action-tour")
@@ -890,10 +904,29 @@ describe("FunctionViewer", () => {
       expect(document.querySelector('[data-testid="fv-tour-scrim"]')?.hasAttribute("data-closing")).toBe(true)
       expect(localStorage.getItem(FV_TOUR_KEY)).toBe("true")
       act(() => {
-        vi.advanceTimersByTime(120)
+        vi.advanceTimersByTime(ms - 1)
+      })
+      expect(card()?.hasAttribute("inert")).toBe(true)
+      expect(document.querySelector('[data-testid="fv-tour-scrim"]')).not.toBeNull()
+      act(() => {
+        vi.advanceTimersByTime(1)
       })
       expect(card()).toBeNull()
       expect(document.querySelector('[data-testid="fv-tour-scrim"]')).toBeNull()
+    })
+
+    // jsdom draws no CSS and Vitest imports the module as its class names,
+    // so this reads its source: the scrim fades as its card does
+    // (ui/Callout), linearly, so Firefox doesn't wash it out.
+    it.skipIf(isBrowser())("fades the scrim in and out with its card", async () => {
+      const fs = "node:fs"
+      const { readFileSync } = (await import(/* @vite-ignore */ fs)) as {
+        readFileSync: (path: string, encoding: "utf8") => string
+      }
+      const { dirname } = import.meta as ImportMeta & { dirname: string }
+      const css = readFileSync(`${dirname}/tour/Tour.module.css`, "utf8")
+      expect(css).toContain("transition: opacity var(--motion-dur-fast) linear;")
+      expect(css).toContain("transition: opacity var(--motion-dur-overlay-leave) linear;")
     })
 
     it("moves on from step 1 after 6 s without input, and Esc skips it", async () => {

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
+import { motionMedia, runLinear } from "#src/test/motion.ts"
 import { act, isBrowser, render, toElement } from "#test"
 
 import { SettingsMenu } from "./SettingsMenu.tsx"
@@ -19,19 +20,6 @@ const key = (el: Element | null, name: string) => {
 }
 
 const focused = () => document.activeElement?.getAttribute("data-testid") ?? null
-
-/** A browser's matchMedia that prefers motion (or not). */
-const motionMedia = (reduce: boolean) => (query: string) =>
-  ({ matches: reduce && query.includes("reduce"), media: query }) as MediaQueryList
-
-/** A CSS `linear()` easing with evenly spaced stops, as `cssLinear` writes them, at `progress`. */
-const runLinear = (easing: string, progress: number): number => {
-  const stops = easing.slice("linear(".length, -1).split(",").map(Number)
-  const at = Math.min(1, Math.max(0, progress)) * (stops.length - 1)
-  const i = Math.min(stops.length - 2, Math.floor(at))
-  const from = stops[i] ?? 1
-  return from + ((stops[i + 1] ?? from) - from) * (at - i)
-}
 
 describe("SettingsMenu", () => {
   afterEach(() => {
@@ -143,7 +131,7 @@ describe("SettingsMenu", () => {
     expect(inBy(150)).toBeLessThan(0.95)
     expect(inBy(200)).toBeGreaterThan(0.98)
     // Going, linearly: half way back at 100 ms.
-    expect(token("--motion-dur-menu-leave")).toBe("200ms")
+    expect(token("--motion-dur-overlay-leave")).toBe("200ms")
   })
 
   // The browser runs the CSS: the menu's own transitions, seeked.
@@ -182,8 +170,8 @@ describe("SettingsMenu", () => {
     // The fade is linear: Firefox paints an opacity eased past 1 washed out.
     expect(css).toContain("opacity var(--motion-dur-fast) linear")
     expect(css).toContain("transform var(--motion-dur-enter-settle) var(--motion-ease-enter)")
-    expect(css).toContain("opacity var(--motion-dur-menu-leave) linear")
-    expect(css).toContain("transform var(--motion-dur-menu-leave) linear")
+    expect(css).toContain("opacity var(--motion-dur-overlay-leave) linear")
+    expect(css).toContain("transform var(--motion-dur-overlay-leave) linear")
     // From and back to, in @starting-style and [data-closing].
     expect(css.match(/opacity: 0;\s+transform: translateY\(-8px\) scale\(0\.9\);/g)).toHaveLength(2)
   })
