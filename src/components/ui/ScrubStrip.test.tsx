@@ -15,8 +15,10 @@ const stubPointerCapture = () => {
   HTMLDivElement.prototype.hasPointerCapture = () => false
 }
 
-const pointer = (type: string, init: { pointerId: number; clientX: number; shiftKey?: boolean }) =>
-  new PointerEvent(type, { bubbles: true, ...init })
+const pointer = (
+  type: string,
+  init: { pointerId: number; clientX: number; shiftKey?: boolean; buttons?: number },
+) => new PointerEvent(type, { bubbles: true, ...init })
 
 function Harness({
   initial = 1,
@@ -76,7 +78,7 @@ describe("ScrubStrip", () => {
     const strip = await renderStrip({ initial: 1 })
     act(() => {
       strip.dispatchEvent(pointer("pointerdown", { pointerId: 1, clientX: 100 }))
-      strip.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: 200 }))
+      strip.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: 200, buttons: 1 }))
       strip.dispatchEvent(pointer("pointerup", { pointerId: 1, clientX: 200 }))
     })
     // +100px at 0.02 units/px from 1.
@@ -87,7 +89,7 @@ describe("ScrubStrip", () => {
     const strip = await renderStrip({ initial: 1 })
     act(() => {
       strip.dispatchEvent(pointer("pointerdown", { pointerId: 1, clientX: 100 }))
-      strip.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: 200, shiftKey: true }))
+      strip.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: 200, shiftKey: true, buttons: 1 }))
       strip.dispatchEvent(pointer("pointerup", { pointerId: 1, clientX: 200 }))
     })
     // +100px at 0.002 units/px from 1.
@@ -140,11 +142,57 @@ describe("ScrubStrip", () => {
     expect(help).not.toBeNull()
     act(() => {
       help?.dispatchEvent(pointer("pointerdown", { pointerId: 1, clientX: 100 }))
-      strip.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: 500 }))
+      strip.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: 500, buttons: 1 }))
       strip.dispatchEvent(pointer("pointerup", { pointerId: 1, clientX: 500 }))
       help?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }))
     })
     expect(seen).toEqual([])
+  })
+
+  it("a buttonless move never scrubs (missed release self-heals)", async () => {
+    const seen: number[] = []
+    const strip = await renderStrip({ initial: 1, seen: (next) => seen.push(next) })
+    act(() => {
+      strip.dispatchEvent(pointer("pointerdown", { pointerId: 1, clientX: 100 }))
+      // Release outside the window: no pointerup ever arrives, so the next
+      // hover move carries buttons 0 and must not scrub.
+      strip.dispatchEvent(
+        new PointerEvent("pointermove", { bubbles: true, pointerId: 1, clientX: 200, buttons: 0 }),
+      )
+    })
+    expect(seen).toEqual([])
+  })
+
+  it("lostpointercapture stops the scrub", async () => {
+    const seen: number[] = []
+    const strip = await renderStrip({ initial: 1, seen: (next) => seen.push(next) })
+    act(() => {
+      strip.dispatchEvent(pointer("pointerdown", { pointerId: 1, clientX: 100 }))
+      strip.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: 200, buttons: 1 }))
+    })
+    expect(seen.length).toBeGreaterThan(0)
+    const frozen = seen.length
+    act(() => {
+      strip.dispatchEvent(new PointerEvent("lostpointercapture", { bubbles: true, pointerId: 1 }))
+      strip.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: 300, buttons: 1 }))
+    })
+    expect(seen.length).toBe(frozen)
+  })
+
+  it("window blur stops the scrub", async () => {
+    const seen: number[] = []
+    const strip = await renderStrip({ initial: 1, seen: (next) => seen.push(next) })
+    act(() => {
+      strip.dispatchEvent(pointer("pointerdown", { pointerId: 1, clientX: 100 }))
+      strip.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: 200, buttons: 1 }))
+    })
+    expect(seen.length).toBeGreaterThan(0)
+    const frozen = seen.length
+    act(() => {
+      window.dispatchEvent(new Event("blur"))
+      strip.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: 300, buttons: 1 }))
+    })
+    expect(seen.length).toBe(frozen)
   })
 
   it("multiplicative scrub never crosses zero", async () => {
@@ -157,7 +205,7 @@ describe("ScrubStrip", () => {
     })
     act(() => {
       strip.dispatchEvent(pointer("pointerdown", { pointerId: 1, clientX: 1000 }))
-      strip.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: -9000 }))
+      strip.dispatchEvent(pointer("pointermove", { pointerId: 1, clientX: -9000, buttons: 1 }))
       strip.dispatchEvent(pointer("pointerup", { pointerId: 1, clientX: -9000 }))
     })
     expect(seen.length).toBeGreaterThan(0)

@@ -80,16 +80,36 @@ export function ScrubStrip({
   }
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.buttons === 0) {
+      // No button held: a missed release left the scrub stuck on, so drop
+      // it instead of scrubbing from a hover.
+      stopScrub()
+      return
+    }
     if (dragRef.current === null) {
       return
     }
     scrubTo(event.clientX, event.shiftKey, event.ctrlKey || event.metaKey)
   }
 
-  const stopScrub = () => {
+  const stopScrub = useCallback(() => {
     dragRef.current = null
     setMode(null)
-  }
+  }, [])
+
+  // Letting go stops the scrub unconditionally. The element handlers miss
+  // the release when it lands outside the window or focus moves mid-drag,
+  // which used to leave the scrub stuck on.
+  useEffect(() => {
+    window.addEventListener("pointerup", stopScrub)
+    window.addEventListener("pointercancel", stopScrub)
+    window.addEventListener("blur", stopScrub)
+    return () => {
+      window.removeEventListener("pointerup", stopScrub)
+      window.removeEventListener("pointercancel", stopScrub)
+      window.removeEventListener("blur", stopScrub)
+    }
+  }, [stopScrub])
 
   // Native non-passive listener so wheel scrubbing never scrolls the page.
   useEffect(() => {
@@ -163,6 +183,7 @@ export function ScrubStrip({
       onPointerMove={handlePointerMove}
       onPointerUp={stopScrub}
       onPointerCancel={stopScrub}
+      onLostPointerCapture={stopScrub}
       onDoubleClick={() => onChange(defaultValue)}
       onKeyDown={handleKeyDown}
     >
