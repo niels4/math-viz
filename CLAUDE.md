@@ -50,6 +50,8 @@ Done means the running app matches the board: screenshot the same state in Playw
 
 Design implementation runs for hours across sessions and often overnight with nobody watching. Work it with the `long-run` skill: its brief, plan and progress files live in `.local/briefs/`; read all three at the start of every session and after a compaction. Commit on your branch at each verified step (`npm test && git commit`, never `;`). Work only in this worktree: the user's checkout at `/opt/dev/agent/src/math-viz` is theirs, and merging into main is their call.
 
+A sweep that fans out to subagents (one per state and theme) meets Claude Code's cap of 20 running at once: launch the rest as the first finish. Give them one brief file to read (references, how to judge, the known differences, the findings format) and the captures made beforehand, so each starts measuring at once; M13's is `.local/shots/M13/sweep/AGENT-BRIEF.md`.
+
 A standing instruction from the user about how your turns end. A message with no tool call in it ends your turn, and the work stops there until you are asked to continue. The user has seen agents end turns in four ways while work they asked for was still owed, and does not want any of them:
 1. A long summary of what was done that closes by announcing the next step and has no tool call, so the next thing never starts.
 2. An offer to carry on with something unless the user would prefer otherwise, which stops to wait for an answer the user was not going to give.
