@@ -155,6 +155,9 @@ This project is young and grows by experimentation. The user teaches conventions
 
 - R3F/d3-math/GSAP/Drei stack for animated charts and 3D panels: skill `.pi/skills/r3f-viz-stack/SKILL.md` (roles, wedge geometry, install, perf rules). Load it for any wedge/radial, R3F, or GSAP task.
 - New viz work is pages under `src/pages/<area>/` (one page per route): d3 scales turn data into geometry numbers, TSX declares the scene, GSAP moves it. Pages orchestrate (see Architecture); split views/data layers only when a second consumer exists.
+- **One number rule**: every number a view shows (fields, equation terms, readouts, labels, tags) goes through `src/util/format/number.ts` (`formatNumber`, `numberParts`, `relation`, `formatShort`), never `toFixed` or `String(n)` in a view.
+- **Motion tokens** live in `src/util/motion/motion.ts`: durations, the sweep and enter springs as GSAP eases over their settle time, the draw-on cubic-bezier, `prefersReducedMotion`, and `motionCssVars` for CSS transitions.
+- **Canvas colours**: `useAppTheme().themeVars` resolves every colour token through a probe's computed `color`, so `var()` aliases and `color-mix()` tokens work on canvas. A new canvas colour token goes into `themeColorMapping` in `src/state/useAppTheme.ts`.
 
 ## Gotchas
 
@@ -179,3 +182,5 @@ This project is young and grows by experimentation. The user teaches conventions
 - **Pointer-capture drags stick**: element-level `pointerup` misses releases outside the window or focus loss mid-drag. Pair every capture drag with window `pointerup`/`pointercancel`/`blur` stoppers, `onLostPointerCapture`, and a `buttons === 0` guard in the move handler that stops instead of scrubbing.
 - **Field auto-links labels**: `Field` mints an id via `useId` (explicit `htmlFor` overrides) and shares it through `useFieldId` context (`src/components/ui/useFieldId.ts`); `Select`/`TextField`/`NumberField`/`ScrubStrip` consume it via optional `id` props, falling back to their own `useId` standalone. New labeled inputs follow the same pattern instead of taking manual ids.
 - The `README.md` is the stock vite template readme; this AGENTS.md is the real documentation.
+- **Glyphs the fonts lack**: the vendored woff2 are Google's latin subsets. ≈ renders only through the symbols subsets (STIX, Roboto Mono; `src/style/fonts/README.md` › Symbols subsets), ▲ ▼ ← → ↑ ↓ are `TriangleIcon` / `ArrowIcon` (path data in `src/components/ui/glyphPaths.ts` for canvas), exponents beyond ³ are raised text. Never type these into Work Sans text. A fallback glyph looks right in a screenshot: confirm the font with CDP `CSS.getPlatformFontsForNode` from a Playwright script.
+- **Playwright same-URL goto**: `page.goto` to the URL the page is on (same hash) is a same-document navigation, so init scripts don't rerun and a localStorage theme change doesn't apply. Set localStorage with `page.evaluate`, then `page.reload()`.

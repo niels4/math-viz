@@ -100,19 +100,19 @@ A token that follows the palette is written as a `var()` alias or a `color-mix(i
 
 Proposed by figma0 (`scripts/mathviz-claude/payloads/fv-tokens.json`, `v2-tokens.json`), in all six themes:
 
-| Token | Value | Use |
-| --- | --- | --- |
-| `--chart-point-1` | alias of one ordinal per theme (arctic-ice `--ordinal-05`) | P, the pinned point: dot core, swatch, label border |
-| `--chart-point-2` | alias of one ordinal per theme (arctic-ice `--ordinal-03`) | Q, the pointer point |
-| `--chart-axis` | `color-mix(in oklch, var(--foreground-muted) 75%, var(--background))` | axes, ticks, tick labels (≥ 3.2:1 on `--background`) |
-| `--chart-grid-major` | `color-mix(in oklch, var(--foreground-muted) 35%, var(--chart-grid))` | major grid lines |
-| `--sig-card-radius` | `var(--radius)`; tron-cyan 4px, educational-warm 18px | panel corners |
-| `--sig-card-shadow` | `none`; educational-warm a soft paper shadow | panel shadow |
-| `--sig-curve-glow` | `transparent`; midnight-violet `--primary` at 60 % | glow under the plotted curve |
-| `--sig-glow-radius` | 8 / 10 / 14px in the dark themes, `0px` in the light ones | blur radius of the glows |
-| `--sig-hud-ticks` | `0`; tron-cyan `1` | HUD ticks on the plane frame, used as `opacity` |
-| `--sig-label-tracking` | `0.08em`; arctic-ice `0.2em` | letter-spacing of caps labels |
-| `--sig-readout-font` | Roboto Mono stack; sage-editorial STIX Two Text | readout numerals |
+| Token                  | Value                                                                 | Use                                                  |
+| ---------------------- | --------------------------------------------------------------------- | ---------------------------------------------------- |
+| `--chart-point-1`      | alias of one ordinal per theme (arctic-ice `--ordinal-05`)            | P, the pinned point: dot core, swatch, label border  |
+| `--chart-point-2`      | alias of one ordinal per theme (arctic-ice `--ordinal-03`)            | Q, the pointer point                                 |
+| `--chart-axis`         | `color-mix(in oklch, var(--foreground-muted) 75%, var(--background))` | axes, ticks, tick labels (≥ 3.2:1 on `--background`) |
+| `--chart-grid-major`   | `color-mix(in oklch, var(--foreground-muted) 35%, var(--chart-grid))` | major grid lines                                     |
+| `--sig-card-radius`    | `var(--radius)`; tron-cyan 4px, educational-warm 18px                 | panel corners                                        |
+| `--sig-card-shadow`    | `none`; educational-warm a soft paper shadow                          | panel shadow                                         |
+| `--sig-curve-glow`     | `transparent`; midnight-violet `--primary` at 60 %                    | glow under the plotted curve                         |
+| `--sig-glow-radius`    | 8 / 10 / 14px in the dark themes, `0px` in the light ones             | blur radius of the glows                             |
+| `--sig-hud-ticks`      | `0`; tron-cyan `1`                                                    | HUD ticks on the plane frame, used as `opacity`      |
+| `--sig-label-tracking` | `0.08em`; arctic-ice `0.2em`                                          | letter-spacing of caps labels                        |
+| `--sig-readout-font`   | Roboto Mono stack; sage-editorial STIX Two Text                       | readout numerals                                     |
 
 The sommelier `theme-export` must emit these too, or a re-export drops them.
 
