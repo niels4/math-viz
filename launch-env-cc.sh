@@ -30,9 +30,10 @@ if tmux has-session -t "=$session" 2>/dev/null; then
   exit 0
 fi
 
-# Pick free ports: the user's own session often holds 5173 and other agent
+# Pick free ports from 5180 up: the user's own servers live on 5173-5174
+# and must never be taken or confused with the agent's, and other agent
 # sessions run at the same time, so never assume a port.
-port=5173
+port=5180
 while lsof -nP -iTCP:$port -sTCP:LISTEN >/dev/null 2>&1; do
   (( port += 1 ))
 done

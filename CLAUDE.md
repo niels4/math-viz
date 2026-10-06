@@ -14,7 +14,7 @@ AGENTS.md above holds the project conventions and is shared with the PI agents t
 
 ## Session
 
-`launch-env-cc.sh` starts tmux session `math-viz-cc-<branch>` with windows editor, shell, repl, server, bridge (figma0's Figma bridge daemon, below) and agent, all in the checkout. The server window runs two vite servers: `server.1` with live-edit relay (the user's port, `$MATHVIZ_WTR_PORT`) and `server.2` disk-only (`$MATHVIZ_DISK_PORT`). Point Playwright at the disk-only port, because your edits land on disk and the user's unsaved buffers stay on the other one.
+`launch-env-cc.sh` starts tmux session `math-viz-cc-<branch>` with windows editor, shell, repl, server, bridge (figma0's Figma bridge daemon, below) and agent, all in the checkout. The server window runs your two vite servers, both serving this worktree, on ports from 5180 up: `server.1` with live-edit relay (`$MATHVIZ_WTR_PORT`) and `server.2` disk-only (`$MATHVIZ_DISK_PORT`). Screenshot and test against `$MATHVIZ_DISK_PORT` only, because your edits land on disk and live-edit buffers stay on the other one. The user's own servers run their checkout on 5173 and 5174: they show the user's code, not yours, so never point a check at them and never stop them. If `$MATHVIZ_DISK_PORT` is unset or not answering, restart your server in `server.2` (`DISABLE_WTR=1 npm run dev -- --port <free port from 5180> --strictPort`) rather than reaching for whichever vite is listening.
 
 ## Implementing figma0's designs
 
@@ -45,7 +45,7 @@ Done means the running app matches the board: screenshot the same state in Playw
 
 ## Long runs
 
-Design implementation runs for hours across sessions. Each task has a brief and a progress file in `.local/briefs/`; read both at the start of every session and after a compaction, and keep the progress file current: what is done with its commit and evidence, what is next, the open questions and the calls you made. Commit on your branch at each verified step (`npm test && git commit`, never `;`). Work only in this worktree: the user's checkout at `/opt/dev/agent/src/math-viz` is theirs, and merging into main is their call.
+Design implementation runs for hours across sessions and often overnight with nobody watching. Work it with the `long-run` skill: its brief, plan and progress files live in `.local/briefs/`; read all three at the start of every session and after a compaction. Commit on your branch at each verified step (`npm test && git commit`, never `;`). Work only in this worktree: the user's checkout at `/opt/dev/agent/src/math-viz` is theirs, and merging into main is their call.
 
 A standing instruction from the user about how your turns end. A message with no tool call in it ends your turn, and the work stops there until you are asked to continue. The user has seen agents end turns in four ways while work they asked for was still owed, and does not want any of them:
 1. A long summary of what was done that closes by announcing the next step and has no tool call, so the next thing never starts.
