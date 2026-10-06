@@ -11,7 +11,7 @@ A browser math-visualization project: Vite 8 + React 19 + TypeScript 7, custom f
 | `npm run generate`         | Regenerate `generated/routes.ts` after adding/removing/renaming pages (2 dev routes + `_root` + `_not_found`). |
 | `npm run format`           | `oxfmt --write`. Run after editing code; do not hand-format.                                                      |
 | `npm run dev`              | Vite dev server. Port varies by session — see Coexistence.                                                        |
-| `npm run build`            | `tsc -b && vite build`.                                                                                           |
+| `npm run build`            | `tsc -b && vite build` into `docs/`, the GitHub Pages site (see Gotchas).                                         |
 
 ## Toolchain
 
@@ -157,6 +157,8 @@ This project is young and grows by experimentation. The user teaches conventions
 - New viz work is pages under `src/pages/<area>/` (one page per route): d3 scales turn data into geometry numbers, TSX declares the scene, GSAP moves it. Pages orchestrate (see Architecture); split views/data layers only when a second consumer exists.
 
 ## Gotchas
+
+- **GitHub Pages deploy**: `main`'s committed `docs/` is the public site (`https://niels4.github.io/math-viz/`). The build empties `docs/` first, `base: "./"` keeps asset paths relative under `/math-viz/`, and `public/.nojekyll` is copied in so Jekyll doesn't drop files starting with `_`. Lint and format skip `docs/`.
 
 - **Router state is module-level singletons** in `router-hooks.ts` (`currentRoute`, `currentSearchParams`). `onHashChange()` runs at import time. Tests leak route state into each other unless reset via `updateLocationHash`.
 - `npm test` runs only the jsdom project. The browser project is separate (`test:run:browser`); run both when touching `src/test/` or the router.

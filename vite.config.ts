@@ -15,6 +15,11 @@ const disableWtr = process.env["DISABLE_WTR"] === "1" || process.env["DISABLE_WT
 export default defineConfig({
   plugins: [typedCssModules(), react({ compiler: true }), ...(disableWtr ? [] : [wtr()])],
 
+  // GitHub Pages serves main's docs/ at /math-viz/: relative asset paths work under
+  // that prefix, and hash routing needs no server rewrites.
+  base: "./",
+  build: { outDir: "docs", emptyOutDir: true },
+
   test: {
     attachmentsDir: ".local/vitest-attachments",
     coverage: {
