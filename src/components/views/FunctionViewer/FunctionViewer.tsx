@@ -28,6 +28,7 @@ import {
   pLit,
   pMoved,
   pOffView,
+  valueDecimals,
 } from "./model/selectors.ts"
 import { initialFvState, type FvPart, type FvPlaneMark, type PartEvents } from "./model/state.ts"
 import { useFvMotion } from "./motion/useFvMotion.ts"
@@ -79,7 +80,7 @@ export function FunctionViewer() {
       handleLit: gripLit,
       handleHeld: gripHeld,
       pWas,
-      fine,
+      decimals: valueDecimals(params, fine),
     }),
     [fn, params, pX, qX, ghostOn, pLitNow, activeNow, gripLit, gripHeld, pWas, fine],
   )

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import type { PlaneSceneInput } from "./planeScene.ts"
 
 import { DEFAULT_PARAMS } from "./math/form.ts"
+import { valueDecimals } from "./model/selectors.ts"
 import { buildPlaneScene } from "./planeScene.ts"
 
 const BASE: PlaneSceneInput = {
@@ -16,7 +17,7 @@ const BASE: PlaneSceneInput = {
   handleLit: null,
   handleHeld: null,
   pWas: null,
-  fine: [],
+  decimals: valueDecimals(DEFAULT_PARAMS, []),
 }
 const R3 = { a: 2, b: 1, h: -1, k: 1 }
 
@@ -153,12 +154,12 @@ describe("buildPlaneScene", () => {
   })
 
   it("prints a plate's value at 3 decimals while a fine drag holds it (the user's ruling)", () => {
-    const plate = (fine: readonly ("a" | "b" | "h" | "k")[]) =>
-      buildPlaneScene({ ...BASE, params: R3, active: "k", fine }).annotations?.[0]?.plates[0]?.runs[1]
-    expect(plate([])).toEqual({ text: "= 1.00" })
-    expect(plate(["k"])).toEqual({ text: "= 1.000" })
-    const typed = buildPlaneScene({ ...BASE, params: { ...R3, k: 1.235 }, active: "k" })
-    expect(typed.annotations?.[0]?.plates[0]?.runs[1]).toEqual({ text: "= 1.235" })
+    const plate = (params: typeof R3, fine: readonly ("a" | "b" | "h" | "k")[]) =>
+      buildPlaneScene({ ...BASE, params, active: "k", decimals: valueDecimals(params, fine) })
+        .annotations?.[0]?.plates[0]?.runs[1]
+    expect(plate(R3, [])).toEqual({ text: "= 1.00" })
+    expect(plate(R3, ["k"])).toEqual({ text: "= 1.000" })
+    expect(plate({ ...R3, k: 1.235 }, [])).toEqual({ text: "= 1.235" })
   })
 
   it("marks where a transform's drag found P, with an arrow in --primary (R5)", () => {

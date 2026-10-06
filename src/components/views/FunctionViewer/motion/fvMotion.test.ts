@@ -6,6 +6,7 @@ import type { PlaneView } from "../../CartesianPlane/viewport.ts"
 import type { PlaneSceneInput } from "../planeScene.ts"
 
 import { DEFAULT_PARAMS } from "../math/form.ts"
+import { valueDecimals } from "../model/selectors.ts"
 import { buildPlaneScene } from "../planeScene.ts"
 import {
   AT_REST,
@@ -43,7 +44,7 @@ const BASE: PlaneSceneInput = {
   handleLit: null,
   handleHeld: null,
   pWas: null,
-  fine: [],
+  decimals: valueDecimals(DEFAULT_PARAMS, []),
 }
 
 /** R2's plane as it reports itself: 936 × 792 at 100 %. */
@@ -201,6 +202,27 @@ describe("motionScene and the layers", () => {
     const p = mid.points[0]
     expect(p?.x).toBe(2)
     expect(p?.y).toBeCloseTo(mid.curves[1]?.fn(2) ?? Number.NaN, 12)
+  })
+
+  it("prints a springing value at the decimals of where it lands (the user's ruling)", () => {
+    const plateAt = (to: typeof FROM, t: number) => {
+      const layers: FvMotionLayers = { ...AT_REST, jump: { from: FROM, to, start: 0 } }
+      const input = { ...BASE, params: to, active: "a" as const, decimals: valueDecimals(to, []) }
+      return motionScene(input, layers, t, R2_VIEW, "full").annotations?.[0]?.plates[0]?.runs[1]?.text
+    }
+    // Reset all: a = 2 → 1 reads 2.00, 1.72, 1.38 … 1.00, two decimals all the way.
+    expect([0, 0.08, 0.16, 0.24, 0.32, 0.48, 1].map((t) => plateAt(DEFAULT_PARAMS, t))).toEqual([
+      "= 2.00",
+      "= 1.72",
+      "= 1.38",
+      "= 1.18",
+      "= 1.08",
+      "= 1.01",
+      "= 1.00",
+    ])
+    // A typed 1.035 springs at three from its first frame.
+    const typed = { ...DEFAULT_PARAMS, a: 1.035 }
+    expect([0, 0.16, 1].map((t) => plateAt(typed, t))).toEqual(["= 2.000", "= 1.404", "= 1.035"])
   })
 
   it("fades the old curve under the new one's draw-on", () => {

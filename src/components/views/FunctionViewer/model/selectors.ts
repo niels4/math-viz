@@ -1,8 +1,16 @@
 import type { NumberFieldEdit } from "#src/components/ui/NumberField.tsx"
 import type { ScrubMode } from "#src/components/ui/scrub.ts"
 
+import { storedDp } from "#src/util/format/number.ts"
+
 import { BASE_FUNCTIONS } from "../math/baseFunctions.ts"
-import { evaluate, isIdentity, TRANSFORM_PARAMS, type TransformParam } from "../math/form.ts"
+import {
+  evaluate,
+  isIdentity,
+  TRANSFORM_PARAMS,
+  type TransformParam,
+  type TransformParams,
+} from "../math/form.ts"
 import { HANDLE_PARAMS, type FvHandle, type FvPart, type FvState } from "./state.ts"
 
 /** The transformed curve at x: a · g((x − h) / b) + k. */
@@ -87,8 +95,26 @@ export const paramsOf = (part: FvPart): readonly TransformParam[] =>
 export const draggedParams = (state: FvState): readonly TransformParam[] =>
   state.drag === null ? [] : paramsOf(state.drag.part)
 
+const NONE_HELD: readonly TransformParam[] = []
+
 /** The values a drag holds at 3 decimals (FvDrag › fine): every place that prints them holds them too. */
-export const fineParams = (state: FvState): readonly TransformParam[] => state.drag?.fine ?? []
+export const fineParams = (state: FvState): readonly TransformParam[] => state.drag?.fine ?? NONE_HELD
+
+/**
+ * The decimals each value prints at (number.ts › storedDp): its stored
+ * value's, 3 while a drag holds it fine. The plane's frames print a
+ * springing value (FV 05's jumps) at the decimals of where it lands, so a
+ * plate's decimal point holds still while the value springs.
+ */
+export const valueDecimals = (
+  params: TransformParams,
+  fine: readonly TransformParam[],
+): Readonly<Record<TransformParam, number>> => ({
+  a: storedDp(params.a, fine.includes("a")),
+  b: storedDp(params.b, fine.includes("b")),
+  h: storedDp(params.h, fine.includes("h")),
+  k: storedDp(params.k, fine.includes("k")),
+})
 
 /**
  * What a part draws of its own state: the pointer on it, lit as a partner
