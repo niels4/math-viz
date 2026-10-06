@@ -351,3 +351,56 @@ describe("P off the view (FV 01 › Ranges)", () => {
     ).toBe("below")
   })
 })
+
+describe("explainers (D12)", () => {
+  const open = (param: "a" | "k" | "b" | "h", by: "hover" | "tap" | "key"): FvAction => ({
+    type: "explain",
+    param,
+    by,
+    open: true,
+  })
+
+  it("opens one at a time, and a close ends only what the same means opened", () => {
+    expect(run(open("a", "hover")).explainer).toEqual({ param: "a", by: "hover" })
+    expect(run(open("a", "hover"), open("k", "key")).explainer).toEqual({ param: "k", by: "key" })
+    // Leaving the chip doesn't close what ? opened.
+    expect(
+      run(open("a", "key"), { type: "explain", param: "a", by: "hover", open: false }).explainer,
+    ).toEqual({
+      param: "a",
+      by: "key",
+    })
+    expect(
+      run(open("a", "hover"), { type: "explain", param: "a", by: "hover", open: false }).explainer,
+    ).toBeNull()
+    // A close for another parameter changes nothing.
+    expect(
+      run(open("a", "hover"), { type: "explain", param: "k", by: "hover", open: false }).explainer,
+    ).toEqual({
+      param: "a",
+      by: "hover",
+    })
+  })
+
+  it("toggles from a tap or ?, whatever opened it", () => {
+    const toggle = (by: "tap" | "key"): FvAction => ({ type: "explain", param: "b", by, open: "toggle" })
+    expect(run(toggle("tap")).explainer).toEqual({ param: "b", by: "tap" })
+    expect(run(toggle("tap"), toggle("tap")).explainer).toBeNull()
+    expect(run(open("b", "hover"), toggle("key")).explainer).toBeNull()
+  })
+
+  it("closes on Esc, and when the focus leaves the control whose ? opened it", () => {
+    expect(run(open("h", "tap"), { type: "escape" }).explainer).toBeNull()
+    const focused: FvAction = { type: "focus", part: "h", on: true }
+    const blurred: FvAction = { type: "focus", part: "h", on: false }
+    expect(run(focused, open("h", "key"), blurred).explainer).toBeNull()
+    expect(run(focused, open("h", "hover"), blurred).explainer).toEqual({ param: "h", by: "hover" })
+  })
+
+  it("lights its value (R7: its terms light), after a field and a drag, before hover and focus", () => {
+    expect(active(run(open("a", "tap")))).toBe("a")
+    expect(active(run(open("a", "tap"), { type: "hover", part: "k", on: true }))).toBe("a")
+    expect(active(run(open("a", "tap"), { type: "drag", part: "k", mode: "coarse" }))).toBe("k")
+    expect(partUi(run(open("a", "tap")), "a").lit).toBe(true)
+  })
+})

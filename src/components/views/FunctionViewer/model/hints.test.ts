@@ -116,4 +116,10 @@ describe("hint contexts (FV 01 › Hint contexts, Components › hint-bar-fv)", 
       "Stretching sets a (height) and b (width) · Shift locks one of them",
     )
   })
+
+  it("speaks about an open explainer's control, wherever the pointer is (R7)", () => {
+    expect(
+      read(hintOf({ type: "explain", param: "a", by: "tap", open: true }, { type: "planePointer", x: 1 })),
+    ).toBe("Drag to change a · Shift fine · Ctrl quarter steps · double-click: back to 1")
+  })
 })

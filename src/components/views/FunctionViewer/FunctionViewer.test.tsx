@@ -542,4 +542,82 @@ describe("FunctionViewer", () => {
     expect(badge()).toBeNull()
     expect(pointOf("p")?.was).toBeUndefined()
   })
+
+  describe("explainers (D10, D12; R7)", () => {
+    const explainer = (param: string) => document.querySelector(`[data-testid="fv-explainer-${param}"]`)
+    const pointer = (el: Element, type: string, pointerType: string) =>
+      act(() => {
+        el.dispatchEvent(new PointerEvent(type, { bubbles: true, relatedTarget: document.body, pointerType }))
+      })
+
+    it("opens after the pointer rests 400 ms on a letter chip, lights its value, and closes as it leaves", async () => {
+      const screen = await render(<FunctionViewer />)
+      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
+      const chip = byTestId(screen, "fv-param-a-chip")
+      pointer(chip, "pointerover", "mouse")
+      act(() => {
+        vi.advanceTimersByTime(399)
+      })
+      expect(explainer("a")).toBeNull()
+      act(() => {
+        vi.advanceTimersByTime(1)
+      })
+      const open = explainer("a")
+      expect(open?.getAttribute("role")).toBe("dialog")
+      expect(open?.textContent).toContain("Vertical scale")
+      expect(open?.textContent).toContain("Multiplies every height by a.")
+      // Its letter lit in the snippet and in both equation lines, its control too (R7).
+      expect(open?.querySelector("[data-lit]")?.textContent).toBe("a")
+      expect(
+        [...byTestId(screen, "fv-form").querySelectorAll("[data-lit]")].map((t) => t.textContent),
+      ).toEqual(["a"])
+      expect(byTestId(screen, "fv-param-a").hasAttribute("data-lit")).toBe(true)
+      expect(hint(screen)).toBe(
+        "Drag to change a · Shift fine · Ctrl quarter steps · double-click: back to 1",
+      )
+      pointer(chip, "pointerout", "mouse")
+      expect(explainer("a")).toBeNull()
+    })
+
+    it("opens the focused control's with ?, describes its ruler, and closes on Esc or as the focus leaves", async () => {
+      const screen = await render(<FunctionViewer />)
+      const ruler = byTestId(screen, "fv-param-k-ruler")
+      act(() => {
+        ruler.focus()
+      })
+      keydown(ruler, "?")
+      const sentence = explainer("k")?.querySelector("p")
+      expect(sentence?.textContent).toBe(
+        "Adds k to every height, so the whole curve moves up by k (down when k is negative).",
+      )
+      expect(ruler.getAttribute("aria-describedby")).toBe(sentence?.id)
+      keydown(ruler, "Escape")
+      expect(explainer("k")).toBeNull()
+      expect(ruler.hasAttribute("aria-describedby")).toBe(false)
+      keydown(ruler, "?")
+      expect(explainer("k")).not.toBeNull()
+      act(() => {
+        ruler.blur()
+      })
+      expect(explainer("k")).toBeNull()
+    })
+
+    it("toggles with a tap on the chip; a press anywhere else closes it", async () => {
+      const screen = await render(<FunctionViewer />)
+      const chip = byTestId(screen, "fv-param-h-chip")
+      const tap = () => {
+        pointer(chip, "pointerdown", "touch")
+        act(() => {
+          chip.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+        })
+      }
+      tap()
+      expect(explainer("h")?.textContent).toContain("Horizontal shift")
+      tap()
+      expect(explainer("h")).toBeNull()
+      tap()
+      pointer(document.body, "pointerdown", "touch")
+      expect(explainer("h")).toBeNull()
+    })
+  })
 })

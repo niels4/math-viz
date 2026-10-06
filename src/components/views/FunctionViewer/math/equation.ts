@@ -126,3 +126,16 @@ const plain = (tokens: readonly EquationToken[]): string =>
 /** The tokens as one line of plain text for aria labels: f(x) = 2((x + 1)/2)² + 1. */
 export const describeEquation = (tokens: readonly EquationToken[]): string =>
   plain(tokens).replace(/\s+/g, " ").trim()
+
+/**
+ * A parameter's place in the form as an explainer prints it ("a · f(x)",
+ * "f(x − h)"): its letter a term, so it lights as the panel's do, the
+ * rest text.
+ */
+export const snippetTokens = (param: TransformParam, snippet: string): EquationToken[] =>
+  snippet
+    .split(param)
+    .flatMap((part, i): EquationToken[] => [
+      ...(i > 0 ? [{ kind: "param", param, text: param, ghost: false } as const] : []),
+      ...(part === "" ? [] : [text(part)]),
+    ])

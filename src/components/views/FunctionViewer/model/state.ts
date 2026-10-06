@@ -45,6 +45,17 @@ export type FvPBefore = { x: number; y: number; moved: boolean }
 /** A value being typed: the refusal of its text, if any, and the value Esc puts back. */
 export type FvEdit = { part: FvPart; error: string | null; base: number }
 
+/**
+ * How an explainer was opened (D12), which says what closes it: the
+ * pointer resting on the letter chip (leaving it), a tap on the chip
+ * (another tap, or one elsewhere), or ? on the focused control (the focus
+ * leaving it). Esc closes any.
+ */
+export type FvExplainBy = "hover" | "tap" | "key"
+
+/** The open explainer (help-popover-fv): one at a time. */
+export type FvExplainer = { param: TransformParam; by: FvExplainBy }
+
 export type FvState = {
   /** The base function g. */
   fn: BaseFunctionSlug
@@ -72,6 +83,7 @@ export type FvState = {
   edit: FvEdit | null
   /** Set while a transform is dragged and for a moment after (the view clears it). */
   pBefore: FvPBefore | null
+  explainer: FvExplainer | null
 }
 
 export const initialFvState: FvState = {
@@ -89,6 +101,7 @@ export const initialFvState: FvState = {
   drag: null,
   edit: null,
   pBefore: null,
+  explainer: null,
 }
 
 /** What a panel part reports about itself; the view turns each report into its part's action. */

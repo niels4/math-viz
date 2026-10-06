@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer } from "react"
+import { useEffect, useId, useMemo, useReducer, useRef } from "react"
 
 import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
 
@@ -31,6 +31,7 @@ import { EquationCard } from "./panel/EquationCard.tsx"
 import { FunctionPicker } from "./panel/FunctionPicker.tsx"
 import { PanelSection } from "./panel/PanelSection.tsx"
 import { PCard, QCard } from "./panel/PointCards.tsx"
+import { TransformExplainer } from "./panel/TransformExplainer.tsx"
 import { TransformGrid } from "./panel/TransformGrid.tsx"
 import { useTermDrags } from "./panel/useTermDrags.ts"
 import { buildPlaneScene } from "./planeScene.ts"
@@ -44,6 +45,11 @@ const P_GHOST_LINGER_MS = 600
 const PLANE_MARKS: readonly string[] = ["p", "anchor", "stretch"] satisfies FvPlaneMark[]
 
 const isPlaneMark = (id: string | null): id is FvPlaneMark => id !== null && PLANE_MARKS.includes(id)
+
+const boxOf = (el: Element): { x: number; y: number; w: number; h: number } => {
+  const r = el.getBoundingClientRect()
+  return { x: r.left, y: r.top, w: r.width, h: r.height }
+}
 
 export function FunctionViewer() {
   const [state, dispatch] = useReducer(fvReducer, initialFvState)
@@ -85,6 +91,42 @@ export function FunctionViewer() {
     onDrag: (param, mode) => dispatch({ type: "drag", part: param, mode }),
     onReset: (param) => dispatch({ type: "resetParam", param }),
   })
+  // The open explainer (D12): Esc closes it (unless a field took the Esc),
+  // and one a tap opened closes on a press anywhere but its chip and itself.
+  const panelRef = useRef<HTMLElement | null>(null)
+  const explainerId = useId()
+  const { explainer } = state
+  useEffect(() => {
+    if (explainer === null) {
+      return
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !event.defaultPrevented) {
+        dispatch({ type: "escape" })
+      }
+    }
+    const onPress = (event: PointerEvent) => {
+      const target = event.target instanceof Element ? event.target : null
+      if (target?.closest(`[data-chip="${explainer.param}"], [data-testid^="fv-explainer-"]`) == null) {
+        dispatch({ type: "explain", param: explainer.param, by: "tap", open: false })
+      }
+    }
+    addEventListener("keydown", onKey)
+    if (explainer.by === "tap") {
+      document.addEventListener("pointerdown", onPress)
+    }
+    return () => {
+      removeEventListener("keydown", onKey)
+      document.removeEventListener("pointerdown", onPress)
+    }
+  }, [explainer])
+  const locateChip = () => {
+    const chip =
+      explainer === null ? null : panelRef.current?.querySelector(`[data-chip="${explainer.param}"]`)
+    return chip == null || panelRef.current === null
+      ? null
+      : { chip: boxOf(chip), panel: boxOf(panelRef.current) }
+  }
   // Each panel part reports its hover, focus, drag and edit as its own actions.
   const eventsOf = (part: FvPart): PartEvents => ({
     onHover: (on) => dispatch({ type: "hover", part, on }),
@@ -106,7 +148,7 @@ export function FunctionViewer() {
           </>
         }
       />
-      <aside className={style.panel}>
+      <aside ref={panelRef} className={style.panel}>
         <PanelSection {...SECTIONS.function}>
           <FunctionPicker value={fn} onChange={(next) => dispatch({ type: "setFunction", fn: next })} />
           <EquationCard
@@ -128,6 +170,8 @@ export function FunctionViewer() {
           onReset={(param) => dispatch({ type: "resetParam", param })}
           onResetAll={() => dispatch({ type: "resetAll" })}
           onFlip={(param) => dispatch({ type: "flip", param })}
+          onExplain={(param, by, open) => dispatch({ type: "explain", param, by, open })}
+          explaining={explainer === null ? null : { param: explainer.param, id: explainerId }}
         />
         <PanelSection {...SECTIONS.points}>
           <PCard
@@ -146,6 +190,14 @@ export function FunctionViewer() {
         <HintBar className={style.hint} hint={hintFor(hintContext(state))} testId="fv-hint" />
         <div className={style.tail} />
       </aside>
+      {explainer !== null && (
+        <TransformExplainer
+          key={explainer.param}
+          param={explainer.param}
+          id={explainerId}
+          locate={locateChip}
+        />
+      )}
       <main className={style.plane}>
         <CartesianPlane
           scene={scene}

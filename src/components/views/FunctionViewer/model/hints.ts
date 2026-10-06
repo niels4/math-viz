@@ -47,9 +47,9 @@ const partContext = (state: FvState, part: FvPart | null): HintContext => {
 
 // What the hint line speaks about (FV 01 › Hint contexts; decision D8). An
 // open value field comes first: its refusal, or the typing keys. Then a
-// drag: its held modifier, or the part dragged. Then the part the pointer
-// or the focus is on, whichever moved last, else the other; idle when
-// neither is on a part.
+// drag: its held modifier, or the part dragged. Then an open explainer, as
+// its control (R7). Then the part the pointer or the focus is on, whichever
+// moved last, else the other; idle when neither is on a part.
 export const hintContext = (state: FvState): HintContext => {
   const { edit, drag } = state
   if (edit !== null) {
@@ -57,6 +57,9 @@ export const hintContext = (state: FvState): HintContext => {
   }
   if (drag !== null) {
     return drag.mode === "coarse" ? partContext(state, drag.part) : { kind: drag.mode }
+  }
+  if (state.explainer !== null) {
+    return { kind: "transform", param: state.explainer.param }
   }
   const [first, second] = state.lead === "focus" ? [state.focus, state.hover] : [state.hover, state.focus]
   return partContext(state, first ?? second)

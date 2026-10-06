@@ -5,7 +5,7 @@ import { FINE_DP, quantize, roundTo } from "#src/util/format/number.ts"
 
 import type { MathPoint } from "../../CartesianPlane/scene.ts"
 import type { PlaneView } from "../../CartesianPlane/viewport.ts"
-import type { FvHandle, FvPart, FvPlaneMark, FvState } from "./state.ts"
+import type { FvExplainBy, FvHandle, FvPart, FvPlaneMark, FvState } from "./state.ts"
 
 import { BASE_FUNCTIONS, type BaseFunctionSlug } from "../math/baseFunctions.ts"
 import {
@@ -50,6 +50,14 @@ export type FvAction =
   | { type: "dragHandle"; handle: FvHandle; to: MathPoint }
   /** The moment after a drag is over: P's ghost and "moved" go (FV 04: 600 ms after release). */
   | { type: "clearPBefore" }
+  /**
+   * A parameter's explainer opened or closed by one means (D12), or toggled.
+   * A close only ends what the same means opened: leaving the chip doesn't
+   * close what ? opened.
+   */
+  | { type: "explain"; param: TransformParam; by: FvExplainBy; open: boolean | "toggle" }
+  /** Esc anywhere (FV 07): closes the explainer. */
+  | { type: "escape" }
 
 const withParam = (state: FvState, param: TransformParam, value: number): FvState =>
   state.params[param] === value ? state : { ...state, params: { ...state.params, [param]: value } }
@@ -175,8 +183,25 @@ function transition(state: FvState, action: FvAction): FvState {
       return action.on
         ? patch(state, { focus: action.part, lead: "focus" })
         : state.focus === action.part
-          ? patch(state, { focus: null })
+          ? patch(state, {
+              focus: null,
+              // The focus leaving a control ends the explainer its ? opened.
+              ...(state.explainer?.by === "key" &&
+                state.explainer.param === action.part && { explainer: null }),
+            })
           : state
+    case "explain": {
+      const { param, by } = action
+      const current = state.explainer
+      const isOpen = current?.param === param
+      const open = action.open === "toggle" ? !isOpen : action.open
+      if (open) {
+        return current?.param === param && current.by === by ? state : { ...state, explainer: { param, by } }
+      }
+      return isOpen && (action.open === "toggle" || current.by === by) ? { ...state, explainer: null } : state
+    }
+    case "escape":
+      return state.explainer === null ? state : { ...state, explainer: null }
     case "drag": {
       if (action.mode === null) {
         return state.drag?.part === action.part ? patch(state, { drag: null }) : state

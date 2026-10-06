@@ -31,8 +31,9 @@ export const pLit = (state: FvState): boolean =>
  * The value that lights its partners (FV 04 › Partner map): a parameter,
  * from its control or its term, or a handle, which drives two. One at a
  * time, in the hint's precedence: an open field (unless its text is
- * refused), then a drag, then the part the pointer or the focus is on,
- * whichever moved last, else the other.
+ * refused), then a drag, then an open explainer (R7: its terms light),
+ * then the part the pointer or the focus is on, whichever moved last, else
+ * the other.
  */
 export type FvActive = TransformParam | FvHandle | null
 
@@ -64,6 +65,9 @@ export const active = (state: FvState): FvActive => {
   }
   if (drag !== null) {
     return activeOf(state, drag.part)
+  }
+  if (state.explainer !== null) {
+    return state.explainer.param
   }
   const [first, second] = state.lead === "focus" ? [state.focus, state.hover] : [state.hover, state.focus]
   return activeOf(state, first ?? second)

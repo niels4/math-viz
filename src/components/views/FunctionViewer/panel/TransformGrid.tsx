@@ -4,7 +4,7 @@ import { ResetIcon } from "#src/components/ui/icons.tsx"
 import { MathText } from "#src/components/ui/MathText.tsx"
 
 import type { PartUi } from "../model/selectors.ts"
-import type { PartEvents } from "../model/state.ts"
+import type { FvExplainBy, PartEvents } from "../model/state.ts"
 
 import { GROUP_MATH, RESET_ALL, SECTIONS, TRANSFORM_GROUPS } from "../copy.ts"
 import { isIdentity, isScale, type TransformParam, type TransformParams } from "../math/form.ts"
@@ -25,6 +25,8 @@ export function TransformGrid({
   onReset,
   onResetAll,
   onFlip,
+  onExplain,
+  explaining,
 }: {
   params: TransformParams
   uiOf: (param: TransformParam) => PartUi
@@ -33,6 +35,10 @@ export function TransformGrid({
   onReset: (param: TransformParam) => void
   onResetAll: () => void
   onFlip: (param: "a" | "b") => void
+  /** A control's letter chip or ? asks its explainer open or closed (D12). */
+  onExplain: (param: TransformParam, by: FvExplainBy, open: boolean | "toggle") => void
+  /** The open explainer, by parameter, and its id. */
+  explaining: { param: TransformParam; id: string } | null
 }) {
   const id = useId()
   const controls = useRef(new Map<TransformParam, TransformControlHandle>())
@@ -87,6 +93,8 @@ export function TransformGrid({
                   events={eventsOf(param)}
                   onChange={(value) => onChange(param, value)}
                   onReset={() => onReset(param)}
+                  onExplain={(by, open) => onExplain(param, by, open)}
+                  explainerId={explaining?.param === param ? explaining.id : undefined}
                   {...(isScale(param) ? { onFlip: () => onFlip(param) } : {})}
                 />
               ))}

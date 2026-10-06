@@ -94,6 +94,19 @@ export const PLANE_KEY_HELP = "[ and ] move P"
 export const P_SCRUBBER_LABEL = "x of P"
 export const P_FIELD_LABEL = "x of P, value"
 
+/**
+ * A ruler's gestures after their lead: Shift fine, Ctrl snaps (a scale to
+ * quarters, plan § 1.8 call 2), a double-click resets to the parameter's own
+ * default (call 1: R7's hint says "back to 0" for a too).
+ */
+const gestures = (lead: readonly Phrase[], scale: boolean, reset: number): Phrase[] => [
+  ...lead,
+  { key: "Shift" },
+  { text: "fine ·" },
+  { key: "Ctrl" },
+  { text: `${scale ? "quarter" : "whole"} steps · double-click: back to ${formatNumber(reset)}` },
+]
+
 // The hint line (hint-bar-fv; decision D8). model/hints.ts picks the
 // context; FV 01 › Behaviour rules says what each one covers.
 export const HINTS = {
@@ -102,20 +115,9 @@ export const HINTS = {
     { text: "point at the plane to read" },
     { math: "f(x)" },
   ],
-  /**
-   * A control hovered, focused or dragged: its letter and its own reset
-   * value (R7's copy says "back to 0" for a too; plan § 1.8 call 1), and
-   * the snap a scale gets, quarters (call 2).
-   */
-  transform: (param: TransformParam, scale: boolean, reset: number): Phrase[] => [
-    { text: "Drag to change" },
-    { math: param },
-    { text: "·" },
-    { key: "Shift" },
-    { text: "fine ·" },
-    { key: "Ctrl" },
-    { text: `${scale ? "quarter" : "whole"} steps · double-click: back to ${formatNumber(reset)}` },
-  ],
+  /** A control hovered, focused or dragged, or its explainer open: its letter and gestures. */
+  transform: (param: TransformParam, scale: boolean, reset: number): Phrase[] =>
+    gestures([{ text: "Drag to change" }, { math: param }, { text: "·" }], scale, reset),
   fine: [{ key: "Shift" }, { text: "Fine: a tenth of the speed, steps of 0.001" }],
   snap: [{ key: "Ctrl" }, { text: "Snapping to whole numbers (scales: quarters)" }],
   edit: [
@@ -167,3 +169,33 @@ export const HINTS = {
     { text: "locks one of them" },
   ],
 } as const
+
+// The explainers (help-popover-fv; decisions D10, D12): what each transform
+// does, in one sentence, set as the boards set it (plain words; the no-break
+// spaces keep "x − 2" on one line), and its place in the form, its letter
+// lit. The before-and-after picture is panel/explainerPlots.ts.
+export const EXPLAINERS: Readonly<Record<TransformParam, { say: string; snippet: string }>> = {
+  a: {
+    say: "Multiplies every height by a. a = 2 makes the curve twice as tall; between 0 and 1 it flattens; below 0 it flips upside down.",
+    snippet: "a · f(x)",
+  },
+  k: {
+    say: "Adds k to every height, so the whole curve moves up by k (down when k is negative).",
+    snippet: "f(x) + k",
+  },
+  b: {
+    say: "Divides x by b before f sees it. b = 2 makes the curve twice as wide; between 0 and 1 it narrows.",
+    snippet: "f(x / b)",
+  },
+  h: {
+    say: "Subtracts h from x before f sees it, so the curve moves right by h. Inside f the sign looks backwards: x\u00a0−\u00a02 moves right.",
+    snippet: "f(x − h)",
+  },
+}
+
+/** The caps label before an explainer's snippet. */
+export const IN_THE_EQUATION = "In the equation"
+
+/** An explainer's gestures: the ruler's, as the hint says them. */
+export const explainerGestures = (scale: boolean, reset: number): Phrase[] =>
+  gestures([{ text: "Drag the ruler ·" }], scale, reset)
