@@ -97,4 +97,23 @@ describe("hint contexts (FV 01 › Hint contexts, Components › hint-bar-fv)", 
       param: "k",
     })
   })
+
+  it("speaks about a term as its control does: it drags the same way (D13)", () => {
+    expect(read(hintOf({ type: "eqPointer", over: "k" }))).toBe(
+      "Drag to change k · Shift fine · Ctrl whole steps · double-click: back to 0",
+    )
+    expect(read(hintOf({ type: "eqPointer", over: null }))).toBe(read(hintOf()))
+  })
+
+  it("names the handles under the pointer, and what a dragged one sets (FV 11, R6)", () => {
+    expect(read(hintOf({ type: "planePointer", x: 0, over: "stretch" }))).toBe(
+      "Drag the diamond to move the curve · the square to stretch it",
+    )
+    expect(read(hintOf({ type: "drag", part: "anchor", mode: "coarse" }))).toBe(
+      "Moving the anchor sets h and k · Shift locks one axis",
+    )
+    expect(read(hintOf({ type: "drag", part: "stretch", mode: "coarse" }))).toBe(
+      "Stretching sets a (height) and b (width) · Shift locks one of them",
+    )
+  })
 })

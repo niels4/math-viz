@@ -39,6 +39,7 @@ export function ScrubStrip({
   label,
   onEditRequest,
   onModeChange,
+  held = null,
   hot = false,
   dimmed = false,
   testId,
@@ -55,6 +56,8 @@ export function ScrubStrip({
   onEditRequest?: () => void
   /** The drag's mode as it starts and changes, null when it ends. */
   onModeChange?: (mode: ScrubMode | null) => void
+  /** Held from elsewhere (the owner's other grips on the same value): drawn as dragged in that mode. */
+  held?: ScrubMode | null
   /** Lit as on hover, when the owner's whole control is hovered. */
   hot?: boolean
   /** Stepped back while the owner's value is typed. */
@@ -130,8 +133,9 @@ export function ScrubStrip({
 
   const marks = width > 0 ? rulerMarks(kind, value, width) : null
   const c = width / 2
+  const shownMode = mode ?? held
   // The index line thickens while the tape is held.
-  const indexWidth = mode === null ? 2 : 3
+  const indexWidth = shownMode === null ? 2 : 3
   return (
     <div
       ref={stripRef}
@@ -141,7 +145,7 @@ export function ScrubStrip({
       aria-valuenow={kind === "multiplicative" ? Math.abs(value) : value}
       aria-valuetext={formatStored(value)}
       data-testid={testId}
-      data-mode={mode ?? undefined}
+      data-mode={shownMode ?? undefined}
       data-hot={hot || undefined}
       data-dimmed={dimmed || undefined}
       className={stripStyles.strip}

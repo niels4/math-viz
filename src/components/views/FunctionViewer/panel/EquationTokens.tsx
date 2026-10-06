@@ -1,8 +1,9 @@
-import type { CSSProperties } from "react"
+import type { CSSProperties, HTMLAttributes, ReactNode } from "react"
 
 import { MathText } from "#src/components/ui/MathText.tsx"
 
 import type { EquationToken } from "../math/equation.ts"
+import type { TransformParam } from "../math/form.ts"
 
 import style from "./EquationTokens.module.css"
 
@@ -13,6 +14,16 @@ const SPACE_EM = 0.3
 const GAP_EM = 0.22
 
 const roundPx = (em: number) => `round(nearest, ${em}em, 1px)`
+
+/** What the owner adds to the terms: which are lit, what a term does, and what hangs under one. */
+export type TermOptions = {
+  /** The parameters lit as partners of the active value (FV 04): their terms take the plate. */
+  lit?: readonly TransformParam[]
+  /** Attributes and handlers for a parameter's term (a drag, a double-click). */
+  bindTerm?: (param: TransformParam) => HTMLAttributes<HTMLSpanElement>
+  /** Under a parameter's term, e.g. its tip (term-tip-fv). */
+  renderUnder?: (param: TransformParam) => ReactNode
+}
 
 function Text({ text }: { text: string }) {
   const core = text.trim()
@@ -32,25 +43,32 @@ function Text({ text }: { text: string }) {
   )
 }
 
-function Token({ token }: { token: EquationToken }) {
+function Token({ token, options }: { token: EquationToken; options: TermOptions }) {
   switch (token.kind) {
     case "text":
       return <Text text={token.text} />
     case "param":
       return (
-        <span className={style.term} data-param={token.param} data-ghost={token.ghost ? "" : undefined}>
+        <span
+          className={style.term}
+          {...options.bindTerm?.(token.param)}
+          data-param={token.param}
+          data-ghost={token.ghost ? "" : undefined}
+          data-lit={options.lit?.includes(token.param) === true ? "" : undefined}
+        >
           <MathText text={token.text} />
+          {options.renderUnder?.(token.param)}
         </span>
       )
     case "frac":
       return (
         <span className={style.frac}>
           <span className={style.part}>
-            <EquationTokens tokens={token.num} />
+            <EquationTokens tokens={token.num} {...options} />
           </span>
           <span className={style.bar} />
           <span className={style.part}>
-            <EquationTokens tokens={token.den} />
+            <EquationTokens tokens={token.den} {...options} />
           </span>
         </span>
       )
@@ -64,9 +82,9 @@ function Token({ token }: { token: EquationToken }) {
 // Sets equation tokens (math/equation.ts) as maths in plain inline flow, so
 // every part shares one baseline; a fraction is a self-contained stack and
 // the parentheses grow around it. Each parameter's term is a span with
-// data-param (and data-ghost for a form slot at its default), where plates,
-// drags and tips attach. The caller sets the font, its size and the line
-// height.
-export function EquationTokens({ tokens }: { tokens: readonly EquationToken[] }) {
-  return tokens.map((token, i) => <Token key={i} token={token} />)
+// data-param (data-ghost for a form slot at its default, data-lit while its
+// value is active), where the owner binds drags and hangs tips. The caller
+// sets the font, its size and the line height.
+export function EquationTokens({ tokens, ...options }: { tokens: readonly EquationToken[] } & TermOptions) {
+  return tokens.map((token, i) => <Token key={i} token={token} options={options} />)
 }

@@ -14,6 +14,8 @@ import type { PartUi } from "../model/selectors.ts"
 import type { PartEvents } from "../model/state.ts"
 
 import {
+  MOVED_LABEL,
+  movedBy,
   OFF_VIEW_ROLES,
   P_FIELD_LABEL,
   P_NOTE,
@@ -35,6 +37,7 @@ function PointCard({
   series,
   caption,
   off,
+  badge,
   readout,
   note,
   children,
@@ -45,6 +48,8 @@ function PointCard({
   caption: string
   /** f(P) above or below the view: a ▲ ▼ mark and the caption in --foreground. */
   off?: "above" | "below" | null
+  /** Before the readout, e.g. P's "moved +1". */
+  badge?: ReactNode
   readout: ReactNode
   note: readonly Phrase[]
   children?: ReactNode
@@ -68,6 +73,7 @@ function PointCard({
             {caption}
           </span>
         </span>
+        {badge}
         {readout}
       </div>
       {children}
@@ -82,11 +88,13 @@ function PointCard({
 // opens it, Enter applies, Esc restores), and the scrubber over the plane's
 // visible x-range. The card lights the hint while hovered or focused and
 // takes a 2 px --primary border while P is dragged (Components › drag).
+// While a transform's drag moves P, a badge says how far (FV 04, R5).
 export function PCard({
   x,
   y,
   extent,
   off,
+  moved,
   ui,
   events,
   onChange,
@@ -95,6 +103,8 @@ export function PCard({
   y: number
   extent: Pick<Extent, "minX" | "maxX"> | null
   off: "above" | "below" | null
+  /** How far a transform's drag has moved f(P), while it shows; null otherwise. */
+  moved: number | null
   ui: PartUi
   events: PartEvents
   onChange: (next: number) => void
@@ -120,6 +130,14 @@ export function PCard({
           events.onFocus(false)
         }
       }}
+      badge={
+        moved === null ? null : (
+          <span className={style.moved} data-testid="fv-p-moved">
+            <span className={style.moved_label}>{MOVED_LABEL}</span>
+            <span className={style.moved_value}>{movedBy(moved)}</span>
+          </span>
+        )
+      }
       readout={
         <PointReadout
           testId="fv-p-readout"

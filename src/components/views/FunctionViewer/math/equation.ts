@@ -28,17 +28,20 @@ const text = (s: string): EquationToken => ({ kind: "text", text: s })
 
 const EXPONENT: Partial<Record<BaseFunctionSlug, string>> = { x2: "2", x3: "3" }
 
-// The sign rule: h > 0 prints x − h, h < 0 prints x + |h|; k likewise after the body.
+// The sign rule: h > 0 prints x − h, h < 0 prints x + |h|; k likewise after
+// the body. A kept term at 0 takes the form's own operator: x − 0, + 0.
 const signed = (v: number, positive: string, negative: string): string =>
-  `${v > 0 ? positive : negative} ${formatStored(Math.abs(v))}`
+  `${v >= 0 ? positive : negative} ${formatStored(Math.abs(v))}`
 
 export function equationTokens(
   fn: BaseFunctionSlug,
   params: TransformParams,
   mode: EquationMode,
+  /** The live line keeps these terms at their defaults ("+ 0"): they are being dragged. */
+  keep: readonly TransformParam[] = [],
 ): EquationToken[] {
   const form = mode === "form"
-  const shown = (p: TransformParam) => form || !isAtDefault(params, p)
+  const shown = (p: TransformParam) => form || !isAtDefault(params, p) || keep.includes(p)
   const term = (p: TransformParam, s: string): EquationToken => ({
     kind: "param",
     param: p,

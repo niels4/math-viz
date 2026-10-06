@@ -4,7 +4,20 @@ import type { FvState } from "./state.ts"
 
 import { DEFAULT_PARAMS } from "../math/form.ts"
 import { fvReducer, type FvAction } from "./reducer.ts"
-import { curveAt, ghostVisible, isTransformed, partUi, pLit, pOffView } from "./selectors.ts"
+import {
+  active,
+  activeParams,
+  curveAt,
+  draggedParams,
+  ghostVisible,
+  handleHeld,
+  handleLit,
+  isTransformed,
+  partUi,
+  pLit,
+  pMoved,
+  pOffView,
+} from "./selectors.ts"
 import { DEFAULT_GHOST_ON, DEFAULT_P_X, initialFvState } from "./state.ts"
 
 const run = (...actions: FvAction[]): FvState => actions.reduce(fvReducer, initialFvState)
@@ -193,9 +206,131 @@ describe("parts: hover, focus, drag, edit", () => {
       { type: "drag", part: "p", mode: "coarse" },
       { type: "edit", part: "k", edit: { error: null, base: 0 } },
     )
-    expect(partUi(state, "a")).toEqual({ hovered: true, mode: null, edit: null })
-    expect(partUi(state, "p")).toEqual({ hovered: false, mode: "coarse", edit: null })
-    expect(partUi(state, "k")).toEqual({ hovered: false, mode: null, edit: { error: null, base: 0 } })
+    // The open field leads (FV 04: one active value at a time): only k is lit.
+    expect(partUi(state, "a")).toEqual({ hovered: true, lit: false, mode: null, edit: null })
+    expect(partUi(state, "p")).toEqual({ hovered: false, lit: false, mode: "coarse", edit: null })
+    expect(partUi(state, "k")).toEqual({
+      hovered: false,
+      lit: true,
+      mode: null,
+      edit: { error: null, base: 0 },
+    })
+  })
+})
+
+describe("the active value and its partners (FV 04 › Partner map)", () => {
+  it("is the control under the pointer or holding the focus, whichever moved last", () => {
+    expect(active(initialFvState)).toBeNull()
+    expect(active(run({ type: "hover", part: "a", on: true }))).toBe("a")
+    const both = run({ type: "hover", part: "a", on: true }, { type: "focus", part: "k", on: true })
+    expect(active(both)).toBe("k")
+    expect(activeParams(both)).toEqual(["k"])
+    // The pointer moving onto the empty plane hands the highlight over: nothing is lit.
+    expect(active(fvReducer(both, { type: "planePointer", x: 1 }))).toBeNull()
+  })
+
+  it("lights a term's parameter while the pointer is on it, and lets go when it leaves the card", () => {
+    const over = run({ type: "eqPointer", over: "h" })
+    expect(over.hover).toBe("eq")
+    expect(active(over)).toBe("h")
+    expect(active(fvReducer(over, { type: "eqPointer", over: null }))).toBeNull()
+    const left = fvReducer(over, { type: "hover", part: "eq", on: false })
+    expect([left.hover, left.eqOver]).toEqual([null, null])
+  })
+
+  it("lights both of a handle's values while the pointer is on it or drags it (FV 11)", () => {
+    const over = run({ type: "planePointer", x: 0, over: "anchor" })
+    expect(active(over)).toBe("anchor")
+    expect(activeParams(over)).toEqual(["h", "k"])
+    expect(over.qX).toBeNull()
+    expect([handleLit(over), handleHeld(over)]).toEqual(["anchor", null])
+    const held = fvReducer(over, { type: "drag", part: "stretch", mode: "coarse" })
+    expect(activeParams(held)).toEqual(["a", "b"])
+    expect([handleLit(held), handleHeld(held)]).toEqual(["stretch", "stretch"])
+    // The rulers of a dragged handle's values show its drag.
+    expect(partUi(held, "a").mode).toBe("coarse")
+    expect(partUi(held, "h").mode).toBeNull()
+    expect(draggedParams(held)).toEqual(["a", "b"])
+  })
+
+  it("lights nothing while a field holds refused text", () => {
+    const refused = run(
+      { type: "hover", part: "a", on: true },
+      { type: "edit", part: "b", edit: { error: "zero-scale", base: 1 } },
+    )
+    expect(active(refused)).toBeNull()
+  })
+})
+
+describe("handle drags (D21, D22)", () => {
+  it("moves the curve with the anchor: R3 to R6", () => {
+    const state = run(
+      ...R3,
+      { type: "drag", part: "anchor", mode: "coarse" },
+      {
+        type: "dragHandle",
+        handle: "anchor",
+        to: { x: 1.5, y: 1 },
+      },
+    )
+    expect(state.params).toEqual({ a: 2, b: 1, h: 1.5, k: 1 })
+  })
+
+  it("stretches with the grip and flips below the anchor", () => {
+    const state = run(...R3, { type: "dragHandle", handle: "stretch", to: { x: 0.5, y: -1 } })
+    expect(state.params).toEqual({ a: -2, b: 1.5, h: -1, k: 1 })
+  })
+})
+
+describe("P's ghost while a transform is dragged (FV 04 › Rules)", () => {
+  // R5: k's ruler dragged from 0 to 1 with P at 0.5.
+  const R5_START: FvAction[] = [
+    { type: "setParam", param: "a", value: 2 },
+    { type: "setParam", param: "h", value: -1 },
+    { type: "setP", x: 0.5 },
+    { type: "drag", part: "k", mode: "coarse" },
+  ]
+
+  it("takes P where the drag found it, and says how far the drag moved it (R5: moved +1)", () => {
+    const start = run(...R5_START)
+    expect(start.pBefore).toEqual({ x: 0.5, y: 4.5, moved: false })
+    expect(pMoved(start)).toBeNull()
+    const moved = fvReducer(start, { type: "setParam", param: "k", value: 1 })
+    expect(pMoved(moved)).toBe(1)
+    // Back where it started, it still says so: "moved 0".
+    expect(pMoved(fvReducer(moved, { type: "setParam", param: "k", value: 0 }))).toBe(0)
+  })
+
+  it("keeps the ghost after the release until it is cleared, never mid-drag", () => {
+    const moved = run(...R5_START, { type: "setParam", param: "k", value: 1 })
+    expect(fvReducer(moved, { type: "clearPBefore" })).toBe(moved)
+    const released = fvReducer(moved, { type: "drag", part: "k", mode: null })
+    expect(pMoved(released)).toBe(1)
+    expect(fvReducer(released, { type: "clearPBefore" }).pBefore).toBeNull()
+  })
+
+  it("starts over on the next drag, and goes with any change that isn't a drag", () => {
+    const released = run(
+      ...R5_START,
+      { type: "setParam", param: "k", value: 1 },
+      { type: "drag", part: "k", mode: null },
+    )
+    expect(run(...R5_START).pBefore?.y).toBe(4.5)
+    expect(fvReducer(released, { type: "drag", part: "a", mode: "fine" }).pBefore).toEqual({
+      x: 0.5,
+      y: 5.5,
+      moved: false,
+    })
+    expect(fvReducer(released, { type: "resetAll" }).pBefore).toBeNull()
+    expect(fvReducer(released, { type: "setP", x: 1 }).pBefore).toBeNull()
+    // A mode change mid-drag keeps it.
+    const fine = run(...R5_START, { type: "drag", part: "k", mode: "fine" })
+    expect(fine.pBefore).toEqual({ x: 0.5, y: 4.5, moved: false })
+  })
+
+  it("takes none for P's own drag or a hover", () => {
+    expect(run({ type: "drag", part: "p", mode: "coarse" }).pBefore).toBeNull()
+    expect(run({ type: "hover", part: "k", on: true }).pBefore).toBeNull()
   })
 })
 

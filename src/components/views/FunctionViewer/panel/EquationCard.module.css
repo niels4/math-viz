@@ -71,3 +71,32 @@ its default never moves the line or the panel below it. */
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* A term drags like its ruler (D13), selecting no text. */
+.card [data-param] {
+  position: relative;
+  cursor: ew-resize;
+  touch-action: none;
+  user-select: none;
+}
+
+/* Lit, its value active (FV 04; fvTerm): --primary at 26 % with a 2 px
+--primary underline. Figma grows the live term by the underline (38 px at
+28 px); here the plate reaches 1 px past the term above and below, so the
+line never moves. */
+.line [data-lit] {
+  background: color-mix(in oklch, var(--primary) 26%, transparent);
+  box-shadow:
+    0 -1px 0 0 color-mix(in oklch, var(--primary) 26%, transparent),
+    0 1px 0 0 var(--primary),
+    inset 0 -1px 0 0 var(--primary);
+}
+
+/* The form slot already keeps room for its outline: the plate fills that
+room, the outline gives way, the letter turns --foreground. */
+.form [data-lit] {
+  color: var(--foreground);
+  background: color-mix(in oklch, var(--primary) 26%, transparent);
+  border-color: transparent;
+  box-shadow: inset 0 -2px 0 0 var(--primary);
+}

@@ -80,6 +80,38 @@ the view. Figma's box ends at the last letter; CSS tracks after it too. */
   color: var(--warning);
 }
 
+/* "moved +1" while a transform's drag moves P (FV 04; R5's badge): --primary
+at 26 % inside a 1 px --primary edge, radius 6, padding 2 8, 6 between
+"moved" (Work Sans 600 13) and how far (the readout font, 500 14), 12 px
+before the readout. Figma counts the edge in the layout: 84 × 24 for +1. */
+.moved {
+  display: flex;
+  flex: none;
+  gap: 6px;
+  align-items: center;
+  height: 24px;
+  margin-inline-end: 4px;
+  padding: 2px 8px;
+  color: var(--foreground);
+  white-space: nowrap;
+  background: color-mix(in oklch, var(--primary) 26%, transparent);
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+}
+
+.moved_label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 15px;
+}
+
+.moved_value {
+  font-family: var(--sig-readout-font);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
 /* P's x in the readout is its value field: bare readout text at rest, boxed
 while typed (NumberField's edit and error states). */
 .x_field {

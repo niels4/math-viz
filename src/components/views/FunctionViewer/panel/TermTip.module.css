@@ -1,0 +1,50 @@
+/* term-tip-fv (Components): a 12 × 6 caret over a body padded 4 8, 6
+between runs, radius 6, all --foreground with --background text. It hangs
+4 px under its term, centred, above the rest of the panel. */
+.tip {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0;
+  line-height: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  transform: translateX(-50%);
+}
+
+.caret {
+  width: 12px;
+  height: 6px;
+  background: var(--foreground);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.body {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  height: 28px;
+  padding: 4px 8px;
+  color: var(--background);
+  background: var(--foreground);
+  border-radius: 6px;
+}
+
+/* Maths in STIX 16, its 20 px line box. */
+.math {
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+/* The name in Work Sans 600 14, its 16 px line box. */
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 16px;
+}

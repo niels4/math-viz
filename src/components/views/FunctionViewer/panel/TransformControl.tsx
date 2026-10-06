@@ -20,9 +20,12 @@ export type TransformControlHandle = { focus: () => void }
 // the scales, ↺ while the value is off its default, the value field, and the
 // jog ruler below. The ruler is the control's tab stop: Enter types into the
 // field and the focus comes back after. The control lights (chip in
-// --primary) while hovered, focused, dragged or typed into, but not on
-// refused text, as on the Components board. Its hover, drag and edit live
-// in the view's state (`ui`), which hears of them through `events`.
+// --primary, the ruler hot) while its value is the active one (FV 04): the
+// control hovered, focused, dragged or typed into (not with refused text,
+// as on the Components board), or a partner of it, its term or a handle.
+// A term's or a handle's drag shows on the ruler as its own would. Its
+// hover, drag and edit live in the view's state (`ui`), which hears of them
+// through `events`.
 export function TransformControl({
   param,
   value,
@@ -50,7 +53,7 @@ export function TransformControl({
   const fieldRef = useRef<NumberFieldHandle | null>(null)
   const controlRef = useRef<HTMLDivElement | null>(null)
   const hover = useHover(controlRef, events.onHover)
-  const { hovered, mode, edit } = ui
+  const { hovered, lit, mode, edit } = ui
   useImperativeHandle(ref, () => ({ focus: () => rulerRef.current?.focus() }), [])
 
   const changed = value !== DEFAULT_PARAMS[param]
@@ -62,7 +65,7 @@ export function TransformControl({
       ref={controlRef}
       className={style.control}
       data-testid={`fv-param-${param}`}
-      data-lit={((hovered || mode !== null || typing) && !error) || undefined}
+      data-lit={(lit && !error) || undefined}
       data-error={error || undefined}
       data-mode={mode ?? undefined}
       onPointerEnter={hover.onPointerEnter}
@@ -140,7 +143,8 @@ export function TransformControl({
         label={name}
         onEditRequest={() => fieldRef.current?.edit()}
         onModeChange={events.onDrag}
-        hot={hovered && edit === null}
+        held={mode}
+        hot={(hovered || lit) && edit === null}
         dimmed={typing}
         testId={`fv-param-${param}-ruler`}
       />

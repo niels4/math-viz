@@ -1,4 +1,4 @@
-import { useMemo, useReducer } from "react"
+import { useEffect, useMemo, useReducer } from "react"
 
 import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
 
@@ -13,27 +13,78 @@ import style from "./FunctionViewer.module.css"
 import { GhostToggle } from "./GhostToggle.tsx"
 import { hintContext, hintFor } from "./model/hints.ts"
 import { fvReducer } from "./model/reducer.ts"
-import { curveAt, isTransformed, partUi, pLit, pOffView } from "./model/selectors.ts"
-import { initialFvState, type FvPart, type PartEvents } from "./model/state.ts"
+import {
+  active,
+  activeParams,
+  curveAt,
+  draggedParams,
+  handleHeld,
+  handleLit,
+  isTransformed,
+  partUi,
+  pLit,
+  pMoved,
+  pOffView,
+} from "./model/selectors.ts"
+import { initialFvState, type FvPart, type FvPlaneMark, type PartEvents } from "./model/state.ts"
 import { EquationCard } from "./panel/EquationCard.tsx"
 import { FunctionPicker } from "./panel/FunctionPicker.tsx"
 import { PanelSection } from "./panel/PanelSection.tsx"
 import { PCard, QCard } from "./panel/PointCards.tsx"
 import { TransformGrid } from "./panel/TransformGrid.tsx"
+import { useTermDrags } from "./panel/useTermDrags.ts"
 import { buildPlaneScene } from "./planeScene.ts"
 
 /** FV 07: [ and ] move P along the curve by 0.1. */
 const P_KEY_STEP = 0.1
 
+/** FV 04: P's ghost and "moved ±…" clear this long after a transform's drag lets go. */
+const P_GHOST_LINGER_MS = 600
+
+const PLANE_MARKS: readonly string[] = ["p", "anchor", "stretch"] satisfies FvPlaneMark[]
+
+const isPlaneMark = (id: string | null): id is FvPlaneMark => id !== null && PLANE_MARKS.includes(id)
+
 export function FunctionViewer() {
   const [state, dispatch] = useReducer(fvReducer, initialFvState)
   const { fn, params, pX, qX, ghostOn } = state
-  const lit = pLit(state)
+  const pLitNow = pLit(state)
+  const activeNow = active(state)
+  const gripLit = handleLit(state)
+  const gripHeld = handleHeld(state)
+  const pWas = state.pBefore !== null && state.pBefore.x === pX ? state.pBefore.y : null
   // Only what the scene shows: a reported view change must not rebuild it.
   const scene = useMemo(
-    () => buildPlaneScene({ fn, params, pX, qX, ghostOn, pLit: lit }),
-    [fn, params, pX, qX, ghostOn, lit],
+    () =>
+      buildPlaneScene({
+        fn,
+        params,
+        pX,
+        qX,
+        ghostOn,
+        pLit: pLitNow,
+        active: activeNow,
+        handleLit: gripLit,
+        handleHeld: gripHeld,
+        pWas,
+      }),
+    [fn, params, pX, qX, ghostOn, pLitNow, activeNow, gripLit, gripHeld, pWas],
   )
+  // A transform's drag let go: P's ghost and its "moved" stay a moment.
+  const lingering = state.drag === null && state.pBefore !== null
+  useEffect(() => {
+    if (!lingering) {
+      return
+    }
+    const timer = setTimeout(() => dispatch({ type: "clearPBefore" }), P_GHOST_LINGER_MS)
+    return () => clearTimeout(timer)
+  }, [lingering])
+  const bindTerm = useTermDrags({
+    params,
+    onChange: (param, value) => dispatch({ type: "setParam", param, value }),
+    onDrag: (param, mode) => dispatch({ type: "drag", part: param, mode }),
+    onReset: (param) => dispatch({ type: "resetParam", param }),
+  })
   // Each panel part reports its hover, focus, drag and edit as its own actions.
   const eventsOf = (part: FvPart): PartEvents => ({
     onHover: (on) => dispatch({ type: "hover", part, on }),
@@ -58,7 +109,16 @@ export function FunctionViewer() {
       <aside className={style.panel}>
         <PanelSection {...SECTIONS.function}>
           <FunctionPicker value={fn} onChange={(next) => dispatch({ type: "setFunction", fn: next })} />
-          <EquationCard fn={fn} params={params} />
+          <EquationCard
+            fn={fn}
+            params={params}
+            lit={activeParams(state)}
+            keep={draggedParams(state)}
+            tip={state.hover === "eq" ? state.eqOver : null}
+            onPointer={(over) => dispatch({ type: "eqPointer", over })}
+            onLeave={() => dispatch({ type: "hover", part: "eq", on: false })}
+            bindTerm={bindTerm}
+          />
         </PanelSection>
         <TransformGrid
           params={params}
@@ -75,6 +135,7 @@ export function FunctionViewer() {
             y={curveAt(state, pX)}
             extent={state.view?.extent ?? null}
             off={pOffView(state)}
+            moved={pMoved(state)}
             ui={partUi(state, "p")}
             events={eventsOf("p")}
             onChange={(x) => dispatch({ type: "setP", x })}
@@ -103,21 +164,24 @@ export function FunctionViewer() {
                 : {
                     type: "planePointer",
                     x: pointer.x,
-                    ...(pointer.over === "p" && { over: "p" as const }),
+                    ...(isPlaneMark(pointer.over) && { over: pointer.over }),
                     panning: pointer.panning,
                   },
             )
           }
           onMarkDrag={(phase, id, to) => {
-            if (id !== "p") {
+            if (!isPlaneMark(id)) {
               return
             }
-            // P's x follows the pointer along the curve; the card and the
-            // hint read the drag as P's.
-            if (phase === "move") {
+            // P's x follows the pointer along the curve; a handle sets its
+            // two values (D21). The panel and the hint read each drag as
+            // its part's.
+            if (phase !== "move") {
+              dispatch({ type: "drag", part: id, mode: phase === "start" ? "coarse" : null })
+            } else if (id === "p") {
               dispatch({ type: "setP", x: to.x })
             } else {
-              dispatch({ type: "drag", part: "p", mode: phase === "start" ? "coarse" : null })
+              dispatch({ type: "dragHandle", handle: id, to })
             }
           }}
           onKeyDown={(e) => {

@@ -7,6 +7,9 @@ declare const styles: {
   readonly "card": string;
   readonly "head": string;
   readonly "letter": string;
+  readonly "moved": string;
+  readonly "moved_label": string;
+  readonly "moved_value": string;
   readonly "note": string;
   readonly "off_mark": string;
   readonly "scrubber": string;

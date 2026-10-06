@@ -98,8 +98,21 @@ const ZERO_RECT = {
   toJSON: () => ({}),
 } as DOMRect
 
+const PLANE_RECT = {
+  x: 0,
+  y: 0,
+  width: 600,
+  height: 600,
+  top: 0,
+  left: 0,
+  right: 600,
+  bottom: 600,
+  toJSON: () => ({}),
+} as DOMRect
+
 describe("FunctionViewer", () => {
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
   })
 
@@ -374,5 +387,155 @@ describe("FunctionViewer", () => {
     keydown(plane, "[")
     expect(readout(screen, "fv-p-readout")).toBe("f(1.9) = 3.61")
     expect(pointOf("p")).toMatchObject({ x: 1.9, y: 3.61 })
+  })
+
+  it("links a term and its control both ways: plates, chip, tip, hint, plane (FV 02 › H3, FV 04)", async () => {
+    const screen = await render(<FunctionViewer />)
+    typeParam(screen, "a", "2")
+    typeParam(screen, "h", "-1")
+    typeParam(screen, "k", "1")
+    act(() => {
+      ;(document.activeElement as HTMLElement | null)?.blur()
+    })
+    const liveK = document.querySelector('[data-line="live"] [data-param="k"]')
+    if (liveK === null) {
+      throw new Error("no live k term")
+    }
+    act(() => {
+      liveK.dispatchEvent(new PointerEvent("pointerover", { bubbles: true }))
+    })
+    const lit = () =>
+      [...document.querySelectorAll("[data-lit]")].map(
+        (el) => el.getAttribute("data-param") ?? el.getAttribute("data-testid"),
+      )
+    // k's term in both lines and k's control light; the tip names the value the term means.
+    expect(lit()).toEqual(["k", "k", "fv-param-k"])
+    expect(spoken(byTestId(screen, "fv-term-tip-k"))).toBe("k= 1· vertical shift")
+    expect(hint(screen)).toBe("Drag to change k · Shift fine · Ctrl whole steps · double-click: back to 0")
+    expect(lastScene().annotations?.[0]?.lines[0]).toMatchObject({
+      from: { x: -1, y: 0 },
+      to: { x: -1, y: 1 },
+    })
+    act(() => {
+      byTestId(screen, "fv-equation").dispatchEvent(
+        new PointerEvent("pointerout", { bubbles: true, relatedTarget: document.body }),
+      )
+    })
+    expect(lit()).toEqual([])
+    expect(document.querySelector('[data-testid="fv-term-tip-k"]')).toBeNull()
+    expect(lastScene().annotations).toEqual([])
+    // And back: the h control under the pointer lights h's terms.
+    act(() => {
+      byTestId(screen, "fv-param-h").dispatchEvent(
+        new PointerEvent("pointerover", { bubbles: true, relatedTarget: document.body }),
+      )
+    })
+    expect(lit()).toEqual(["h", "h", "fv-param-h"])
+  })
+
+  it("drags a term like its ruler, keeps it in the live line, and resets it on a double-click (D13)", async () => {
+    HTMLSpanElement.prototype.setPointerCapture = () => {}
+    HTMLSpanElement.prototype.releasePointerCapture = () => {}
+    HTMLSpanElement.prototype.hasPointerCapture = () => false
+    const screen = await render(<FunctionViewer />)
+    const formK = document.querySelector('[data-line="form"] [data-param="k"]')
+    if (formK === null) {
+      throw new Error("no form k slot")
+    }
+    const at = (type: string, clientX: number, buttons: number) =>
+      act(() => {
+        formK.dispatchEvent(new PointerEvent(type, { bubbles: true, button: 0, buttons, clientX }))
+      })
+    at("pointerdown", 10, 1)
+    at("pointermove", 60, 1)
+    // 50 px right is one unit for a shift, as on its ruler; k's ruler shows the drag.
+    expect(valueOf(screen, "k")).toBe("1")
+    expect(byTestId(screen, "fv-param-k-ruler").getAttribute("data-mode")).toBe("coarse")
+    at("pointermove", 10, 1)
+    // Back at 0 mid-drag, the live line keeps the term: "+ 0".
+    expect(document.querySelector('[data-line="live"] [data-param="k"]')?.textContent).toBe("+ 0")
+    act(() => {
+      window.dispatchEvent(new PointerEvent("pointerup"))
+    })
+    expect(document.querySelector('[data-line="live"] [data-param="k"]')).toBeNull()
+    expect(byTestId(screen, "fv-param-k-ruler").getAttribute("data-mode")).toBeNull()
+    at("pointerdown", 10, 1)
+    at("pointermove", 35, 1)
+    act(() => {
+      window.dispatchEvent(new PointerEvent("pointerup"))
+      formK.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }))
+    })
+    expect(valueOf(screen, "k")).toBe("0")
+  })
+
+  it("drags the anchor on the plane: h and k follow, P's ghost and badge show, then go (R6, FV 04)", async () => {
+    HTMLCanvasElement.prototype.setPointerCapture = () => {}
+    HTMLCanvasElement.prototype.releasePointerCapture = () => {}
+    HTMLCanvasElement.prototype.hasPointerCapture = () => false
+    // A 600 × 600 plane at the page's top-left: 50 px per unit, the origin at (300, 300).
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      return this.closest('[data-testid="cartesian-plane"]') !== null &&
+        this.closest("[data-keep-out]") === null
+        ? PLANE_RECT
+        : ZERO_RECT
+    })
+    const screen = await render(<FunctionViewer />)
+    typeParam(screen, "a", "2")
+    typeParam(screen, "h", "-1")
+    typeParam(screen, "k", "1")
+    typeInto(screen, "fv-p-field", "0.5")
+    act(() => {
+      ;(document.activeElement as HTMLElement | null)?.blur()
+    })
+    const canvas = byTestId(screen, "cartesian-canvas")
+    const toScreen = (x: number, y: number) => {
+      const zoom = Number(canvas.dataset["zoom"])
+      return {
+        clientX: Number(canvas.dataset["originX"]) + x * zoom,
+        clientY: Number(canvas.dataset["originY"]) - y * zoom,
+      }
+    }
+    expect(canvas.dataset["handles"]).toBe("anchor stretch")
+    const at = (type: string, x: number, y: number, buttons: number) =>
+      act(() => {
+        canvas.dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            pointerId: 1,
+            isPrimary: true,
+            button: 0,
+            buttons,
+            ...toScreen(x, y),
+          }),
+        )
+      })
+    // The pointer on the anchor (−1, 1): grab, both its values lit, the handles' hint.
+    at("pointermove", -1, 1, 0)
+    expect(canvas.dataset["cursor"]).toBe("grab")
+    expect(hint(screen)).toBe("Drag the diamond to move the curve · the square to stretch it")
+    expect(byTestId(screen, "fv-param-h").hasAttribute("data-lit")).toBe(true)
+    expect(byTestId(screen, "fv-param-k").hasAttribute("data-lit")).toBe(true)
+    at("pointerdown", -1, 1, 1)
+    at("pointermove", 1.5, 1, 1)
+    expect([valueOf(screen, "h"), valueOf(screen, "k")]).toEqual(["1.5", "1"])
+    expect(hint(screen)).toBe("Moving the anchor sets h and k · Shift locks one axis")
+    expect(lastScene().handles?.[0]).toMatchObject({ x: 1.5, y: 1, held: true, halo: true })
+    // P keeps its x (D15): f(0.5) went from 5.5 to 3.
+    expect(readout(screen, "fv-p-readout")).toBe("f(0.5) = 3")
+    expect(spoken(byTestId(screen, "fv-p-moved"))).toBe("moved−2.5")
+    expect(pointOf("p")?.was).toEqual({ x: 0.5, y: 5.5, ink: "primary" })
+    // Let go: both stay 600 ms, then go (FV 04 › Rules).
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
+    at("pointerup", 1.5, 1, 0)
+    const badge = () => document.querySelector('[data-testid="fv-p-moved"]')
+    act(() => {
+      vi.advanceTimersByTime(599)
+    })
+    expect(badge()).not.toBeNull()
+    act(() => {
+      vi.advanceTimersByTime(1)
+    })
+    expect(badge()).toBeNull()
+    expect(pointOf("p")?.was).toBeUndefined()
   })
 })

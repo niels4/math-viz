@@ -69,6 +69,14 @@ export const P_NOTE: readonly Phrase[] = [
   { text: "here or along the curve" },
 ]
 
+/**
+ * P's badge while a transform's drag moves it (FV 04): "moved +1". Δ isn't
+ * in the shipped fonts, so it says "moved" (FV 04 › Rationale).
+ */
+export const MOVED_LABEL = "moved"
+export const movedBy = (dy: number): string =>
+  `${dy > 0 && formatNumber(dy) !== "0" ? "+" : ""}${formatNumber(dy)}`
+
 /** Q's note: what it does while the pointer is on the plane, and how to place it while not. */
 export const Q_NOTES = {
   live: [{ math: "x" }, { text: "follows your pointer ·" }, { math: "y = f(x)" }],
@@ -135,5 +143,27 @@ export const HINTS = {
     { key: "←" },
     { key: "→" },
     { text: "nudge 0.1" },
+  ],
+  /** The pointer on a handle (FV 11 › G1: the handles at rest). */
+  handles: [{ text: "Drag the diamond to move the curve ·" }, { text: "the square to stretch it" }],
+  /** The anchor dragged (R6; FV 11 › G2). */
+  anchor: [
+    { text: "Moving the anchor sets" },
+    { math: "h" },
+    { text: "and" },
+    { math: "k" },
+    { text: "·" },
+    { key: "Shift" },
+    { text: "locks one axis" },
+  ],
+  /** The stretch grip dragged (FV 11 › G3). */
+  stretch: [
+    { text: "Stretching sets" },
+    { math: "a" },
+    { text: "(height) and" },
+    { math: "b" },
+    { text: "(width) ·" },
+    { key: "Shift" },
+    { text: "locks one of them" },
   ],
 } as const

@@ -336,4 +336,13 @@ describe("layoutMarks › annotations, handles, where a point was", () => {
     const marks = stixLayout(scene(x2, [P(2, 4, { was: { x: 2, y: 3.6, ink: "primary" } })]))
     expect(marks.points[0]?.was?.arrow).toBeNull()
   })
+
+  it("marks where a point was only in view, and its arrow only with the point in view too", () => {
+    // Was above the view: nothing to mark (a full-height arrow would read as a stray line).
+    const above = stixLayout(scene(x2, [P(2, 4, { was: { x: 2, y: 13.5, ink: "primary" } })]))
+    expect(above.points[0]?.was).toBeNull()
+    // Now below the view: the ring stays, the edge marker says where the point went.
+    const below = stixLayout(scene(x2, [P(2, -9, { was: { x: 2, y: 4, ink: "primary" } })]))
+    expect(below.points[0]?.was).toMatchObject({ x: 568, y: 196, arrow: null })
+  })
 })

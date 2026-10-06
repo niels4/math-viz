@@ -82,4 +82,13 @@ describe("equationTokens, form line", () => {
     const ghosts = form.flatMap((t) => (t.kind === "param" && t.ghost ? [t.param] : []))
     expect(ghosts).toEqual(["b"])
   })
+
+  it("keeps a dragged term in the live line at its default, with the form's operator", () => {
+    const live = (keep: readonly ("a" | "b" | "h" | "k")[]) =>
+      describeEquation(equationTokens("x2", DEFAULT_PARAMS, "live", keep))
+    expect(live([])).toBe("f(x) = x²")
+    expect(live(["k"])).toBe("f(x) = x² + 0")
+    expect(live(["h", "k"])).toBe("f(x) = (x − 0)² + 0")
+    expect(live(["a", "b"])).toBe("f(x) = 1(x/1)²")
+  })
 })

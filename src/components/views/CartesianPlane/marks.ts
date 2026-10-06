@@ -47,7 +47,10 @@ export type Marker = { x: number; y: number; style: PointStyle; ink: Ink; focus:
 /** A straight segment in plane pixels. */
 export type Segment = { x1: number; y1: number; x2: number; y2: number }
 
-/** Where a point was: a dashed ring in the point's ink, and an arrow to it when it moved far enough to show. */
+/**
+ * Where a point was, while that is in view: a dashed ring in the point's
+ * ink, and an arrow to the point when it is in view too and far enough to show.
+ */
 export type WasMark = { x: number; y: number; ink: Ink; arrow: (Segment & { ink: Ink }) | null }
 
 /** One point's layer, painted in scene order: where it was, its edge marker or its marker, then its label. */
@@ -235,15 +238,19 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
   const inView = located.filter(({ off }) => off === null)
   const marks = inView.map(({ sx: px, sy: py }) => centred(px, py, MARK_BOX))
 
-  // Where each point was, and the room its ring and arrow take.
+  // Where each point was, and the room its ring and arrow take. Off the
+  // view there is nothing to mark: the owner's readout says how far it went.
   const was = new Map<string, WasMark>()
-  for (const { p, sx: px, sy: py } of located) {
+  for (const { p, sx: px, sy: py, off } of located) {
     if (p.was === undefined || !Number.isFinite(p.was.x) || !Number.isFinite(p.was.y)) {
       continue
     }
     const wx = sx(p.was.x)
     const wy = sy(p.was.y)
-    const dist = Math.hypot(px - wx, py - wy)
+    if (edgeDirection(wx, wy, width, height) !== null) {
+      continue
+    }
+    const dist = off === null ? Math.hypot(px - wx, py - wy) : 0
     const ux = dist === 0 ? 0 : (px - wx) / dist
     const uy = dist === 0 ? 0 : (py - wy) / dist
     was.set(p.id, {
@@ -272,7 +279,7 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
     ...handles.map(({ h, x, y }) => centred(x, y, HANDLE_CLEAR[h.shape])),
     ...located.flatMap(({ p, sx: px, sy: py }) => {
       const w = was.get(p.id)
-      return w === undefined ? [] : [between(w, { x: px, y: py }, WAS_CLEAR)]
+      return w === undefined ? [] : [between(w, w.arrow === null ? w : { x: px, y: py }, WAS_CLEAR)]
     }),
   ]
 

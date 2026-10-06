@@ -47,4 +47,23 @@ describe("EquationTokens", () => {
     const ghosts = [...root.querySelectorAll("[data-ghost]")].map((el) => el.getAttribute("data-param"))
     expect(ghosts).toEqual(["h", "b", "k"])
   })
+
+  it("lights the active value's terms, binds each term and hangs what goes under it", async () => {
+    const tokens = equationTokens("x2", { ...DEFAULT_PARAMS, a: 2, k: 1 }, "live")
+    await render(
+      <p data-testid="eq">
+        <EquationTokens
+          tokens={tokens}
+          lit={["k"]}
+          bindTerm={(param) => ({ title: `drag ${param}` })}
+          renderUnder={(param) => (param === "k" ? <i data-testid="under-k">tip</i> : null)}
+        />
+      </p>,
+    )
+    const term = (param: string) => document.querySelector(`[data-param="${param}"]`)
+    expect(term("k")?.hasAttribute("data-lit")).toBe(true)
+    expect(term("a")?.hasAttribute("data-lit")).toBe(false)
+    expect(term("a")?.getAttribute("title")).toBe("drag a")
+    expect(term("k")?.querySelector('[data-testid="under-k"]')?.textContent).toBe("tip")
+  })
 })

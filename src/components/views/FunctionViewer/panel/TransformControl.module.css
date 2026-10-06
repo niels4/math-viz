@@ -86,15 +86,13 @@ educational-warm). */
   border-color: var(--warning);
 }
 
-/* Lit: hovered, focused, dragged or typed into (never on refused text). */
-.control[data-lit] .chip,
-.control:has(:focus-visible):not([data-error]) .chip {
+/* Lit: its value is the active one (never on refused text). */
+.control[data-lit] .chip {
   color: var(--primary-foreground);
   background: var(--primary);
 }
 
-.control[data-lit] .name,
-.control:has(:focus-visible):not([data-error]) .name {
+.control[data-lit] .name {
   color: var(--foreground);
 }
 

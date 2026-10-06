@@ -5,6 +5,8 @@ import {
   acceptsValue,
   anchorPoint,
   DEFAULT_PARAMS,
+  dragAnchor,
+  dragStretch,
   evaluate,
   innerInput,
   isAtDefault,
@@ -99,5 +101,43 @@ describe("isIdentity and acceptsValue", () => {
     expect(acceptsValue("a", 0)).toBe(false)
     expect(acceptsValue("b", 0)).toBe(false)
     expect(acceptsValue("k", Number.NaN)).toBe(false)
+  })
+})
+
+describe("the handles' inverse maps (D21, D22)", () => {
+  it("moves the curve with the anchor: R3's (−1, 1) dragged to R6's (1.5, 1)", () => {
+    expect(dragAnchor(R3, { x: 1.5, y: 1 })).toEqual(params({ a: 2, h: 1.5, k: 1 }))
+    // The anchor lands where it was dragged, on the 0.01 lattice.
+    const moved = dragAnchor(R3, { x: 0.3333, y: -2.004 })
+    expect(anchorPoint(moved)).toEqual({ x: 0.33, y: -2 })
+  })
+
+  it("sizes one step with the stretch grip: b across, a up from the anchor", () => {
+    const x2 = BASE_FUNCTIONS.x2
+    // R3's grip sits at (0, 3); dragged to (0.5, 3) the step is 1.5 wide (Components › stretch dragged).
+    const next = dragStretch(x2, R3, { x: 0.5, y: 3 })
+    expect(next).toEqual(params({ a: 2, b: 1.5, h: -1, k: 1 }))
+    expect(unitPoint(x2, next)).toEqual({ x: 0.5, y: 3 })
+  })
+
+  it("flips the curve below the anchor (D22) and mirrors it left of the anchor", () => {
+    const x3 = BASE_FUNCTIONS.x3
+    const next = dragStretch(x3, R3, { x: -2.5, y: -0.5 })
+    expect(next.a).toBe(-1.5)
+    expect(next.b).toBe(-1.5)
+    expect(evaluate(x3.g, next, -2.5)).toBeCloseTo(-0.5, 9)
+  })
+
+  it("never sets a scale to 0: level with the anchor it stays one step out on its side", () => {
+    const x2 = BASE_FUNCTIONS.x2
+    expect(dragStretch(x2, R3, { x: 0, y: 1.002 }).a).toBe(0.01)
+    expect(dragStretch(x2, params({ a: -2, h: -1, k: 1 }), { x: 0, y: 1 }).a).toBe(-0.01)
+    expect(dragStretch(x2, R3, { x: -1.001, y: 3 }).b).toBe(-0.01)
+  })
+
+  it("puts sin's grip at its own unit point, π/2 across", () => {
+    const sin = BASE_FUNCTIONS.sin
+    const next = dragStretch(sin, DEFAULT_PARAMS, { x: Math.PI, y: 2 })
+    expect(next).toEqual(params({ a: 2, b: 2 }))
   })
 })
