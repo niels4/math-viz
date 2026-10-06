@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest"
 
 import { act, render, toElement } from "#test"
 
+import type { HelpContent } from "./HelpTip.tsx"
+
 import { ScrubStrip } from "./ScrubStrip"
 
 const stubPointerCapture = () => {
@@ -22,14 +24,14 @@ function Harness({
   step = 0.02,
   defaultValue = 0,
   seen,
-  helpText,
+  help,
 }: {
   initial?: number
   kind?: "additive" | "multiplicative"
   step?: number
   defaultValue?: number
   seen?: (next: number) => void
-  helpText?: string
+  help?: HelpContent
 }) {
   const [value, setValue] = useState(initial)
   return (
@@ -46,7 +48,7 @@ function Harness({
         step,
         defaultValue,
       }}
-      {...(helpText === undefined ? {} : { helpText })}
+      {...(help === undefined ? {} : { help })}
     />
   )
 }
@@ -125,7 +127,12 @@ describe("ScrubStrip", () => {
   it("the help button neither scrubs nor resets", async () => {
     const seen: number[] = []
     const screen = await render(
-      <Harness initial={5} defaultValue={0} seen={(next) => seen.push(next)} helpText="Help me" />,
+      <Harness
+        initial={5}
+        defaultValue={0}
+        seen={(next) => seen.push(next)}
+        help={{ title: "Scrub", rows: [{ keys: "drag", text: "scrub" }] }}
+      />,
     )
     stubPointerCapture()
     const strip = toElement(screen.getByTestId("strip")) as HTMLDivElement

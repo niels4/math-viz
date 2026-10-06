@@ -1,5 +1,6 @@
 import { useState } from "react"
 
+import type { HelpContent } from "../../ui/HelpTip.tsx"
 import type { PlotFunc } from "../CartesianPlane/types"
 
 import { Field } from "../../ui/Field"
@@ -35,6 +36,26 @@ const funcOptions = plotFuncSlugs.map((slug) => ({ value: slug, label: `f(x) = $
 
 const isPlotFuncSlug = (slug: string): slug is PlotFuncSlug => {
   return (plotFuncSlugs as readonly string[]).includes(slug)
+}
+
+const scaleHelp: HelpContent = {
+  title: "Scrub the scale",
+  rows: [
+    { keys: "drag", text: "scrub the value" },
+    { keys: "Shift drag", text: "fine control" },
+    { keys: "Ctrl drag", text: "snap to whole numbers" },
+    { keys: "2×click", text: "reset to 1" },
+  ],
+}
+
+const offsetHelp: HelpContent = {
+  title: "Scrub the offset",
+  rows: [
+    { keys: "drag", text: "scrub the value" },
+    { keys: "Shift drag", text: "fine control" },
+    { keys: "Ctrl drag", text: "snap to whole numbers" },
+    { keys: "2×click", text: "reset to 0" },
+  ],
 }
 
 type FunctionViewerSidebarProps = {
@@ -82,7 +103,7 @@ function FunctionViewerSidebar({
             kind="multiplicative"
             step={0.002}
             defaultValue={1}
-            helpText="Drag to scrub the scale. Large values move faster than small ones, and the sign never flips. Shift for fine control, Ctrl snaps to whole numbers, double-click resets to 1."
+            help={scaleHelp}
             {...{ value: xScale, onChange: setXScale }}
           />
         </div>
@@ -96,7 +117,7 @@ function FunctionViewerSidebar({
             kind="additive"
             step={0.02}
             defaultValue={0}
-            helpText="Drag to scrub the offset. Shift for fine control, Ctrl snaps to whole numbers, double-click resets to 0."
+            help={offsetHelp}
             {...{ value: xOffset, onChange: setXOffset }}
           />
         </div>
@@ -110,7 +131,7 @@ function FunctionViewerSidebar({
             kind="multiplicative"
             step={0.002}
             defaultValue={1}
-            helpText="Drag to scrub the scale. Large values move faster than small ones, and the sign never flips. Shift for fine control, Ctrl snaps to whole numbers, double-click resets to 1."
+            help={scaleHelp}
             {...{ value: yScale, onChange: setYScale }}
           />
         </div>
@@ -124,7 +145,7 @@ function FunctionViewerSidebar({
             kind="additive"
             step={0.02}
             defaultValue={0}
-            helpText="Drag to scrub the offset. Shift for fine control, Ctrl snaps to whole numbers, double-click resets to 0."
+            help={offsetHelp}
             {...{ value: yOffset, onChange: setYOffset }}
           />
         </div>

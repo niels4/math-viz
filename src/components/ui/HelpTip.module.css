@@ -33,10 +33,10 @@
   .bubble {
     position: absolute;
     bottom: calc(100% + 8px);
-    left: -6px;
+    right: -6px;
     width: max-content;
     max-width: 16rem;
-    padding: 0.5rem 0.7rem;
+    padding: 0.6rem 0.75rem;
     font-size: 0.8rem;
     line-height: 1.4;
     color: var(--foreground);
@@ -44,5 +44,39 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     z-index: 10;
+  }
+
+  .title {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+  }
+
+  .rows {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+
+  .keys {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    padding: 0.05rem 0.35rem;
+    color: var(--foreground);
+    background: color-mix(in oklch, var(--primary) 14%, transparent);
+    border: 1px solid color-mix(in oklch, var(--primary) 40%, transparent);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+  }
+
+  .text {
+    color: var(--foreground-muted);
   }
 }

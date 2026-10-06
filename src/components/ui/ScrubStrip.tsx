@@ -2,6 +2,7 @@ import type { KeyboardEvent, PointerEvent } from "react"
 
 import { useCallback, useEffect, useRef, useState } from "react"
 
+import type { HelpContent } from "./HelpTip.tsx"
 import type { ScrubKind } from "./scrub.ts"
 
 import { HelpTip } from "./HelpTip.tsx"
@@ -22,7 +23,7 @@ export function ScrubStrip({
   label,
   testId,
   defaultValue,
-  helpText,
+  help,
 }: {
   value: number
   onChange: (next: number) => void
@@ -33,7 +34,7 @@ export function ScrubStrip({
   label: string
   testId: string
   defaultValue: number
-  helpText?: string
+  help?: HelpContent
 }) {
   const trackRef = useRef<HTMLDivElement | null>(null)
   const dragRef = useRef<{ startX: number; startValue: number } | null>(null)
@@ -166,9 +167,9 @@ export function ScrubStrip({
       onKeyDown={handleKeyDown}
     >
       <div className={stripStyles.strip_detent} aria-hidden="true" />
-      {helpText !== undefined && (
+      {help !== undefined && (
         <span className={stripStyles.strip_help}>
-          <HelpTip text={helpText} label={`${label} help`} />
+          <HelpTip help={help} label={`${label} help`} />
         </span>
       )}
       {mode !== null && (

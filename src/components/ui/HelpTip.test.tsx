@@ -6,8 +6,16 @@ import { HelpTip } from "./HelpTip"
 
 const tooltip = (): HTMLElement | null => document.querySelector('[role="tooltip"]')
 
+const help = {
+  title: "Scrub the offset",
+  rows: [
+    { keys: "drag", text: "scrub" },
+    { keys: "Shift drag", text: "fine control" },
+  ],
+}
+
 const renderButton = async () => {
-  const screen = await render(<HelpTip text="Scrub help" />)
+  const screen = await render(<HelpTip help={help} />)
   return toElement(screen.getByRole("button", { name: "Help" })) as HTMLButtonElement
 }
 
@@ -24,7 +32,7 @@ describe("HelpTip", () => {
       button.click()
     })
     expect(button.getAttribute("aria-expanded")).toBe("true")
-    expect(tooltip()?.textContent).toBe("Scrub help")
+    expect(tooltip()?.textContent).toContain("Scrub the offset")
     act(() => {
       button.click()
     })
