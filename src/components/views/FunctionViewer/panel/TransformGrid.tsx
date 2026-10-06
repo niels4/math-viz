@@ -1,4 +1,4 @@
-import { useId, useRef } from "react"
+import { useRef } from "react"
 
 import { ResetIcon } from "#src/components/ui/icons.tsx"
 import { MathText } from "#src/components/ui/MathText.tsx"
@@ -6,7 +6,7 @@ import { MathText } from "#src/components/ui/MathText.tsx"
 import type { PartUi } from "../model/selectors.ts"
 import type { FvExplainBy, PartEvents } from "../model/state.ts"
 
-import { GROUP_MATH, RESET_ALL, SECTIONS, TRANSFORM_GROUPS } from "../copy.ts"
+import { GROUP_MATH, groupName, RESET_ALL, SECTIONS, TRANSFORM_GROUPS } from "../copy.ts"
 import { isIdentity, isScale, type TransformParam, type TransformParams } from "../math/form.ts"
 import { PanelSection } from "./PanelSection.tsx"
 import { TransformControl, type TransformControlHandle } from "./TransformControl.tsx"
@@ -16,8 +16,9 @@ import style from "./TransformGrid.module.css"
 // equation, outside f( ) (vertical: a, k) beside inside f( ) (horizontal: b,
 // h). Reset all sits in the header while anything differs from the default:
 // hidden, not disabled (FV 07). Used from the keyboard, it hands the focus
-// to a's ruler as it leaves. Compact (the dock, R9): the group headers name
-// the groups for screen readers only, and the controls sit closer.
+// to a's ruler as it leaves. Each group is named as said aloud ("Vertical,
+// outside f"); its header is for the eye. Compact (the dock, R9): the group
+// headers are hidden, and the controls sit closer.
 export function TransformGrid({
   params,
   uiOf,
@@ -47,7 +48,6 @@ export function TransformGrid({
   /** The section's class (the dock's card). */
   className?: string | undefined
 }) {
-  const id = useId()
   const controls = useRef(new Map<TransformParam, TransformControlHandle>())
   const resetAll = isIdentity(params) ? null : (
     <button
@@ -75,13 +75,8 @@ export function TransformGrid({
       <div className={style.columns}>
         <div className={style.grid} data-compact={compact || undefined}>
           {TRANSFORM_GROUPS.map((group) => (
-            <div
-              key={group.axis}
-              role="group"
-              aria-labelledby={`${id}-${group.axis}`}
-              className={style.group}
-            >
-              <div id={`${id}-${group.axis}`} className={style.group_header}>
+            <div key={group.axis} role="group" aria-label={groupName(group)} className={style.group}>
+              <div className={style.group_header} aria-hidden="true">
                 <span className={style.axis}>{group.axis}</span>
                 <span className={style.where}>{group.where}</span>
                 <span className={style.math}>

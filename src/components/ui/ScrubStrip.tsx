@@ -33,6 +33,8 @@ const tickPath = (xs: readonly number[], length: number): string =>
 // logarithmic and reads its size: the sign is the owner's (a flip toggle).
 // The ticks, labels and home notch carry data-nudge, so a view can slide
 // them under the index (FV 05: the first paint nudges each ruler once).
+// Screen readers meet a spin button: the value has no range, so a slider's
+// would be wrong; its labels are scale marks, read as its value instead.
 export function ScrubStrip({
   value,
   onChange,
@@ -147,7 +149,7 @@ export function ScrubStrip({
   return (
     <div
       ref={stripRef}
-      role="slider"
+      role="spinbutton"
       tabIndex={0}
       aria-label={label}
       aria-describedby={describedBy}
@@ -200,7 +202,7 @@ export function ScrubStrip({
               d={`M13 11L8 16L13 21M${width - 13} 11L${width - 8} 16L${width - 13} 21`}
             />
           </svg>
-          <span className={stripStyles.tape} data-nudge="">
+          <span className={stripStyles.tape} data-nudge="" aria-hidden="true">
             {marks.labels.map((mark) => (
               <span key={mark.text} className={stripStyles.label} style={{ left: mark.left }}>
                 {mark.text}

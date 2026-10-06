@@ -89,9 +89,11 @@ const renderStrip = async ({
 }
 
 describe("ScrubStrip", () => {
-  it("is a named slider with its value as text, U+2212 for negatives", async () => {
+  it("is a named spin button with its value as text, U+2212 for negatives", async () => {
     const { strip, now } = await renderStrip({ initial: -1.5 })
-    expect(strip.getAttribute("role")).toBe("slider")
+    // Unbounded: a slider's 0 to 100 would be wrong.
+    expect(strip.getAttribute("role")).toBe("spinbutton")
+    expect(strip.hasAttribute("aria-valuemin")).toBe(false)
     expect(strip.getAttribute("tabindex")).toBe("0")
     expect(strip.getAttribute("aria-label")).toBe("k: Vertical shift")
     expect(strip.getAttribute("aria-valuenow")).toBe("-1.5")

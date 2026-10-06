@@ -39,6 +39,10 @@ export const TRANSFORM_GROUPS = [
 /** Set by MathText after a group's "outside" or "inside". */
 export const GROUP_MATH = "f( )"
 
+/** A group as read aloud, without the empty parentheses: "Vertical, outside f". */
+export const groupName = (group: (typeof TRANSFORM_GROUPS)[number]): string =>
+  `${group.axis}, ${group.where} f`
+
 export const RESET_ALL = "Reset all"
 
 /** A default is a constant of the copy, so it keeps the short form ("Reset a to 1"). */

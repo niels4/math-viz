@@ -26,10 +26,11 @@
     box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
   }
 
-  /* It opens on the overlays' tokens, the enter spring over dur-base,
-  dropping 4 px from the gear and growing from 98 %; it leaves the same way
-  back in dur-leave (120 ms), linearly, as FV 05's Q leaves. Under reduced
-  motion it only fades, 120 ms each way. */
+  /* An overlay as the explainer and the tour card are: --card in a 1 px
+  --border with the theme's card shadow. It opens on the overlays' tokens,
+  the enter spring over dur-base, dropping 4 px from the gear and growing
+  from 98 %; it leaves the same way back in dur-leave (120 ms), linearly,
+  as FV 05's Q leaves. Under reduced motion it only fades, 120 ms each way. */
   .settings_menu {
     position: absolute;
     top: calc(100% + 8px);
@@ -43,7 +44,7 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    box-shadow: 0 12px 32px rgb(0 0 0 / 0.28);
+    box-shadow: var(--sig-card-shadow);
     transform-origin: top right;
     transition:
       opacity var(--motion-dur-base) var(--motion-ease-enter),

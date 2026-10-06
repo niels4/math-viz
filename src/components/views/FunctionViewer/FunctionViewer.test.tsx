@@ -206,13 +206,14 @@ describe("FunctionViewer", () => {
 
   it("lays section 2 out as the equation: outside f( ) a, k; inside f( ) b, h", async () => {
     const screen = await render(<FunctionViewer />)
-    const groups = [...document.querySelectorAll('[role="group"][aria-labelledby]')].map((group) => ({
-      name: document.getElementById(group.getAttribute("aria-labelledby") ?? "")?.textContent,
-      params: [...group.querySelectorAll('[role="slider"]')].map((el) => el.getAttribute("aria-label")),
+    const groups = [...document.querySelectorAll('[role="group"][aria-label]')].map((group) => ({
+      name: group.getAttribute("aria-label"),
+      params: [...group.querySelectorAll('[role="spinbutton"]')].map((el) => el.getAttribute("aria-label")),
     }))
+    // Named as said aloud, without f's empty parentheses.
     expect(groups).toEqual([
-      { name: "Verticaloutsidef( )", params: ["a: Vertical scale", "k: Vertical shift"] },
-      { name: "Horizontalinsidef( )", params: ["b: Horizontal scale", "h: Horizontal shift"] },
+      { name: "Vertical, outside f", params: ["a: Vertical scale", "k: Vertical shift"] },
+      { name: "Horizontal, inside f", params: ["b: Horizontal scale", "h: Horizontal shift"] },
     ])
     // At the defaults: no ↺ and no Reset all, the flip toggles off (R2).
     expect(document.querySelector('[data-testid$="-reset"]')).toBeNull()
@@ -778,10 +779,10 @@ describe("FunctionViewer", () => {
       expect(document.querySelector('[data-line="form"]')).toBeNull()
       expect(spoken(byTestId(screen, "fv-form"))).toBe("Form: f(x) = a((x − h)/b)² + k")
       // The groups keep their names for screen readers.
-      const names = [...document.querySelectorAll('[role="group"][aria-labelledby]')].map(
-        (group) => document.getElementById(group.getAttribute("aria-labelledby") ?? "")?.textContent,
+      const names = [...document.querySelectorAll('[role="group"][aria-label]')].map((group) =>
+        group.getAttribute("aria-label"),
       )
-      expect(names).toEqual(["Verticaloutsidef( )", "Horizontalinsidef( )"])
+      expect(names).toEqual(["Vertical, outside f", "Horizontal, inside f"])
     })
 
     it("compacts the point cards: Q's shorter role and notes, no note on P's (R9)", async () => {

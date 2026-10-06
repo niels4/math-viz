@@ -56,6 +56,8 @@ export function PointReadout({
       style={fit}
       data-compact={compact || undefined}
       data-empty={y === null || undefined}
+      // An empty readout's dashes say nothing aloud; the card's note does.
+      aria-hidden={y === null || undefined}
       data-testid={testId}
     >
       {xChars > xText.length && (

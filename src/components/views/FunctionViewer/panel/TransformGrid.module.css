@@ -28,7 +28,8 @@ a head keeps room for a seven-character value. */
   min-width: 0;
 }
 
-/* The dock (R9): the controls 8 apart, the headers read aloud only. */
+/* The dock (R9): the controls 8 apart, the headers hidden (the groups keep
+their names). */
 .grid[data-compact] .group {
   gap: 8px;
 }
