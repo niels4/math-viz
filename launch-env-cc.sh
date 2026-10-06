@@ -60,13 +60,18 @@ agent="=${session}:=agent.1"
 tmux send-keys -t "$editor" "nvim" C-m
 tmux send-keys -t "$editor" ":e src/pages/" C-m
 
+# Long-running services belong to the session, not the agent: each runs in
+# its own window inside a restart loop, so a crash brings it back without
+# anyone attending. Ctrl-C in the window stops the loop for good.
+keep() { echo "while true; do $1; echo '[exited; restarting in 3s]'; sleep 3; done"; }
+
 # One npm install, then both servers: two concurrent installs in one
 # checkout race. tmux remembers the signal if it comes before the wait.
 deps="${session}-deps"
-tmux send-keys -t "$server1" "npm i; tmux wait-for -S $deps; npm run dev -- --port $port --strictPort" C-m
+tmux send-keys -t "$server1" "npm i; tmux wait-for -S $deps; $(keep "npm run dev -- --port $port --strictPort")" C-m
 # DISABLE_WTR=1: disk-only server, so agent edits never collide with the
 # user's unsaved live-edit buffers on the other port.
-tmux send-keys -t "$server2" "tmux wait-for $deps; DISABLE_WTR=1 npm run dev -- --port $port2 --strictPort" C-m
+tmux send-keys -t "$server2" "tmux wait-for $deps; $(keep "DISABLE_WTR=1 npm run dev -- --port $port2 --strictPort")" C-m
 
 # figma0's Figma bridge daemon, for read-only design probes. Skipped when
 # something (figma0's own daemon) already holds its port.
@@ -74,7 +79,7 @@ figma0="/opt/dev/agent/code/agents/claude/figma0"
 if lsof -nP -iTCP:8790 -sTCP:LISTEN >/dev/null 2>&1; then
   tmux send-keys -t "=${session}:=bridge.1" "# bridge port 8790 already in use; mv.js health uses that daemon" C-m
 else
-  tmux send-keys -t "=${session}:=bridge.1" "node $figma0/scripts/mathviz-claude/bridge-daemon.js" C-m
+  tmux send-keys -t "=${session}:=bridge.1" "$(keep "node $figma0/scripts/mathviz-claude/bridge-daemon.js")" C-m
 fi
 
 # Permission bypass is deliberate: agents run as the unprivileged `agent` OS
