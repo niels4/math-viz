@@ -30,7 +30,10 @@ export const appThemes: Record<ThemeSlug, ThemeDef> = {
   "sage-editorial": { label: "Sage Editorial", className: sageTheme.theme },
 } as const
 
-const isThemeSlug = (slug: string): slug is ThemeSlug => {
+export const isThemeSlug = (slug: string | undefined | null): slug is ThemeSlug => {
+  if (slug == null) {
+    return false
+  }
   return Object.hasOwn(appThemes, slug)
 }
 
