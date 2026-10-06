@@ -56,7 +56,9 @@ chrome never glows: glow is for data ink. */
   pointer-events: none;
 }
 
+/* Figma's box ends at the last letter; CSS tracks after it too. */
 .caption_label {
+  margin-inline-end: calc(-1 * var(--sig-label-tracking));
   font-size: 14px;
   font-weight: 600;
   line-height: normal;

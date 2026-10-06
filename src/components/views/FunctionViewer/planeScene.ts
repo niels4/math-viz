@@ -106,9 +106,11 @@ const annotationsFor = (state: PlaneSceneInput): PlaneAnnotation[] => {
         {
           layer: "over",
           ...LINK_INK,
+          // The board draws one path from the y-axis through the anchor
+          // down to the x-axis, so the k leg's dashes start on the axis.
           lines: [
+            { from: { x: 0, y: anchor.y }, to: anchor, ...DROP },
             { from: anchor, to: { x: anchor.x, y: 0 }, ...DROP },
-            { from: anchor, to: { x: 0, y: anchor.y }, ...DROP },
           ],
           plates: [
             plate("h", { kind: "x-axis", x: anchor.x, clear: anchor }, "sm"),

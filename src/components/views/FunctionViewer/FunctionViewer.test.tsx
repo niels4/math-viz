@@ -77,10 +77,16 @@ const typeInto = (screen: Screen, id: string, text: string) => {
 }
 
 /** A readout as it reads: a typed x (P's field) by its value. */
-const readout = (screen: Screen, id: string) =>
-  [...byTestId(screen, id).children]
-    .map((part) => part.querySelector("input")?.value ?? part.textContent)
-    .join("")
+// A readout's text in reading order, P's typed x (an input) by its value.
+const readout = (screen: Screen, id: string) => {
+  const text = (node: Node): string =>
+    node instanceof HTMLInputElement
+      ? node.value
+      : node.nodeType === Node.TEXT_NODE
+        ? (node.textContent ?? "")
+        : [...node.childNodes].map(text).join("")
+  return text(byTestId(screen, id))
+}
 
 /** Text as read aloud: the no-break spaces that keep a "·" with its word read as spaces. */
 const spoken = (el: Element) => el.textContent.replaceAll("\u00a0", " ")
@@ -553,18 +559,18 @@ describe("FunctionViewer", () => {
     vi.stubGlobal("ResizeObserver", undefined)
     const screen = await render(<FunctionViewer />)
     // 600 × 600 at 50 px per unit: x and y run −6 … 6, "−6.00" the widest.
-    // Each run's box in characters: x's spare room before "f(" fills x's
-    // slot (--slot, less x's own --chars); y sits in its slot after "=".
-    const boxes = (id: string) =>
+    // Each slot in characters: "f(" and x right-aligned in x's (--slot), so
+    // x's spare room goes before "f("; y in its own after "=" (--chars).
+    const slots = (id: string) =>
       [...byTestId(screen, id).children].flatMap((part) => {
         const css = (part as HTMLElement).style
         const [slot, chars] = [css.getPropertyValue("--slot"), css.getPropertyValue("--chars")]
-        return chars === "" ? [] : [slot === "" ? Number(chars) : `${slot} − ${chars}`]
+        return slot !== "" ? [`x ${slot}`] : chars !== "" ? [`y ${chars}`] : []
       })
     expect(readout(screen, "fv-p-readout")).toBe("f(2.00) = 4.00")
-    expect(boxes("fv-p-readout")).toEqual(["5 − 4", 4, 5])
+    expect(slots("fv-p-readout")).toEqual(["x 5", "y 5"])
     // Q with no point keeps its dashes' own width.
-    expect(boxes("fv-q-readout")).toEqual([1, 1])
+    expect(slots("fv-q-readout")).toEqual(["x 1", "y 1"])
   })
 
   it("drags the anchor on the plane: h and k follow, P's ghost and badge show, then go (R6, FV 04)", async () => {

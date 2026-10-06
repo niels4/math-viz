@@ -133,8 +133,8 @@ describe("buildPlaneScene", () => {
     const [anchor] = buildPlaneScene({ ...BASE, params, active: "anchor" }).annotations ?? []
     expect(anchor?.layer).toBe("over")
     expect(anchor?.lines).toEqual([
+      { from: { x: 0, y: 1 }, to: { x: 1.5, y: 1 }, width: 1.5, dash: [5, 4] },
       { from: { x: 1.5, y: 1 }, to: { x: 1.5, y: 0 }, width: 1.5, dash: [5, 4] },
-      { from: { x: 1.5, y: 1 }, to: { x: 0, y: 1 }, width: 1.5, dash: [5, 4] },
     ])
     expect(anchor?.plates.map((p) => [p.size, p.place])).toEqual([
       ["sm", { kind: "x-axis", x: 1.5, clear: { x: 1.5, y: 1 } }],

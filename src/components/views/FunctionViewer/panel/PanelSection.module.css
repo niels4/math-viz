@@ -7,10 +7,12 @@
 
 /* A section with an action: a grid whose first row the header and the
 action share, the action at the far end, though it comes last in the DOM
-(the tab order, PanelSection.tsx). */
+(the tab order, PanelSection.tsx). Its rows keep their height in a taller
+box (the dock's fixed cards), as the flex column does. */
 .section[data-action] {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
+  align-content: start;
 }
 
 .section[data-action] > * {

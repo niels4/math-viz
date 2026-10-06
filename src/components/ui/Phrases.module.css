@@ -1,7 +1,10 @@
 @layer components {
   /* Work Sans and STIX in Figma's AUTO line boxes: 14 / 16 and 16 / 20
-  unless the owner sets the sizes (the tour's 15 / 18 and 17 / 21). */
+  unless the owner sets the sizes (the tour's 15 / 18 and 17 / 21). Each
+  item's box is its text's width rounded up to whole px, as Figma sizes a
+  text box, so a row of items lands where the board's does. */
   .text {
+    width: calc-size(max-content, round(up, size, 1px));
     font-size: var(--phrase-text-size, 14px);
     line-height: var(--phrase-text-line, 16px);
   }
@@ -15,6 +18,7 @@
   }
 
   .math {
+    width: calc-size(max-content, round(up, size, 1px));
     font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
     font-size: var(--phrase-math-size, 16px);
     line-height: var(--phrase-math-line, 20px);
