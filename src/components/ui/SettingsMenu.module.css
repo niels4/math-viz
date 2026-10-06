@@ -26,6 +26,10 @@
     box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
   }
 
+  /* It opens on the overlays' tokens, the enter spring over dur-base,
+  dropping 4 px from the gear and growing from 98 %; it leaves the same way
+  back in dur-leave (120 ms), linearly, as FV 05's Q leaves. Under reduced
+  motion it only fades, 120 ms each way. */
   .settings_menu {
     position: absolute;
     top: calc(100% + 8px);
@@ -39,6 +43,39 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: 0 12px 32px rgb(0 0 0 / 0.28);
+    transform-origin: top right;
+    transition:
+      opacity var(--motion-dur-base) var(--motion-ease-enter),
+      transform var(--motion-dur-base) var(--motion-ease-enter);
+  }
+
+  @starting-style {
+    .settings_menu {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+  }
+
+  .settings_menu[data-closing] {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+    transition:
+      opacity var(--motion-dur-leave) linear,
+      transform var(--motion-dur-leave) linear;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .settings_menu,
+    .settings_menu[data-closing] {
+      transform: none;
+      transition: opacity var(--motion-dur-reduced-fade) linear;
+    }
+
+    @starting-style {
+      .settings_menu {
+        transform: none;
+      }
+    }
   }
 
   .settings_group_label {
