@@ -262,3 +262,76 @@ export const yTagBox = (
       : originX - w / 2
   return { x, y: sy - h / 2, w, h }
 }
+
+/** A drag's tag on the x-axis sits this far under it (fvDrawCanvas: the anchor's h tag at OY + 16). */
+const DRAG_TAG_BELOW = 16
+/** A drag's tag on the y-axis ends this far left of it (the anchor's k tag at OX − 8 − w). */
+const DRAG_TAG_BESIDE = 8
+/** A handle's grab halo: a drag's tag takes the axis's far side rather than cover it. */
+const HANDLE_HALO = 44
+
+const haloBox = (at: { x: number; y: number }): Rect => ({
+  x: at.x - HANDLE_HALO / 2,
+  y: at.y - HANDLE_HALO / 2,
+  w: HANDLE_HALO,
+  h: HANDLE_HALO,
+})
+
+/** A box kept 8 px inside the plane, like the tick labels and tags (TAG_EDGE). */
+const keptInside = (box: Rect, width: number, height: number): Rect => ({
+  ...box,
+  x: clamp(box.x, TAG_EDGE, width - TAG_EDGE - box.w),
+  y: clamp(box.y, TAG_EDGE, height - TAG_EDGE - box.h),
+})
+
+/**
+ * A drag's tag beside the x-axis, centred on sx: under the axis, or over it
+ * when under it would cover the halo of the handle at `clear` (screen px).
+ */
+export const besideXAxis = (
+  sx: number,
+  originY: number,
+  size: { w: number; h: number },
+  plane: { width: number; height: number },
+  clear: { x: number; y: number },
+): Rect => {
+  const { w, h } = size
+  const below = { x: sx - w / 2, y: originY + DRAG_TAG_BELOW, w, h }
+  const above = { x: sx - w / 2, y: originY - DRAG_TAG_BELOW - h, w, h }
+  const halo = haloBox(clear)
+  const box = intersects(below, halo) && !intersects(above, halo) ? above : below
+  return keptInside(box, plane.width, plane.height)
+}
+
+/**
+ * A drag's tag beside the y-axis, centred on sy: left of the axis, or right
+ * of it when left would cover the halo of the handle at `clear` (screen px).
+ */
+export const besideYAxis = (
+  sy: number,
+  originX: number,
+  size: { w: number; h: number },
+  plane: { width: number; height: number },
+  clear: { x: number; y: number },
+): Rect => {
+  const { w, h } = size
+  const left = { x: originX - DRAG_TAG_BESIDE - w, y: sy - h / 2, w, h }
+  const right = { x: originX + DRAG_TAG_BESIDE, y: sy - h / 2, w, h }
+  const halo = haloBox(clear)
+  const box = intersects(left, halo) && !intersects(right, halo) ? right : left
+  return keptInside(box, plane.width, plane.height)
+}
+
+/** A plate centred `gap` px above (cx, cy), kept inside the plane like fvPlace's (h's annotation). */
+export const placeAbove = (
+  cx: number,
+  cy: number,
+  size: { w: number; h: number },
+  gap: number,
+  plane: { width: number; height: number },
+): Rect => ({
+  x: clamp(cx - size.w / 2, EDGE_MARGIN, plane.width - EDGE_MARGIN - size.w),
+  y: clamp(cy - gap - size.h, EDGE_MARGIN, plane.height - EDGE_MARGIN - size.h),
+  w: size.w,
+  h: size.h,
+})

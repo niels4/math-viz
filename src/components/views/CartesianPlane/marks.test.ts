@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import type { CanvasFace } from "./faces.ts"
-import type { PlanePoint, PlaneScene } from "./scene.ts"
+import type { PlaneAnnotation, PlaneHandle, PlanePoint, PlaneScene } from "./scene.ts"
 
 import { readoutFaces } from "./faces.ts"
 import { layoutMarks, NO_MARKS } from "./marks.ts"
@@ -159,5 +159,181 @@ describe("layoutMarks", () => {
     expect(layoutMarks(scene(x2, [P(2, 4)]), vp, { measure, readout, plates: [], corners: [] })).toBe(
       NO_MARKS,
     )
+  })
+
+  it("gives each handle its 44 px hit box, under the points, and keeps plates off its box", () => {
+    const marks = layout({ ...scene(r3, [P(0.5, 5.5)]), handles: R3_HANDLES })
+    expect(marks.hits).toEqual([
+      { kind: "point", id: "p", box: { x: 469, y: 97, w: 48, h: 48 } },
+      { kind: "handle", id: "stretch", box: { x: 446, y: 224, w: 44, h: 44 } },
+      { kind: "handle", id: "anchor", box: { x: 396, y: 324, w: 44, h: 44 } },
+    ])
+    expect(marks.handles).toEqual([
+      { x: 418, y: 346, shape: "diamond", ink: "primary", halo: false, held: false },
+      { x: 468, y: 246, shape: "square", ink: "primary", halo: false, held: false },
+    ])
+  })
+})
+
+// The plates' maths in STIX Two Text, at the vendored fonts' advances
+// (fonttools, per 1000 em): Figma rounds each text box up to whole px.
+const STIX_UPRIGHT: Readonly<Record<string, number>> = { "=": 720, " ": 235, ".": 245, "−": 720, ",": 245 }
+const STIX_ITALIC: Readonly<Record<string, number>> = { a: 534, b: 495, h: 549, k: 499, P: 569, Q: 707 }
+const stixMeasure = (face: CanvasFace, text: string): number =>
+  face.font.includes("STIX")
+    ? text
+        .split("")
+        .reduce(
+          (w, ch) =>
+            w +
+            ((face.font.includes("italic")
+              ? STIX_ITALIC[ch]
+              : (STIX_UPRIGHT[ch] ?? (/\d/.test(ch) ? 495 : 0))) ?? 0) *
+              (face.size / 1000),
+          0,
+        )
+    : text.length * 0.6001 * face.size
+
+const R3_HANDLES: PlaneHandle[] = [
+  { id: "anchor", x: -1, y: 1, shape: "diamond", ink: "primary" },
+  { id: "stretch", x: 0, y: 3, shape: "square", ink: "primary" },
+]
+
+const ghost = {
+  id: "original",
+  fn: x2,
+  ink: "foregroundMuted" as const,
+  width: 2,
+  dash: [6, 6],
+  alpha: 0.75,
+  back: true,
+}
+
+const note = (letter: string, value: string) => [{ text: letter, italic: true }, { text: `= ${value}` }]
+
+const stixLayout = (s: PlaneScene, plane = R2_VP, chrome = { plates: plates(597), corners }) =>
+  layoutMarks(s, plane, { measure: stixMeasure, readout, ...chrome })
+
+describe("layoutMarks › annotations, handles, where a point was", () => {
+  it("lays out R5: k's dimension line, its plate clear of both curves, P's ghost and arrow", () => {
+    const k: PlaneAnnotation = {
+      layer: "under",
+      ink: "primary",
+      onInk: "primaryForeground",
+      lines: [{ from: { x: -1, y: 0 }, to: { x: -1, y: 1 }, width: 2.5, startTick: 9, arrow: true }],
+      plates: [{ runs: note("k", "1"), size: "md", place: { kind: "beside", at: { x: -1, y: 0.5 } } }],
+    }
+    const marks = stixLayout({
+      curves: [ghost, { id: "f", fn: r3, ink: "chartLine", width: 3.5, avoid: true }],
+      points: [P(0.5, 5.5, { was: { x: 0.5, y: 4.5, ink: "primary" } })],
+      guides: [],
+      handles: R3_HANDLES,
+      annotations: [k],
+    })
+    const [annotation] = marks.annotations
+    expect(annotation?.strokes.map(({ x1, y1, x2, y2 }) => ({ x1, y1, x2, y2 }))).toEqual([
+      { x1: 418, y1: 396, x2: 418, y2: 346 },
+    ])
+    // The snapshot's "k label": 62 × 30 at (346, 377), left-down of the line's middle.
+    expect(annotation?.plates.map(boxOf)).toEqual([{ x: 346, y: 377, w: 62, h: 30 }])
+    expect(annotation?.plates[0]?.fill).toBe("primary")
+    expect(annotation?.plates[0]?.border).toBeNull()
+    // "P before": Ø22 at (493, 171); "P moved" from 158 to the head's tip at 135.
+    const was = marks.points[0]?.was
+    expect(was).toEqual({
+      x: 493,
+      y: 171,
+      ink: "chartPoint1",
+      arrow: { x1: 493, y1: 158, x2: 493, y2: 135, ink: "primary" },
+    })
+    expect(boxOf(marks.points[0]?.label)).toEqual({ x: 515, y: 66.8, w: 149, h: 41 })
+  })
+
+  it("lays out R6: the anchor's drop lines, h under the x-axis, k left of the y-axis", () => {
+    const r6 = (x: number) => 2 * (x - 1.5) ** 2 + 1
+    const anchor: PlaneAnnotation = {
+      layer: "over",
+      ink: "primary",
+      onInk: "primaryForeground",
+      lines: [
+        { from: { x: 1.5, y: 1 }, to: { x: 1.5, y: 0 }, width: 1.5, dash: [5, 4] },
+        { from: { x: 1.5, y: 1 }, to: { x: 0, y: 1 }, width: 1.5, dash: [5, 4] },
+      ],
+      plates: [
+        { runs: note("h", "1.5"), size: "sm", place: { kind: "x-axis", x: 1.5, clear: { x: 1.5, y: 1 } } },
+        { runs: note("k", "1"), size: "sm", place: { kind: "y-axis", y: 1, clear: { x: 1.5, y: 1 } } },
+      ],
+    }
+    const marks = stixLayout({
+      curves: [ghost, { id: "f", fn: r6, ink: "chartLine", width: 3.5, avoid: true }],
+      points: [P(0.5, 3)],
+      guides: [],
+      handles: [
+        { id: "anchor", x: 1.5, y: 1, shape: "diamond", ink: "primary", halo: true, held: true },
+        { id: "stretch", x: 2.5, y: 3, shape: "square", ink: "primary" },
+      ],
+      annotations: [anchor],
+    })
+    expect(marks.annotations[0]?.plates.map(boxOf)).toEqual([
+      { x: 509, y: 412, w: 68, h: 25 },
+      { x: 406, y: 333.5, w: 54, h: 25 },
+    ])
+    // The tags carry their numbers: the tick labels under them are skipped.
+    expect(marks.tickKeepOut).toEqual([
+      { x: 505, y: 408, w: 76, h: 33 },
+      { x: 402, y: 329.5, w: 62, h: 33 },
+    ])
+    expect(marks.handles[0]).toMatchObject({ halo: true, held: true })
+    expect(boxOf(marks.points[0]?.label)).toEqual({ x: 343, y: 191.8, w: 128, h: 41 })
+  })
+
+  it("lays out R7: a's unit box and its plate on the third ring, clear of the ghost", () => {
+    const box: PlaneAnnotation = {
+      layer: "under",
+      ink: "primary",
+      onInk: "primaryForeground",
+      lines: [{ from: { x: 0, y: 1 }, to: { x: 0, y: 3 }, width: 3, endTicks: 7 }],
+      plates: [{ runs: note("a", "2"), size: "md", place: { kind: "beside", at: { x: 0, y: 2 } } }],
+    }
+    const marks = stixLayout({
+      curves: [ghost, { id: "f", fn: r3, ink: "chartLine", width: 3.5, avoid: true }],
+      points: [P(0.5, 5.5)],
+      guides: [],
+      handles: R3_HANDLES,
+      annotations: [box],
+    })
+    expect(marks.annotations[0]?.plates.map(boxOf)).toEqual([{ x: 538, y: 338, w: 63, h: 30 }])
+  })
+
+  it("moves a drag's tag to the axis's far side rather than cover the handle's halo", () => {
+    // Components › anchor dragged: the anchor at (−1, 1) hugs the y-axis.
+    const marks = stixLayout({
+      curves: [
+        { id: "f", fn: (x) => 2 * ((x + 1) / 1.5) ** 2 + 1, ink: "chartLine", width: 3.5, avoid: true },
+      ],
+      points: [],
+      guides: [],
+      annotations: [
+        {
+          layer: "over",
+          ink: "primary",
+          onInk: "primaryForeground",
+          lines: [],
+          plates: [
+            { runs: note("h", "−1"), size: "sm", place: { kind: "x-axis", x: -1, clear: { x: -1, y: 1 } } },
+            { runs: note("k", "1"), size: "sm", place: { kind: "y-axis", y: 1, clear: { x: -1, y: 1 } } },
+          ],
+        },
+      ],
+    })
+    const [h, k] = marks.annotations[0]?.plates ?? []
+    // h stays under the axis, as on the board; k leaves the halo (396–440) for the right side.
+    expect(boxOf(h)).toMatchObject({ y: 412 })
+    expect(boxOf(k)).toMatchObject({ x: 476 })
+  })
+
+  it("draws no arrow from where a point was when the two nearly touch", () => {
+    const marks = stixLayout(scene(x2, [P(2, 4, { was: { x: 2, y: 3.6, ink: "primary" } })]))
+    expect(marks.points[0]?.was?.arrow).toBeNull()
   })
 })

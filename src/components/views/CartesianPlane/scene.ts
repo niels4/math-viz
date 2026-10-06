@@ -2,10 +2,13 @@ import type { ThemeColors } from "#src/state/useAppTheme.ts"
 
 // What the owner hands the plane to draw. Generic: no view's meaning lives
 // here, so the Function Viewer and the Tangent Explorer describe their marks
-// in the same terms. Later milestones add handles and annotations.
+// in the same terms.
 
 /** A theme colour, resolved for canvas by useAppTheme. */
 export type Ink = keyof ThemeColors
+
+/** A point in math units. */
+export type MathPoint = { x: number; y: number }
 
 export type PlaneCurve = {
   id: string
@@ -22,6 +25,8 @@ export type PlaneCurve = {
   alpha?: number
   /** Point labels keep clear of this curve, as they do of the data curve (not of a ghost). */
   avoid?: boolean
+  /** Context (an original, a reference): painted under the annotations, which paint under the other curves. */
+  back?: boolean
 }
 
 /**
@@ -46,10 +51,81 @@ export type PlanePoint = {
   edgeMarker?: boolean
   /** Its 48 px box takes the pointer: a press there drags the point instead of panning. */
   draggable?: boolean
+  /**
+   * Where the point was before something else moved it: a dashed Ø22 ring
+   * there in the point's ink, and an arrow in `ink` to where it is now.
+   */
+  was?: MathPoint & { ink: Ink }
 }
 
 /** A full-height dashed line at the pointer's x, under a probe. */
 export type PlaneGuide = { kind: "pointer-x"; x: number }
+
+/**
+ * A grip on the plane (FV 11): a press on its 44 px box drags it freely,
+ * Shift locks the drag to one axis. The owner says what moving it means.
+ */
+export type PlaneHandle = {
+  id: string
+  x: number
+  y: number
+  /** diamond: 22 px, an anchor; square: 18 px, a stretch grip. */
+  shape: "diamond" | "square"
+  ink: Ink
+  /** The Ø44 grab halo in its ink at 26 %: the pointer on it, or a drag. */
+  halo?: boolean
+  /** Filled with its ink while held. */
+  held?: boolean
+}
+
+/** A straight line between two math points, with px decorations. */
+export type AnnotationLine = {
+  from: MathPoint
+  to: MathPoint
+  /** px */
+  width: number
+  dash?: readonly number[]
+  alpha?: number
+  /** A tick across `from`, this many px to each side: where a dimension starts. */
+  startTick?: number
+  /** Ticks across both ends, this many px to each side: a measured side. */
+  endTicks?: number
+  /** An arrowhead whose tip sits on `to`. */
+  arrow?: boolean
+}
+
+/** Text on an annotation's plate, in the maths face: a letter italic, "= 1" upright. */
+export type MathRun = { text: string; italic?: boolean }
+
+/**
+ * Where an annotation's plate goes.
+ * - beside: the first clear spot around a point (fvPlace, gap 10), clear of every curve.
+ * - above: centred `gap` px above a point.
+ * - x-axis, y-axis: a tag beside an axis at x (below the axis) or y (left of it); on the
+ *   axis's far side when there it would cover `clear`'s Ø44 halo. Tick labels under it are skipped.
+ */
+export type PlatePlacement =
+  | { kind: "beside"; at: MathPoint }
+  | { kind: "above"; at: MathPoint; gap: number }
+  | { kind: "x-axis"; x: number; clear: MathPoint }
+  | { kind: "y-axis"; y: number; clear: MathPoint }
+
+/** md: maths 19 on a plate padded 3 9 (an annotation); sm: maths 17 padded 2 8 (a tag while dragging). */
+export type AnnotationPlate = { runs: readonly MathRun[]; size: "md" | "sm"; place: PlatePlacement }
+
+/**
+ * What a value means on the plane, drawn while it is active (FV 04): lines
+ * in `ink`, plates filled with `ink` and lettered in `onInk`.
+ * under: above the back curves, under the others; over: above every curve,
+ * under the handles.
+ */
+export type PlaneAnnotation = {
+  layer: "under" | "over"
+  ink: Ink
+  onInk: Ink
+  lines: readonly AnnotationLine[]
+  plates: readonly AnnotationPlate[]
+}
 
 export type PlaneScene = {
   /** Painted in order: a ghost before the curve it ghosts. */
@@ -57,4 +133,7 @@ export type PlaneScene = {
   /** Painted in order, each with its label: the last one on top. */
   points: readonly PlanePoint[]
   guides: readonly PlaneGuide[]
+  /** Painted above the curves and the over annotations, under the points. */
+  handles?: readonly PlaneHandle[]
+  annotations?: readonly PlaneAnnotation[]
 }

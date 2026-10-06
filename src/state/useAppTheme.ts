@@ -81,6 +81,7 @@ export type ThemeColors = {
   foregroundMuted: string
   card: string
   primary: string
+  primaryForeground: string
   chartLine: string
   chartAccent: string
   chartGrid: string
@@ -119,6 +120,7 @@ const themeColorMapping: Record<string, keyof ThemeColors> = {
   "--foreground-muted": "foregroundMuted",
   "--card": "card",
   "--primary": "primary",
+  "--primary-foreground": "primaryForeground",
   "--chart-line": "chartLine",
   "--chart-accent": "chartAccent",
   "--chart-grid": "chartGrid",

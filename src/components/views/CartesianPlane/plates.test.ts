@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import type { CanvasFace } from "./faces.ts"
 
 import { EDGE_LETTER_FACE, LABEL_LETTER_FACE, readoutFaces } from "./faces.ts"
-import { EDGE_STYLE, LABEL_STYLE, layoutPlate, TAG_STYLE } from "./plates.ts"
+import { EDGE_STYLE, LABEL_STYLE, layoutPlate, outlined, TAG_STYLE } from "./plates.ts"
 
 const measure = (face: CanvasFace, text: string): number =>
   face.font.includes("italic") ? 0.57 * face.size * text.length : 0.6001 * face.size * text.length
@@ -19,7 +19,7 @@ describe("layoutPlate", () => {
         { kind: "text", text: "(2, 4)", face: readout.label, ink: "foreground" },
       ],
       LABEL_STYLE,
-      "chartPoint1",
+      outlined("chartPoint1"),
       measure,
     )
     expect(plate.box).toEqual({ x: 0, y: 0, w: 108, h: 41 })
@@ -38,7 +38,7 @@ describe("layoutPlate", () => {
         { kind: "text", text: "(−3, 10.56)", face: readout.small, ink: "foregroundMuted" },
       ],
       EDGE_STYLE,
-      "chartPoint1",
+      outlined("chartPoint1"),
       measure,
     )
     expect(plate.box).toEqual({ x: 0, y: 0, w: 163, h: 39 })
@@ -53,7 +53,7 @@ describe("layoutPlate", () => {
     const plate = layoutPlate(
       [{ kind: "text", text: "−1.5", face: readout.small, ink: "foreground" }],
       TAG_STYLE,
-      "chartPoint2",
+      outlined("chartPoint2"),
       measure,
     )
     expect(plate.box).toEqual({ x: 0, y: 0, w: 57, h: 28 })

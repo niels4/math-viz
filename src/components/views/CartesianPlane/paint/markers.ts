@@ -1,6 +1,9 @@
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
-import type { Marker } from "../marks.ts"
+import type { Marker, WasMark } from "../marks.ts"
+
+import { paintLine } from "./annotations.ts"
+import { dashPhase } from "./guides.ts"
 
 /** The knock-out disc that keeps grid and curve out from under a marker (Ø24). */
 const KNOCKOUT_R = 12
@@ -52,4 +55,26 @@ export const paintMarker = (ctx: CanvasRenderingContext2D, marker: Marker, theme
     disc(ctx, x, y, 3, theme.foreground)
   }
   ctx.restore()
+}
+
+/** Where a point was (fvDrawCanvas: P before): a Ø22 ring, 2 px dashed 3 3 inside its box, in the point's ink. */
+const WAS_R = 11
+const WAS_WIDTH = 2
+const WAS_DASH = [3, 3]
+/** The arrow from where it was: 2 px with a head (fvDrawCanvas: P moved). */
+const WAS_ARROW_WIDTH = 2
+
+export const paintWas = (ctx: CanvasRenderingContext2D, was: WasMark, theme: ThemeVars) => {
+  ctx.save()
+  ctx.beginPath()
+  ctx.arc(was.x, was.y, WAS_R - WAS_WIDTH / 2, 0, Math.PI * 2)
+  ctx.lineWidth = WAS_WIDTH
+  ctx.setLineDash(WAS_DASH)
+  ctx.lineDashOffset = dashPhase(WAS_DASH)
+  ctx.strokeStyle = theme[was.ink]
+  ctx.stroke()
+  ctx.restore()
+  if (was.arrow !== null) {
+    paintLine(ctx, was.arrow, WAS_ARROW_WIDTH, theme[was.arrow.ink], { arrow: true })
+  }
 }

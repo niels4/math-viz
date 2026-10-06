@@ -64,7 +64,10 @@ export type CartesianPlaneProps = {
   onViewChange?: ((view: PlaneView) => void) | undefined
   /** The pointer on the plane after every move, or null when it leaves. */
   onPointer?: ((pointer: PlanePointer | null) => void) | undefined
-  /** A draggable point pressed, dragged and let go; `to` is where the pointer has moved it. */
+  /**
+   * A draggable point or a handle pressed, dragged and let go; `to` is where
+   * the pointer has moved it (a handle along one axis while Shift is held).
+   */
   onMarkDrag?: ((phase: MarkDragPhase, id: string, to: { x: number; y: number }) => void) | undefined
   /** A key on the focused plane, before its own keys: true when the owner took it. */
   onKeyDown?: ((event: KeyboardEvent<HTMLElement>) => boolean) | undefined
@@ -73,8 +76,34 @@ export type CartesianPlaneProps = {
 /** The canvas's cursor says what a press will do (FV 07 › pointer modes). */
 type Cursor = "probe" | "grab" | "grabbing" | "link"
 
-/** A point being dragged: the press in maths, and where the point was. */
-type MarkDrag = { id: string; pointerId: number; fromX: number; fromY: number; markX: number; markY: number }
+/**
+ * A mark being dragged: the press in maths, and where the mark was. A
+ * handle moves freely, Shift locking it to one axis; a point's owner reads
+ * what it needs of where the pointer moved it.
+ */
+type MarkDrag = {
+  id: string
+  kind: "point" | "handle"
+  pointerId: number
+  fromX: number
+  fromY: number
+  markX: number
+  markY: number
+}
+
+/** Where the pointer has moved a mark: as far as the pointer, or along one axis with Shift on a handle. */
+const dragTo = (drag: MarkDrag, x: number, y: number, shift: boolean): { x: number; y: number } => {
+  let dx = x - drag.fromX
+  let dy = y - drag.fromY
+  if (drag.kind === "handle" && shift) {
+    if (Math.abs(dx) >= Math.abs(dy)) {
+      dy = 0
+    } else {
+      dx = 0
+    }
+  }
+  return { x: drag.markX + dx, y: drag.markY + dy }
+}
 
 // Canvas text draws in whatever face has loaded: load the plane's faces, then
 // redraw, so a first frame in fallback faces doesn't stay on screen.
@@ -190,8 +219,12 @@ export function CartesianPlane({
   const hoverAt = (px: number, py: number) => {
     const hit = hitTest(marksRef.current, px, py)
     setCursor(hit === null ? "probe" : hit.kind === "edge" ? "link" : "grab")
-    report(px, py, hit?.kind === "point" ? hit.id : null, false)
+    report(px, py, hit === null || hit.kind === "edge" ? null : hit.id, false)
   }
+
+  // A draggable mark by id, where it is now.
+  const markAt = (id: string): { x: number; y: number } | undefined =>
+    scene.points.find((p) => p.id === id) ?? scene.handles?.find((h) => h.id === id)
 
   const endMarkDrag = () => {
     const drag = markDragRef.current
@@ -200,8 +233,8 @@ export function CartesianPlane({
     }
     markDragRef.current = null
     setCursor("grab")
-    const point = scene.points.find((p) => p.id === drag.id)
-    onMarkDrag?.("end", drag.id, { x: point?.x ?? drag.markX, y: point?.y ?? drag.markY })
+    const mark = markAt(drag.id)
+    onMarkDrag?.("end", drag.id, { x: mark?.x ?? drag.markX, y: mark?.y ?? drag.markY })
   }
 
   const onCanvasPointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
@@ -218,21 +251,22 @@ export function CartesianPlane({
       pan.setPanY(next.panY)
       return
     }
-    const point = hit?.kind === "point" ? scene.points.find((p) => p.id === hit.id) : undefined
-    if (point !== undefined && e.button === 0) {
+    const mark = hit === null ? undefined : markAt(hit.id)
+    if (hit !== null && mark !== undefined && e.button === 0) {
       pan.stopInertia()
       e.currentTarget.setPointerCapture(e.pointerId)
       markDragRef.current = {
-        id: point.id,
+        id: hit.id,
+        kind: hit.kind,
         pointerId: e.pointerId,
         fromX: toMathX(vp, px),
         fromY: toMathY(vp, py),
-        markX: point.x,
-        markY: point.y,
+        markX: mark.x,
+        markY: mark.y,
       }
       setCursor("grabbing")
-      onMarkDrag?.("start", point.id, { x: point.x, y: point.y })
-      report(px, py, point.id, false)
+      onMarkDrag?.("start", hit.id, { x: mark.x, y: mark.y })
+      report(px, py, hit.id, false)
       return
     }
     onPointerDown(e)
@@ -240,7 +274,7 @@ export function CartesianPlane({
     report(px, py, null, true)
   }
 
-  // The zoom handlers run first so gestures keep working; a dragged point
+  // The zoom handlers run first so gestures keep working; a dragged mark
   // takes its pointer's moves instead. A move with no button held ends a
   // drag whose release was missed (AGENTS.md › pointer-capture drags).
   const onCanvasPointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
@@ -251,9 +285,7 @@ export function CartesianPlane({
         endMarkDrag()
         return
       }
-      const x = toMathX(vp, px)
-      const y = toMathY(vp, py)
-      onMarkDrag?.("move", drag.id, { x: drag.markX + (x - drag.fromX), y: drag.markY + (y - drag.fromY) })
+      onMarkDrag?.("move", drag.id, dragTo(drag, toMathX(vp, px), toMathY(vp, py), e.shiftKey))
       report(px, py, drag.id, false)
       return
     }
@@ -287,7 +319,7 @@ export function CartesianPlane({
     }
   }
 
-  // Letting go anywhere, or the window losing focus, ends a point's drag.
+  // Letting go anywhere, or the window losing focus, ends a mark's drag.
   const onWindowRelease = useEffectEvent(() => {
     endMarkDrag()
   })
@@ -389,6 +421,7 @@ export function CartesianPlane({
         className={style.canvas}
         data-testid="cartesian-canvas"
         data-cursor={cursor}
+        data-handles={scene.handles?.map((h) => h.id).join(" ")}
         data-zoom={zoom}
         data-origin-x={vp.originX}
         data-origin-y={vp.originY}

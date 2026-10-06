@@ -40,6 +40,18 @@ export const LABEL_LETTER_FACE: CanvasFace = makeFace("italic 400", 20, STIX_FAM
 /** A point's letter on its edge marker (edge-marker-fv): STIX italic 18. */
 export const EDGE_LETTER_FACE: CanvasFace = makeFace("italic 400", 18, STIX_FAMILY)
 
+/** An annotation's maths (fvDrawCanvas: "k = 1"): STIX 19, the letter italic. */
+export const NOTE_FACES = {
+  italic: makeFace("italic 400", 19, STIX_FAMILY),
+  upright: makeFace("400", 19, STIX_FAMILY),
+}
+
+/** A drag's tags and labels ("h = 1.5" on an axis): STIX 17. */
+export const DRAG_TAG_FACES = {
+  italic: makeFace("italic 400", 17, STIX_FAMILY),
+  upright: makeFace("400", 17, STIX_FAMILY),
+}
+
 /** The faces whose family is the theme's readout font: label coordinates 17, tag values and edge-marker coordinates 15. */
 export type ReadoutFaces = { label: CanvasFace; small: CanvasFace }
 
@@ -53,6 +65,10 @@ export const PLANE_FACES: readonly { face: CanvasFace; text: string }[] = [
   { face: TICK_LABEL_FACE, text: "−0123456789.≈" },
   { face: ORIGIN_FACE, text: "O" },
   { face: LABEL_LETTER_FACE, text: "PQ" },
+  ...[NOTE_FACES, DRAG_TAG_FACES].flatMap((faces) => [
+    { face: faces.italic, text: "abhk" },
+    { face: faces.upright, text: "=−0123456789." },
+  ]),
   ...[MONO_FAMILY, STIX_FAMILY].map((family) => ({
     face: readoutFaces(family).label,
     text: "(−0123456789.,)≈",

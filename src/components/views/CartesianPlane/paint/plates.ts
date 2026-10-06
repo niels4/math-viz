@@ -4,22 +4,25 @@ import { trianglePath } from "#src/components/ui/glyphPaths.ts"
 
 import type { Plate } from "../plates.ts"
 
-import { PLATE_BORDER, TRIANGLE_INSET } from "../plates.ts"
+import { TRIANGLE_INSET } from "../plates.ts"
 
-/** A plate: card fill, the 2 px border inside its box (Figma's INSIDE stroke), then its runs. */
+/** A plate: its fill, its border inside the box (Figma's INSIDE stroke), then its runs. */
 export const paintPlate = (ctx: CanvasRenderingContext2D, plate: Plate, theme: ThemeVars) => {
   const { x, y, w, h } = plate.box
-  const half = PLATE_BORDER / 2
   ctx.save()
   ctx.beginPath()
   ctx.roundRect(x, y, w, h, plate.radius)
-  ctx.fillStyle = theme.card
+  ctx.fillStyle = theme[plate.fill]
   ctx.fill()
-  ctx.beginPath()
-  ctx.roundRect(x + half, y + half, w - PLATE_BORDER, h - PLATE_BORDER, Math.max(0, plate.radius - half))
-  ctx.lineWidth = PLATE_BORDER
-  ctx.strokeStyle = theme[plate.border]
-  ctx.stroke()
+  if (plate.border !== null) {
+    const { ink, width } = plate.border
+    const half = width / 2
+    ctx.beginPath()
+    ctx.roundRect(x + half, y + half, w - width, h - width, Math.max(0, plate.radius - half))
+    ctx.lineWidth = width
+    ctx.strokeStyle = theme[ink]
+    ctx.stroke()
+  }
   ctx.textAlign = "left"
   ctx.textBaseline = "alphabetic"
   for (const run of plate.runs) {

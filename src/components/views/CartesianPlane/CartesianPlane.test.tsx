@@ -344,6 +344,55 @@ describe("CartesianPlane marks", () => {
     expect(onMarkDrag.mock.calls.at(-1)?.[0]).toBe("end")
   })
 
+  it("drags a handle freely, Shift locking it to the axis it moved along most (FV 11)", async () => {
+    const scene: PlaneScene = {
+      curves: [],
+      points: [],
+      guides: [],
+      handles: [{ id: "grip", x: 1, y: 1, shape: "square", ink: "primary" }],
+    }
+    const onMarkDrag = vi.fn<(phase: string, id: string, to: { x: number; y: number }) => void>()
+    const onPointer = vi.fn<(pointer: PlanePointer | null) => void>()
+    const screen = await render(
+      <CartesianPlane scene={scene} onMarkDrag={onMarkDrag} onPointer={onPointer} />,
+    )
+    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
+    expect(canvas.dataset["handles"]).toBe("grip")
+    const at = (type: string, x: number, y: number, buttons: number, shiftKey = false) =>
+      canvas.dispatchEvent(
+        new PointerEvent(type, {
+          bubbles: true,
+          pointerId: 1,
+          isPrimary: true,
+          button: 0,
+          buttons,
+          clientX: x,
+          clientY: y,
+          shiftKey,
+        }),
+      )
+    act(() => {
+      // 20 px off the grip's centre (350, 250) is still inside its 44 px box.
+      at("pointermove", 370, 250, 0)
+    })
+    expect(onPointer).toHaveBeenLastCalledWith(expect.objectContaining({ over: "grip" }))
+    expect(canvas.dataset["cursor"]).toBe("grab")
+    act(() => {
+      at("pointerdown", 370, 250, 1)
+      at("pointermove", 395, 225, 1)
+    })
+    expect(onMarkDrag).toHaveBeenLastCalledWith("move", "grip", { x: 1.5, y: 1.5 })
+    act(() => {
+      at("pointermove", 420, 240, 1, true)
+    })
+    // Shift: x moved 1, y 0.2 since the press, so only x follows.
+    expect(onMarkDrag).toHaveBeenLastCalledWith("move", "grip", { x: 2, y: 1 })
+    act(() => {
+      at("pointerup", 420, 240, 0)
+    })
+    expect(onMarkDrag.mock.calls.at(-1)?.slice(0, 2)).toEqual(["end", "grip"])
+  })
+
   it("ends a point's drag on a move with no button held", async () => {
     const onMarkDrag = vi.fn<(phase: string, id: string, to: { x: number; y: number }) => void>()
     const screen = await render(<CartesianPlane scene={POINT_SCENE} onMarkDrag={onMarkDrag} />)
