@@ -58,6 +58,25 @@ describe("Router Navigation", () => {
     })
   })
 
+  // A route is a key the routes object owns: a hash naming a member of
+  // Object.prototype is no page, so it shows the not-found page.
+  describe("when the hash names a member of Object.prototype", () => {
+    afterEach(async () => {
+      await updateLocationHash("")
+    })
+
+    const routes = { "": RootView, _not_found: CustomNotFound }
+
+    it.each(Object.getOwnPropertyNames(Object.prototype))(
+      "should render the not found view for #%s",
+      async (name) => {
+        await updateLocationHash(`#${name}`)
+        const screen = await render(<Router routes={routes} />)
+        await expect.element(screen.getByTestId("custom-not-found-view")).toBeVisible()
+      },
+    )
+  })
+
   describe("when we click on a link", () => {
     beforeEach(async () => {
       await updateLocationHash("#page-1")

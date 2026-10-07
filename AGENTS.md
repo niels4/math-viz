@@ -97,6 +97,7 @@ File-system based: `scripts/generateRoutes.ts` scans pages, `src/components/rout
 - `_root.page.tsx` → `""` (index) and `_not_found.page.tsx` → fallback; both only at the pages root.
 - Route and directory names: lowercase letters/numbers/dashes, no leading/trailing/double dashes (`isValidRoute`). Anything else fails route generation.
 - Hash-based: route is `location.hash` minus `#`; search params follow `?` (`#dev/theme-demo?theme=tron`).
+- A route is a page only if `routes` owns it (`Object.hasOwn`): `#constructor` or `#__proto__` would otherwise read `Object.prototype` and crash the render; they show `_not_found`. Look up any key that comes from the URL the same way.
 - **After adding/removing/renaming a page**: run `npm run generate`, and add a TOC link in `src/pages/_root.page.tsx`.
 - Route state hooks (from `src/components/router/router-hooks.ts`): `useRoute()`, `useSearchParams()`, `useSetSearchParams()` (merge semantics; `null` value deletes a param).
 
