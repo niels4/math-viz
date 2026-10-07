@@ -83,10 +83,13 @@ export const gridSteps = (zoom: number): GridSteps => {
   return { minor, major: step125(minor * 1.5) }
 }
 
-/** Multiples of `step` in [min, max]. */
+/**
+ * Multiples of `step` in [min, max]. Past 2^53 a step can't be told from the
+ * next and n++ stops moving: a view panned that far gets none.
+ */
 const multiples = (min: number, max: number, step: number): number[] => {
   const out: number[] = []
-  for (let n = Math.ceil(min / step - EPS); n * step <= max + step * EPS; n++) {
+  for (let n = Math.ceil(min / step - EPS); Number.isSafeInteger(n) && n * step <= max + step * EPS; n++) {
     out.push(clean(n * step))
   }
   return out

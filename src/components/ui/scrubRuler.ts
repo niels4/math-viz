@@ -7,6 +7,7 @@
 
 import { formatMark } from "#src/util/format/number.ts"
 
+import { niceStep } from "./extentTicks.ts"
 import { SCRUB_STEP, type ScrubKind } from "./scrub.ts"
 
 /** The tape's height (FV_TAPE_H). */
@@ -23,6 +24,8 @@ export const LABEL_TOP = 14
 const LABEL_CLEAR_INDEX = 16
 /** …or of either end, where the chevrons sit. */
 const LABEL_CLEAR_END = 20
+/** A label keeps this far from the one before: long ones at huge sizes would touch. */
+const LABEL_GAP = 6
 
 export type RulerLabel = {
   /** Where the label's value sits on the tape. */
@@ -42,8 +45,11 @@ export type RulerMarks = {
   home: number | null
 }
 
+// The smallest step in the list that is at least `min`, and past its end
+// the 1-2-5 steps beyond it: a step that stopped growing would put a typed
+// 10⁶ hundreds of thousands of ticks on the tape.
 const nice = (min: number, list: readonly number[]): number =>
-  list.find((v) => v >= min) ?? list.at(-1) ?? min
+  list.find((v) => v >= min) ?? niceStep(min, list.at(-1) ?? min)
 
 const onLattice = (u: number, q: number): boolean => Math.abs(u / q - Math.round(u / q)) < 1e-6
 
@@ -58,14 +64,17 @@ export const rulerMarks = (kind: ScrubKind, value: number, width: number): Ruler
   const c = width / 2
   const marks: RulerMarks = { minor: [], mid: [], major: [], labels: [], home: null }
   const inside = (x: number) => x >= 1 && x <= width - 1
+  // Labels come left to right.
   const label = (x: number, u: number) => {
     const text = formatMark(u)
     const w = labelWidth(text)
     const left = Math.round(x - w / 2)
+    const before = marks.labels.at(-1)
     if (
       left >= LABEL_CLEAR_END &&
       left + w <= width - LABEL_CLEAR_END &&
-      Math.abs(x - c) >= LABEL_CLEAR_INDEX
+      Math.abs(x - c) >= LABEL_CLEAR_INDEX &&
+      (before === undefined || left >= before.left + labelWidth(before.text) + LABEL_GAP)
     ) {
       marks.labels.push({ x, left, text })
     }
@@ -73,7 +82,13 @@ export const rulerMarks = (kind: ScrubKind, value: number, width: number): Ruler
 
   if (kind === "additive") {
     const ppu = 1 / SCRUB_STEP.additive
-    for (let n = Math.ceil((value - c / ppu) * 10); n <= Math.floor((value + c / ppu) * 10); n++) {
+    // Past 2^53 a tenth can't be told from the next, and n++ stops moving:
+    // a shift that large has no tenths to mark.
+    for (
+      let n = Math.ceil((value - c / ppu) * 10);
+      Number.isSafeInteger(n) && n <= Math.floor((value + c / ppu) * 10);
+      n++
+    ) {
       const u = n / 10
       const x = c + (u - value) * ppu
       if (!inside(x)) {
@@ -102,6 +117,9 @@ export const rulerMarks = (kind: ScrubKind, value: number, width: number): Ruler
   const k = 1 / Math.log(1 + SCRUB_STEP.multiplicative)
   const lo = size * Math.exp(-c / k)
   const hi = size * Math.exp(c / k)
+  if (!Number.isFinite(hi)) {
+    return marks
+  }
   const step = nice((3.5 * hi) / k, [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1])
   const mid = nice(step * 4.9, [0.05, 0.1, 0.2, 0.25, 0.5, 1, 2, 5])
   const lab = nice((38 * hi) / k, [0.01, 0.02, 0.05, 0.1, 0.2, 0.25, 0.5, 1, 2, 5, 10])

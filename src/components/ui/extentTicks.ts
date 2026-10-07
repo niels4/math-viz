@@ -55,9 +55,11 @@ export const extentMarks = (min: number, max: number, width: number): ExtentMark
   const majorStep = niceStep(tickStep * 1.99, MAJOR_FLOOR)
   const labelStep = niceStep(LABEL_MIN_PX / ppu, LABEL_FLOOR)
 
+  // Past 2^53 a step can't be told from the next and n++ stops moving: a
+  // range that far from 0 gets no marks.
   const minor: number[] = []
   const major: number[] = []
-  for (let n = Math.ceil(min / tickStep); n * tickStep <= max; n++) {
+  for (let n = Math.ceil(min / tickStep); Number.isSafeInteger(n) && n * tickStep <= max; n++) {
     const u = n * tickStep
     const x = at(u)
     // Not on the track's ends, where the baseline's caps sit.
@@ -68,7 +70,7 @@ export const extentMarks = (min: number, max: number, width: number): ExtentMark
   }
 
   const labels: ExtentMarks["labels"] = []
-  for (let n = Math.ceil(min / labelStep); n * labelStep <= max; n++) {
+  for (let n = Math.ceil(min / labelStep); Number.isSafeInteger(n) && n * labelStep <= max; n++) {
     const value = n * labelStep
     const text = formatTick(value)
     const box = Math.ceil(text.length * LABEL_CHAR_PX)

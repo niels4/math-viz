@@ -71,3 +71,16 @@ describe("extentMarks: the P scrubber's calibration (fvScrubber)", () => {
     expect(extentMarks(1, -1, 396)).toBeNull()
   })
 })
+
+describe("extentMarks over a range far from 0", () => {
+  // Past 2^53 a step can't be told from the next: the loops end all the same.
+  it.each([
+    [1e17, 1e17 + 20],
+    [-1e17 - 20, -1e17],
+    [1e300, 1e300 + 1e286],
+  ])("ends over [%d, %d]", (min, max) => {
+    const marks = extentMarks(min, max, 396)
+    expect((marks?.minor.length ?? 0) + (marks?.major.length ?? 0)).toBeLessThanOrEqual(396 / 4 + 1)
+    expect(marks?.labels.length ?? 0).toBeLessThanOrEqual(396 / LABEL_MIN_PX + 1)
+  })
+})

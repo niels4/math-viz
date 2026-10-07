@@ -89,3 +89,40 @@ describe("rulerMarks, log (scales)", () => {
     })
   })
 })
+
+// A typed value can be any finite number, 10⁹ or 10³⁰⁰: the ruler keeps an
+// ordinary ruler's few marks, and every loop ends.
+describe("rulerMarks at huge values", () => {
+  const ticksOf = (marks: ReturnType<typeof rulerMarks>) =>
+    marks.minor.length + marks.mid.length + marks.major.length
+
+  it.each([1e3, 1e6, 3e6, 1e9, 1e17, 1e300])(
+    "keeps a log ruler's ticks 3.5 px apart at a size of %d",
+    (size) => {
+      for (const width of [W, 420]) {
+        const marks = rulerMarks("multiplicative", size, width)
+        expect(ticksOf(marks)).toBeGreaterThan(0)
+        expect(ticksOf(marks)).toBeLessThanOrEqual(width / 3.5 + 1)
+      }
+    },
+  )
+
+  it.each([1e3, 1e6, 3e6, 1e9, 1e17, 1e300])(
+    "never overlaps a log ruler's labels at a size of %d",
+    (size) => {
+      for (const width of [W, 420]) {
+        const { labels } = rulerMarks("multiplicative", size, width)
+        labels.slice(1).forEach((next, i) => {
+          const prev = labels[i] ?? next
+          expect(next.x - prev.x).toBeGreaterThanOrEqual(38 - 1e-9)
+          expect(next.left).toBeGreaterThan(prev.left + Math.ceil(prev.text.length * 7.2))
+        })
+      }
+    },
+  )
+
+  it.each([1e15, 1e17, 1e300, -1e300])("ends a linear ruler at a shift of %d", (value) => {
+    const marks = rulerMarks("additive", value, W)
+    expect(ticksOf(marks)).toBeLessThanOrEqual(W / 5 + 1)
+  })
+})

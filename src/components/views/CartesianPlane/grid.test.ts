@@ -120,3 +120,14 @@ describe("gridLines", () => {
     expect([lines.axisX, lines.axisY]).toEqual([112, 134])
   })
 })
+
+describe("gridLines far from the origin", () => {
+  // A click on P's edge marker pans to P, wherever a typed a or k puts it.
+  // Past 2^53 a step can't be told from the next: the loops end all the same.
+  it.each([1e17, -1e17, 1e34, 1e300])("ends with the view panned to y = %d", (y) => {
+    const vp = makeViewport({ width: 800, height: 600, dpr: 1 }, { zoom: 50, panX: 0, panY: -y })
+    const lines = gridLines(vp, gridSteps(50))
+    expect(lines.minorY.length + lines.majorY.length).toBeLessThanOrEqual(600 / 20 + 1)
+    expect(lines.minorX.length + lines.majorX.length).toBeLessThanOrEqual(800 / 20 + 1)
+  })
+})
