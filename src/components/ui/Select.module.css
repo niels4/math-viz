@@ -4,7 +4,10 @@
     min-width: 0;
   }
 
-  .select {
+  /* Room for the chevron. TextField's .field, on the same element in the same
+  layer, loads after this module, so a one-class selector here would lose its
+  padding to the field's shorthand: two classes win whatever the order. */
+  .select_wrap > .select {
     appearance: none;
     padding-right: 38px;
     cursor: pointer;
