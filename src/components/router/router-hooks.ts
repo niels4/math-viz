@@ -36,16 +36,13 @@ const updateSearchParams = (searchString: string) => {
 
   currentSearchString = searchString
   currentSearchParams = new URLSearchParams(currentSearchString)
-  console.log("updating search params", currentSearchParams.get("param3"), searchParamListeners.size)
 
   for (const listener of searchParamListeners) {
-    console.log("updating listener")
     listener(currentSearchParams)
   }
 }
 
 const onHashChange = () => {
-  console.log("hash change", window.location.hash)
   const { route, search } = getRouteAndSearchString()
   updateRoute(route)
   updateSearchParams(search)
@@ -71,10 +68,8 @@ export const useSearchParams = () => {
   const [searchParams, setSearchParams] = useState(currentSearchParams)
 
   useEffect(() => {
-    console.log("adding search params")
     searchParamListeners.add(setSearchParams)
     return () => {
-      console.log("unmounting")
       searchParamListeners.delete(setSearchParams)
     }
   }, [setSearchParams])
