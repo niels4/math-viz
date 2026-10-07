@@ -3,8 +3,9 @@ import type { CSSProperties, ReactNode } from "react"
 import { MathText } from "#src/components/ui/MathText.tsx"
 import { formatNumber, numberParts, relation } from "#src/util/format/number.ts"
 
+import type { ReadoutSlots } from "./readoutFit.ts"
+
 import style from "./PointReadout.module.css"
-import { compactReadoutWidth, type ReadoutSlots } from "./readoutFit.ts"
 
 /** The placeholder for a number with no point (U+2013, the design's dash). */
 const NO_NUMBER = "–"
@@ -23,15 +24,12 @@ const sized = (chars: number): CSSProperties => ({ "--chars": chars }) as CSSPro
 // prints exactly, ≈ when it prints rounded; a y beyond fixed digits prints
 // scientific with a raised exponent (FV 10). With no point (null) both
 // numbers are dashes and the readout is muted, so the card keeps its size.
-// `xField` takes x's place when x can be typed (P). Compact (the dock's
-// cards, R9): STIX 26 and the numbers at 24, shrinking as one where the
-// card is narrower than the readout.
+// `xField` takes x's place when x can be typed (P).
 export function PointReadout({
   x,
   y,
   xField,
   slots = null,
-  compact = false,
   testId,
 }: {
   x: number | null
@@ -39,7 +37,6 @@ export function PointReadout({
   xField?: ReactNode
   /** The slots the plane's visible range asks for (readoutFit.ts); null keeps each number's own width. */
   slots?: ReadoutSlots | null
-  compact?: boolean
   testId?: string
 }) {
   const xText = x === null ? NO_NUMBER : formatNumber(x)
@@ -48,14 +45,9 @@ export function PointReadout({
   // A dash keeps its own width: an empty readout isn't sliding.
   const xChars = x === null ? xText.length : Math.max(xText.length, slots?.x ?? 0)
   const yChars = y === null ? yText.length : Math.max(yText.length, slots?.y ?? 0)
-  const fit = compact
-    ? ({ "--natural": compactReadoutWidth(xChars, parts, yChars) } as CSSProperties)
-    : undefined
   return (
     <span
       className={style.readout}
-      style={fit}
-      data-compact={compact || undefined}
       data-empty={y === null || undefined}
       // An empty readout's dashes say nothing aloud; the card's note does.
       aria-hidden={y === null || undefined}

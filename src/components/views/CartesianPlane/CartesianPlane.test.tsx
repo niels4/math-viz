@@ -307,7 +307,7 @@ describe("CartesianPlane view controls", () => {
   })
 
   it("defaults to the zoom that keeps y ∈ [−5, 5] in view (D17)", async () => {
-    // R9's dock plane: 1256 × 408 → 40 px per unit.
+    // R9's plane: 1256 × 408 → 40 px per unit.
     vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(rectOf(1256, 408))
     const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
     expect(lastDraw().zoom).toBe(40)

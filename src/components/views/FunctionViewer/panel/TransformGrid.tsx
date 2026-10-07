@@ -17,8 +17,7 @@ import style from "./TransformGrid.module.css"
 // h). Reset all sits in the header while anything differs from the default:
 // hidden, not disabled (FV 07). Used from the keyboard, it hands the focus
 // to a's ruler as it leaves. Each group is named as said aloud ("Vertical,
-// outside f"); its header is for the eye. Compact (the dock, R9): the group
-// headers are hidden, and the controls sit closer.
+// outside f"); its header is for the eye.
 export function TransformGrid({
   params,
   uiOf,
@@ -29,8 +28,6 @@ export function TransformGrid({
   onFlip,
   onExplain,
   explaining,
-  compact = false,
-  className,
 }: {
   params: TransformParams
   uiOf: (param: TransformParam) => PartUi
@@ -44,9 +41,6 @@ export function TransformGrid({
   onExplain: (param: TransformParam, by: FvExplainBy, open: boolean | "toggle") => void
   /** The open explainer, by parameter, and its id. */
   explaining: { param: TransformParam; id: string } | null
-  compact?: boolean
-  /** The section's class (the dock's card). */
-  className?: string | undefined
 }) {
   const controls = useRef(new Map<TransformParam, TransformControlHandle>())
   const resetAll = isIdentity(params) ? null : (
@@ -67,13 +61,9 @@ export function TransformGrid({
     </button>
   )
   return (
-    <PanelSection
-      {...SECTIONS.transform}
-      action={resetAll}
-      {...(className === undefined ? {} : { className })}
-    >
+    <PanelSection {...SECTIONS.transform} action={resetAll}>
       <div className={style.columns}>
-        <div className={style.grid} data-compact={compact || undefined}>
+        <div className={style.grid}>
           {TRANSFORM_GROUPS.map((group) => (
             <div key={group.axis} role="group" aria-label={groupName(group)} className={style.group}>
               <div className={style.group_header} aria-hidden="true">

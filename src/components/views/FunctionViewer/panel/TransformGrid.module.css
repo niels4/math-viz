@@ -28,20 +28,6 @@ a head keeps room for a seven-character value. */
   min-width: 0;
 }
 
-/* The dock (R9): the controls 8 apart, the headers hidden (the groups keep
-their names). */
-.grid[data-compact] .group {
-  gap: 8px;
-}
-
-.grid[data-compact] .group_header {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-}
-
 /* "VERTICAL outside f( )": caps 12, Work Sans 13, STIX 15, 6 apart, 19 tall. */
 .group_header {
   display: flex;

@@ -8,9 +8,9 @@
   the signature radius. Two rows (40 px) overflow the 34 px content box
   into the padding, centred, as Figma lays them out. The copy keeps 2 px of
   the right padding: Figma's box for the longest phrase ("Drag a ruler
-  sideways to reshape the curve ·") is 302 px and overflows the dock's 300
-  px content into its padding (R9, FV 06). An error hint turns border and
-  copy --destructive. */
+  sideways to reshape the curve ·") is 302 px (R9), so every hint keeps to
+  two rows in a bar down to 326 px wide (a stacked window 394 px wide). An
+  error hint turns border and copy --destructive. */
   .bar {
     display: flex;
     flex-wrap: wrap;

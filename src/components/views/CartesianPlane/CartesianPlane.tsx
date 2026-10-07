@@ -224,7 +224,7 @@ export function CartesianPlane({
   const vp = makeViewport({ width, height, dpr }, { zoom, panX, panY })
 
   // D17: while the view is still the default one, its zoom follows the
-  // plane's height (the dock's shorter plane zooms out). Adjusted during
+  // plane's height (a shorter window's plane zooms out). Adjusted during
   // render, so no frame draws the old zoom.
   const fit = defaultZoom(height, fitHalfRangeY)
   const [shownDefault, setShownDefault] = useState(fit)

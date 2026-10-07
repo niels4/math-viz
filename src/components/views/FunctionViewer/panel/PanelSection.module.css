@@ -7,12 +7,10 @@
 
 /* A section with an action: a grid whose first row the header and the
 action share, the action at the far end, though it comes last in the DOM
-(the tab order, PanelSection.tsx). Its rows keep their height in a taller
-box (the dock's fixed cards), as the flex column does. */
+(the tab order, PanelSection.tsx). */
 .section[data-action] {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-content: start;
 }
 
 .section[data-action] > * {
@@ -65,14 +63,4 @@ in px. */
   letter-spacing: 0;
   background: var(--secondary);
   border-radius: 50%;
-}
-
-/* A quiet section's header: read aloud, not shown, out of the layout. */
-.quiet {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 }

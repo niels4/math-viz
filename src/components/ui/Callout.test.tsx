@@ -92,9 +92,9 @@ describe("Callout", () => {
 
   // The browser runs the CSS: the callout's own transitions, seeked. The
   // caret's edge travels 8 px toward what it points at while the card
-  // grows from 90 % about the caret. The dock's explainer is measured with
-  // its caret on the left, then placed above its chip: it still rises out
-  // of its caret.
+  // grows from 90 % about the caret. An explainer above a low chip (a
+  // stacked window) is measured with its caret on the left, then placed
+  // above the chip: it still rises out of its caret.
   it.runIf(isBrowser()).each([
     { caret: { side: "left", at: 40 }, how: "placed", measuredFirst: false },
     { caret: { side: "top", at: 40 }, how: "placed", measuredFirst: false },

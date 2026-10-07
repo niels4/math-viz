@@ -7,31 +7,22 @@ import style from "./PanelSection.module.css"
 // far end (section 2's Reset all), then the section's parts, 10 px apart.
 // The action comes last in the DOM, so Tab reaches it after the section's
 // own controls (FV 07: Reset all is stop 6, after the four rulers); the
-// layout sets it in the header's row. A quiet section keeps its heading for
-// screen readers only (the dock's points, R9).
+// layout sets it in the header's row.
 export function PanelSection({
   step,
   title,
   action,
-  quiet = false,
-  className,
   children,
 }: {
   step: number
   title: string
   action?: ReactNode
-  quiet?: boolean
-  className?: string | undefined
   children: ReactNode
 }) {
   const id = useId()
   return (
-    <section
-      className={className === undefined ? style.section : `${style.section} ${className}`}
-      aria-labelledby={id}
-      data-action={action == null ? undefined : true}
-    >
-      <div className={quiet ? style.quiet : style.header_row}>
+    <section className={style.section} aria-labelledby={id} data-action={action == null ? undefined : true}>
+      <div className={style.header_row}>
         <h2 id={id} className={style.header}>
           <span className={style.step}>{step}</span>
           {title}

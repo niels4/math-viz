@@ -64,9 +64,9 @@ type View = { width: number; height: number }
 /**
  * Right of a target by `gap` (to the caret's tip), `dy` below its top, the
  * caret at the card's middle (FV 08's row, centred). Kept inside the window,
- * the caret then aimed at the target's centre (the dock's equation and k's
- * control sit at the window's foot); under the target, caret up, where the
- * window has no room on its right.
+ * the caret then aimed at the target's centre (a target low in a short
+ * window); under the target, caret up, where the window has no room on its
+ * right.
  */
 const beside = (target: Rect, gap: number, dy: number, height: number, view: View) => {
   const { width, caret } = TOUR_CARD
@@ -109,7 +109,7 @@ export const tourLayout = (
             hand: { x: control.x + 46, y: control.y + control.h - 34 },
           }
     // 3 · The whole plane and Q's card; the card low on the plane, caret up,
-    // and above its scale bar in a short plane (the dock).
+    // and above its scale bar in a short plane.
     case 3: {
       if (plane === null) {
         return { holes: holes(qCard), card: null, hand: null }

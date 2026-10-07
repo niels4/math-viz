@@ -71,7 +71,7 @@ describe("layoutGrid", () => {
     expect(grid.origin).toMatchObject({ x: 449, y: 401, w: 11 })
   })
 
-  it("lays out R9's dock plane: 1256 × 408 at 40 px per unit", () => {
+  it("lays out R9's plane: 1256 × 408 at 40 px per unit", () => {
     const grid = layout(1256, 408, 40)
     expect(texts(grid, "x")).toHaveLength(30)
     expect(texts(grid, "x")[0]).toBe("−15")

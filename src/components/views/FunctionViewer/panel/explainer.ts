@@ -4,11 +4,10 @@ import type { Rect } from "../../CartesianPlane/rect.ts"
 
 // Decision D12 and where an explainer opens (help-popover-fv, FV 02 › H2;
 // R7): right of the panel, over the plane's edge, never over the panel's
-// own controls, its caret's tip on the letter chip's centre. The dock (R9)
-// has no room right of it or under its chips: there the card opens above
-// the chip, over the plane, reaching away from the window's middle, where
-// the curve and its annotation are at the default view (R7 keeps them in
-// sight beside the card).
+// own controls, its caret's tip on the letter chip's centre. A stacked
+// window has no room right of the panel: there the card hangs under the
+// chip, or above a chip low in the window, reaching away from the window's
+// middle.
 
 /** D12: the pointer resting this long on a letter chip opens its explainer. */
 export const EXPLAINER_REST_MS = 400
@@ -26,9 +25,9 @@ export type ExplainerPlace = { x: number; y: number; caret: CalloutCaret }
 /**
  * The card's top-left (viewport px) and its caret, for a card `height` tall.
  * Kept 16 px inside the window, the caret following the chip. Where the
- * window has no room right of the panel, it hangs under the chip, its caret
- * up (the stacked layout), or where that runs out of the window, stands
- * above it, its caret down (the dock); failing both, on the roomier side.
+ * window has no room right of the panel (the stacked layout), it hangs
+ * under the chip, its caret up, or where that runs out of the window,
+ * stands above it, its caret down; failing both, on the roomier side.
  */
 export const placeExplainer = (
   chip: Rect,

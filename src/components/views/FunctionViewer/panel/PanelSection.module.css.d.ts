@@ -5,7 +5,6 @@ declare const styles: {
   readonly "action": string;
   readonly "header": string;
   readonly "header_row": string;
-  readonly "quiet": string;
   readonly "section": string;
   readonly "step": string;
 };

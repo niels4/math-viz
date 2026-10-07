@@ -86,14 +86,6 @@ export const Q_NOTES = {
   empty: [{ text: "Point at the plane to place" }, { math: "Q" }],
 } as const satisfies Record<string, readonly Phrase[]>
 
-/** The dock's point cards (R9, figma0 dockCard): the shorter roles and Q's shorter notes; P has none. */
-export const COMPACT_POINT_ROLES = { p: "Pinned", q: "Pointer" } as const
-
-export const COMPACT_Q_NOTES = {
-  live: [{ math: "x" }, { text: "follows your pointer" }],
-  empty: [{ text: "Point at the plane" }],
-} as const satisfies Record<string, readonly Phrase[]>
-
 /** The Original toggle (ghost-toggle-fv): its label, and the original g it draws dashed. */
 export const ORIGINAL_LABEL = "Original"
 export const originalMath = (g: string): string => `y = ${g}`
@@ -130,7 +122,7 @@ export const HINTS = {
   transform: (param: TransformParam, scale: boolean, reset: number): Phrase[] =>
     gestures([{ text: "Drag to change" }, { math: param }, { text: "·" }], scale, reset),
   fine: [{ key: "Shift" }, { text: "Fine: a tenth of the speed, steps of 0.001" }],
-  /** Two phrases, so the dock's 302 px of copy wraps between them. */
+  /** Two phrases, so a narrow bar's 302 px of copy wraps between them (ui/HintBar). */
   snap: [{ key: "Ctrl" }, { text: "Snapping to whole numbers" }, { text: "(scales: quarters)" }],
   edit: [
     { key: "Enter" },

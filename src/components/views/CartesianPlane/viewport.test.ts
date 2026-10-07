@@ -75,7 +75,7 @@ describe("zoom stops", () => {
 describe("defaultZoom (D17)", () => {
   it("keeps y ∈ [−5, 5] in view at the largest stop, at most 100 %", () => {
     expect(defaultZoom(792, 5)).toBe(50)
-    // R9's dock plane: 408 px tall → 40 px per unit, 80 %.
+    // R9's plane: 408 px tall → 40 px per unit, 80 %.
     expect(defaultZoom(408, 5)).toBe(40)
     expect(zoomPercent(defaultZoom(408, 5))).toBe(80)
     expect(defaultZoom(300, 5)).toBe(25)

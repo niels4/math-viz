@@ -130,7 +130,7 @@ export const stepZoom = (zoom: number, direction: 1 | -1): number => {
 /**
  * Decision D17: the default zoom keeps y ∈ [−fit, fit] in view. It is the
  * largest stop that fits, at most 100 %: 50 px per unit on a 792 px plane,
- * 40 px (80 %) on R9's 408 px dock plane.
+ * 40 px (80 %) on a 408 px one (R9's).
  */
 export const defaultZoom = (height: number, fitHalfRangeY: number): number => {
   if (height <= 0 || fitHalfRangeY <= 0) {
