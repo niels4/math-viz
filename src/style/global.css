@@ -6,11 +6,19 @@
  * first import in main.tsx. */
 @layer components;
 
-/* More sensible defaults */
+/* More sensible defaults: transitions may run to and from size keywords
+ * (interpolate-size, inherited from html) and on discrete properties such as
+ * display and overlay (transition-behavior, which isn't inherited, so every
+ * element gets it). */
 
 html {
   interpolate-size: allow-keywords;
-  transition-behavior: allow-descrete;
+}
+
+*,
+*::before,
+*::after {
+  transition-behavior: allow-discrete;
 }
 
 h1,
