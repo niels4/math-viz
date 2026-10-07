@@ -2,6 +2,8 @@ import type { KeyboardEvent, PointerEvent } from "react"
 
 import { useCallback, useEffect, useRef, useState } from "react"
 
+import { useLiveValue } from "#src/components/hooks/useLiveValue.ts"
+
 import type { HelpContent } from "./HelpTip.tsx"
 import type { ScrubKind } from "./scrub.ts"
 
@@ -112,6 +114,9 @@ export function ScrubStrip({
   }, [stopScrub])
 
   // Native non-passive listener so wheel scrubbing never scrolls the page.
+  // Notches that land before React renders again (a trackpad's, within one
+  // frame) each start where the last one left the value.
+  const liveValueRef = useLiveValue(value)
   useEffect(() => {
     const track = trackRef.current
     if (track === null) {
@@ -120,24 +125,24 @@ export function ScrubStrip({
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
       const snap = e.ctrlKey || e.metaKey
-      emit(
-        scrubDelta({
-          value,
-          dxPx: wheelDxPx(e.deltaY, e.deltaMode),
-          kind,
-          step,
-          fineScale,
-          quantum: q,
-          fine: e.shiftKey,
-          snap,
-        }),
-      )
+      const next = scrubDelta({
+        value: liveValueRef.current,
+        dxPx: wheelDxPx(e.deltaY, e.deltaMode),
+        kind,
+        step,
+        fineScale,
+        quantum: q,
+        fine: e.shiftKey,
+        snap,
+      })
+      liveValueRef.current = next
+      emit(next)
     }
     track.addEventListener("wheel", onWheel, { passive: false })
     return () => {
       track.removeEventListener("wheel", onWheel)
     }
-  }, [value, kind, step, fineScale, q, emit])
+  }, [liveValueRef, kind, step, fineScale, q, emit])
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const dir =

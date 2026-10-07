@@ -2,6 +2,8 @@ import type { RefObject } from "react"
 
 import { useEffect, useEffectEvent, useRef, useState } from "react"
 
+import { useLiveValue } from "#src/components/hooks/useLiveValue.ts"
+
 import type { PinchState, PointerPoint, ViewState } from "./types.ts"
 import type { PanApi } from "./usePan.ts"
 
@@ -30,6 +32,11 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
   useEffect(() => {
     zoomRef.current = zoom
   }, [zoom])
+  // The view as the wheel and the pinch read and write it between renders:
+  // notches a trackpad sends within one frame, or moves for both fingers,
+  // land before React renders again, and each must start where the last
+  // one left the view.
+  const liveViewRef = useLiveValue<ViewState>({ zoom, panX, panY })
 
   // Wheel zoom centered on the cursor. Native non-passive listener so we can
   // preventDefault and keep the page from scrolling while zooming the plane.
@@ -48,9 +55,7 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
       const cy = Math.floor(rect.height / 2)
       const delta = normalizeWheelDelta(e.deltaY, e.deltaMode)
       const next = wheelView({
-        zoom,
-        panX,
-        panY,
+        ...liveViewRef.current,
         delta,
         cursorX: sx,
         cursorY: sy,
@@ -60,6 +65,7 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
       if (next === null) {
         return
       }
+      liveViewRef.current = next
       setZoom(next.zoom)
       setPanX(next.panX)
       setPanY(next.panY)
@@ -68,7 +74,7 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
     return () => {
       canvas.removeEventListener("wheel", onWheel)
     }
-  }, [canvasRef, zoom, panX, panY, setPanX, setPanY, stopInertia])
+  }, [canvasRef, liveViewRef, setPanX, setPanY, stopInertia])
 
   // Multi-touch pinch (Maps-style): every active pointer is tracked, and two
   // or more means pinching. Zoom anchors on the pinch midpoint while the
@@ -76,12 +82,6 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
   // `touch-action: none` in CSS stops the browser stealing the gesture.
   const pointersRef = useRef(new Map<number, PointerPoint>())
   const pinchRef = useRef<PinchState | null>(null)
-  // Gesture source of truth while pinching. Move events for both fingers can
-  // land in one task sharing a stale render closure, so the pinch reads and
-  // writes the view here synchronously and only mirrors it to state. Synced
-  // from state when a pinch starts (pointerdowns flush discretely, so the
-  // closure is fresh there).
-  const viewRef = useRef<ViewState | null>(null)
 
   const pinchBaseline = (canvas: HTMLCanvasElement) => {
     const pts = [...pointersRef.current.values()]
@@ -131,7 +131,6 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
     if (pointersRef.current.size >= 2) {
       // Second finger down: swap drag for pinch, baselined on the live
       // finger positions so the switch causes no jump.
-      viewRef.current = { zoom, panX, panY }
       pinchBaseline(e.currentTarget)
       cancelDrag()
       return
@@ -165,9 +164,8 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
         pinchRef.current = { lastDist: dist, lastMidX: midX, lastMidY: midY }
         return
       }
-      const v = viewRef.current ?? { zoom, panX, panY }
       const next = pinchView({
-        view: v,
+        view: liveViewRef.current,
         dist,
         lastDist: pinch.lastDist,
         midX,
@@ -177,7 +175,7 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
         rectWidth: rect.width,
         rectHeight: rect.height,
       })
-      viewRef.current = next
+      liveViewRef.current = next
       setZoom(next.zoom)
       setPanX(next.panX)
       setPanY(next.panY)

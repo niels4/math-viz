@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent, useImperativeHandle, useRef, type KeyboardEvent, type Ref } from "react"
 
+import { useLiveValue } from "#src/components/hooks/useLiveValue.ts"
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import { formatStored } from "#src/util/format/number.ts"
 
@@ -85,15 +86,20 @@ export function ScrubStrip({
   })
   useImperativeHandle(ref, () => ({ focus: () => stripRef.current?.focus() }), [])
 
+  // Notches that land before React renders again (a trackpad's, within one
+  // frame) each start where the last one left the value.
+  const liveValueRef = useLiveValue(value)
   const onWheel = useEffectEvent((event: WheelEvent) => {
     event.preventDefault()
+    const from = liveValueRef.current
     const next = scrubDelta({
-      value,
+      value: from,
       dxPx: wheelDxPx(event.deltaY, event.deltaMode),
       kind,
       mode: scrubMode(event),
     })
-    if (next !== value) {
+    if (next !== from) {
+      liveValueRef.current = next
       onChange(next)
     }
   })

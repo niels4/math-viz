@@ -206,6 +206,19 @@ describe("ScrubStrip", () => {
     expect(now()).toBe("1.30")
   })
 
+  // A trackpad can send notches faster than React renders: each one counts,
+  // as it does one render apart (a scale: 1 × 1.002¹⁵ three times, on 0.01).
+  it.each([
+    ["additive", ["1.30", "1.60", "1.90"]],
+    ["multiplicative", ["1.03", "1.06", "1.09"]],
+  ] as const)("counts each notch of a burst, %s", async (kind, steps) => {
+    const notch = () => new WheelEvent("wheel", { bubbles: true, cancelable: true, deltaY: -100 })
+    const { dispatch, now, seen } = await renderStrip({ initial: 1, kind })
+    dispatch(notch(), notch(), notch())
+    expect(now()).toBe(steps[2])
+    expect(seen.values.map((v) => v.toFixed(2))).toEqual(steps)
+  })
+
   it("only the primary button drags", async () => {
     const { dispatch, seen } = await renderStrip({ initial: 1 })
     dispatch(

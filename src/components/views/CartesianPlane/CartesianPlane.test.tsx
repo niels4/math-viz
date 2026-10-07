@@ -7,6 +7,7 @@ import type { PlaneScene } from "./scene.ts"
 
 import { CartesianPlane, type CartesianPlaneHandle, type PlanePointer } from "./CartesianPlane"
 import { drawCartesianPlane } from "./drawCartesianPlane"
+import { wheelView } from "./util.ts"
 
 vi.mock("./drawCartesianPlane", () => ({
   drawCartesianPlane: vi.fn<(props: { zoom: number; panX: number; panY: number }) => void>(),
@@ -520,6 +521,34 @@ describe("CartesianPlane marks", () => {
     })
     expect(lastDraw().panX).toBe(1)
     expect(onPointer).toHaveBeenLastCalledWith(expect.objectContaining({ panning: false }))
+  })
+
+  // A trackpad can send wheel events faster than React renders: each notch
+  // zooms from where the last one left the view, as one render apart.
+  it("zooms one notch per wheel event, however many land before a render", async () => {
+    const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
+    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
+    act(() => {
+      for (let i = 0; i < 3; i++) {
+        canvas.dispatchEvent(
+          new WheelEvent("wheel", {
+            bubbles: true,
+            cancelable: true,
+            deltaY: -100,
+            clientX: 450,
+            clientY: 150,
+          }),
+        )
+      }
+    })
+    let view = { zoom: 50, panX: 0, panY: 0 }
+    for (let i = 0; i < 3; i++) {
+      view =
+        wheelView({ ...view, delta: -100, cursorX: 450, cursorY: 150, centerX: 300, centerY: 300 }) ?? view
+    }
+    expect(lastDraw().zoom).toBeCloseTo(view.zoom, 9)
+    expect(lastDraw().panX).toBeCloseTo(view.panX, 9)
+    expect(lastDraw().panY).toBeCloseTo(view.panY, 9)
   })
 
   it("selects no text while a point drags or the plane pans, until the pointer lets go", async () => {
