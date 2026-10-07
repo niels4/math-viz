@@ -1,6 +1,6 @@
 # math-viz — Browser Math Visualization — Project Conventions
 
-A browser math-visualization project: Vite 8 + React 19 + TypeScript 7, custom file-system routing, per-page CSS Module themes/fonts (offline), R3F + d3-math + GSAP stack ready. Scaffolded from the viz3d-factory template with `dev/` pages (developer-facing ad-hoc storyboard) — new viz pages go under `src/pages/<area>/`.
+A browser math-visualization project: Vite 8 + React 19 + TypeScript 7, custom file-system routing, per-page CSS Module themes/fonts (offline), Canvas 2D for the plane, GSAP for motion. Scaffolded from the viz3d-factory template with `dev/` pages (developer-facing ad-hoc storyboard) — new viz pages go under `src/pages/<area>/`.
 
 ## Commands
 
@@ -20,7 +20,7 @@ A browser math-visualization project: Vite 8 + React 19 + TypeScript 7, custom f
 - **oxfmt** (`.oxfmtrc.json`): no semicolons, printWidth 110, enforced import sorting, `sortPackageJson`. Match the style oxfmt produces.
 - **esbuild pin + override** (`package.json`): direct `esbuild` devDep with `overrides.typed-scss-modules.esbuild: "$esbuild"` — `typed-scss-modules@8.1.1` (via `unplugin-typed-css-modules`, latest upstream) pins `esbuild ^0.17.0` with a moderate advisory and no upstream fix; the override dedups it to the clean tree version so `npm audit` stays at 0. Bump the direct pin with normal dep updates.
 - **React 19 + React Compiler** via `oxc-transform-react@0.145` + `@vitejs/plugin-react@6` `react({ compiler: true })` (native Rust, 4x faster / 32% less RSS than Babel, no `@babel/core`/`@rolldown/plugin-babel`).
-- **R3F stack** (skill `.pi/skills/r3f-viz-stack/SKILL.md`): `@react-three/fiber` + `@react-three/drei` (WebGL 3D chart panels where depth encodes information) + `d3-scale`/`d3-shape`/`d3-array` (data-to-geometry math, numbers only, never DOM; no d3 DOM packages, no visx — anything emitting SVG stays out) + `gsap` + `@gsap/react` (all motion via `useGSAP`, never `setState` per frame). Raw `three` arrives only as an R3F peer; never import it directly, no WebGPU/TSL track. New viz work starts from `dev/` + the skill (see Visualization Conventions).
+- **GSAP** (`gsap` + `@gsap/react`): the Function Viewer's motion runs on GSAP's ticker through `useGSAP` (`motion/useFvMotion.ts`), the plane's edge markers arrive on the same ticker, and the motion tokens' springs are GSAP eases. Each tick paints through refs (the plane's `drawFrame`, the DOM's custom properties), never a `setState` per frame; the overlays move with CSS transitions (see Visualization Conventions).
 - tsconfig strictness that shapes code: `strict: true` + `noUncheckedIndexedAccess: true` (`arr[i]` is `T | undefined` - use `?? 0` / `get(arr,i)` helper / `if (v===undefined) return`), `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature` (`process.env["FOO"]`, `routes["_not_found"]`), `verbatimModuleSyntax` (`import type`), `allowImportingTsExtensions` (relative carry `.ts`), `erasableSyntaxOnly` (no enums/namespaces), `forceConsistentCasingInFileNames`, `useUnknownInCatchVariables` (`catch(e: unknown)`), `isolatedModules`, `noUnusedLocals`/`noUnusedParameters`.
 
 ## Layout
@@ -78,7 +78,7 @@ Deterministic-first + offline-first. Repeat for any new gallery image; labs are 
 
 ### Project scope — scaffolded from the viz3d-factory template
 
-- This project was scaffolded from the viz3d-factory template (`dev/{theme-demo,font-demo}` + `src/style/{themes,fonts}` + R3F/d3/GSAP stack). It is a project and will diverge — new viz pages go under `src/pages/<area>/` (one page per route).
+- This project was scaffolded from the viz3d-factory template (`dev/{theme-demo,font-demo}` + `src/style/{themes,fonts}`). It is a project and will diverge — new viz pages go under `src/pages/<area>/` (one page per route).
 
 ## Architecture: Pages, Views, Data
 
@@ -128,7 +128,6 @@ To actually see a page (or animation) rendered in a browser:
 - You can view images: `read` on a screenshot PNG shows it to you. After capturing, look at the shot yourself and iterate on the scene (colors, layout, glow) before reporting done — visual review is part of every page task.
 
 - If the Playwright script fails with `browserType.launch: Executable doesn't exist at .../ms-playwright/chromium_headless_shell-NNNN/...`, the `playwright` npm package wants a newer headless shell than the cached one: run `npx playwright install chromium` and retry (`npx playwright install firefox webkit` for the other two engines, which motion and layout checks use as well).
-- Drei `Text` (troika) keeps a `blob:` worker request open for the page lifetime, so `networkidle` never fires on Text pages: use `{ waitUntil: "load" }` instead of `networkidle` for those.
 
 ## Live Editing (user workflow)
 
@@ -155,8 +154,7 @@ This project is young and grows by experimentation. The user teaches conventions
 
 ## Visualization Conventions
 
-- R3F/d3-math/GSAP/Drei stack for animated charts and 3D panels: skill `.pi/skills/r3f-viz-stack/SKILL.md` (roles, wedge geometry, install, perf rules). Load it for any wedge/radial, R3F, or GSAP task.
-- New viz work is pages under `src/pages/<area>/` (one page per route): d3 scales turn data into geometry numbers, TSX declares the scene, GSAP moves it. Pages orchestrate (see Architecture); split views/data layers only when a second consumer exists.
+- New viz work is pages under `src/pages/<area>/` (one page per route): the page's state builds what a view draws (the plane's scene), and GSAP's ticker moves it. Pages orchestrate (see Architecture); split views/data layers only when a second consumer exists.
 - **One number rule**: every number a view shows goes through `src/util/format/number.ts`, never `toFixed` or `String(n)` in a view. Values keep fixed decimals so the decimal point holds still while they slide (the user's ruling, 2026-10-06): `formatNumber` (2), `formatStored` (a stored value: 3 when it has a third or a fine drag holds it), `numberParts` and `relation` (readouts: 0.00 with ≈ for tiny values, scientific from 100000). Scale marks and constants in copy keep the short form: `formatMark` (zeros stripped), `formatTick` (axis and scrubber ticks). Values sit right-aligned in tabular figures; a readout keeps slots as wide as the plane's view prints (`panel/readoutFit.ts`).
 - **Motion tokens** live in `src/util/motion/motion.ts`: durations (`leave` 120 ms for things going), the sweep and enter springs as GSAP eases over their settle time (`ENTER_SETTLE_MS`, 643 ms: the enter spring at its own pace), the draw-on cubic-bezier, `OVERLAY_LEAVE_MS` (200 ms: the settings menu, the explainer and the tour card going; `overlayLeaveMs()` tells an owner how long to keep one mounted at each motion level), `motionLevel()` (full; reduced: fades of at most 120 ms, nothing travels; none where there is no matchMedia, as in jsdom), and `motionCssVars` for CSS transitions (on the view root, and on any shared part that animates by itself, like `ui/SettingsMenu`).
 - **Motion on the plane**: the plane draws what it is told. Scenes carry the motion (`gridAlpha`, a curve's `drawTo` trim along its visible length in `trace.ts`, a point's `alpha`, `labelAlpha`, `labelRise`, `reach`, `tagShift`, handle and guide `alpha`), and an owner animates through `ref.drawFrame(scene | null)`, which holds its frames over the scene prop until null. Hit boxes stay where the marks rest. The plane's own motion is only the edge marker's slide-in (`arrivals.ts`). The Function Viewer's motion is FV 05 as pure functions of time (`motion/fvMotion.ts`), run on GSAP's ticker by `motion/useFvMotion.ts`; the reducer's `change` says whether a change springs (a jump) or follows 1 : 1 (direct). An overlay that animates out stays mounted, inert, through `hooks/usePresence`.
