@@ -217,10 +217,8 @@ export function CartesianPlane({
 
   const pan = usePan()
   const { panX, panY } = pan
-  const { zoom, setZoom, onPointerDown, onPointerMove, onPointerUp, pointerCount } = useZoom({
-    canvasRef,
-    pan,
-  })
+  const { zoom, setZoom, onPointerDown, onPointerMove, onPointerUp, onLostPointerCapture, pointerCount } =
+    useZoom({ canvasRef, pan })
   const vp = makeViewport({ width, height, dpr }, { zoom, panX, panY })
 
   // D17: while the view is still the default one, its zoom follows the
@@ -559,7 +557,9 @@ export function CartesianPlane({
         onLostPointerCapture={(e) => {
           if (markDragRef.current?.pointerId === e.pointerId) {
             endMarkDrag()
+            return
           }
+          onLostPointerCapture(e)
         }}
         onPointerLeave={onHoverLeave}
       />

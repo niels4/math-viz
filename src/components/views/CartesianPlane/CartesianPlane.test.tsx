@@ -26,8 +26,9 @@ const stubCtx = new Proxy(
   },
 )
 
+// A finger stays down from pointerdown to pointerup: its moves hold a button, as real ones do.
 const pointer = (type: string, init: { pointerId: number; clientX: number; clientY: number }) =>
-  new PointerEvent(type, { bubbles: true, ...init })
+  new PointerEvent(type, { bubbles: true, buttons: type === "pointerup" ? 0 : 1, ...init })
 
 const down = (canvas: HTMLCanvasElement, pointerId: number, x: number, y: number) => {
   canvas.dispatchEvent(pointer("pointerdown", { pointerId, clientX: x, clientY: y }))
@@ -461,6 +462,63 @@ describe("CartesianPlane marks", () => {
     act(() => {
       press(canvas, "pointerup", 150, 100, 0)
     })
+    expect(onPointer).toHaveBeenLastCalledWith(expect.objectContaining({ panning: false }))
+  })
+
+  // AGENTS.md › pointer-capture drags: the canvas misses a release outside
+  // the window or after its capture is lost, and hears nothing when the
+  // window loses focus mid-pan. The pan ends all the same: a move after it,
+  // even one still holding a button, reads the plane instead of panning it.
+  it.each([
+    ["the window loses focus", () => window.dispatchEvent(new Event("blur"))],
+    [
+      "the release lands outside the plane",
+      () =>
+        document.body.dispatchEvent(
+          new PointerEvent("pointerup", {
+            bubbles: true,
+            pointerId: 1,
+            buttons: 0,
+            clientX: 900,
+            clientY: 100,
+          }),
+        ),
+    ],
+    [
+      "the plane loses its pointer capture",
+      (canvas: HTMLCanvasElement) =>
+        canvas.dispatchEvent(new PointerEvent("lostpointercapture", { bubbles: true, pointerId: 1 })),
+    ],
+  ])("ends a pan when %s", async (_, lose: (canvas: HTMLCanvasElement) => void) => {
+    const onPointer = vi.fn<(pointer: PlanePointer | null) => void>()
+    const screen = await render(<CartesianPlane scene={POINT_SCENE} onPointer={onPointer} />)
+    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
+    act(() => {
+      press(canvas, "pointerdown", 100, 100, 1)
+      press(canvas, "pointermove", 150, 100, 1)
+    })
+    expect(lastDraw().panX).toBe(1)
+    act(() => lose(canvas))
+    act(() => {
+      press(canvas, "pointermove", 200, 100, 1)
+    })
+    expect(lastDraw().panX).toBe(1)
+    expect(onPointer).toHaveBeenLastCalledWith(expect.objectContaining({ panning: false }))
+  })
+
+  it("ends a pan on a move with no button held, whose release went missing", async () => {
+    const onPointer = vi.fn<(pointer: PlanePointer | null) => void>()
+    const screen = await render(<CartesianPlane scene={POINT_SCENE} onPointer={onPointer} />)
+    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
+    act(() => {
+      press(canvas, "pointerdown", 100, 100, 1)
+      press(canvas, "pointermove", 150, 100, 1)
+    })
+    act(() => {
+      press(canvas, "pointermove", 200, 100, 0)
+      press(canvas, "pointermove", 250, 100, 0)
+    })
+    expect(lastDraw().panX).toBe(1)
     expect(onPointer).toHaveBeenLastCalledWith(expect.objectContaining({ panning: false }))
   })
 

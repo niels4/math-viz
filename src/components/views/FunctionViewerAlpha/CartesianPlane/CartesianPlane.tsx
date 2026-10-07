@@ -39,7 +39,10 @@ export function CartesianPlane({
 
   const pan = usePan()
   const { panX, panY } = pan
-  const { zoom, onPointerDown, onPointerMove, onPointerUp } = useZoom({ canvasRef, pan })
+  const { zoom, onPointerDown, onPointerMove, onPointerUp, onLostPointerCapture } = useZoom({
+    canvasRef,
+    pan,
+  })
 
   // p2 follows the cursor: hover reports the cursor's math x, leaving the
   // canvas clears it. The zoom handlers run first so gestures keep working.
@@ -110,6 +113,7 @@ export function CartesianPlane({
         onPointerMove={onHoverMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
+        onLostPointerCapture={onLostPointerCapture}
         onPointerLeave={onHoverLeave}
       />
     </div>

@@ -1,6 +1,6 @@
 import type { RefObject } from "react"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useEffectEvent, useRef, useState } from "react"
 
 import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
 
@@ -101,6 +101,31 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
     }
   }
 
+  // A pointer the plane holds lets go: the fingers left pinch on or pan,
+  // and the last one ends the pan, flinging it on a release the canvas
+  // heard. A pointer the plane doesn't hold changes nothing.
+  const lift = (canvas: HTMLCanvasElement, pointerId: number, x: number, y: number, fling: boolean) => {
+    if (!pointersRef.current.delete(pointerId)) {
+      return
+    }
+    if (pointersRef.current.size >= 2) {
+      // Still pinching after a lift (third finger): re-baseline, no jump.
+      pinchBaseline(canvas)
+      cancelDrag()
+      return
+    }
+    pinchRef.current = null
+    if (pointersRef.current.size === 1) {
+      adoptRemainingDrag([...pointersRef.current.values()][0])
+      return
+    }
+    if (fling) {
+      releaseDrag(x, y, zoomRef)
+    } else {
+      cancelDrag()
+    }
+  }
+
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     stopInertia()
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -119,6 +144,11 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
 
   const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!pointersRef.current.has(e.pointerId)) {
+      return
+    }
+    if (e.buttons === 0) {
+      // Nothing held: its release went missing, so this pointer is done.
+      lift(e.currentTarget, e.pointerId, e.clientX, e.clientY, false)
       return
     }
     pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
@@ -160,28 +190,47 @@ export function useZoom({ canvasRef, pan }: { canvasRef: RefObject<HTMLCanvasEle
     trackDrag(e.clientX, e.clientY, zoom)
   }
 
-  // Shared by pointerup and pointercancel.
+  // Shared by pointerup and pointercancel. The lift comes first, so the
+  // lost capture that the release sends finds the pointer gone.
   const onPointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    pointersRef.current.delete(e.pointerId)
+    lift(e.currentTarget, e.pointerId, e.clientX, e.clientY, true)
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId)
     }
-    if (pointersRef.current.size >= 2) {
-      // Still pinching after a lift (third finger): re-baseline, no jump.
-      pinchBaseline(e.currentTarget)
-      cancelDrag()
-      return
-    }
-    pinchRef.current = null
-    if (pointersRef.current.size === 1) {
-      adoptRemainingDrag([...pointersRef.current.values()][0])
-      return
-    }
-    releaseDrag(e.clientX, e.clientY, zoomRef)
   }
+
+  // The canvas misses a release outside the window or after its capture is
+  // lost, and hears nothing when the window loses focus: those end the pan
+  // too, without a fling (AGENTS.md › pointer-capture drags).
+  const onLostPointerCapture = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    lift(e.currentTarget, e.pointerId, e.clientX, e.clientY, false)
+  }
+  const onWindowRelease = useEffectEvent((e: PointerEvent) => {
+    const canvas = canvasRef.current
+    if (canvas !== null) {
+      lift(canvas, e.pointerId, e.clientX, e.clientY, false)
+    }
+  })
+  const onWindowBlur = useEffectEvent(() => {
+    pointersRef.current.clear()
+    pinchRef.current = null
+    cancelDrag()
+  })
+  useEffect(() => {
+    const release = (e: PointerEvent) => onWindowRelease(e)
+    const blur = () => onWindowBlur()
+    window.addEventListener("pointerup", release)
+    window.addEventListener("pointercancel", release)
+    window.addEventListener("blur", blur)
+    return () => {
+      window.removeEventListener("pointerup", release)
+      window.removeEventListener("pointercancel", release)
+      window.removeEventListener("blur", blur)
+    }
+  }, [])
 
   /** Pointers down on the plane: one pans, two or more pinch. */
   const pointerCount = () => pointersRef.current.size
 
-  return { zoom, setZoom, onPointerDown, onPointerMove, onPointerUp, pointerCount }
+  return { zoom, setZoom, onPointerDown, onPointerMove, onPointerUp, onLostPointerCapture, pointerCount }
 }
