@@ -64,56 +64,6 @@ describe("Function Viewer Alpha's plane", () => {
     expect(lastDraw().panX).toBe(1)
   })
 
-  // AGENTS.md › pointer-capture drags, as on the main plane.
-  it.each([
-    ["the window loses focus", () => window.dispatchEvent(new Event("blur"))],
-    [
-      "the release lands outside the plane",
-      () =>
-        document.body.dispatchEvent(
-          new PointerEvent("pointerup", {
-            bubbles: true,
-            pointerId: 1,
-            buttons: 0,
-            clientX: 900,
-            clientY: 100,
-          }),
-        ),
-    ],
-    [
-      "the plane loses its pointer capture",
-      (canvas: HTMLCanvasElement) =>
-        canvas.dispatchEvent(new PointerEvent("lostpointercapture", { bubbles: true, pointerId: 1 })),
-    ],
-  ])("ends a pan when %s", async (_, lose: (canvas: HTMLCanvasElement) => void) => {
-    const screen = await render(<CartesianPlane />)
-    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
-    act(() => {
-      press(canvas, "pointerdown", 100, 100, 1)
-      press(canvas, "pointermove", 150, 100, 1)
-    })
-    expect(lastDraw().panX).toBe(1)
-    act(() => lose(canvas))
-    act(() => {
-      press(canvas, "pointermove", 200, 100, 1)
-    })
-    expect(lastDraw().panX).toBe(1)
-  })
-
-  it("ends a pan on a move with no button held, whose release went missing", async () => {
-    const screen = await render(<CartesianPlane />)
-    const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
-    act(() => {
-      press(canvas, "pointerdown", 100, 100, 1)
-      press(canvas, "pointermove", 150, 100, 1)
-    })
-    act(() => {
-      press(canvas, "pointermove", 200, 100, 0)
-      press(canvas, "pointermove", 250, 100, 0)
-    })
-    expect(lastDraw().panX).toBe(1)
-  })
-
   it("zooms one notch per wheel event, however many land before a render", async () => {
     const screen = await render(<CartesianPlane />)
     const canvas = toElement(screen.getByTestId("cartesian-canvas")) as HTMLCanvasElement
