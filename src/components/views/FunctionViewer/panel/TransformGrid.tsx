@@ -62,41 +62,39 @@ export function TransformGrid({
   )
   return (
     <PanelSection {...SECTIONS.transform} action={resetAll}>
-      <div className={style.columns}>
-        <div className={style.grid}>
-          {TRANSFORM_GROUPS.map((group) => (
-            <div key={group.axis} role="group" aria-label={groupName(group)} className={style.group}>
-              <div className={style.group_header} aria-hidden="true">
-                <span className={style.axis}>{group.axis}</span>
-                <span className={style.where}>{group.where}</span>
-                <span className={style.math}>
-                  <MathText text={GROUP_MATH} />
-                </span>
-              </div>
-              {group.params.map((param) => (
-                <TransformControl
-                  key={param}
-                  ref={(handle) => {
-                    if (handle === null) {
-                      controls.current.delete(param)
-                    } else {
-                      controls.current.set(param, handle)
-                    }
-                  }}
-                  param={param}
-                  value={params[param]}
-                  ui={uiOf(param)}
-                  events={eventsOf(param)}
-                  onChange={(value, typed) => onChange(param, value, typed)}
-                  onReset={() => onReset(param)}
-                  onExplain={(by, open) => onExplain(param, by, open)}
-                  explainerId={explaining?.param === param ? explaining.id : undefined}
-                  {...(isScale(param) ? { onFlip: () => onFlip(param) } : {})}
-                />
-              ))}
+      <div className={style.grid}>
+        {TRANSFORM_GROUPS.map((group) => (
+          <div key={group.axis} role="group" aria-label={groupName(group)} className={style.group}>
+            <div className={style.group_header} aria-hidden="true">
+              <span className={style.axis}>{group.axis}</span>
+              <span className={style.where}>{group.where}</span>
+              <span className={style.math}>
+                <MathText text={GROUP_MATH} />
+              </span>
             </div>
-          ))}
-        </div>
+            {group.params.map((param) => (
+              <TransformControl
+                key={param}
+                ref={(handle) => {
+                  if (handle === null) {
+                    controls.current.delete(param)
+                  } else {
+                    controls.current.set(param, handle)
+                  }
+                }}
+                param={param}
+                value={params[param]}
+                ui={uiOf(param)}
+                events={eventsOf(param)}
+                onChange={(value, typed) => onChange(param, value, typed)}
+                onReset={() => onReset(param)}
+                onExplain={(by, open) => onExplain(param, by, open)}
+                explainerId={explaining?.param === param ? explaining.id : undefined}
+                {...(isScale(param) ? { onFlip: () => onFlip(param) } : {})}
+              />
+            ))}
+          </div>
+        ))}
       </div>
     </PanelSection>
   )

@@ -1,7 +1,3 @@
-.columns {
-  container-type: inline-size;
-}
-
 /* Two columns of 204, 16 apart, 10 between a column's header and controls.
 fvTransformGrid sizes the columns from the 424 px content the Specs name,
 so the grid overhangs the 422 px content by 2 px, as on the boards. */
@@ -12,9 +8,14 @@ so the grid overhangs the 422 px content by 2 px, as on the boards. */
   margin-inline-end: -2px;
 }
 
-/* Narrower than the panel (stacked windows below 400 px), one column, so
-a head keeps room for a seven-character value. */
-@container (width < 400px) {
+/* One column in a stacked window narrower than 470 px, whose panel holds
+less than 400 px (the window less 16 + 1 + 18 a side), so a head keeps room
+for a seven-character value. A media query inside the stacked layout's
+range (FunctionViewer.module.css), so the side layout always has two
+columns. Not a container query: Safari 26.5 measures a container of auto
+width zoomed and the query's length unzoomed, so at 85 % page zoom the
+side panel's 422 px read as 359 and the grid fell to one column. */
+@media (max-width: 469px) {
   .grid {
     grid-template-columns: minmax(0, 1fr);
     margin-inline-end: 0;
