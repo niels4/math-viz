@@ -151,6 +151,26 @@ export function SearchIcon() {
   )
 }
 
+/** Google Maps' locate glyph (the user's ruling, 2026-10-07): a ring round a dot, ticks at the four points. */
+export function LocateIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="6.5" />
+      <circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none" />
+      <path d="M12 2.5V5.5M12 18.5V21.5M2.5 12H5.5M18.5 12H21.5" />
+    </svg>
+  )
+}
+
 /** ▲ ▼ ◀ ▶, drawn: the shipped fonts lack U+25B2 / U+25BC / U+25C0 / U+25B6. */
 export function TriangleIcon({
   dir,

@@ -1,19 +1,35 @@
-/* zoom-control-v2: 36 px tall, 36 × 34 steppers, 1 px inner dividers. */
+/* The plane's view controls, stacked as Google Maps stacks them (the user's
+ruling, 2026-10-07): the origin button over a capsule of + over −. Each is
+36 px wide on --card with a 1 px --border edge; the steps are 34 px squares
+inside the capsule's edge, with a 1 px divider between them. */
 
+.origin,
 .zoom {
-  display: flex;
-  align-items: center;
-  height: 36px;
-  overflow: hidden;
+  width: 36px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--sig-card-radius);
 }
 
+.origin {
+  display: grid;
+  place-items: center;
+  height: 36px;
+  padding: 0;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.zoom {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .step {
   display: grid;
   place-items: center;
-  width: 36px;
+  width: 34px;
   height: 34px;
   padding: 0;
   font-size: 20px;
@@ -25,6 +41,12 @@
   cursor: pointer;
 }
 
+.step + .step {
+  height: 35px;
+  border-top: 1px solid var(--border);
+}
+
+.origin:hover,
 .step:hover:not(:disabled) {
   background: var(--secondary);
 }
@@ -34,8 +56,9 @@
   cursor: default;
 }
 
-/* The capsule is the tab stop: focus = hover's border + the 3 px ring
-(FV 07). The steppers take the focus only from a click, which draws none. */
+/* The tab stops (FV 07): focus = hover's border + the 3 px ring. The steps
+take the focus only from a click, which draws none. */
+.origin:focus-visible,
 .zoom:focus-visible {
   border-color: var(--primary);
   outline: none;
@@ -46,15 +69,12 @@
   outline: none;
 }
 
-.readout {
-  display: flex;
-  align-items: center;
-  height: 34px;
-  padding: 0 12px;
-  font-family: var(--sig-readout-font);
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--foreground);
-  border-right: 1px solid var(--border);
-  border-left: 1px solid var(--border);
+/* The zoom, for screen readers only: nothing on screen changes width with it. */
+.status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
 }

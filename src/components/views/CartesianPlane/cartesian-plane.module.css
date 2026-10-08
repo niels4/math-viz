@@ -60,12 +60,27 @@ panning, a link over an edge marker (a click pans its point into view). */
   cursor: pointer;
 }
 
-/* Bottom-right: the owner's tools, then the zoom control. */
+/* Bottom-right: the owner's tools, then the view controls, stacked as
+Google Maps stacks them (the user's ruling, 2026-10-07): the origin button
+over the zoom's + and −. The tools sit level with the stack's foot; each
+group keeps tick labels and point labels out on its own. */
 .tools {
   position: absolute;
   right: 28px;
   bottom: 22px;
   display: flex;
   gap: 10px;
+  align-items: flex-end;
+}
+
+.owner_tools {
+  display: flex;
+  gap: 10px;
   align-items: center;
+}
+
+.view_controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }

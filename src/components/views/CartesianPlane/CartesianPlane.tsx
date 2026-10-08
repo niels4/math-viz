@@ -37,7 +37,7 @@ import {
   toMathY,
   visibleExtent,
 } from "./viewport.ts"
-import { ZoomControl } from "./ZoomControl.tsx"
+import { OriginButton, ZoomControl } from "./ZoomControl.tsx"
 
 /** D17: the default zoom keeps y ∈ [−5, 5] in view. */
 const DEFAULT_FIT_HALF_RANGE_Y = 5
@@ -186,6 +186,10 @@ const measureKeepOut = (root: HTMLElement | null): { plates: Rect[]; corners: Re
   const base = root.getBoundingClientRect()
   for (const el of root.querySelectorAll<HTMLElement | SVGElement>("[data-keep-out]")) {
     const r = el.getBoundingClientRect()
+    // An empty part (an owner with no tools) keeps nothing out.
+    if (r.width === 0 || r.height === 0) {
+      continue
+    }
     const box = { x: r.left - base.left, y: r.top - base.top, w: r.width, h: r.height }
     ;(el.dataset["keepOut"] === "corner" ? corners : plates).push(box)
   }
@@ -249,6 +253,13 @@ export function CartesianPlane({
   const onZoomStep = (direction: 1 | -1) => {
     pan.stopInertia()
     setZoom((z) => stepZoom(z, direction))
+  }
+  // Google Maps' locate button, for the plane: back to the origin, centred,
+  // at the zoom it has (the user's ruling, 2026-10-07).
+  const onOrigin = () => {
+    pan.stopInertia()
+    pan.setPanX(0)
+    pan.setPanY(0)
   }
 
   // The marks as last drawn: what the pointer can take.
@@ -564,9 +575,14 @@ export function CartesianPlane({
         onPointerLeave={onHoverLeave}
       />
       <PlaneChrome width={width} height={height} zoom={zoom} label={captionLabel} caption={caption} />
-      <div className={style.tools} data-keep-out>
-        {tools}
-        <ZoomControl zoom={zoom} onStep={onZoomStep} />
+      <div className={style.tools}>
+        <div className={style.owner_tools} data-keep-out>
+          {tools}
+        </div>
+        <div className={style.view_controls} data-keep-out>
+          <OriginButton onClick={onOrigin} />
+          <ZoomControl zoom={zoom} onStep={onZoomStep} />
+        </div>
       </div>
     </div>
   )
