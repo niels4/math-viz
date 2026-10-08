@@ -40,7 +40,7 @@ const P = (x: number, y: number, extra: Partial<PlanePoint> = {}): PlanePoint =>
   draggable: true,
   ...extra,
 })
-const Q = (x: number, y: number): PlanePoint => ({
+const Q = (x: number, y: number, extra: Partial<PlanePoint> = {}): PlanePoint => ({
   id: "q",
   x,
   y,
@@ -49,6 +49,7 @@ const Q = (x: number, y: number): PlanePoint => ({
   name: "Q",
   axisTags: true,
   edgeMarker: true,
+  ...extra,
 })
 
 const scene = (f: (x: number) => number, points: PlanePoint[], guideX?: number): PlaneScene => ({
@@ -329,6 +330,23 @@ describe("layoutMarks › annotations, handles, where a point was", () => {
     const pBox = p?.label?.box
     const qBox = q?.label?.box
     expect(pBox !== undefined && qBox !== undefined && intersects(pBox, qBox)).toBe(false)
+  })
+
+  it("holds a fixed label over the labels before it (Q's over P's)", () => {
+    // R6's P and Q, both held: Q (1.5, 3.6) at (543, 216) keeps its label
+    // 22 px right of it and 13.2 px above it, across P's.
+    const r6 = (x: number) => 2 * (x - 1.5) ** 2 + 1
+    const marks = stixLayout({
+      curves: [ghost, { id: "f", fn: r6, ink: "chartLine", width: 3.5, avoid: true }],
+      points: [P(0.5, 3, { labelPlace: "fixed" }), Q(1.5, 3.6, { labelPlace: "fixed" })],
+      guides: [{ kind: "pointer-x", x: 1.5 }],
+    })
+    const [p, q] = marks.points
+    expect(boxOf(p?.label)).toEqual({ x: 515, y: 191.8, w: 169, h: 41 })
+    expect(boxOf(q?.label)).toMatchObject({ x: 565, y: 161.8, h: 41 })
+    const pBox = p?.label?.box
+    const qBox = q?.label?.box
+    expect(pBox !== undefined && qBox !== undefined && intersects(pBox, qBox)).toBe(true)
   })
 
   it("lays out R7: a's unit box and its plate on the third ring, clear of the ghost", () => {

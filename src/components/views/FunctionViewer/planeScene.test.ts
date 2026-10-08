@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest"
 
 import type { CanvasFace } from "../CartesianPlane/faces.ts"
+import type { Rect } from "../CartesianPlane/rect.ts"
+import type { PlaneScene } from "../CartesianPlane/scene.ts"
 import type { PlaneSceneInput } from "./planeScene.ts"
 
 import { readoutFaces } from "../CartesianPlane/faces.ts"
 import { layoutMarks } from "../CartesianPlane/marks.ts"
+import { intersects } from "../CartesianPlane/rect.ts"
 import { makeViewport } from "../CartesianPlane/viewport.ts"
 import { BASE_FUNCTION_SLUGS } from "./math/baseFunctions.ts"
 import { DEFAULT_PARAMS } from "./math/form.ts"
@@ -30,7 +33,7 @@ describe("buildPlaneScene", () => {
   it("draws R1/R2's defaults: the curve, P named and draggable, no ghost (D7: no transform)", () => {
     const scene = buildPlaneScene(BASE)
     expect(scene.curves.map((c) => c.id)).toEqual(["f"])
-    expect(scene.curves[0]).toMatchObject({ ink: "chartLine", width: 3.5, glow: true, avoid: true })
+    expect(scene.curves[0]).toMatchObject({ ink: "chartLine", width: 3.5, glow: true })
     expect(scene.points).toEqual([
       {
         id: "p",
@@ -54,7 +57,6 @@ describe("buildPlaneScene", () => {
     expect(scene.curves.map((c) => c.id)).toEqual(["original", "f"])
     const [ghost, f] = scene.curves
     expect(ghost).toMatchObject({ ink: "foregroundMuted", width: 2, dash: [6, 6], alpha: 0.75, back: true })
-    expect(ghost?.avoid).toBeUndefined()
     // The untransformed g: x², vertex at the origin; f is R3's.
     expect(ghost?.fn(2)).toBe(4)
     expect(f?.fn(0.5)).toBe(5.5)
@@ -70,6 +72,7 @@ describe("buildPlaneScene", () => {
       style: "ring",
       ink: "chartPoint2",
       name: "Q",
+      labelPlace: "fixed",
       axisTags: true,
       edgeMarker: true,
     })
@@ -174,7 +177,7 @@ describe("buildPlaneScene", () => {
   })
 })
 
-describe("P's label (the user's ruling, 2026-10-07)", () => {
+describe("P's and Q's labels (the user's rulings, 2026-10-07 and 2026-10-08)", () => {
   // R2's plane, 936 × 792 at 50 px per unit; Roboto Mono advances.
   const vp = makeViewport({ width: 936, height: 792, dpr: 1 }, { zoom: 50, panX: 0, panY: 0 })
   const opts = {
@@ -183,8 +186,23 @@ describe("P's label (the user's ruling, 2026-10-07)", () => {
     plates: [],
     corners: [],
   }
+  /** Checks a label up-right of its point, 22 px out, or held 12 px inside the plane; true when held. */
+  const held = (point: { x: number; y: number }, box: Rect): boolean => {
+    const rest = { x: point.x + 22, y: point.y - 13.2 - box.h }
+    expect(box.x).toBeCloseTo(Math.min(rest.x, 936 - 12 - box.w), 9)
+    expect(box.y).toBeCloseTo(Math.max(rest.y, 12), 9)
+    return box.x !== rest.x || Math.abs(box.y - rest.y) > 1e-9
+  }
+  /** The scene with one point's label where it used to go: the first spot clear of the curve and the marks. */
+  const placedClear = (scene: PlaneScene, id: string): PlaneScene => ({
+    ...scene,
+    curves: scene.curves.map((c) => (c.id === "f" ? { ...c, avoid: true } : c)),
+    points: scene.points.map((p) => (p.id === id ? { ...p, labelPlace: "clear" as const } : p)),
+  })
+  const elsewhere = (before: Rect | undefined, box: Rect) =>
+    before !== undefined && (before.x !== box.x || before.y !== box.y)
 
-  it("holds up-right of P, 22 px out, whatever the curve, the transforms and the marks, moving only at the plane's edges", () => {
+  it("holds P's up-right of P, 22 px out, whatever the curve, the transforms and the marks, moving only at the plane's edges", () => {
     let places = 0
     let atEdge = 0
     let movedBefore = 0
@@ -199,21 +217,13 @@ describe("P's label (the user's ruling, 2026-10-07)", () => {
               if (p?.marker == null || p.label === null) {
                 continue
               }
-              const { x, y, w, h } = p.label.box
-              const rest = { x: p.marker.x + 22, y: p.marker.y - 13.2 - h }
-              expect(x).toBeCloseTo(Math.min(rest.x, 936 - 12 - w), 9)
-              expect(y).toBeCloseTo(Math.max(rest.y, 12), 9)
               places++
-              if (x !== rest.x || Math.abs(y - rest.y) > 1e-9) {
+              if (held(p.marker, p.label.box)) {
                 atEdge++
               }
-              // Where it used to go: the first spot clear of the curve and the marks.
-              const clear = {
-                ...scene,
-                points: scene.points.map((q) => ({ ...q, labelPlace: "clear" as const })),
-              }
-              const before = layoutMarks(clear, vp, opts).points[0]?.label?.box
-              if (before !== undefined && (before.x !== x || before.y !== y)) {
+              if (
+                elsewhere(layoutMarks(placedClear(scene, "p"), vp, opts).points[0]?.label?.box, p.label.box)
+              ) {
                 movedBefore++
               }
             }
@@ -224,6 +234,52 @@ describe("P's label (the user's ruling, 2026-10-07)", () => {
     // Places at rest and at the edges, most where the curve or the marks moved it before.
     expect(places).toBeGreaterThan(500)
     expect(atEdge).toBeGreaterThan(50)
+    expect(movedBefore / places).toBeGreaterThan(0.5)
+  })
+
+  it("holds Q's up-right of Q the same way, over P's label where they meet", () => {
+    let places = 0
+    let atEdge = 0
+    let overP = 0
+    let movedBefore = 0
+    for (const fn of BASE_FUNCTION_SLUGS) {
+      for (const params of [DEFAULT_PARAMS, R3]) {
+        for (const pX of [-2, 0.5, 2]) {
+          // The pointer across the plane; P lit from the keyboard, or k's annotation out.
+          for (let qX = -9; qX <= 9; qX += 0.25) {
+            const scene = buildPlaneScene({
+              ...BASE,
+              fn,
+              params,
+              pX,
+              qX,
+              pLit: pX === 0.5,
+              active: pX === 2 ? "k" : null,
+            })
+            const [p, q] = layoutMarks(scene, vp, opts).points
+            if (q?.marker == null || q.label === null) {
+              continue
+            }
+            places++
+            if (held(q.marker, q.label.box)) {
+              atEdge++
+            }
+            if (p?.label != null && intersects(p.label.box, q.label.box)) {
+              overP++
+            }
+            if (
+              elsewhere(layoutMarks(placedClear(scene, "q"), vp, opts).points[1]?.label?.box, q.label.box)
+            ) {
+              movedBefore++
+            }
+          }
+        }
+      }
+    }
+    // Places at rest and at the edges, many over P's label, most where the curve or the marks moved it before.
+    expect(places).toBeGreaterThan(800)
+    expect(atEdge).toBeGreaterThan(100)
+    expect(overP).toBeGreaterThan(100)
     expect(movedBefore / places).toBeGreaterThan(0.5)
   })
 })

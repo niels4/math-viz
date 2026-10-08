@@ -322,7 +322,6 @@ export const motionScene = (
       : buildPlaneScene({ ...input, fn: sw.fn, params: sw.params, qX: null }).curves.map((c) => ({
           ...fadedCurve(c, swAt.old, 1),
           id: `${c.id}-old`,
-          avoid: false,
         }))
   const curves = [
     ...old,

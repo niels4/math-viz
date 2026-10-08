@@ -148,7 +148,7 @@ export const placeBeside = (cx: number, cy: number, w: number, h: number, opts: 
 const clamp = (v: number, lo: number, hi: number): number => Math.min(Math.max(v, lo), Math.max(lo, hi))
 
 /**
- * A label that holds its place (the user's ruling for P, 2026-10-07):
+ * A label that holds its place (the user's rulings for P, 2026-10-07, and Q, 2026-10-08):
  * fvPlace's first spot, up-right of (cx, cy), its left edge `gap` px right of
  * it and its bottom edge 0.6 × gap above it, whatever the curves and the marks
  * around it do, so its text grows away from the point. It moves only to stay
