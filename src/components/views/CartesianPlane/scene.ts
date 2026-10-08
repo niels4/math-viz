@@ -23,7 +23,7 @@ export type PlaneCurve = {
   dash?: readonly number[]
   /** Opacity of the whole stroke, 0–1. */
   alpha?: number
-  /** Point labels keep clear of this curve, as they do of the data curve (not of a ghost). */
+  /** Labels placed clear (`labelPlace`) keep clear of this curve, as they do of the data curve (not of a ghost). */
   avoid?: boolean
   /** Context (an original, a reference): painted under the annotations, which paint under the other curves. */
   back?: boolean
@@ -45,6 +45,13 @@ export type PlanePoint = {
   ink: Ink
   /** The point's letter: a label "P (2, 4)" beside it, and the letter of its edge marker. */
   name?: string
+  /**
+   * Where its label sits. clear (the default): the first spot clear of the
+   * curves that ask, the chrome and the other marks (fvPlace), so it moves as
+   * they do. fixed: up-right of the point, 22 px out, whatever is around it,
+   * moving only to stay in view (inside the plane, off the chrome's plates).
+   */
+  labelPlace?: "clear" | "fixed"
   /** Lit: a Ø48 halo behind the marker (hovered, focused or dragged). */
   focus?: boolean
   /** Dashed drop lines to both axes, and a tag on each writing x and y. */

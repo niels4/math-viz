@@ -5,6 +5,7 @@ import type { PlaneAnnotation, PlaneHandle, PlanePoint, PlaneScene } from "./sce
 
 import { readoutFaces } from "./faces.ts"
 import { layoutMarks, NO_MARKS } from "./marks.ts"
+import { intersects } from "./rect.ts"
 import { makeViewport } from "./viewport.ts"
 
 // Advances as Figma shaped the boards' text: Roboto Mono 0.6 em, STIX
@@ -292,6 +293,42 @@ describe("layoutMarks › annotations, handles, where a point was", () => {
     ])
     expect(marks.handles[0]).toMatchObject({ halo: true, held: true })
     expect(boxOf(marks.points[0]?.label)).toEqual({ x: 302, y: 191.8, w: 169, h: 41 })
+  })
+
+  it("holds a fixed label (P's) up-right of its point whatever crowds it; Q's keeps clear of it", () => {
+    // R6, where fvPlace takes P's label left-up (302, 191.8): here P is lit
+    // (its tags on the axes), Q's marker sits in the label's spot, and the
+    // anchor's drop lines and tags are out.
+    const r6 = (x: number) => 2 * (x - 1.5) ** 2 + 1
+    const marks = stixLayout({
+      curves: [ghost, { id: "f", fn: r6, ink: "chartLine", width: 3.5, avoid: true }],
+      points: [P(0.5, 3, { labelPlace: "fixed", focus: true, axisTags: true }), Q(1.5, 3.6)],
+      guides: [{ kind: "pointer-x", x: 1.5 }],
+      handles: [
+        { id: "anchor", x: 1.5, y: 1, shape: "diamond", ink: "primary", halo: true, held: true },
+        { id: "stretch", x: 2.5, y: 3, shape: "square", ink: "primary" },
+      ],
+      annotations: [
+        {
+          layer: "over",
+          ink: "primary",
+          onInk: "primaryForeground",
+          lines: [{ from: { x: 1.5, y: 1 }, to: { x: 1.5, y: 0 }, width: 1.5, dash: [5, 4] }],
+          plates: [
+            {
+              runs: note("h", "1.5"),
+              size: "sm",
+              place: { kind: "x-axis", x: 1.5, clear: { x: 1.5, y: 1 } },
+            },
+          ],
+        },
+      ],
+    })
+    const [p, q] = marks.points
+    expect(boxOf(p?.label)).toEqual({ x: 515, y: 191.8, w: 169, h: 41 })
+    const pBox = p?.label?.box
+    const qBox = q?.label?.box
+    expect(pBox !== undefined && qBox !== undefined && intersects(pBox, qBox)).toBe(false)
   })
 
   it("lays out R7: a's unit box and its plate on the third ring, clear of the ghost", () => {

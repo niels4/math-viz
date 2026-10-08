@@ -179,7 +179,10 @@ const annotationsFor = (state: PlaneSceneInput): PlaneAnnotation[] => {
 // with its ghost while a transform's drag moves it, and Q under the pointer
 // with its guide, drop lines and axis tags, painted last as on the design's
 // boards. Each point carries its label and its edge marker; P and the
-// handles can be dragged.
+// handles can be dragged. P's label holds one place up-right of P, moving
+// only to stay in view (the user's ruling, 2026-10-07: placed clear of the
+// curve and the marks, it jumped side to side, worst on sin x); Q's keeps
+// clear of the curve and of P's label.
 export const buildPlaneScene = (state: PlaneSceneInput): PlaneScene => {
   const f = (x: number) => curveAt(state, x)
   const ghost: PlaneCurve[] = ghostVisible(state)
@@ -210,6 +213,7 @@ export const buildPlaneScene = (state: PlaneSceneInput): PlaneScene => {
         style: "bullseye",
         ink: POINT_INK.p,
         name: POINT_NAMES.p,
+        labelPlace: "fixed",
         focus: state.pLit,
         axisTags: state.pLit,
         edgeMarker: true,
