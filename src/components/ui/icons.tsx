@@ -2,6 +2,7 @@ import type { GlyphDirection } from "./glyphPaths.ts"
 
 import { ARROW_BOX, ARROW_PATHS, ARROW_STROKE, TRIANGLE_BOX, trianglePath } from "./glyphPaths.ts"
 
+// The MathViz mark. public/favicon.svg draws the same paths on a tile.
 export function SnowflakeIcon() {
   return (
     <svg
