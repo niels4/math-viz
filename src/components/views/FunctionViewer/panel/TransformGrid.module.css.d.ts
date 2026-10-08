@@ -3,7 +3,6 @@
 // prettier-ignore
 declare const styles: {
   readonly "axis": string;
-  readonly "columns": string;
   readonly "grid": string;
   readonly "group": string;
   readonly "group_header": string;
