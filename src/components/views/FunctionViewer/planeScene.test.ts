@@ -177,7 +177,7 @@ describe("buildPlaneScene", () => {
   })
 })
 
-describe("P's and Q's labels (the user's rulings, 2026-10-07 and 2026-10-08)", () => {
+describe("P's and Q's labels and x tags (the user's rulings, 2026-10-07 and 2026-10-08)", () => {
   // R2's plane, 936 × 792 at 50 px per unit; Roboto Mono advances.
   const vp = makeViewport({ width: 936, height: 792, dpr: 1 }, { zoom: 50, panX: 0, panY: 0 })
   const opts = {
@@ -235,6 +235,37 @@ describe("P's and Q's labels (the user's rulings, 2026-10-07 and 2026-10-08)", (
     expect(places).toBeGreaterThan(500)
     expect(atEdge).toBeGreaterThan(50)
     expect(movedBefore / places).toBeGreaterThan(0.5)
+  })
+
+  it("holds P's and Q's x tags centred on the x-axis, where their point hugs it too (2026-10-08)", () => {
+    let tags = 0
+    let hugging = 0
+    for (const fn of BASE_FUNCTION_SLUGS) {
+      for (const params of [DEFAULT_PARAMS, R3]) {
+        for (let x = -9; x <= 9; x += 0.25) {
+          // P lit, its tags out, and Q just right of it.
+          const scene = buildPlaneScene({ ...BASE, fn, params, pX: x, qX: x + 0.1, pLit: true })
+          const marks = layoutMarks(scene, vp, opts)
+          for (const { marker } of marks.points) {
+            if (marker === null) {
+              continue
+            }
+            const tag = marks.tags.find(
+              (t) => t.border?.ink === marker.ink && Math.abs(t.box.x + t.box.w / 2 - marker.x) < 1e-9,
+            )
+            // The axis at y = 396, the tag 28 px tall: 382 whatever the point does.
+            expect(tag?.box.y).toBeCloseTo(396 - (tag?.box.h ?? 0) / 2, 9)
+            tags++
+            // Within 30 px of the axis the tag used to step 16 px below it.
+            if (Math.abs(marker.y - 396) < 30) {
+              hugging++
+            }
+          }
+        }
+      }
+    }
+    expect(tags).toBeGreaterThan(500)
+    expect(hugging).toBeGreaterThan(100)
   })
 
   it("holds Q's up-right of Q the same way, over P's label where they meet", () => {

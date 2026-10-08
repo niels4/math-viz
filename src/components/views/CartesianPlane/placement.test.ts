@@ -182,20 +182,20 @@ describe("axis tags", () => {
   const tag = { w: 57, h: 28 }
 
   it("sit on the axes, centred on the value (R2: Q's −1.5 and 2.25)", () => {
-    expect(xTagBox(393, 283.5, 396, tag, 792)).toEqual({ x: 364.5, y: 382, w: 57, h: 28 })
+    expect(xTagBox(393, 396, tag, 792)).toEqual({ x: 364.5, y: 382, w: 57, h: 28 })
     expect(yTagBox(393, 283.5, 468, tag, 936)).toEqual({ x: 439.5, y: 269.5, w: 57, h: 28 })
   })
 
-  it("step off an axis their point hugs (FV 10: tags flip sides)", () => {
-    // Q (3.14, 0) sits on the x-axis: its x tag goes below the axis.
-    expect(xTagBox(625, 396, 396, tag, 792).y).toBe(396 + 16)
+  it("step a y tag off the y-axis its point hugs (FV 10: tags flip sides)", () => {
     // A point 20 px right of the y-axis: its y tag goes left of the axis.
     expect(yTagBox(488, 200, 468, tag, 936).x).toBe(468 - 57 - 6)
     expect(yTagBox(448, 200, 468, tag, 936).x).toBe(468 + 6)
   })
 
-  it("stay inside the plane when their axis leaves the view", () => {
-    expect(xTagBox(300, 100, -40, tag, 792).y).toBe(8)
+  it("keep an x tag 8 px inside the plane, the axis near an edge or out of view", () => {
+    expect(xTagBox(300, 5, tag, 792).y).toBe(8)
+    expect(xTagBox(300, -40, tag, 792).y).toBe(8)
+    expect(xTagBox(300, 790, tag, 792).y).toBe(792 - 8 - 28)
     expect(yTagBox(300, 100, 2000, tag, 936).x).toBe(936 - 8 - 57)
   })
 })

@@ -245,7 +245,7 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
         dropLines.push({ ink: p.ink, x1: px, y1, x2: px, y2: y1 + (originY - y1) * reach, ...alpha })
         const tag = tagPlate(formatNumber(p.x), p.ink)
         const toward = py < originY ? -shift : shift
-        tags.push(moved(at(tag, xTagBox(px, py, originY, tag.box, height)), alphaOf(p), 0, toward))
+        tags.push(moved(at(tag, xTagBox(px, originY, tag.box, height)), alphaOf(p), 0, toward))
       }
       if (yIn) {
         const x1 = xIn ? px : px < 0 ? 0 : width

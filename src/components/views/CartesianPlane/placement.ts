@@ -248,34 +248,27 @@ export const edgeMarkerBox = (
   return box
 }
 
-/** A point this close to the x-axis puts its x tag below the axis (FV 10: tags flip sides). */
-const HUG_X_AXIS = 30
-const BELOW_AXIS = 16
-/** A point this close to the y-axis puts its y tag beside the axis, on the far side. */
+/** A point this close to the y-axis puts its y tag on the axis's far side (FV 10: tags flip sides). */
 const HUG_Y_AXIS = 44
 const BESIDE_AXIS = 6
 /** With its axis out of view, a tag stays this far inside the nearest edge, like the tick labels. */
 const TAG_EDGE = 8
 
 /**
- * axis-tag-fv on the x-axis: centred on the point's x, centred on the axis,
- * or below it when the point sits on the axis (the tag would cover it).
+ * axis-tag-fv on the x-axis: centred on the point's x and on the axis,
+ * whatever the point does (the user's ruling, 2026-10-08: it stepped below
+ * the axis whenever its point came within 30 px of it, most of the time on
+ * sin x). It moves only to stay in view, 8 px inside the plane's top and
+ * bottom. A point on the axis covers its middle.
  */
 export const xTagBox = (
   sx: number,
-  sy: number,
   originY: number,
   size: { w: number; h: number },
   height: number,
 ): Rect => {
   const { w, h } = size
-  const inView = originY >= 0 && originY <= height
-  const y = !inView
-    ? clamp(originY, TAG_EDGE + h / 2, height - TAG_EDGE - h / 2) - h / 2
-    : Math.abs(sy - originY) < HUG_X_AXIS
-      ? originY + BELOW_AXIS
-      : originY - h / 2
-  return { x: sx - w / 2, y, w, h }
+  return { x: sx - w / 2, y: clamp(originY, TAG_EDGE + h / 2, height - TAG_EDGE - h / 2) - h / 2, w, h }
 }
 
 /**
