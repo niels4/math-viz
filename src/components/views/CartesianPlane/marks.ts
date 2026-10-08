@@ -26,6 +26,7 @@ import {
   edgeMarkerBox,
   placeAbove,
   placeBeside,
+  placeFixed,
   xTagBox,
   yTagBox,
 } from "./placement.ts"
@@ -47,10 +48,11 @@ import { toScreenX, toScreenY } from "./viewport.ts"
 // before anything paints (figma0 fvDrawCanvas): annotations with their
 // plates, handles, the pointer guides, drop lines and axis tags, edge
 // markers for points off the view, the markers, where a point was, and
-// labels placed clear of the curve, the chrome, the tags and each other. The
-// boxes that take the pointer come out of the same pass. Mid-motion a mark
-// keeps its place: opacities, shifts and a label's rise are paint-time, so
-// the boxes, the keep-outs and the hits stay where the marks rest.
+// labels, each placed clear of the curve, the chrome, the tags and the labels
+// before it, or held up-right of its point (`labelPlace`). The boxes that
+// take the pointer come out of the same pass. Mid-motion a mark keeps its
+// place: opacities, shifts and a label's rise are paint-time, so the boxes,
+// the keep-outs and the hits stay where the marks rest.
 
 /** A drop line from its point (or the edge it comes in from) toward its axis; `alpha` only below 1. */
 export type DropLine = { ink: Ink; x1: number; y1: number; x2: number; y2: number; alpha?: number }
@@ -318,8 +320,10 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
 
   // Plates keep clear of the chrome, the tags, the edge markers, the handles,
   // the markers, where points were, and the plates placed before them.
+  const chrome = opts.plates.map((r) => inflate(r, CHROME_CLEAR))
   const obstacles: Rect[] = [
-    ...[...opts.plates, ...opts.corners].map((r) => inflate(r, CHROME_CLEAR)),
+    ...chrome,
+    ...opts.corners.map((r) => inflate(r, CHROME_CLEAR)),
     ...tags.map((t) => t.box),
     ...[...edges.values()].map((e) => e.box),
     ...handles.map(({ h, x, y }) => centred(x, y, HANDLE_CLEAR[h.shape])),
@@ -392,7 +396,8 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
     plates: a.plates.map((spec) => annotationPlate(spec, a)),
   }))
 
-  // Labels keep clear of the same, and of every marker.
+  // Labels keep clear of the same, and of every marker, or hold their place
+  // and keep only off the chrome. Either way the labels after them keep clear.
   const layers: PointLayer[] = located.map(({ p, sx: px, sy: py, off }) => {
     let label: Plate | null = null
     if (off === null && p.name !== undefined) {
@@ -404,13 +409,17 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
         LABEL_STYLE,
         p.ink,
       )
-      const box = placeBeside(px, py, content.box.w, content.box.h, {
-        gap: LABEL_GAP,
-        curves: avoided,
-        obstacles: [...obstacles, ...marks],
-        width,
-        height,
-      })
+      const { w, h } = content.box
+      const box =
+        p.labelPlace === "fixed"
+          ? placeFixed(px, py, w, h, { gap: LABEL_GAP, chrome, width, height })
+          : placeBeside(px, py, w, h, {
+              gap: LABEL_GAP,
+              curves: avoided,
+              obstacles: [...obstacles, ...marks],
+              width,
+              height,
+            })
       label = moved(at(content, box), alphaOf(p) * (p.labelAlpha ?? 1), 0, p.labelRise ?? 0)
       obstacles.push(box)
     }

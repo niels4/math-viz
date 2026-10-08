@@ -269,20 +269,48 @@ describe("CartesianPlane view controls", () => {
     expect(lastDraw()).toMatchObject({ zoom: 50, panX: 0, panY: 0 })
   })
 
-  it("steps the zoom from its control and prints it", async () => {
+  it("stacks + over − and shows no number; the zoom stays with screen readers (the user's ruling)", async () => {
     const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
-    const readout = () => toElement(screen.getByTestId("plane-zoom")).textContent
-    expect(readout()).toBe("100%")
+    const control = toElement(screen.getByTestId("plane-zoom-control"))
+    expect([...control.querySelectorAll("button")].map((b) => b.getAttribute("aria-label"))).toEqual([
+      "Zoom in",
+      "Zoom out",
+    ])
     act(() => {
       ;(toElement(screen.getByTestId("plane-zoom-out")) as HTMLButtonElement).click()
     })
     expect(lastDraw().zoom).toBe(40)
-    expect(readout()).toBe("80%")
+    expect(control.getAttribute("aria-valuetext")).toBe("80%")
+    const status = toElement(screen.getByTestId("plane-zoom"))
+    expect(status.textContent).toBe("80%")
+    // Unseen: 1 px, clipped (jsdom lays out nothing; the browser project measures it).
+    expect(status.getBoundingClientRect().width).toBeLessThanOrEqual(1)
   })
 
-  it("takes one tab stop for its zoom control, a spin button over the stops (FV 07)", async () => {
+  it("returns to the origin from its button, keeping the zoom (the user's ruling)", async () => {
+    const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
+    const plane = toElement(screen.getByTestId("cartesian-plane"))
+    act(() => {
+      key(plane, "ArrowRight")
+      key(plane, "ArrowDown")
+      key(plane, "+")
+    })
+    expect(lastDraw()).toMatchObject({ zoom: 62.5 })
+    expect(lastDraw().panX).not.toBe(0)
+    const origin = toElement(screen.getByTestId("plane-origin")) as HTMLButtonElement
+    expect(origin.getAttribute("aria-label")).toBe("Return to origin")
+    act(() => {
+      origin.click()
+    })
+    expect(lastDraw()).toMatchObject({ zoom: 62.5, panX: 0, panY: 0 })
+  })
+
+  it("takes one tab stop for the origin, then one for its zoom control, a spin button over the stops (FV 07)", async () => {
     const screen = await render(<CartesianPlane scene={EMPTY_SCENE} />)
     const control = toElement(screen.getByTestId("plane-zoom-control"))
+    const origin = toElement(screen.getByTestId("plane-origin"))
+    expect(origin.tabIndex).toBe(0)
+    expect(origin.compareDocumentPosition(control) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(control.getAttribute("role")).toBe("spinbutton")
     expect(control.tabIndex).toBe(0)
     expect(toElement(screen.getByTestId("plane-zoom-out")).tabIndex).toBe(-1)

@@ -147,6 +147,44 @@ export const placeBeside = (cx: number, cy: number, w: number, h: number, opts: 
 
 const clamp = (v: number, lo: number, hi: number): number => Math.min(Math.max(v, lo), Math.max(lo, hi))
 
+/**
+ * A label that holds its place (the user's ruling for P, 2026-10-07):
+ * fvPlace's first spot, up-right of (cx, cy), its left edge `gap` px right of
+ * it and its bottom edge 0.6 × gap above it, whatever the curves and the marks
+ * around it do, so its text grows away from the point. It moves only to stay
+ * in view, and only as far as that takes: 12 px inside the plane's edges, and
+ * off the chrome's plates, which hide the plane under them, out across a
+ * plate's thin side, away from the plane's edge the plate sits on (down from
+ * the caption, up from the scale bar). Where a corner's two edges both hold
+ * it, it covers the point.
+ */
+export const placeFixed = (
+  cx: number,
+  cy: number,
+  w: number,
+  h: number,
+  opts: { gap: number; chrome: readonly Rect[]; width: number; height: number },
+): Rect => {
+  const { gap, chrome, width, height } = opts
+  const inside = (box: Rect): Rect => ({
+    x: clamp(box.x, EDGE_MARGIN, width - EDGE_MARGIN - w),
+    y: clamp(box.y, EDGE_MARGIN, height - EDGE_MARGIN - h),
+    w,
+    h,
+  })
+  let box = inside({ x: cx + gap, y: cy - gap * RING_Y - h, w, h })
+  for (const plate of chrome) {
+    if (!intersects(box, plate)) {
+      continue
+    }
+    box =
+      plate.w >= plate.h
+        ? { ...box, y: plate.y + plate.h / 2 < height / 2 ? plate.y + plate.h : plate.y - h }
+        : { ...box, x: plate.x + plate.w / 2 < width / 2 ? plate.x + plate.w : plate.x - w }
+  }
+  return inside(box)
+}
+
 /** An off-view point's edge marker points the way it lies furthest past the view; null while in view. */
 export const edgeDirection = (
   sx: number,

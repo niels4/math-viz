@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest"
 
+import type { CanvasFace } from "../CartesianPlane/faces.ts"
 import type { PlaneSceneInput } from "./planeScene.ts"
 
+import { readoutFaces } from "../CartesianPlane/faces.ts"
+import { layoutMarks } from "../CartesianPlane/marks.ts"
+import { makeViewport } from "../CartesianPlane/viewport.ts"
+import { BASE_FUNCTION_SLUGS } from "./math/baseFunctions.ts"
 import { DEFAULT_PARAMS } from "./math/form.ts"
 import { valueDecimals } from "./model/selectors.ts"
 import { buildPlaneScene } from "./planeScene.ts"
@@ -34,6 +39,7 @@ describe("buildPlaneScene", () => {
         style: "bullseye",
         ink: "chartPoint1",
         name: "P",
+        labelPlace: "fixed",
         focus: false,
         axisTags: false,
         edgeMarker: true,
@@ -165,5 +171,59 @@ describe("buildPlaneScene", () => {
   it("marks where a transform's drag found P, with an arrow in --primary (R5)", () => {
     const [p] = buildPlaneScene({ ...BASE, params: R3, pX: 0.5, pWas: 4.5 }).points
     expect(p?.was).toEqual({ x: 0.5, y: 4.5, ink: "primary" })
+  })
+})
+
+describe("P's label (the user's ruling, 2026-10-07)", () => {
+  // R2's plane, 936 × 792 at 50 px per unit; Roboto Mono advances.
+  const vp = makeViewport({ width: 936, height: 792, dpr: 1 }, { zoom: 50, panX: 0, panY: 0 })
+  const opts = {
+    measure: (face: CanvasFace, text: string) => text.length * 0.6 * face.size,
+    readout: readoutFaces(`"Roboto Mono", monospace`),
+    plates: [],
+    corners: [],
+  }
+
+  it("holds up-right of P, 22 px out, whatever the curve, the transforms and the marks, moving only at the plane's edges", () => {
+    let places = 0
+    let atEdge = 0
+    let movedBefore = 0
+    for (const fn of BASE_FUNCTION_SLUGS) {
+      for (const params of [DEFAULT_PARAMS, R3]) {
+        for (const active of [null, "anchor"] as const) {
+          for (let pX = -9; pX <= 9; pX += 0.5) {
+            // P lit (its tags on the axes), or Q's marker and tags beside it.
+            for (const qX of [null, pX + 0.3]) {
+              const scene = buildPlaneScene({ ...BASE, fn, params, pX, qX, active, pLit: qX === null })
+              const p = layoutMarks(scene, vp, opts).points[0]
+              if (p?.marker == null || p.label === null) {
+                continue
+              }
+              const { x, y, w, h } = p.label.box
+              const rest = { x: p.marker.x + 22, y: p.marker.y - 13.2 - h }
+              expect(x).toBeCloseTo(Math.min(rest.x, 936 - 12 - w), 9)
+              expect(y).toBeCloseTo(Math.max(rest.y, 12), 9)
+              places++
+              if (x !== rest.x || Math.abs(y - rest.y) > 1e-9) {
+                atEdge++
+              }
+              // Where it used to go: the first spot clear of the curve and the marks.
+              const clear = {
+                ...scene,
+                points: scene.points.map((q) => ({ ...q, labelPlace: "clear" as const })),
+              }
+              const before = layoutMarks(clear, vp, opts).points[0]?.label?.box
+              if (before !== undefined && (before.x !== x || before.y !== y)) {
+                movedBefore++
+              }
+            }
+          }
+        }
+      }
+    }
+    // Places at rest and at the edges, most where the curve or the marks moved it before.
+    expect(places).toBeGreaterThan(500)
+    expect(atEdge).toBeGreaterThan(50)
+    expect(movedBefore / places).toBeGreaterThan(0.5)
   })
 })

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import type { Polyline } from "./placement.ts"
+import type { Rect } from "./rect.ts"
 
 import {
   curvePolylines,
@@ -8,6 +9,7 @@ import {
   edgeDirection,
   edgeMarkerBox,
   placeBeside,
+  placeFixed,
   segmentMeetsRect,
   xTagBox,
   yTagBox,
@@ -82,6 +84,46 @@ describe("placeBeside (fvPlace)", () => {
     const all = { x: 0, y: 0, w: 936, h: 792 }
     const box = placeBeside(900, 30, 108, 41, { gap: 22, curves: [], obstacles: [all], ...PLANE })
     expect(box).toEqual({ x: 936 - 12 - 108, y: 12, w: 108, h: 41 })
+  })
+})
+
+describe("placeFixed (P's label: the user's ruling, 2026-10-07)", () => {
+  const fixed = (cx: number, cy: number, w = 169, chrome: Rect[] = []) =>
+    placeFixed(cx, cy, w, 41, { gap: 22, chrome, ...PLANE })
+  const rounded = (box: Rect) => ({ ...box, y: Math.round(box.y * 10) / 10 })
+
+  it("holds up-right of the point, 22 px out, where fvPlace goes looking for a clear spot", () => {
+    // R6: P (0.5, 3) at (493, 246), the curve up-right of it: fvPlace goes left.
+    const r6 = curvePolylines(R2, (x) => 2 * (x - 1.5) ** 2 + 1)
+    expect(placeBeside(493, 246, 169, 41, { gap: 22, curves: r6, obstacles: [], ...PLANE }).x).toBe(302)
+    expect(rounded(fixed(493, 246))).toEqual({ x: 515, y: 191.8, w: 169, h: 41 })
+  })
+
+  it("keeps its edges nearest the point as its text grows", () => {
+    expect(fixed(568, 196, 230)).toEqual({ ...fixed(568, 196), w: 230 })
+  })
+
+  it("moves only as far as the plane's edges make it, 12 px inside them", () => {
+    // Near the right edge it slides left, near the top down; up-right of the
+    // point, it never meets the left or bottom edge.
+    expect(rounded(fixed(850, 400))).toEqual({ x: 936 - 12 - 169, y: 345.8, w: 169, h: 41 })
+    expect(fixed(300, 30)).toMatchObject({ x: 322, y: 12 })
+    expect(fixed(900, 20)).toMatchObject({ x: 755, y: 12 })
+    expect(rounded(fixed(2, 790))).toMatchObject({ x: 24, y: 735.8 })
+  })
+
+  it("moves off a chrome plate across its thin side, away from the plane's edge it sits on", () => {
+    // The caption (28, 22, 146 × 35) and the tools (597, 734, 311 × 36), 8 px larger.
+    const caption = { x: 20, y: 14, w: 162, h: 51 }
+    const tools = { x: 589, y: 726, w: 327, h: 52 }
+    // Under the caption: down to its bottom. Past its end: at rest again.
+    expect(fixed(60, 100, 169, [caption, tools])).toMatchObject({ x: 82, y: 65 })
+    expect(rounded(fixed(200, 100, 169, [caption, tools]))).toMatchObject({ x: 222, y: 45.8 })
+    // Over the tools: up to their top.
+    expect(fixed(700, 780, 169, [caption, tools])).toMatchObject({ x: 722, y: 726 - 41 })
+    // A tall plate at the right edge: out to its left.
+    const tall = { x: 860, y: 560, w: 56, h: 218 }
+    expect(rounded(fixed(700, 700, 169, [tall]))).toMatchObject({ x: 860 - 169, y: 645.8 })
   })
 })
 
