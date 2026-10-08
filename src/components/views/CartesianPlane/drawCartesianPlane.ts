@@ -27,19 +27,19 @@ export type DrawCartesianPlaneProps = {
   panX: number
   panY: number
   scene: PlaneScene
-  /** The scene's marks laid out (marks.ts): annotations, handles, guides, drop lines, tags, points. */
+  /** The scene's marks laid out (marks.ts): annotations, handles, guides, drop lines, points. */
   marks: MarksLayout
   /** Chrome boxes the tick labels stay out of. */
   keepOut: readonly Rect[]
 }
 
 // The painter pipeline, back to front (figma0 fvDrawCanvas): grid and axes
-// with their labels (skipping those under a tag), the back curves, the
-// annotations under the curve, the other curves, the handles' halos, the
-// annotations over the curve, the handles, the pointer guides and drop
-// lines, the axis tags, then each point in order: where it was, its edge
-// marker or its marker, and its label. The DOM chrome sits above. Returns
-// the grid it laid out (null for an empty plane).
+// with their labels (skipping those under an annotation's tag), the back
+// curves, the annotations under the curve, the other curves, the handles'
+// halos, the annotations over the curve, the handles, the pointer guides and
+// drop lines, then each point in order: where it was, its edge marker or its
+// marker, and its label. The DOM chrome sits above. Returns the grid it laid
+// out (null for an empty plane).
 export const drawCartesianPlane = (props: DrawCartesianPlaneProps): GridLayout | null => {
   const { ctx, themeVars, width, height, dpr, scene, marks } = props
   if (width === 0 || height === 0) {
@@ -80,9 +80,6 @@ export const drawCartesianPlane = (props: DrawCartesianPlaneProps): GridLayout |
   annotations("over")
   paintHandles(ctx, marks.handles, themeVars)
   paintGuides(ctx, marks, themeVars, height)
-  for (const tag of marks.tags) {
-    paintPlate(ctx, tag, themeVars)
-  }
   for (const layer of marks.points) {
     if (layer.was !== null) {
       paintWas(ctx, layer.was, themeVars)

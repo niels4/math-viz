@@ -54,8 +54,8 @@ export type PlanePoint = {
   labelPlace?: "clear" | "fixed"
   /** Lit: a Ø48 halo behind the marker (hovered, focused or dragged). */
   focus?: boolean
-  /** Dashed drop lines to both axes, and a tag on each writing x and y. */
-  axisTags?: boolean
+  /** Dashed drop lines to both axes. */
+  dropLines?: boolean
   /** While off the view, an edge marker on the nearest edge points at it; a click pans it into view. */
   edgeMarker?: boolean
   /** Its 48 px box takes the pointer: a press there drags the point instead of panning. */
@@ -65,7 +65,7 @@ export type PlanePoint = {
    * there in the point's ink, and an arrow in `ink` to where it is now.
    */
   was?: MathPoint & { ink: Ink }
-  /** Opacity of the point and all it draws (marker, label, drop lines, tags, edge marker), 0–1. */
+  /** Opacity of the point and all it draws (marker, label, drop lines, edge marker), 0–1. */
   alpha?: number
   /** The label's opacity under `alpha`: a label arriving after its point. */
   labelAlpha?: number
@@ -73,8 +73,6 @@ export type PlanePoint = {
   labelRise?: number
   /** How far the drop lines reach from the point toward the axes, 0–1: lines growing out of it. */
   reach?: number
-  /** The axis tags drawn this many px from their places toward the point: tags sliding in. */
-  tagShift?: number
 }
 
 /** A full-height dashed line at the pointer's x, under a probe. */

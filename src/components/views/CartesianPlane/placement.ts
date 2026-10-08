@@ -248,51 +248,8 @@ export const edgeMarkerBox = (
   return box
 }
 
-/** A point this close to the y-axis puts its y tag on the axis's far side (FV 10: tags flip sides). */
-const HUG_Y_AXIS = 44
-const BESIDE_AXIS = 6
-/** With its axis out of view, a tag stays this far inside the nearest edge, like the tick labels. */
+/** A drag's tag stays this far inside the plane's edges, like the tick labels. */
 const TAG_EDGE = 8
-
-/**
- * axis-tag-fv on the x-axis: centred on the point's x and on the axis,
- * whatever the point does (the user's ruling, 2026-10-08: it stepped below
- * the axis whenever its point came within 30 px of it, most of the time on
- * sin x). It moves only to stay in view, 8 px inside the plane's top and
- * bottom. A point on the axis covers its middle.
- */
-export const xTagBox = (
-  sx: number,
-  originY: number,
-  size: { w: number; h: number },
-  height: number,
-): Rect => {
-  const { w, h } = size
-  return { x: sx - w / 2, y: clamp(originY, TAG_EDGE + h / 2, height - TAG_EDGE - h / 2) - h / 2, w, h }
-}
-
-/**
- * axis-tag-fv on the y-axis: centred on the axis at the point's y, or beside
- * the axis on the far side when the point hugs it.
- */
-export const yTagBox = (
-  sx: number,
-  sy: number,
-  originX: number,
-  size: { w: number; h: number },
-  width: number,
-): Rect => {
-  const { w, h } = size
-  const inView = originX >= 0 && originX <= width
-  const x = !inView
-    ? clamp(originX, TAG_EDGE + w / 2, width - TAG_EDGE - w / 2) - w / 2
-    : Math.abs(sx - originX) < HUG_Y_AXIS
-      ? sx > originX
-        ? originX - w - BESIDE_AXIS
-        : originX + BESIDE_AXIS
-      : originX - w / 2
-  return { x, y: sy - h / 2, w, h }
-}
 
 /** A drag's tag on the x-axis sits this far under it (fvDrawCanvas: the anchor's h tag at OY + 16). */
 const DRAG_TAG_BELOW = 16
@@ -308,7 +265,7 @@ const haloBox = (at: { x: number; y: number }): Rect => ({
   h: HANDLE_HALO,
 })
 
-/** A box kept 8 px inside the plane, like the tick labels and tags (TAG_EDGE). */
+/** A box kept 8 px inside the plane, like the tick labels (TAG_EDGE). */
 const keptInside = (box: Rect, width: number, height: number): Rect => ({
   ...box,
   x: clamp(box.x, TAG_EDGE, width - TAG_EDGE - box.w),

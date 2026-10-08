@@ -140,27 +140,27 @@ describe("first paint (FV 05 › Draw-on timeline)", () => {
 })
 
 describe("Q (FV 05 › pointer enters and leaves the plane)", () => {
-  it("fades in, grows its drop lines in 120 ms and slides its tags 6 px, in 160 ms", () => {
-    expect(qEnterAt(0, "full")).toEqual({ alpha: 0, reach: 0, shift: 6 })
+  it("fades in in 160 ms and grows its drop lines in 120 ms", () => {
+    expect(qEnterAt(0, "full")).toEqual({ alpha: 0, reach: 0 })
     expect(qEnterAt(0.12, "full").reach).toBe(1)
-    expect(qEnterAt(0.16, "full")).toEqual({ alpha: 1, reach: 1, shift: 0 })
+    expect(qEnterAt(0.16, "full")).toEqual({ alpha: 1, reach: 1 })
     expect(qEnterAt(qEnterTimeOf(0.5), "full").alpha).toBeCloseTo(0.5, 6)
   })
 
   it("leaves the same way reversed, linearly, in 120 ms", () => {
-    expect(qLeaveAt(0.06, 1, "full")).toEqual({ alpha: 0.5, reach: 0.5, shift: 3 })
+    expect(qLeaveAt(0.06, 1, "full")).toEqual({ alpha: 0.5, reach: 0.5 })
     expect(qLeaveAt(0.12, 1, "full").alpha).toBe(0)
   })
 
   it("only fades under reduced motion, 120 ms", () => {
-    expect(qEnterAt(0.06, "reduced")).toEqual({ alpha: 0.5, reach: 1, shift: 0 })
-    expect(qLeaveAt(0.06, 1, "reduced")).toEqual({ alpha: 0.5, reach: 1, shift: 0 })
+    expect(qEnterAt(0.06, "reduced")).toEqual({ alpha: 0.5, reach: 1 })
+    expect(qLeaveAt(0.06, 1, "reduced")).toEqual({ alpha: 0.5, reach: 1 })
   })
 
   it("draws a leaving Q where it was, its guide fading with it", () => {
     const layers: FvMotionLayers = { ...AT_REST, q: { dir: "out", x: -1.5, from: 1, start: 0 } }
     const scene = motionScene(BASE, layers, 0.06, R2_VIEW, "full")
-    expect(scene.points[1]).toMatchObject({ id: "q", x: -1.5, y: 2.25, alpha: 0.5, reach: 0.5, tagShift: 3 })
+    expect(scene.points[1]).toMatchObject({ id: "q", x: -1.5, y: 2.25, alpha: 0.5, reach: 0.5 })
     expect(scene.guides).toEqual([{ kind: "pointer-x", x: -1.5, alpha: 0.5 }])
   })
 })

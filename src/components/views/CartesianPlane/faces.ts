@@ -52,7 +52,7 @@ export const DRAG_TAG_FACES = {
   upright: makeFace("400", 17, STIX_FAMILY),
 }
 
-/** The faces whose family is the theme's readout font: label coordinates 17, tag values and edge-marker coordinates 15. */
+/** The faces whose family is the theme's readout font: label coordinates 17, edge-marker coordinates 15. */
 export type ReadoutFaces = { label: CanvasFace; small: CanvasFace }
 
 export const readoutFaces = (family: string): ReadoutFaces => ({

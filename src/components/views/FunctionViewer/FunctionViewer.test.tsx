@@ -411,18 +411,18 @@ describe("FunctionViewer", () => {
     expect(document.querySelector('[data-testid="fv-ghost-toggle"]')).toBeNull()
   })
 
-  it("lights P on the plane while its card is hovered: halo, drop lines, tags (FV 04 › Y1)", async () => {
+  it("lights P on the plane while its card is hovered: halo and drop lines (FV 04 › Y1)", async () => {
     const screen = await render(<FunctionViewer />)
-    expect(pointOf("p")).toMatchObject({ focus: false, axisTags: false })
+    expect(pointOf("p")).toMatchObject({ focus: false, dropLines: false })
     const card = byTestId(screen, "fv-point-p")
     act(() => {
       card.dispatchEvent(new PointerEvent("pointerover", { bubbles: true, relatedTarget: document.body }))
     })
-    expect(pointOf("p")).toMatchObject({ focus: true, axisTags: true })
+    expect(pointOf("p")).toMatchObject({ focus: true, dropLines: true })
     act(() => {
       card.dispatchEvent(new PointerEvent("pointerout", { bubbles: true, relatedTarget: document.body }))
     })
-    expect(pointOf("p")).toMatchObject({ focus: false, axisTags: false })
+    expect(pointOf("p")).toMatchObject({ focus: false, dropLines: false })
   })
 
   it("moves P along the curve with [ and ] on the plane (FV 07)", async () => {

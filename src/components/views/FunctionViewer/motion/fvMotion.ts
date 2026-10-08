@@ -144,16 +144,15 @@ export const switchAt = (t: number): { old: number; trim: number } => ({
 // ------------------------------------------------------------------------ Q
 
 /**
- * FV 05 › Pointer enters the plane: Q fades in, its drop lines grow from Q
- * to the axes (120 ms), its tags slide 6 px, on the enter spring, 160 ms.
- * Leaving reverses it, linearly, in 120 ms. Under reduced motion Q only
- * fades, 120 ms each way.
+ * FV 05 › Pointer enters the plane: Q fades in (160 ms) and its drop lines
+ * grow from Q to the axes (120 ms), on the enter spring. Leaving reverses
+ * it, linearly, in 120 ms. Under reduced motion Q only fades, 120 ms each way.
  */
-export const Q_MOTION = { enter: FAST_S, lines: 0.12, leave: DURATION_MS.leave / 1000, slide: 6 } as const
+export const Q_MOTION = { enter: FAST_S, lines: 0.12, leave: DURATION_MS.leave / 1000 } as const
 
-export type QLook = { alpha: number; reach: number; shift: number }
+export type QLook = { alpha: number; reach: number }
 
-const Q_REST: QLook = { alpha: 1, reach: 1, shift: 0 }
+const Q_REST: QLook = { alpha: 1, reach: 1 }
 
 /** How far an enter has come, as the time it takes the enter spring to reach that opacity. */
 export const qEnterTimeOf = (alpha: number): number =>
@@ -161,22 +160,18 @@ export const qEnterTimeOf = (alpha: number): number =>
 
 export const qEnterAt = (t: number, level: MotionLevel): QLook => {
   if (level !== "full") {
-    return { alpha: clamp01(t / REDUCED_S), reach: 1, shift: 0 }
+    return { alpha: clamp01(t / REDUCED_S), reach: 1 }
   }
-  const e = along(t, 0, Q_MOTION.enter, easeEnter.ease)
   return {
-    alpha: Math.min(1, e),
+    alpha: Math.min(1, along(t, 0, Q_MOTION.enter, easeEnter.ease)),
     reach: Math.min(1, along(t, 0, Q_MOTION.lines, easeEnter.ease)),
-    shift: Q_MOTION.slide * (1 - e),
   }
 }
 
 /** Leaving from opacity `from`, t later. */
 export const qLeaveAt = (t: number, from: number, level: MotionLevel): QLook => {
   const k = Math.max(0, from - t / (level === "full" ? Q_MOTION.leave : REDUCED_S))
-  return level === "full"
-    ? { alpha: k, reach: k, shift: Q_MOTION.slide * (1 - k) }
-    : { alpha: k, reach: 1, shift: 0 }
+  return { alpha: k, reach: level === "full" ? k : 1 }
 }
 
 // -------------------------------------------------------------- the Original
@@ -349,7 +344,6 @@ export const motionScene = (
         ...p,
         ...(alpha < 1 && { alpha }),
         ...(q.reach < 1 && { reach: q.reach }),
-        ...(q.shift !== 0 && { tagShift: q.shift }),
       }
     }
     return p

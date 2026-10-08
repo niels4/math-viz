@@ -79,7 +79,7 @@ describe("layoutGrid", () => {
   })
 
   it("skips labels under a keep-out box", () => {
-    // A tag over x = −2 … −1 (R2's Q tag on x at −1.5).
+    // A box on the x-axis over x = −2 … −1.
     const grid = layout(936, 792, 50, {}, [{ x: 364.5, y: 382, w: 57, h: 28 }])
     expect(texts(grid, "x")).not.toContain("−2")
     expect(texts(grid, "x")).not.toContain("−1")

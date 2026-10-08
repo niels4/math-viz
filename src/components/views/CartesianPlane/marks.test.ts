@@ -47,7 +47,7 @@ const Q = (x: number, y: number, extra: Partial<PlanePoint> = {}): PlanePoint =>
   style: "ring",
   ink: "chartPoint2",
   name: "Q",
-  axisTags: true,
+  dropLines: true,
   edgeMarker: true,
   ...extra,
 })
@@ -78,15 +78,11 @@ describe("layoutMarks", () => {
   // The snapshot's places; the boxes are as wide as fixed decimals make
   // them (the user's ruling): "(2.00, 4.00)" where the board prints "(2, 4)".
   // A label left of its point keeps the board's right edge.
-  it("lays out R2: P's label, Q's probe, its tags and label at the snapshot's places", () => {
+  it("lays out R2: P's label, Q's probe, its drop lines and label at the snapshot's places", () => {
     const marks = layout(scene(x2, [P(2, 4), Q(-1.5, 2.25)], -1.5))
     const [p, q] = marks.points
     expect(boxOf(p?.label)).toEqual({ x: 590, y: 141.8, w: 169, h: 41 })
     expect(boxOf(q?.label)).toEqual({ x: 189, y: 296.7, w: 182, h: 41 })
-    expect(marks.tags.map(boxOf)).toEqual([
-      { x: 360, y: 382, w: 66, h: 28 },
-      { x: 439.5, y: 269.5, w: 57, h: 28 },
-    ])
     expect(marks.guides).toEqual([{ x: 393 }])
     // Drop lines from Q to both axes, in Q's ink.
     expect(marks.dropLines).toEqual([
@@ -102,15 +98,12 @@ describe("layoutMarks", () => {
       plate?.runs.map((r) => r.text ?? `<${r.kind}>`)
     expect(texts(marks.points[0]?.label)).toEqual(["P", "(2.00, 4.00)"])
     expect(texts(marks.points[1]?.label)).toEqual(["Q", "(−1.50, 2.25)"])
-    expect(marks.tags.map(texts)).toEqual([["−1.50"], ["2.25"]])
   })
 
-  it("skips the tick labels under a tag: the tags, 4 px larger", () => {
-    const marks = layout(scene(x2, [P(2, 4), Q(-1.5, 2.25)], -1.5))
-    expect(marks.tickKeepOut).toEqual([
-      { x: 356, y: 378, w: 74, h: 36 },
-      { x: 435.5, y: 265.5, w: 65, h: 36 },
-    ])
+  it("keeps no tick label out for a point: its label prints its coordinates (the user's ruling, 2026-10-08)", () => {
+    const marks = layout(scene(x2, [P(2, 4, { focus: true, dropLines: true }), Q(-1.5, 2.25)], -1.5))
+    expect(marks.dropLines).toHaveLength(4)
+    expect(marks.tickKeepOut).toEqual([])
   })
 
   it("lays out R3 and R4: P's label clears the curve, Q's label goes up-left", () => {
@@ -118,20 +111,15 @@ describe("layoutMarks", () => {
     expect(boxOf(r3Marks.points[0]?.label)).toEqual({ x: 515, y: 66.8, w: 169, h: 41 })
     const r4 = layout(scene(r3, [P(0.5, 5.5), Q(-2, 3)], -2), 597)
     expect(boxOf(r4.points[1]?.label)).toEqual({ x: 164, y: 191.8, w: 182, h: 41 })
-    expect(r4.tags.map(boxOf)).toEqual([
-      { x: 335, y: 382, w: 66, h: 28 },
-      { x: 439.5, y: 232, w: 57, h: 28 },
-    ])
   })
 
-  it("lights a focused point and drops its coordinates like Q's (FV 04 › Y1)", () => {
-    const marks = layout(scene(x2, [P(2, 4, { focus: true, axisTags: true })]))
+  it("lights a focused point and drops lines from it like Q's (FV 04 › Y1)", () => {
+    const marks = layout(scene(x2, [P(2, 4, { focus: true, dropLines: true })]))
     expect(marks.points[0]?.marker?.focus).toBe(true)
-    expect(marks.tags.map(boxOf)).toEqual([
-      { x: 539.5, y: 382, w: 57, h: 28 },
-      { x: 439.5, y: 182, w: 57, h: 28 },
+    expect(marks.dropLines).toEqual([
+      { ink: "chartPoint1", x1: 568, y1: 196, x2: 568, y2: 396 },
+      { ink: "chartPoint1", x1: 568, y1: 196, x2: 468, y2: 196 },
     ])
-    expect(marks.dropLines.map((l) => l.ink)).toEqual(["chartPoint1", "chartPoint1"])
   })
 
   it("marks a point off the view on its edge, with its letter and coordinates (FV 10 X1)", () => {
@@ -153,9 +141,9 @@ describe("layoutMarks", () => {
 
   it("drops only to the axis an off-view point still crosses", () => {
     const marks = layout(scene((x) => x ** 3, [Q(1.8, 5.832), Q(2.5, 15.625)], 1.8))
-    // The second Q is above the view: a line from the top edge to the x-axis, one tag.
+    // The second Q is above the view: only a line from the top edge to the x-axis.
+    expect(marks.dropLines).toHaveLength(3)
     expect(marks.dropLines.at(-1)).toEqual({ ink: "chartPoint2", x1: 593, y1: 0, x2: 593, y2: 396 })
-    expect(marks.tags).toHaveLength(3)
   })
 
   it("gives a draggable point in view its 48 px hit box", () => {
@@ -298,12 +286,12 @@ describe("layoutMarks › annotations, handles, where a point was", () => {
 
   it("holds a fixed label (P's) up-right of its point whatever crowds it; Q's keeps clear of it", () => {
     // R6, where fvPlace takes P's label left-up (302, 191.8): here P is lit
-    // (its tags on the axes), Q's marker sits in the label's spot, and the
-    // anchor's drop lines and tags are out.
+    // (its drop lines out), Q's marker sits in the label's spot, and the
+    // anchor's drop line and h tag are out.
     const r6 = (x: number) => 2 * (x - 1.5) ** 2 + 1
     const marks = stixLayout({
       curves: [ghost, { id: "f", fn: r6, ink: "chartLine", width: 3.5, avoid: true }],
-      points: [P(0.5, 3, { labelPlace: "fixed", focus: true, axisTags: true }), Q(1.5, 3.6)],
+      points: [P(0.5, 3, { labelPlace: "fixed", focus: true, dropLines: true }), Q(1.5, 3.6)],
       guides: [{ kind: "pointer-x", x: 1.5 }],
       handles: [
         { id: "anchor", x: 1.5, y: 1, shape: "diamond", ink: "primary", halo: true, held: true },
@@ -415,7 +403,7 @@ describe("layoutMarks mid-motion (FV 05)", () => {
     const moving = layout({
       ...scene(x2, [
         P(2, 4, { alpha: 0.5, labelAlpha: 0.5, labelRise: 8 }),
-        { ...Q(-1.5, 2.25), alpha: 0.4, reach: 0.5, tagShift: 6 },
+        { ...Q(-1.5, 2.25), alpha: 0.4, reach: 0.5 },
       ]),
       guides: [{ kind: "pointer-x", x: -1.5, alpha: 0.4 }],
     })
@@ -425,18 +413,11 @@ describe("layoutMarks mid-motion (FV 05)", () => {
     expect(boxOf(p?.label)).toEqual(boxOf(rest.points[0]?.label))
     expect(q?.label?.motion).toEqual({ alpha: 0.4, dx: 0, dy: 0 })
     expect(moving.guides).toEqual([{ x: 393, alpha: 0.4 }])
-    // Q's drop lines reach half way to the axes; its tags sit 6 px toward Q
-    // (Q is above the x-axis and left of the y-axis), where they slide in from.
+    // Q's drop lines reach half way to the axes.
     expect(moving.dropLines).toEqual([
       { ink: "chartPoint2", x1: 393, y1: 283.5, x2: 393, y2: 339.75, alpha: 0.4 },
       { ink: "chartPoint2", x1: 393, y1: 283.5, x2: 430.5, y2: 283.5, alpha: 0.4 },
     ])
-    expect(moving.tags.map((t) => t.motion)).toEqual([
-      { alpha: 0.4, dx: 0, dy: -6 },
-      { alpha: 0.4, dx: -6, dy: 0 },
-    ])
-    expect(moving.tags.map(boxOf)).toEqual(rest.tags.map(boxOf))
-    expect(moving.tickKeepOut).toEqual(rest.tickKeepOut)
     expect(moving.hits).toEqual(rest.hits)
   })
 

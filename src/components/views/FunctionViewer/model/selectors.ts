@@ -27,7 +27,7 @@ export const ghostVisible = (state: Pick<FvState, "ghostOn" | "params">): boolea
 /**
  * P's partners light together (FV 04 › Y1): while P's card is hovered or
  * focused, P is dragged, or the pointer is on P's marker, P's marker takes
- * its halo and drops its coordinates on both axes.
+ * its halo and drops lines to both axes.
  */
 export const pLit = (state: FvState): boolean =>
   state.hover === "p" ||

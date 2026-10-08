@@ -49,7 +49,7 @@ const SIDE_ENDS = 7
 const DROP = { width: 1.5, dash: [5, 4] } as const
 
 export type PlaneSceneInput = Pick<FvState, "fn" | "params" | "pX" | "qX" | "ghostOn"> & {
-  /** P's partners are lit (selectors.pLit): its halo, drop lines and axis tags. */
+  /** P's partners are lit (selectors.pLit): its halo and drop lines. */
   pLit: boolean
   /** The value whose meaning the plane draws (selectors.active). */
   active: FvActive
@@ -177,12 +177,14 @@ const annotationsFor = (state: PlaneSceneInput): PlaneAnnotation[] => {
 // value's annotation, the transformed curve, the handles (D21: the anchor
 // ◆ at (h, k), the stretch grip ■ at the unit point), P pinned on the curve
 // with its ghost while a transform's drag moves it, and Q under the pointer
-// with its guide, drop lines and axis tags, painted last as on the design's
-// boards. Each point carries its label and its edge marker; P and the
-// handles can be dragged. Each label holds one place up-right of its point,
-// moving only to stay in view (the user's rulings, P's 2026-10-07, Q's
-// 2026-10-08: placed clear of the curve and the marks, they jumped side to
-// side, worst on sin x); where they meet, Q's covers P's.
+// with its guide and drop lines, painted last as on the design's boards.
+// Each point carries its label and its edge marker; P and the handles can be
+// dragged. Each label holds one place up-right of its point, moving only to
+// stay in view (the user's rulings, P's 2026-10-07, Q's 2026-10-08: placed
+// clear of the curve and the marks, they jumped side to side, worst on
+// sin x); where they meet, Q's covers P's. The labels alone print the
+// coordinates: no tag on the axes (the user's ruling, 2026-10-08, "too many
+// boxes on the screen at once").
 export const buildPlaneScene = (state: PlaneSceneInput): PlaneScene => {
   const f = (x: number) => curveAt(state, x)
   const ghost: PlaneCurve[] = ghostVisible(state)
@@ -215,7 +217,7 @@ export const buildPlaneScene = (state: PlaneSceneInput): PlaneScene => {
         name: POINT_NAMES.p,
         labelPlace: "fixed",
         focus: state.pLit,
-        axisTags: state.pLit,
+        dropLines: state.pLit,
         edgeMarker: true,
         draggable: true,
         ...(state.pWas === null ? {} : { was: { x: state.pX, y: state.pWas, ink: LINK_INK.ink } }),
@@ -231,7 +233,7 @@ export const buildPlaneScene = (state: PlaneSceneInput): PlaneScene => {
               ink: POINT_INK.q,
               name: POINT_NAMES.q,
               labelPlace: "fixed" as const,
-              axisTags: true,
+              dropLines: true,
               edgeMarker: true,
             },
           ]),

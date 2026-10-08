@@ -18,7 +18,7 @@ import {
 } from "../math/form.ts"
 import { curveAt, paramsOf } from "./selectors.ts"
 
-/** Points sit on 0.01, so a marker, its label, its tags and its readout print one value. */
+/** Points sit on 0.01, so a marker, its label and its readout print one value. */
 export const POINT_QUANTUM = 0.01
 
 export type FvAction =

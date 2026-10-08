@@ -27,8 +27,6 @@ import {
   placeAbove,
   placeBeside,
   placeFixed,
-  xTagBox,
-  yTagBox,
 } from "./placement.ts"
 import {
   at,
@@ -39,20 +37,19 @@ import {
   layoutPlate,
   NOTE_STYLE,
   outlined,
-  TAG_STYLE,
 } from "./plates.ts"
 import { inflate } from "./rect.ts"
 import { toScreenX, toScreenY } from "./viewport.ts"
 
 // Everything the plane draws over its curves, laid out in plane pixels
 // before anything paints (figma0 fvDrawCanvas): annotations with their
-// plates, handles, the pointer guides, drop lines and axis tags, edge
-// markers for points off the view, the markers, where a point was, and
-// labels, each placed clear of the curve, the chrome, the tags and the labels
-// before it, or held up-right of its point (`labelPlace`). The boxes that
-// take the pointer come out of the same pass. Mid-motion a mark keeps its
-// place: opacities, shifts and a label's rise are paint-time, so the boxes,
-// the keep-outs and the hits stay where the marks rest.
+// plates, handles, the pointer guides, drop lines, edge markers for points
+// off the view, the markers, where a point was, and labels, each placed
+// clear of the curve, the chrome, the plates and the labels before it, or
+// held up-right of its point (`labelPlace`). The boxes that take the
+// pointer come out of the same pass. Mid-motion a mark keeps its place:
+// opacities, a drop line's reach and a label's rise are paint-time, so the
+// boxes, the keep-outs and the hits stay where the marks rest.
 
 /** A drop line from its point (or the edge it comes in from) toward its axis; `alpha` only below 1. */
 export type DropLine = { ink: Ink; x1: number; y1: number; x2: number; y2: number; alpha?: number }
@@ -118,11 +115,10 @@ export type MarksLayout = {
   /** Each pointer guide's screen x; `alpha` only below 1. */
   guides: readonly { x: number; alpha?: number }[]
   dropLines: readonly DropLine[]
-  tags: readonly Plate[]
   points: readonly PointLayer[]
   /** Topmost first. */
   hits: readonly PlaneHit[]
-  /** Tick labels under a tag are skipped (the tag carries that number): the tags, 4 px larger. */
+  /** Tick labels under an annotation's tag on an axis are skipped (the tag carries that number): those tags, 4 px larger. */
   tickKeepOut: readonly Rect[]
 }
 
@@ -131,7 +127,6 @@ export const NO_MARKS: MarksLayout = {
   handles: [],
   guides: [],
   dropLines: [],
-  tags: [],
   points: [],
   hits: [],
   tickKeepOut: [],
@@ -139,7 +134,7 @@ export const NO_MARKS: MarksLayout = {
 
 export type MarksOptions = {
   measure: Measure
-  /** The theme's readout faces: label coordinates, tag values, edge-marker coordinates. */
+  /** The theme's readout faces: label coordinates, edge-marker coordinates. */
   readout: ReadoutFaces
   /** The chrome's plates (caption, scale bar, tools): labels and edge markers keep out of them. */
   plates: readonly Rect[]
@@ -192,9 +187,9 @@ const between = (a: { x: number; y: number }, b: { x: number; y: number }, by: n
 /** An opacity worth recording: only below 1, so marks at rest compare as before. */
 const faded = (alpha: number): { alpha?: number } => (alpha < 1 ? { alpha: Math.max(0, alpha) } : {})
 
-/** A plate faded and moved at paint time; at rest, the plate as laid out. */
-const moved = (plate: Plate, alpha: number, dx: number, dy: number): Plate =>
-  alpha >= 1 && dx === 0 && dy === 0 ? plate : { ...plate, motion: { alpha: Math.max(0, alpha), dx, dy } }
+/** A plate faded and moved down at paint time (a label's rise); at rest, the plate as laid out. */
+const moved = (plate: Plate, alpha: number, dy: number): Plate =>
+  alpha >= 1 && dy === 0 ? plate : { ...plate, motion: { alpha: Math.max(0, alpha), dx: 0, dy } }
 
 const alphaOf = (p: PlanePoint): number => p.alpha ?? 1
 
@@ -209,8 +204,6 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
   const sy = (y: number) => toScreenY(vp, y)
   const plate = (runs: readonly PlateRun[], style: PlateStyle, ink: Ink) =>
     layoutPlate(runs, style, outlined(ink), measure)
-  const tagPlate = (text: string, ink: Ink) =>
-    plate([{ kind: "text", text, face: readout.small, ink: "foreground" }], TAG_STYLE, ink)
 
   // Each point on screen, and the edge it lies past (null in view).
   const located = scene.points
@@ -225,34 +218,25 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
     .map((g) => ({ x: sx(g.x), ...faded(g.alpha ?? 1) }))
     .filter((g) => within(g.x, 0, width))
   const dropLines: DropLine[] = []
-  const tags: Plate[] = []
   const edges = new Map<string, Plate>()
   const hits: PlaneHit[] = []
 
   for (const { p, sx: px, sy: py, off } of located) {
     const xIn = within(px, 0, width)
     const yIn = within(py, 0, height)
-    if (p.axisTags === true) {
-      // In view: drop lines to both axes, a tag on each. Off the view one way,
-      // only the axis it still crosses: the line comes in from the edge.
-      // Mid-motion the lines reach part way and the tags sit shifted toward
-      // the point, where they slide in from.
+    if (p.dropLines === true) {
+      // In view: drop lines to both axes. Off the view one way, only to the
+      // axis it still crosses: the line comes in from the edge. Mid-motion
+      // the lines reach part way.
       const reach = Math.min(1, Math.max(0, p.reach ?? 1))
-      const shift = p.tagShift ?? 0
       const alpha = faded(alphaOf(p))
       if (xIn) {
         const y1 = yIn ? py : py < 0 ? 0 : height
         dropLines.push({ ink: p.ink, x1: px, y1, x2: px, y2: y1 + (originY - y1) * reach, ...alpha })
-        const tag = tagPlate(formatNumber(p.x), p.ink)
-        const toward = py < originY ? -shift : shift
-        tags.push(moved(at(tag, xTagBox(px, originY, tag.box, height)), alphaOf(p), 0, toward))
       }
       if (yIn) {
         const x1 = xIn ? px : px < 0 ? 0 : width
         dropLines.push({ ink: p.ink, x1, y1: py, x2: x1 + (originX - x1) * reach, y2: py, ...alpha })
-        const tag = tagPlate(formatNumber(p.y), p.ink)
-        const toward = px > originX ? shift : -shift
-        tags.push(moved(at(tag, yTagBox(px, py, originX, tag.box, width)), alphaOf(p), toward, 0))
       }
     }
     if (off !== null && p.edgeMarker === true) {
@@ -272,7 +256,6 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
       const placed = moved(
         at(marker, edgeMarkerBox(off, { x: px, y: py }, marker.box, vp, taken)),
         alphaOf(p),
-        0,
         0,
       )
       edges.set(p.id, placed)
@@ -318,13 +301,12 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
     })
   }
 
-  // Plates keep clear of the chrome, the tags, the edge markers, the handles,
-  // the markers, where points were, and the plates placed before them.
+  // Plates keep clear of the chrome, the edge markers, the handles, the
+  // markers, where points were, and the plates placed before them.
   const chrome = opts.plates.map((r) => inflate(r, CHROME_CLEAR))
   const obstacles: Rect[] = [
     ...chrome,
     ...opts.corners.map((r) => inflate(r, CHROME_CLEAR)),
-    ...tags.map((t) => t.box),
     ...[...edges.values()].map((e) => e.box),
     ...handles.map(({ h, x, y }) => centred(x, y, HANDLE_CLEAR[h.shape])),
     ...located.flatMap(({ p, sx: px, sy: py }) => {
@@ -420,7 +402,7 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
               width,
               height,
             })
-      label = moved(at(content, box), alphaOf(p) * (p.labelAlpha ?? 1), 0, p.labelRise ?? 0)
+      label = moved(at(content, box), alphaOf(p) * (p.labelAlpha ?? 1), p.labelRise ?? 0)
       obstacles.push(box)
     }
     return {
@@ -459,9 +441,8 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
     })),
     guides,
     dropLines,
-    tags,
     points: layers,
     hits,
-    tickKeepOut: [...tags.map((t) => t.box), ...axisTagKeepOut].map((r) => inflate(r, TAG_CLEAR)),
+    tickKeepOut: axisTagKeepOut.map((r) => inflate(r, TAG_CLEAR)),
   }
 }

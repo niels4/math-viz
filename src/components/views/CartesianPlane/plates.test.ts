@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import type { CanvasFace } from "./faces.ts"
 
 import { EDGE_LETTER_FACE, LABEL_LETTER_FACE, readoutFaces } from "./faces.ts"
-import { EDGE_STYLE, LABEL_STYLE, layoutPlate, outlined, TAG_STYLE } from "./plates.ts"
+import { EDGE_STYLE, LABEL_STYLE, layoutPlate, outlined } from "./plates.ts"
 
 const measure = (face: CanvasFace, text: string): number =>
   face.font.includes("italic") ? 0.57 * face.size * text.length : 0.6001 * face.size * text.length
@@ -47,17 +47,5 @@ describe("layoutPlate", () => {
       [30, "text"],
       [49, "text"],
     ])
-  })
-
-  it("builds axis-tag-fv: 57 × 28 for −1.5, radius 6, the value at 10", () => {
-    const plate = layoutPlate(
-      [{ kind: "text", text: "−1.5", face: readout.small, ink: "foreground" }],
-      TAG_STYLE,
-      outlined("chartPoint2"),
-      measure,
-    )
-    expect(plate.box).toEqual({ x: 0, y: 0, w: 57, h: 28 })
-    expect(plate.radius).toBe(6)
-    expect(plate.runs[0]?.x).toBe(10)
   })
 })

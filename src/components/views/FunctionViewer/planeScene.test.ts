@@ -6,6 +6,7 @@ import type { PlaneScene } from "../CartesianPlane/scene.ts"
 import type { PlaneSceneInput } from "./planeScene.ts"
 
 import { readoutFaces } from "../CartesianPlane/faces.ts"
+import { layoutGrid } from "../CartesianPlane/grid.ts"
 import { layoutMarks } from "../CartesianPlane/marks.ts"
 import { intersects } from "../CartesianPlane/rect.ts"
 import { makeViewport } from "../CartesianPlane/viewport.ts"
@@ -44,7 +45,7 @@ describe("buildPlaneScene", () => {
         name: "P",
         labelPlace: "fixed",
         focus: false,
-        axisTags: false,
+        dropLines: false,
         edgeMarker: true,
         draggable: true,
       },
@@ -63,7 +64,7 @@ describe("buildPlaneScene", () => {
     expect(buildPlaneScene({ ...BASE, params: R3, ghostOn: false }).curves.map((c) => c.id)).toEqual(["f"])
   })
 
-  it("follows the pointer with Q: its guide, drop lines and tags, painted after P (R2, R4)", () => {
+  it("follows the pointer with Q: its guide and drop lines, painted after P (R2, R4)", () => {
     const scene = buildPlaneScene({ ...BASE, qX: -1.5 })
     expect(scene.points.map((p) => p.id)).toEqual(["p", "q"])
     expect(scene.points[1]).toMatchObject({
@@ -73,15 +74,15 @@ describe("buildPlaneScene", () => {
       ink: "chartPoint2",
       name: "Q",
       labelPlace: "fixed",
-      axisTags: true,
+      dropLines: true,
       edgeMarker: true,
     })
     expect(scene.points[1]?.draggable).toBeUndefined()
     expect(scene.guides).toEqual([{ kind: "pointer-x", x: -1.5 }])
   })
 
-  it("lights P with its halo and its coordinates on the axes (FV 04 › Y1)", () => {
-    expect(buildPlaneScene({ ...BASE, pLit: true }).points[0]).toMatchObject({ focus: true, axisTags: true })
+  it("lights P with its halo and its drop lines (FV 04 › Y1)", () => {
+    expect(buildPlaneScene({ ...BASE, pLit: true }).points[0]).toMatchObject({ focus: true, dropLines: true })
   })
 
   it("puts the anchor ◆ on (h, k) and the stretch grip ■ on the unit point (D21, D14)", () => {
@@ -177,7 +178,7 @@ describe("buildPlaneScene", () => {
   })
 })
 
-describe("P's and Q's labels and x tags (the user's rulings, 2026-10-07 and 2026-10-08)", () => {
+describe("P's and Q's labels, and no axis tags (the user's rulings, 2026-10-07 and 2026-10-08)", () => {
   // R2's plane, 936 × 792 at 50 px per unit; Roboto Mono advances.
   const vp = makeViewport({ width: 936, height: 792, dpr: 1 }, { zoom: 50, panX: 0, panY: 0 })
   const opts = {
@@ -210,7 +211,7 @@ describe("P's and Q's labels and x tags (the user's rulings, 2026-10-07 and 2026
       for (const params of [DEFAULT_PARAMS, R3]) {
         for (const active of [null, "anchor"] as const) {
           for (let pX = -9; pX <= 9; pX += 0.5) {
-            // P lit (its tags on the axes), or Q's marker and tags beside it.
+            // P lit (its drop lines out), or Q's marker and drop lines beside it.
             for (const qX of [null, pX + 0.3]) {
               const scene = buildPlaneScene({ ...BASE, fn, params, pX, qX, active, pLit: qX === null })
               const p = layoutMarks(scene, vp, opts).points[0]
@@ -237,35 +238,50 @@ describe("P's and Q's labels and x tags (the user's rulings, 2026-10-07 and 2026
     expect(movedBefore / places).toBeGreaterThan(0.5)
   })
 
-  it("holds P's and Q's x tags centred on the x-axis, where their point hugs it too (2026-10-08)", () => {
-    let tags = 0
-    let hugging = 0
+  it("leaves the axes to the tick numbers: R2's lit P and Q hide none (2026-10-08)", () => {
+    const marks = layoutMarks(buildPlaneScene({ ...BASE, qX: -1.5, pLit: true }), vp, opts)
+    // P (2, 4) and Q (−1.5, 2.25) drop their lines to both axes, and that is all they put there.
+    expect(marks.dropLines.map(({ ink, x2, y2 }) => ({ ink, x2, y2 }))).toEqual([
+      { ink: "chartPoint1", x2: 568, y2: 396 },
+      { ink: "chartPoint1", x2: 468, y2: 196 },
+      { ink: "chartPoint2", x2: 393, y2: 396 },
+      { ink: "chartPoint2", x2: 468, y2: 283.5 },
+    ])
+    expect(marks.tickKeepOut).toEqual([])
+    const grid = layoutGrid(vp, {
+      labelWidth: (text) => text.length * 8.4,
+      originWidth: 11,
+      keepOut: marks.tickKeepOut,
+    })
+    const texts = (axis: "x" | "y") => grid.labels.filter((l) => l.axis === axis).map((l) => l.text)
+    // Their tags hid −2 and −1 (Q) and 2 (P) on the x-axis, 2 (Q) and 4 (P) on the y-axis.
+    expect(texts("x")).toEqual(expect.arrayContaining(["−2", "−1", "2"]))
+    expect(texts("y")).toEqual(expect.arrayContaining(["2", "4"]))
+  })
+
+  it("tags no axis for P or Q at rest, lit (hovered, focused or dragged) or with Q hovering (2026-10-08)", () => {
+    let scenes = 0
+    let lines = 0
     for (const fn of BASE_FUNCTION_SLUGS) {
       for (const params of [DEFAULT_PARAMS, R3]) {
         for (let x = -9; x <= 9; x += 0.25) {
-          // P lit, its tags out, and Q just right of it.
-          const scene = buildPlaneScene({ ...BASE, fn, params, pX: x, qX: x + 0.1, pLit: true })
-          const marks = layoutMarks(scene, vp, opts)
-          for (const { marker } of marks.points) {
-            if (marker === null) {
-              continue
-            }
-            const tag = marks.tags.find(
-              (t) => t.border?.ink === marker.ink && Math.abs(t.box.x + t.box.w / 2 - marker.x) < 1e-9,
-            )
-            // The axis at y = 396, the tag 28 px tall: 382 whatever the point does.
-            expect(tag?.box.y).toBeCloseTo(396 - (tag?.box.h ?? 0) / 2, 9)
-            tags++
-            // Within 30 px of the axis the tag used to step 16 px below it.
-            if (Math.abs(marker.y - 396) < 30) {
-              hugging++
+          for (const pLit of [false, true]) {
+            // Q away, or just right of P.
+            for (const qX of [null, x + 0.1]) {
+              const marks = layoutMarks(buildPlaneScene({ ...BASE, fn, params, pX: x, qX, pLit }), vp, opts)
+              // Labels and edge markers carry their coordinates; nothing sits on the axes.
+              expect(marks.annotations).toEqual([])
+              expect(marks.tickKeepOut).toEqual([])
+              lines += marks.dropLines.length
+              scenes++
             }
           }
         }
       }
     }
-    expect(tags).toBeGreaterThan(500)
-    expect(hugging).toBeGreaterThan(100)
+    expect(scenes).toBeGreaterThan(2000)
+    // Lit P's and Q's drop lines stay.
+    expect(lines).toBeGreaterThan(2000)
   })
 
   it("holds Q's up-right of Q the same way, over P's label where they meet", () => {

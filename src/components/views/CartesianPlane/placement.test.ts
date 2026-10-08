@@ -11,8 +11,6 @@ import {
   placeBeside,
   placeFixed,
   segmentMeetsRect,
-  xTagBox,
-  yTagBox,
 } from "./placement.ts"
 import { makeViewport } from "./viewport.ts"
 
@@ -175,27 +173,5 @@ describe("edge markers", () => {
     const tools = { x: 597, y: 734, w: 311, h: 36 }
     const box = edgeMarkerBox("down", { x: 700, y: 900 }, { w: 108, h: 39 }, PLANE, [tools])
     expect(box.y + box.h).toBe(792 - 84)
-  })
-})
-
-describe("axis tags", () => {
-  const tag = { w: 57, h: 28 }
-
-  it("sit on the axes, centred on the value (R2: Q's −1.5 and 2.25)", () => {
-    expect(xTagBox(393, 396, tag, 792)).toEqual({ x: 364.5, y: 382, w: 57, h: 28 })
-    expect(yTagBox(393, 283.5, 468, tag, 936)).toEqual({ x: 439.5, y: 269.5, w: 57, h: 28 })
-  })
-
-  it("step a y tag off the y-axis its point hugs (FV 10: tags flip sides)", () => {
-    // A point 20 px right of the y-axis: its y tag goes left of the axis.
-    expect(yTagBox(488, 200, 468, tag, 936).x).toBe(468 - 57 - 6)
-    expect(yTagBox(448, 200, 468, tag, 936).x).toBe(468 + 6)
-  })
-
-  it("keep an x tag 8 px inside the plane, the axis near an edge or out of view", () => {
-    expect(xTagBox(300, 5, tag, 792).y).toBe(8)
-    expect(xTagBox(300, -40, tag, 792).y).toBe(8)
-    expect(xTagBox(300, 790, tag, 792).y).toBe(792 - 8 - 28)
-    expect(yTagBox(300, 100, 2000, tag, 936).x).toBe(936 - 8 - 57)
   })
 })
