@@ -7,12 +7,13 @@ import {
   TitleBlock,
   TopBar,
 } from "#src/components/ui/index.ts"
+import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
 
 import style from "./_root.page.module.css"
 
 const RootPage = () => {
   return (
-    <div className={style.page} data-testid="root-view">
+    <div className={`${style.page} ${workSansStyles.font}`} data-testid="root-view">
       <div className={style.shell}>
         <TopBar actions={<SettingsMenu />} />
         <main className={style.main}>
