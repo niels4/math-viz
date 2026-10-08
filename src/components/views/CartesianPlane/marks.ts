@@ -6,48 +6,21 @@ import type { ReadoutFaces } from "./faces.ts"
 import type { Polyline } from "./placement.ts"
 import type { Measure, Plate, PlateRun, PlateStyle } from "./plates.ts"
 import type { Rect } from "./rect.ts"
-import type {
-  AnnotationPlate,
-  Ink,
-  PlaneAnnotation,
-  PlaneHandle,
-  PlanePoint,
-  PlaneScene,
-  PointStyle,
-} from "./scene.ts"
+import type { Ink, PlaneAnnotation, PlaneHandle, PlanePoint, PlaneScene, PointStyle } from "./scene.ts"
 import type { Viewport } from "./viewport.ts"
 
-import { DRAG_TAG_FACES, EDGE_LETTER_FACE, LABEL_LETTER_FACE, NOTE_FACES } from "./faces.ts"
-import {
-  besideXAxis,
-  besideYAxis,
-  curvePolylines,
-  edgeDirection,
-  edgeMarkerBox,
-  placeAbove,
-  placeBeside,
-  placeFixed,
-} from "./placement.ts"
-import {
-  at,
-  DRAG_TAG_STYLE,
-  EDGE_STYLE,
-  filled,
-  LABEL_STYLE,
-  layoutPlate,
-  NOTE_STYLE,
-  outlined,
-} from "./plates.ts"
+import { EDGE_LETTER_FACE, LABEL_LETTER_FACE } from "./faces.ts"
+import { curvePolylines, edgeDirection, edgeMarkerBox, placeBeside, placeFixed } from "./placement.ts"
+import { at, EDGE_STYLE, LABEL_STYLE, layoutPlate, outlined } from "./plates.ts"
 import { inflate } from "./rect.ts"
 import { toScreenX, toScreenY } from "./viewport.ts"
 
 // Everything the plane draws over its curves, laid out in plane pixels
-// before anything paints (figma0 fvDrawCanvas): annotations with their
-// plates, handles, the pointer guides, drop lines, edge markers for points
-// off the view, the markers, where a point was, and labels, each placed
-// clear of the curve, the chrome, the plates and the labels before it, or
-// held up-right of its point (`labelPlace`). The boxes that take the
-// pointer come out of the same pass. Mid-motion a mark keeps its place:
+// before anything paints (figma0 fvDrawCanvas): annotations, handles, the
+// pointer guides, drop lines, edge markers for points off the view, the
+// markers, where a point was, and labels, each placed clear of the curve,
+// the chrome and the labels before it, or held up-right of its point
+// (`labelPlace`). The boxes that take the pointer come out of the same pass. Mid-motion a mark keeps its place:
 // opacities, a drop line's reach and a label's rise are paint-time, so the
 // boxes, the keep-outs and the hits stay where the marks rest.
 
@@ -91,7 +64,6 @@ export type AnnotationMarks = {
   layer: PlaneAnnotation["layer"]
   ink: Ink
   strokes: readonly AnnotationStroke[]
-  plates: readonly Plate[]
 }
 
 export type HandleMark = Omit<PlaneHandle, "id" | "halo" | "held" | "alpha"> & {
@@ -118,8 +90,6 @@ export type MarksLayout = {
   points: readonly PointLayer[]
   /** Topmost first. */
   hits: readonly PlaneHit[]
-  /** Tick labels under an annotation's tag on an axis are skipped (the tag carries that number): those tags, 4 px larger. */
-  tickKeepOut: readonly Rect[]
 }
 
 export const NO_MARKS: MarksLayout = {
@@ -129,7 +99,6 @@ export const NO_MARKS: MarksLayout = {
   dropLines: [],
   points: [],
   hits: [],
-  tickKeepOut: [],
 }
 
 export type MarksOptions = {
@@ -146,25 +115,21 @@ export type MarksOptions = {
 const HIT_BOX = 48
 /** A handle's hit box: 44 px, a touch target (FV 11). */
 const HANDLE_HIT = 44
-/** Plates keep clear of a handle's box: the anchor's 28 px, the stretch grip's 24 (fvDrawCanvas). */
+/** Labels placed clear keep clear of a handle's box: the anchor's 28 px, the stretch grip's 24 (fvDrawCanvas). */
 const HANDLE_CLEAR = { diamond: 28, square: 24 } as const
 /** Labels keep clear of every marker's 28 px box. */
 const MARK_BOX = 28
 /** Point labels sit 22, 48 or 82 px from their point. */
 const LABEL_GAP = 22
-/** Annotation plates sit 10, 36 or 70 px from their anchor. */
-const PLATE_GAP = 10
 /** Labels keep this far from the chrome. */
 const CHROME_CLEAR = 8
-/** Tick labels this close to a tag are skipped. */
-const TAG_CLEAR = 4
 /** Where a point was: its ring's radius plus 2, where the arrow starts (fvDrawCanvas: P before, Ø22). */
 const WAS_START = 13
 /** The arrow's tip stops this far from the point: its marker's knock-out plus 2. */
 const WAS_TIP = 14
 /** Closer than this, the ring and the marker touch and the arrow has no room. */
 const WAS_ARROW_MIN = 26
-/** A plate keeps clear of where a point was: its ring and its arrow, 14 px around. */
+/** A label placed clear keeps clear of where a point was: its ring and its arrow, 14 px around. */
 const WAS_CLEAR = 14
 
 const coords = (x: number, y: number): string => `(${formatNumber(x)}, ${formatNumber(y)})`
@@ -199,7 +164,6 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
     return NO_MARKS
   }
   const { measure, readout } = opts
-  const plane = { width, height }
   const sx = (x: number) => toScreenX(vp, x)
   const sy = (y: number) => toScreenY(vp, y)
   const plate = (runs: readonly PlateRun[], style: PlateStyle, ink: Ink) =>
@@ -301,8 +265,22 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
     })
   }
 
-  // Plates keep clear of the chrome, the edge markers, the handles, the
-  // markers, where points were, and the plates placed before them.
+  const annotations: AnnotationMarks[] = (scene.annotations ?? []).map((a) => ({
+    layer: a.layer,
+    ink: a.ink,
+    strokes: a.lines.map(({ from, to, ...rest }) => ({
+      x1: sx(from.x),
+      y1: sy(from.y),
+      x2: sx(to.x),
+      y2: sy(to.y),
+      ...rest,
+    })),
+  }))
+
+  // A label placed clear keeps clear of the chrome, the edge markers, the
+  // handles, where points were, the curves that ask, every marker and the
+  // labels before it; a label held in place keeps only off the chrome.
+  // Either way the labels after it keep clear of it.
   const chrome = opts.plates.map((r) => inflate(r, CHROME_CLEAR))
   const obstacles: Rect[] = [
     ...chrome,
@@ -314,72 +292,9 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
       return w === undefined ? [] : [between(w, w.arrow === null ? w : { x: px, y: py }, WAS_CLEAR)]
     }),
   ]
-
-  // Annotation plates keep clear of every curve, a ghost too (fvDrawCanvas);
-  // point labels only of the curves that ask.
-  const allCurves: Polyline[] = scene.curves.flatMap((c) => curvePolylines(vp, c.fn))
   const avoided: Polyline[] = scene.curves
     .filter((c) => c.avoid === true)
     .flatMap((c) => curvePolylines(vp, c.fn))
-
-  const axisTagKeepOut: Rect[] = []
-  const annotationPlate = (spec: AnnotationPlate, a: PlaneAnnotation): Plate => {
-    const faces = spec.size === "md" ? NOTE_FACES : DRAG_TAG_FACES
-    const content = layoutPlate(
-      spec.runs.map((run) => ({
-        kind: "text" as const,
-        text: run.text,
-        face: run.italic === true ? faces.italic : faces.upright,
-        ink: a.onInk,
-      })),
-      spec.size === "md" ? NOTE_STYLE : DRAG_TAG_STYLE,
-      filled(a.ink),
-      measure,
-    )
-    const size = content.box
-    const place = spec.place
-    let box: Rect
-    switch (place.kind) {
-      case "beside":
-        box = placeBeside(sx(place.at.x), sy(place.at.y), size.w, size.h, {
-          gap: PLATE_GAP,
-          curves: allCurves,
-          obstacles: [...obstacles, ...marks],
-          width,
-          height,
-        })
-        break
-      case "above":
-        box = placeAbove(sx(place.at.x), sy(place.at.y), size, place.gap, plane)
-        break
-      case "x-axis":
-        box = besideXAxis(sx(place.x), originY, size, plane, { x: sx(place.clear.x), y: sy(place.clear.y) })
-        axisTagKeepOut.push(box)
-        break
-      case "y-axis":
-        box = besideYAxis(sy(place.y), originX, size, plane, { x: sx(place.clear.x), y: sy(place.clear.y) })
-        axisTagKeepOut.push(box)
-        break
-    }
-    obstacles.push(box)
-    return at(content, box)
-  }
-
-  const annotations: AnnotationMarks[] = (scene.annotations ?? []).map((a) => ({
-    layer: a.layer,
-    ink: a.ink,
-    strokes: a.lines.map(({ from, to, ...rest }) => ({
-      x1: sx(from.x),
-      y1: sy(from.y),
-      x2: sx(to.x),
-      y2: sy(to.y),
-      ...rest,
-    })),
-    plates: a.plates.map((spec) => annotationPlate(spec, a)),
-  }))
-
-  // Labels keep clear of the same, and of every marker, or hold their place
-  // and keep only off the chrome. Either way the labels after them keep clear.
   const layers: PointLayer[] = located.map(({ p, sx: px, sy: py, off }) => {
     let label: Plate | null = null
     if (off === null && p.name !== undefined) {
@@ -443,6 +358,5 @@ export const layoutMarks = (scene: PlaneScene, vp: Viewport, opts: MarksOptions)
     dropLines,
     points: layers,
     hits,
-    tickKeepOut: axisTagKeepOut.map((r) => inflate(r, TAG_CLEAR)),
   }
 }

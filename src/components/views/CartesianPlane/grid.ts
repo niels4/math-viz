@@ -104,7 +104,7 @@ export type GridOptions = {
   labelWidth: (text: string) => number
   /** Width of the O in ORIGIN_FACE. */
   originWidth: number
-  /** Boxes labels must stay out of: the chrome, and an annotation's tags on the axes. */
+  /** Boxes labels must stay out of: the chrome. */
   keepOut?: readonly Rect[]
 }
 

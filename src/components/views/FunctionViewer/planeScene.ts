@@ -1,11 +1,7 @@
-import { formatNumber } from "#src/util/format/number.ts"
-
 import type {
   AnnotationLine,
-  AnnotationPlate,
   Ink,
   MathPoint,
-  MathRun,
   PlaneAnnotation,
   PlaneCurve,
   PlaneHandle,
@@ -16,7 +12,7 @@ import type { FvHandle, FvState } from "./model/state.ts"
 
 import { POINT_NAMES } from "./copy.ts"
 import { BASE_FUNCTIONS } from "./math/baseFunctions.ts"
-import { anchorPoint, unitPoint, type TransformParam, type TransformParams } from "./math/form.ts"
+import { anchorPoint, unitPoint } from "./math/form.ts"
 import { curveAt, ghostVisible } from "./model/selectors.ts"
 
 /** Decision D3: P draws in --chart-point-1, Q in --chart-point-2. */
@@ -28,17 +24,12 @@ const CURVE_WIDTH = 3.5
 /** Specs › Original (ghost): the untransformed g, 2 px dashed 6 6, --foreground-muted at 75 %. */
 const GHOST = { width: 2, dash: [6, 6], alpha: 0.75 } as const
 
-/** Handles and annotations draw in --primary, their plates lettered in --primary-foreground (fvDrawCanvas). */
-const LINK_INK = { ink: "primary", onInk: "primaryForeground" } as const satisfies Pick<
-  PlaneAnnotation,
-  "ink" | "onInk"
->
+/** Handles and annotations draw in --primary (fvDrawCanvas). */
+const LINK_INK = "primary" satisfies Ink
 
 // fvDrawCanvas's annotation geometry, in px.
 /** A shift's dimension line, and the tick where it starts. */
 const DIMENSION = { width: 2.5, startTick: 9 } as const
-/** h's plate sits this far above its dimension line. */
-const H_PLATE_GAP = 16
 /** The unit box: dashed 5 4, at 80 % while a ruler or a term is active. */
 const BOX = { width: 1.5, dash: [5, 4] } as const
 const BOX_ALPHA = 0.8
@@ -58,17 +49,7 @@ export type PlaneSceneInput = Pick<FvState, "fn" | "params" | "pX" | "qX" | "gho
   handleHeld: FvHandle | null
   /** f(P) where a transform's drag found it, while P's ghost shows (FV 04); null otherwise. */
   pWas: number | null
-  /** The decimals each value's plate prints at (selectors.valueDecimals): the stored value's, also while it springs. */
-  decimals: Readonly<Record<TransformParam, number>>
 }
-
-const mid = (a: MathPoint, b: MathPoint): MathPoint => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 })
-
-/** "k = 1.00" as maths: the letter italic, the value by the number rule at its decimals. */
-const valueRuns = (param: TransformParam, params: TransformParams, dp: number): MathRun[] => [
-  { text: param, italic: true },
-  { text: `= ${formatNumber(params[param], dp)}` },
-]
 
 /** The unit box's four sides, from the anchor to the unit point. */
 const boxSides = (from: MathPoint, to: MathPoint, style: Partial<AnnotationLine>): AnnotationLine[] => {
@@ -87,6 +68,9 @@ const boxSides = (from: MathPoint, to: MathPoint, style: Partial<AnnotationLine>
 // at y = k; a and b the unit box's sides from the anchor to the unit point
 // (D14), under the curve. A dragged anchor drops h and k onto the axes; a
 // dragged stretch grip draws the box with both sides; above the curve.
+// Lines alone: no plate prints a, b, h or k on the plane (the user's ruling,
+// 2026-10-08: "the a,b,k, and h tags on the grid also dont look very good");
+// the panel prints them.
 const annotationsFor = (state: PlaneSceneInput): PlaneAnnotation[] => {
   const { active, params } = state
   if (active === null) {
@@ -95,26 +79,17 @@ const annotationsFor = (state: PlaneSceneInput): PlaneAnnotation[] => {
   const anchor = anchorPoint(params)
   const unit = unitPoint(BASE_FUNCTIONS[state.fn], params)
   const corner = { x: unit.x, y: anchor.y }
-  const plate = (param: TransformParam, place: AnnotationPlate["place"], size: "md" | "sm" = "md") => ({
-    runs: valueRuns(param, params, state.decimals[param]),
-    size,
-    place,
-  })
   if (active === "anchor" || active === "stretch") {
     if (active === "anchor") {
       return [
         {
           layer: "over",
-          ...LINK_INK,
+          ink: LINK_INK,
           // The board draws one path from the y-axis through the anchor
           // down to the x-axis, so the k leg's dashes start on the axis.
           lines: [
             { from: { x: 0, y: anchor.y }, to: anchor, ...DROP },
             { from: anchor, to: { x: anchor.x, y: 0 }, ...DROP },
-          ],
-          plates: [
-            plate("h", { kind: "x-axis", x: anchor.x, clear: anchor }, "sm"),
-            plate("k", { kind: "y-axis", y: anchor.y, clear: anchor }, "sm"),
           ],
         },
       ]
@@ -122,53 +97,31 @@ const annotationsFor = (state: PlaneSceneInput): PlaneAnnotation[] => {
     return [
       {
         layer: "over",
-        ...LINK_INK,
+        ink: LINK_INK,
         lines: [
           ...boxSides(anchor, unit, {}),
           { from: anchor, to: corner, ...SIDE },
           { from: corner, to: unit, ...SIDE },
         ],
-        plates: [
-          plate("b", { kind: "beside", at: mid(anchor, corner) }, "sm"),
-          plate("a", { kind: "beside", at: mid(corner, unit) }, "sm"),
-        ],
       },
     ]
   }
-  const under = (lines: AnnotationLine[], plates: AnnotationPlate[]): PlaneAnnotation[] => [
-    { layer: "under", ...LINK_INK, lines, plates },
-  ]
+  const under = (lines: AnnotationLine[]): PlaneAnnotation[] => [{ layer: "under", ink: LINK_INK, lines }]
   switch (active) {
-    case "k": {
-      const foot = { x: anchor.x, y: 0 }
-      return under(
-        [{ from: foot, to: anchor, ...DIMENSION, arrow: true }],
-        [plate("k", { kind: "beside", at: mid(foot, anchor) })],
-      )
-    }
-    case "h": {
-      const foot = { x: 0, y: anchor.y }
-      return under(
-        [{ from: foot, to: anchor, ...DIMENSION, arrow: true }],
-        [plate("h", { kind: "above", at: mid(foot, anchor), gap: H_PLATE_GAP })],
-      )
-    }
+    case "k":
+      return under([{ from: { x: anchor.x, y: 0 }, to: anchor, ...DIMENSION, arrow: true }])
+    case "h":
+      return under([{ from: { x: 0, y: anchor.y }, to: anchor, ...DIMENSION, arrow: true }])
     case "a":
-      return under(
-        [
-          ...boxSides(anchor, unit, { alpha: BOX_ALPHA }),
-          { from: corner, to: unit, ...SIDE, endTicks: SIDE_ENDS },
-        ],
-        [plate("a", { kind: "beside", at: mid(corner, unit) })],
-      )
+      return under([
+        ...boxSides(anchor, unit, { alpha: BOX_ALPHA }),
+        { from: corner, to: unit, ...SIDE, endTicks: SIDE_ENDS },
+      ])
     case "b":
-      return under(
-        [
-          ...boxSides(anchor, unit, { alpha: BOX_ALPHA }),
-          { from: anchor, to: corner, ...SIDE, endTicks: SIDE_ENDS },
-        ],
-        [plate("b", { kind: "beside", at: mid(anchor, corner) })],
-      )
+      return under([
+        ...boxSides(anchor, unit, { alpha: BOX_ALPHA }),
+        { from: anchor, to: corner, ...SIDE, endTicks: SIDE_ENDS },
+      ])
   }
 }
 
@@ -199,7 +152,7 @@ export const buildPlaneScene = (state: PlaneSceneInput): PlaneScene => {
     ] as const
   ).map((handle) => ({
     ...handle,
-    ink: LINK_INK.ink,
+    ink: LINK_INK,
     halo: state.handleLit === handle.id,
     held: state.handleHeld === handle.id,
   }))
@@ -220,7 +173,7 @@ export const buildPlaneScene = (state: PlaneSceneInput): PlaneScene => {
         dropLines: state.pLit,
         edgeMarker: true,
         draggable: true,
-        ...(state.pWas === null ? {} : { was: { x: state.pX, y: state.pWas, ink: LINK_INK.ink } }),
+        ...(state.pWas === null ? {} : { was: { x: state.pX, y: state.pWas, ink: LINK_INK } }),
       },
       ...(state.qX === null
         ? []

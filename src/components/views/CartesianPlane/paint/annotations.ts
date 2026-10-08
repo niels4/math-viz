@@ -3,7 +3,6 @@ import type { ThemeVars } from "#src/state/useAppTheme.ts"
 import type { AnnotationMarks, AnnotationStroke, Segment } from "../marks.ts"
 
 import { dashPhase } from "./guides.ts"
-import { paintPlate } from "./plates.ts"
 
 /** Ticks across a line's ends: 2 px (fvDrawCanvas: "From y = 0", the unit box's "Ends"). */
 const TICK_WIDTH = 2
@@ -109,13 +108,10 @@ const paintStroke = (ctx: CanvasRenderingContext2D, stroke: AnnotationStroke, co
   ctx.restore()
 }
 
-/** An annotation: its lines with their ticks and arrowheads, then its plates. */
+/** An annotation: its lines with their ticks and arrowheads. */
 export const paintAnnotation = (ctx: CanvasRenderingContext2D, marks: AnnotationMarks, theme: ThemeVars) => {
   const color = theme[marks.ink]
   for (const stroke of marks.strokes) {
     paintStroke(ctx, stroke, color)
-  }
-  for (const plate of marks.plates) {
-    paintPlate(ctx, plate, theme)
   }
 }

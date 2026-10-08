@@ -113,37 +113,15 @@ export type AnnotationLine = {
   arrow?: boolean
 }
 
-/** Text on an annotation's plate, in the maths face: a letter italic, "= 1" upright. */
-export type MathRun = { text: string; italic?: boolean }
-
-/**
- * Where an annotation's plate goes.
- * - beside: the first clear spot around a point (fvPlace, gap 10), clear of every curve.
- * - above: centred `gap` px above a point.
- * - x-axis, y-axis: a tag beside an axis at x (below the axis) or y (left of it); on the
- *   axis's far side when there it would cover `clear`'s Ø44 halo. Tick labels under it are skipped.
- */
-export type PlatePlacement =
-  | { kind: "beside"; at: MathPoint }
-  | { kind: "above"; at: MathPoint; gap: number }
-  | { kind: "x-axis"; x: number; clear: MathPoint }
-  | { kind: "y-axis"; y: number; clear: MathPoint }
-
-/** md: maths 19 on a plate padded 3 9 (an annotation); sm: maths 17 padded 2 8 (a tag while dragging). */
-export type AnnotationPlate = { runs: readonly MathRun[]; size: "md" | "sm"; place: PlatePlacement }
-
 /**
  * What a value means on the plane, drawn while it is active (FV 04): lines
- * in `ink`, plates filled with `ink` and lettered in `onInk`.
- * under: above the back curves, under the others; over: above every curve,
- * under the handles.
+ * in `ink`. under: above the back curves, under the others; over: above
+ * every curve, under the handles.
  */
 export type PlaneAnnotation = {
   layer: "under" | "over"
   ink: Ink
-  onInk: Ink
   lines: readonly AnnotationLine[]
-  plates: readonly AnnotationPlate[]
 }
 
 // Motion sets the opacities, the trim, the rise, the reach and the shifts

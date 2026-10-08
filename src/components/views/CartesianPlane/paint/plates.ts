@@ -19,15 +19,13 @@ export const paintPlate = (ctx: CanvasRenderingContext2D, plate: Plate, theme: T
   ctx.roundRect(x, y, w, h, plate.radius)
   ctx.fillStyle = theme[plate.fill]
   ctx.fill()
-  if (plate.border !== null) {
-    const { ink, width } = plate.border
-    const half = width / 2
-    ctx.beginPath()
-    ctx.roundRect(x + half, y + half, w - width, h - width, Math.max(0, plate.radius - half))
-    ctx.lineWidth = width
-    ctx.strokeStyle = theme[ink]
-    ctx.stroke()
-  }
+  const { ink, width } = plate.border
+  const half = width / 2
+  ctx.beginPath()
+  ctx.roundRect(x + half, y + half, w - width, h - width, Math.max(0, plate.radius - half))
+  ctx.lineWidth = width
+  ctx.strokeStyle = theme[ink]
+  ctx.stroke()
   ctx.textAlign = "left"
   ctx.textBaseline = "alphabetic"
   for (const run of plate.runs) {

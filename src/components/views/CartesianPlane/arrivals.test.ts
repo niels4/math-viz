@@ -13,7 +13,7 @@ const plate: Plate = {
   box: { x: 400, y: 22, w: 118, h: 39 },
   radius: 19.5,
   fill: "card",
-  border: null,
+  border: { ink: "chartPoint1", width: 2 },
   runs: [],
 }
 

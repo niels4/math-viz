@@ -28,7 +28,6 @@ import {
   pLit,
   pMoved,
   pOffView,
-  valueDecimals,
 } from "./model/selectors.ts"
 import { initialFvState, type FvPart, type FvPlaneMark, type PartEvents } from "./model/state.ts"
 import { useFvMotion } from "./motion/useFvMotion.ts"
@@ -77,9 +76,8 @@ export function FunctionViewer() {
       handleLit: gripLit,
       handleHeld: gripHeld,
       pWas,
-      decimals: valueDecimals(params, fine),
     }),
-    [fn, params, pX, qX, ghostOn, pLitNow, activeNow, gripLit, gripHeld, pWas, fine],
+    [fn, params, pX, qX, ghostOn, pLitNow, activeNow, gripLit, gripHeld, pWas],
   )
   const scene = useMemo(() => buildPlaneScene(sceneInput), [sceneInput])
   // A transform's drag let go: P's ghost and its "moved" stay a moment.

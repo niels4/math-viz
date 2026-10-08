@@ -34,12 +34,11 @@ export type DrawCartesianPlaneProps = {
 }
 
 // The painter pipeline, back to front (figma0 fvDrawCanvas): grid and axes
-// with their labels (skipping those under an annotation's tag), the back
-// curves, the annotations under the curve, the other curves, the handles'
-// halos, the annotations over the curve, the handles, the pointer guides and
-// drop lines, then each point in order: where it was, its edge marker or its
-// marker, and its label. The DOM chrome sits above. Returns the grid it laid
-// out (null for an empty plane).
+// with their labels, the back curves, the annotations under the curve, the
+// other curves, the handles' halos, the annotations over the curve, the
+// handles, the pointer guides and drop lines, then each point in order:
+// where it was, its edge marker or its marker, and its label. The DOM chrome
+// sits above. Returns the grid it laid out (null for an empty plane).
 export const drawCartesianPlane = (props: DrawCartesianPlaneProps): GridLayout | null => {
   const { ctx, themeVars, width, height, dpr, scene, marks } = props
   if (width === 0 || height === 0) {
@@ -53,7 +52,7 @@ export const drawCartesianPlane = (props: DrawCartesianPlaneProps): GridLayout |
   const grid = layoutGrid(vp, {
     labelWidth: (text) => measure(TICK_LABEL_FACE, text),
     originWidth: measure(ORIGIN_FACE, "O"),
-    keepOut: [...props.keepOut, ...marks.tickKeepOut],
+    keepOut: props.keepOut,
   })
   ctx.save()
   ctx.globalAlpha = Math.max(0, Math.min(1, scene.gridAlpha ?? 1))

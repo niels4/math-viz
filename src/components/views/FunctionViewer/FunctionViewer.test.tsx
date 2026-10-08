@@ -521,7 +521,7 @@ describe("FunctionViewer", () => {
 
   // The user's ruling (plan M10b): fixed decimals, 3 for a fine drag's
   // whole length, wherever the value prints.
-  it("holds 3 decimals for a fine drag's whole length, in the field, the term and the plate", async () => {
+  it("holds 3 decimals for a fine drag's whole length, in the field and the term", async () => {
     HTMLSpanElement.prototype.setPointerCapture = () => {}
     HTMLSpanElement.prototype.releasePointerCapture = () => {}
     HTMLSpanElement.prototype.hasPointerCapture = () => false
@@ -538,15 +538,14 @@ describe("FunctionViewer", () => {
       })
     const field = () => (byTestId(screen, "fv-param-k-field") as HTMLInputElement).value
     const term = () => document.querySelector('[data-line="live"] [data-param="k"]')?.textContent
-    const plate = () => lastScene().annotations?.[0]?.plates[0]?.runs[1]?.text
     at("pointerdown", 10, true)
     expect([field(), valueOf(screen, "k"), term()]).toEqual(["0.000", "0.000", "+ 0.000"])
     // Fine: 50 px is a tenth of a unit.
     at("pointermove", 60, true)
-    expect([field(), valueOf(screen, "k"), term(), plate()]).toEqual(["0.100", "0.100", "+ 0.100", "= 0.100"])
+    expect([field(), valueOf(screen, "k"), term()]).toEqual(["0.100", "0.100", "+ 0.100"])
     // Shift let go mid-drag: coarse again, still 3 decimals.
     at("pointermove", 110, false)
-    expect([field(), term(), plate()]).toEqual(["1.100", "+ 1.100", "= 1.100"])
+    expect([field(), term()]).toEqual(["1.100", "+ 1.100"])
     act(() => {
       window.dispatchEvent(new PointerEvent("pointerup"))
     })

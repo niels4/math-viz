@@ -2,7 +2,7 @@
 // prelude-fv.js fvNum / fvNumParts, with the user's fixed-decimals ruling of
 // 2026-10-06, plan M10b, in place of its "strip zeros"). Every value a view
 // shows prints a fixed number of decimals, so the decimal point holds still
-// while it slides: fields, equation terms, readouts, labels, tags, badges and
+// while it slides: fields, equation terms, readouts, labels, badges and
 // plates all print through here, and one value always reads as one string
 // wherever it shows. Scale marks (tick and ruler labels, the zoom, the scale
 // bar) keep the short form, zeros stripped.
