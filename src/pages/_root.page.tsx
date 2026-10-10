@@ -37,6 +37,13 @@ const RootPage = () => {
                     plane.
                   </span>
                 </a>
+                <a href="#demos/function-viewer-v2" className={style.link_card}>
+                  <span className={style.link_title}>Function Viewer v2</span>
+                  <span className={style.link_desc}>
+                    The same viewer with a calmer sidebar: a, k, b and h as number rows you drag sideways or
+                    click to type, each in one colour wherever it appears, in its row and in the equation.
+                  </span>
+                </a>
               </div>
             </SectionCard>
           </div>

@@ -4,42 +4,22 @@ import { useLeaving } from "#src/components/hooks/usePresence.ts"
 import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
 import { motionCssVars, overlayLeaveMs } from "#src/util/motion/motion.ts"
 
-import { HintBar } from "../../ui/HintBar.tsx"
 import { MathText } from "../../ui/MathText.tsx"
 import { SettingsMenu } from "../../ui/SettingsMenu.tsx"
 import { ThemeChip } from "../../ui/ThemeChip.tsx"
 import { TopBar } from "../../ui/TopBar.tsx"
 import { CartesianPlane, type CartesianPlaneHandle } from "../CartesianPlane/CartesianPlane"
-import { PLANE_KEY_HELP, SECTIONS, TOUR, VIEW_SUBTITLE, VIEW_TITLE } from "./copy.ts"
+import { PLANE_KEY_HELP, TOUR, VIEW_SUBTITLE, VIEW_TITLE } from "./copy.ts"
 import style from "./FunctionViewer.module.css"
 import { GhostToggle } from "./GhostToggle.tsx"
-import { hintContext, hintFor } from "./model/hints.ts"
 import { fvReducer } from "./model/reducer.ts"
-import {
-  active,
-  activeParams,
-  curveAt,
-  draggedParams,
-  fineParams,
-  handleHeld,
-  handleLit,
-  isTransformed,
-  partUi,
-  pLit,
-  pMoved,
-  pOffView,
-} from "./model/selectors.ts"
+import { active, handleHeld, handleLit, isTransformed, pLit } from "./model/selectors.ts"
 import { initialFvState, type FvPart, type FvPlaneMark, type PartEvents } from "./model/state.ts"
 import { useFvMotion } from "./motion/useFvMotion.ts"
-import { EquationCard } from "./panel/EquationCard.tsx"
-import { FunctionPicker } from "./panel/FunctionPicker.tsx"
-import { PanelSection } from "./panel/PanelSection.tsx"
-import { PCard, QCard } from "./panel/PointCards.tsx"
-import { readoutSlots } from "./panel/readoutFit.ts"
 import { TransformExplainer } from "./panel/TransformExplainer.tsx"
-import { TransformGrid } from "./panel/TransformGrid.tsx"
 import { useTermDrags } from "./panel/useTermDrags.ts"
 import { buildPlaneScene, type PlaneSceneInput } from "./planeScene.ts"
+import { RULER_SIDEBAR, type FvSidebar } from "./sidebar.ts"
 import { Tour } from "./tour/Tour.tsx"
 import { useHelp } from "./useHelp.ts"
 
@@ -53,7 +33,12 @@ const PLANE_MARKS: readonly string[] = ["p", "anchor", "stretch"] satisfies FvPl
 
 const isPlaneMark = (id: string | null): id is FvPlaneMark => id !== null && PLANE_MARKS.includes(id)
 
-export function FunctionViewer() {
+// The Function Viewer (figma0 FV · Recommended): the top bar, the sidebar
+// beside the plane, and the help that opens over them. It holds the state,
+// builds the plane's scene and runs the motion and the help; the sidebar
+// (sidebar.ts) sets the panel's contents, today's rulers by default.
+export function FunctionViewer({ sidebar = RULER_SIDEBAR }: { sidebar?: FvSidebar }) {
+  const { Panel, panelClass } = sidebar
   const [state, dispatch] = useReducer(fvReducer, initialFvState)
   const { fn, params, pX, qX, ghostOn } = state
   const pLitNow = pLit(state)
@@ -61,8 +46,6 @@ export function FunctionViewer() {
   const gripLit = handleLit(state)
   const gripHeld = handleHeld(state)
   const pWas = state.pBefore !== null && state.pBefore.x === pX ? state.pBefore.y : null
-  const fine = fineParams(state)
-  const slots = readoutSlots(state.view?.extent ?? null)
   // Only what the scene shows: a reported view change must not rebuild it.
   const sceneInput = useMemo(
     (): PlaneSceneInput => ({
@@ -138,49 +121,17 @@ export function FunctionViewer() {
           </>
         }
       />
-      <aside ref={panelRef} className={style.panel}>
-        <PanelSection {...SECTIONS.function}>
-          <FunctionPicker value={fn} onChange={(next) => dispatch({ type: "setFunction", fn: next })} />
-          <EquationCard
-            fn={fn}
-            params={params}
-            lit={activeParams(state)}
-            keep={draggedParams(state)}
-            fine={fine}
-            tip={state.hover === "eq" ? state.eqOver : null}
-            onPointer={(over) => dispatch({ type: "eqPointer", over })}
-            onLeave={() => dispatch({ type: "hover", part: "eq", on: false })}
-            bindTerm={bindTerm}
-          />
-        </PanelSection>
-        <TransformGrid
-          params={params}
-          uiOf={(param) => partUi(state, param)}
+      <aside
+        ref={panelRef}
+        className={panelClass === undefined ? style.panel : `${style.panel} ${panelClass}`}
+      >
+        <Panel
+          state={state}
+          dispatch={dispatch}
           eventsOf={eventsOf}
-          onChange={(param, value, typed) => dispatch({ type: "setParam", param, value, jump: typed })}
-          onReset={(param) => dispatch({ type: "resetParam", param })}
-          onResetAll={() => dispatch({ type: "resetAll" })}
-          onFlip={(param) => dispatch({ type: "flip", param })}
-          onExplain={(param, by, open) => dispatch({ type: "explain", param, by, open })}
+          bindTerm={bindTerm}
           explaining={explainer === null ? null : { param: explainer.param, id: explainerId }}
         />
-        <PanelSection {...SECTIONS.points}>
-          <PCard
-            x={pX}
-            y={curveAt(state, pX)}
-            extent={state.view?.extent ?? null}
-            off={pOffView(state)}
-            moved={pMoved(state)}
-            slots={slots}
-            ui={partUi(state, "p")}
-            events={eventsOf("p")}
-            onChange={(x) => dispatch({ type: "setP", x })}
-          />
-          <QCard x={qX} y={qX === null ? null : curveAt(state, qX)} slots={slots} />
-        </PanelSection>
-        <div className={style.spacer} />
-        <HintBar className={style.hint} hint={hintFor(hintContext(state))} testId="fv-hint" />
-        <div className={style.tail} />
       </aside>
       <main className={style.plane} data-part="plane">
         <CartesianPlane

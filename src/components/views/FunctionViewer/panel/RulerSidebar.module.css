@@ -1,0 +1,26 @@
+/* At 900 px the boards' content is 9.5 px taller than the panel leaves
+room for, and Figma lets the hint bar into the bottom padding: 8.5 px
+remain below it. So the panel keeps 8.5, and the tail below the hint
+gives back the rest of the 18 wherever there is room. */
+.panel {
+  --panel-foot: 8.5px;
+}
+
+/* fvPanel's spacer: 1 px at least, then everything the sections leave. */
+.spacer {
+  flex: 1 0 1px;
+}
+
+/* The hint bar at the panel's foot, 424 wide like the cards (M4 call 2). */
+.hint {
+  flex: none;
+  margin-inline-end: -2px;
+}
+
+/* Up to 9.5 px under the hint bar, the first thing to give way when the
+panel runs short; it sits against the bar (cancelling the panel's gap). */
+.tail {
+  flex: 0 1 9.5px;
+  min-height: 0;
+  margin-top: -12px;
+}

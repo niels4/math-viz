@@ -1,0 +1,48 @@
+/* Sub card (figma0 SB2 · B2, SB3 · C3): --section, the card radius, padding
+12 14 16, its parts 12 apart under a 28 px head. */
+.card {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px 14px 16px;
+  background: var(--section);
+  border-radius: var(--sig-card-radius);
+}
+
+/* A card with an action: a grid whose first row the head and the action
+share, the action at the far end, though it comes last in the DOM. */
+.card[data-action] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.card[data-action] > * {
+  grid-column: 1 / -1;
+}
+
+.card[data-action] > :first-child {
+  grid-row: 1;
+}
+
+.card[data-action] > .action {
+  display: flex;
+  grid-row: 1;
+  grid-column: 2;
+  align-self: center;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  height: 28px;
+}
+
+/* Work Sans 700 17 in Figma's 20 px AUTO box. */
+.title {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--foreground);
+}
