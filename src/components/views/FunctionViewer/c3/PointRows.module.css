@@ -1,0 +1,152 @@
+/* SB3 · C3 › Points: P (its head over its track, 6 apart), then Q, 16
+apart. The readouts' runs: "f(" and the relation in STIX 20 in their 25 px
+boxes, the numbers in the readout face at 500 18 in 24, centred on the row
+as the board centres them. */
+.points {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.point {
+  --readout-math-size: 20px;
+  --readout-number-size: 18px;
+  --readout-math-line: 25px;
+  --readout-number-line: 24px;
+  --readout-align: center;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* The head: 30 tall, 8 apart. */
+.head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  height: 30px;
+}
+
+/* The point's letter in STIX italic 20, its 25 px box. */
+.letter {
+  flex: none;
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  line-height: 25px;
+  color: var(--foreground);
+}
+
+/* The role's slot takes the head's slack. Its first line is the head's
+height; a role too wide for what is left wraps to the clipped second line,
+so it shows whole or not at all. */
+.role_slot {
+  display: flex;
+  flex: 1 1 0;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: center;
+  min-width: 0;
+  height: 30px;
+  overflow: hidden;
+}
+
+.role_slot::before {
+  height: 30px;
+  content: "";
+}
+
+/* Work Sans 500 13 in its 15 px box, muted; --foreground off the view. */
+.role {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 15px;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+}
+
+.role[data-off] {
+  color: var(--foreground);
+}
+
+/* Off the view: a 10 × 9 --warning triangle before the role. */
+.off_mark {
+  display: grid;
+  flex: none;
+  color: var(--warning);
+}
+
+/* "moved +1" while a transform's drag moves P (FV 04; R5's badge), as on
+today's P card: --primary at 26 % inside a 1 px --primary edge. */
+.moved {
+  display: flex;
+  flex: none;
+  gap: 6px;
+  align-items: center;
+  height: 24px;
+  margin-inline-end: 4px;
+  padding: 2px 8px;
+  color: var(--foreground);
+  white-space: nowrap;
+  background: color-mix(in oklch, var(--primary) 26%, transparent);
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+}
+
+.moved_label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 15px;
+}
+
+.moved_value {
+  font-family: var(--sig-readout-font);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+/* P's x in the readout is its value field: bare readout text at rest, boxed
+while typed (NumberField's edit and error states). */
+.x_field {
+  min-width: 0;
+  height: 24px;
+  padding: 0;
+  font-family: var(--sig-readout-font);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.x_field[data-editing] {
+  padding: 0 5px;
+}
+
+.value {
+  display: flex;
+  flex: none;
+}
+
+/* FV 05: Q's values and role fade in as the pointer enters the plane and
+as it leaves (back to placeholders), as on today's Q card. */
+[data-fade="in"] {
+  animation: values-in var(--motion-dur-fast) var(--motion-ease-enter) both;
+}
+
+[data-fade="out"] {
+  animation: values-in var(--motion-dur-leave) linear both;
+}
+
+@keyframes values-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-fade] {
+    animation-duration: var(--motion-dur-reduced-fade);
+    animation-timing-function: linear;
+  }
+}

@@ -10,7 +10,7 @@ import { ExtentSlider } from "./ExtentSlider.tsx"
 const TRACK = { left: 100, width: 396 }
 const R2 = { min: -9.36, max: 9.36 }
 
-const stubLayout = () => {
+const stubLayout = (track = TRACK) => {
   // Unconditional: real Chromium implements these but throws for synthetic
   // pointerIds, and `??=` would keep the throwing version in browsers.
   HTMLDivElement.prototype.setPointerCapture = () => {}
@@ -19,13 +19,13 @@ const stubLayout = () => {
   // Real Chromium's ResizeObserver would report the laid-out track over the mock.
   vi.stubGlobal("ResizeObserver", undefined)
   vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue({
-    x: TRACK.left,
+    x: track.left,
     y: 0,
-    left: TRACK.left,
+    left: track.left,
     top: 0,
-    width: TRACK.width,
+    width: track.width,
     height: 36,
-    right: TRACK.left + TRACK.width,
+    right: track.left + track.width,
     bottom: 36,
     toJSON: () => ({}),
   })
@@ -36,16 +36,19 @@ type Seen = { values: number[]; drags: boolean[]; edits: string[] }
 function Harness({
   initial,
   range,
+  look,
   seen,
 }: {
   initial: number
   range: { min: number; max: number }
+  look: "axis" | "line"
   seen: Seen
 }) {
   const [value, setValue] = useState(initial)
   return (
     <ExtentSlider
       testId="s"
+      look={look}
       label="x of P"
       symbol="x"
       format={formatNumber}
@@ -64,9 +67,9 @@ function Harness({
   )
 }
 
-const renderSlider = async (initial = 2, range = R2) => {
+const renderSlider = async (initial = 2, range = R2, look: "axis" | "line" = "axis") => {
   const seen: Seen = { values: [], drags: [], edits: [] }
-  const screen = await render(<Harness initial={initial} range={range} seen={seen} />)
+  const screen = await render(<Harness initial={initial} range={range} look={look} seen={seen} />)
   const track = toElement(screen.getByTestId("s")) as HTMLDivElement
   const thumb = () => document.querySelector('[data-testid="s-thumb"]') as HTMLElement | null
   const key = (k: string, init: KeyboardEventInit = {}) => {
@@ -85,7 +88,7 @@ const renderSlider = async (initial = 2, range = R2) => {
 }
 
 describe("ExtentSlider (the P scrubber, FV 07)", () => {
-  beforeEach(stubLayout)
+  beforeEach(() => stubLayout())
   afterEach(() => {
     vi.restoreAllMocks()
     vi.unstubAllGlobals()
@@ -186,5 +189,47 @@ describe("ExtentSlider (the P scrubber, FV 07)", () => {
     pointer("pointerdown", TRACK.left + 150)
     expect(seen.values).toEqual([])
     expect(seen.drags).toEqual([])
+  })
+})
+
+// SB3 · C3's P track: a bare 394 px line whose ends sit 9 px in, so the
+// values run over 376 px and the thumb stays inside the track.
+const LINE_TRACK = { left: 100, width: 394 }
+
+describe("ExtentSlider's line look (SB3 · C3 › P track)", () => {
+  beforeEach(() => stubLayout(LINE_TRACK))
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+  })
+
+  it("draws a line with a mark at 0 and no labels, the thumb on the inset run", async () => {
+    const { track, thumb } = await renderSlider(2, R2, "line")
+    expect(track.getAttribute("data-look")).toBe("line")
+    expect([...track.querySelectorAll("span")].filter((s) => /^[−\d]+$/.test(s.textContent))).toEqual([])
+    const paths = [...track.querySelectorAll("path")].map((p) => p.getAttribute("d"))
+    // The line from 9 to 385, the mark at 0: 9 + 188.
+    expect(paths).toEqual(["M9 10H385", "M197 5V15"])
+    // 9 + (2 + 9.36) / 18.72 of 376 px.
+    expect(thumb()?.style.left).toBe("237.17px")
+  })
+
+  it("parks the thumb on the line's ends", async () => {
+    expect((await renderSlider(21.5, R2, "line")).thumb()?.style.left).toBe("385px")
+  })
+
+  it("maps a press over the inset run", async () => {
+    const { pointer, track } = await renderSlider(2, R2, "line")
+    // A quarter of the run along: −9.36 + 4.68.
+    pointer("pointerdown", LINE_TRACK.left + 9 + 94)
+    expect(track.getAttribute("aria-valuenow")).toBe("-4.68")
+    pointer("pointermove", LINE_TRACK.left + 4)
+    expect(track.getAttribute("aria-valuenow")).toBe("-9.36")
+    pointer("pointerup", LINE_TRACK.left + 4, 0)
+  })
+
+  it("leaves the mark out where 0 is off the range", async () => {
+    const { track } = await renderSlider(2, { min: 1, max: 5 }, "line")
+    expect(track.querySelectorAll("path").length).toBe(1)
   })
 })

@@ -1,0 +1,104 @@
+/* SB3 · C3 › Equation (EquationCard's look in the C3 sidebar): no card and
+no FORM label, the live line in its 60 px row over the form line, 4 apart,
+padding 4 4 0 4. Each term in its parameter's colour: the value with its
+operator in the live line, the letter in the form line. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 4px 0;
+}
+
+.live {
+  display: flex;
+  align-items: center;
+  min-height: 60px;
+  color: var(--foreground);
+}
+
+/* STIX Two Text's AUTO line box is 1.25 em, which Figma rounds up to whole
+px. Tabular figures: a sliding term keeps its width. */
+.line,
+.form {
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-variant-numeric: tabular-nums;
+  line-height: round(up, 1.25em, 1px);
+}
+
+/* One line, shrunk to fit its row where long values need more (--fit-scale,
+useFitWidth). */
+.line {
+  flex: none;
+  font-size: calc(28px * var(--fit-scale, 1));
+  white-space: nowrap;
+}
+
+.form_row {
+  display: flex;
+  align-items: center;
+}
+
+.form {
+  font-size: 18px;
+  color: var(--foreground-muted);
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.card [data-param="a"] {
+  --term-ink: var(--param-a);
+  --term-tint: var(--param-a-18);
+}
+
+.card [data-param="k"] {
+  --term-ink: var(--param-k);
+  --term-tint: var(--param-k-18);
+}
+
+.card [data-param="b"] {
+  --term-ink: var(--param-b);
+  --term-tint: var(--param-b-18);
+}
+
+.card [data-param="h"] {
+  --term-ink: var(--param-h);
+  --term-tint: var(--param-h-18);
+}
+
+/* A term drags like its control (D13), selecting no text. A change flashes
+it (FV 05, FV 04): its tint times --flash, which the view's motion takes
+from 0 to 1 and back, over the lit plate and under the text. */
+.card [data-param] {
+  --flash-ink: color-mix(in oklch, var(--term-ink) calc(18% * var(--flash, 0)), transparent);
+
+  position: relative;
+  color: var(--term-ink);
+  background-image: linear-gradient(var(--flash-ink), var(--flash-ink));
+  cursor: ew-resize;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Lit, its value active (FV 04): its tint with a 2 px underline in its
+colour, where today's sidebar uses --primary. The plate reaches 1 px past
+the term above and below, so the line never moves. */
+.line [data-lit] {
+  background-color: var(--term-tint);
+  box-shadow:
+    0 -1px 0 0 var(--term-tint),
+    0 1px 0 0 var(--term-ink),
+    inset 0 -1px 0 0 var(--term-ink);
+}
+
+.form [data-lit] {
+  background-color: var(--term-tint);
+  box-shadow: inset 0 -2px 0 0 var(--term-ink);
+}

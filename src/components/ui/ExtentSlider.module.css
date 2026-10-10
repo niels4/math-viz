@@ -28,6 +28,28 @@
     stroke: var(--chart-axis);
   }
 
+  /* The line look (SB3 · C3 › P track): 20 px, a 2 px --foreground-muted
+  line and the mark at 0 (1.5 × 10), the thumb on the line. */
+  .track[data-look="line"] {
+    height: 20px;
+  }
+
+  .track[data-look="line"] .thumb {
+    top: 10px;
+  }
+
+  .line {
+    fill: none;
+    stroke: var(--foreground-muted);
+    stroke-width: 2px;
+  }
+
+  .zero {
+    fill: none;
+    stroke: var(--foreground-muted);
+    stroke-width: 1.5px;
+  }
+
   /* Roboto Mono 500 12 in Figma's 16 px line box. */
   .label {
     position: absolute;

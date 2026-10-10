@@ -4,11 +4,13 @@
 declare const styles: {
   readonly "baseline": string;
   readonly "label": string;
+  readonly "line": string;
   readonly "marks": string;
   readonly "thumb": string;
   readonly "tick": string;
   readonly "tip": string;
   readonly "tip_value": string;
   readonly "track": string;
+  readonly "zero": string;
 };
 export = styles;

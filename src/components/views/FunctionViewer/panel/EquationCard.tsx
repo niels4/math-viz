@@ -13,6 +13,15 @@ import { TermTip } from "./TermTip.tsx"
 
 type Line = "live" | "form"
 
+/**
+ * The card's look: a CSS module with these classes. Its own by default;
+ * a sidebar with another look passes its own (the C3 sidebar's has no card
+ * and colours each term by its parameter).
+ */
+export type EquationCardStyles = Readonly<
+  Record<"card" | "live" | "line" | "form_row" | "form" | "hidden", string> & { form_label?: string }
+>
+
 const isParam = (s: string | null): s is TransformParam =>
   s !== null && (TRANSFORM_PARAMS as readonly string[]).includes(s)
 
@@ -46,6 +55,8 @@ export function EquationCard({
   onPointer,
   onLeave,
   bindTerm,
+  styles = style,
+  formLabel = FORM_LABEL,
 }: {
   fn: BaseFunctionSlug
   params: TransformParams
@@ -61,6 +72,9 @@ export function EquationCard({
   onPointer: (over: TransformParam | null) => void
   onLeave: () => void
   bindTerm: (param: TransformParam) => HTMLAttributes<HTMLSpanElement>
+  styles?: EquationCardStyles
+  /** The caps label before the form line; null sets none. */
+  formLabel?: string | null
 }) {
   // Only the term under the pointer hangs the tip, in the line it is in.
   const [line, setLine] = useState<Line | null>(null)
@@ -85,7 +99,7 @@ export function EquationCard({
   })
   return (
     <div
-      className={style.card}
+      className={styles.card}
       data-testid="fv-equation"
       data-part="equation"
       onPointerOver={track}
@@ -94,15 +108,19 @@ export function EquationCard({
         onLeave()
       }}
     >
-      <output ref={rowRef} className={style.live} data-testid="func-readout" aria-label={said}>
-        <span ref={lineRef} className={style.line} data-line="live" aria-hidden="true">
+      <output ref={rowRef} className={styles.live} data-testid="func-readout" aria-label={said}>
+        <span ref={lineRef} className={styles.line} data-line="live" aria-hidden="true">
           <EquationTokens tokens={live} {...options("live")} />
         </span>
       </output>
-      <p className={style.form_row} data-testid="fv-form">
-        <span className={style.form_label}>{FORM_LABEL}</span>
-        <span className={style.hidden}>: {describeEquation(form)}</span>
-        <span className={style.form} data-line="form" aria-hidden="true">
+      <p className={styles.form_row} data-testid="fv-form">
+        {formLabel !== null && <span className={styles.form_label}>{formLabel}</span>}
+        {/* Read aloud as "Form: f(x) = …", the label shown or not. */}
+        <span className={styles.hidden}>
+          {formLabel === null ? `${FORM_LABEL}: ` : ": "}
+          {describeEquation(form)}
+        </span>
+        <span className={styles.form} data-line="form" aria-hidden="true">
           <EquationTokens tokens={form} {...options("form")} />
         </span>
       </p>

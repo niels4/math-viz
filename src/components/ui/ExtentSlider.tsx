@@ -25,6 +25,13 @@ export type ExtentSliderHandle = { focus: () => void }
 const STEP = 0.1
 const STEP_SHIFT = 1
 
+/**
+ * The line look (figma0 SB3 · C3 › P track): a 20 px track, a 2 px line at
+ * y 10 that ends 9 px in from each end (half the thumb, so the thumb stays
+ * inside), and a 10 px mark where 0 is.
+ */
+const LINE = { y: 10, inset: 9, zero: 10 } as const
+
 const px = (v: number): number => Math.round(v * 100) / 100
 
 const tickPath = (xs: readonly number[], length: number): string =>
@@ -36,7 +43,8 @@ const inward = (v: number, q: number, side: "low" | "high"): number =>
 
 // An absolute slider over a live range (figma0 fvScrubber, FV 07's P
 // scrubber): a track calibrated like an axis that follows its range (the
-// plane's visible x-range), and a thumb the owner draws at the value. A
+// plane's visible x-range), and a thumb the owner draws at the value. The
+// line look draws a bare line with a mark at 0 instead of the axis. A
 // press jumps to the pointer and drags; ← → step 0.1 (Shift 1) with no
 // bounds, Home and End jump to the ends, Enter asks the owner to open its
 // value field. Hover, focus and a drag show the value in a tip above the
@@ -55,6 +63,7 @@ export function ExtentSlider({
   renderThumb,
   onEditRequest,
   onDragChange,
+  look = "axis",
   className,
   testId,
   ref,
@@ -76,6 +85,8 @@ export function ExtentSlider({
   onEditRequest?: () => void
   /** A pointer drag starts (true) or ends (false). */
   onDragChange?: (dragging: boolean) => void
+  /** An axis with ticks and labels, or a bare line with a mark at 0. */
+  look?: "axis" | "line"
   className?: string
   testId?: string
   ref?: Ref<ExtentSliderHandle>
@@ -88,6 +99,9 @@ export function ExtentSlider({
 
   const span = max - min
   const valid = Number.isFinite(value) && Number.isFinite(span) && span > 0
+  // The values run between the line's ends, which the line look sets in.
+  const inset = look === "line" ? LINE.inset : 0
+  const run = width - 2 * inset
   const low = valid ? inward(min, quantum, "low") : min
   const high = valid ? inward(max, quantum, "high") : max
   const send = (next: number) => {
@@ -103,10 +117,10 @@ export function ExtentSlider({
       return
     }
     const rect = track.getBoundingClientRect()
-    if (rect.width === 0) {
+    if (rect.width <= 2 * inset) {
       return
     }
-    const t = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
+    const t = Math.min(1, Math.max(0, (clientX - rect.left - inset) / (rect.width - 2 * inset)))
     send(Math.min(high, Math.max(low, min + t * span)))
   }
 
@@ -191,16 +205,18 @@ export function ExtentSlider({
     }
   }
 
-  const marks = width > 0 ? extentMarks(min, max, width) : null
+  const marks = width > 0 && look === "axis" ? extentMarks(min, max, width) : null
   const parked = !valid ? null : value < min ? "left" : value > max ? "right" : null
   const thumbX =
-    !valid || width === 0
+    !valid || run <= 0
       ? null
       : parked === "left"
-        ? 0
+        ? inset
         : parked === "right"
-          ? width
-          : ((value - min) / span) * width
+          ? width - inset
+          : inset + ((value - min) / span) * run
+  const zeroX =
+    look === "line" && valid && run > 0 && min <= 0 && max >= 0 ? inset + (-min / span) * run : null
   return (
     <div
       ref={trackRef}
@@ -214,6 +230,7 @@ export function ExtentSlider({
       data-testid={testId}
       data-dragging={dragging || undefined}
       data-parked={parked ?? undefined}
+      data-look={look === "line" ? look : undefined}
       className={className === undefined ? style.track : `${style.track} ${className}`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -227,6 +244,17 @@ export function ExtentSlider({
           <path className={style.baseline} d={`M0 ${BASELINE_Y}H${px(width)}`} />
           <path className={style.tick} d={tickPath(marks.minor, TICK_LENGTH.minor)} strokeWidth={1} />
           <path className={style.tick} d={tickPath(marks.major, TICK_LENGTH.major)} strokeWidth={1.5} />
+        </svg>
+      )}
+      {look === "line" && run > 0 && (
+        <svg className={style.marks} width={width} height={LINE.y * 2} aria-hidden="true">
+          <path className={style.line} d={`M${inset} ${LINE.y}H${px(width - inset)}`} />
+          {zeroX !== null && (
+            <path
+              className={style.zero}
+              d={`M${px(zeroX)} ${LINE.y - LINE.zero / 2}V${LINE.y + LINE.zero / 2}`}
+            />
+          )}
         </svg>
       )}
       {marks?.labels.map((mark) => (

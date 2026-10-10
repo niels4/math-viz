@@ -2,7 +2,8 @@ import { getDefaultStore } from "jotai"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { fvTourDoneAtom } from "#src/state/fvTour.ts"
-import { act, render, toElement } from "#test"
+import arcticTheme from "#src/style/themes/mathviz_arctic_ice.module.css"
+import { act, isBrowser, render, toElement } from "#test"
 
 import type { PlaneScene } from "../../CartesianPlane/scene.ts"
 
@@ -23,7 +24,22 @@ type Screen = Awaited<ReturnType<typeof render>>
 
 const byTestId = (screen: Screen, id: string) => toElement(screen.getByTestId(id))
 
-const renderV2 = () => render(<FunctionViewer sidebar={C3_SIDEBAR} />)
+const renderV2 = () =>
+  render(
+    <div className={arcticTheme.theme}>
+      <FunctionViewer sidebar={C3_SIDEBAR} />
+    </div>,
+  )
+
+/** A colour as the browser resolves it, through a probe in the themed tree. */
+const resolved = (css: string, within: Element) => {
+  const probe = document.createElement("span")
+  probe.style.color = css
+  within.append(probe)
+  const color = getComputedStyle(probe).color
+  probe.remove()
+  return color
+}
 
 describe("the C3 sidebar (#demos/function-viewer-v2)", () => {
   afterEach(() => {
@@ -58,5 +74,31 @@ describe("the C3 sidebar (#demos/function-viewer-v2)", () => {
       byTestId(screen, "fv-fn-sin").click()
     })
     expect(byTestId(screen, "fv-fn-sin").getAttribute("aria-checked")).toBe("true")
+  })
+
+  it("prints the form line without its label, read aloud as Form: …", async () => {
+    const screen = await renderV2()
+    const form = byTestId(screen, "fv-form")
+    expect(form.textContent).toContain("Form: f(x) = a((x − h)/b)² + k")
+    // Only the screen readers' copy says "Form": no visible label.
+    expect(form.children.length).toBe(2)
+  })
+
+  it("names P's role and Q's in plain words (SB3 · C3 › Points)", async () => {
+    const screen = await renderV2()
+    expect(byTestId(screen, "fv-point-p").textContent).toContain("pinned")
+    expect(byTestId(screen, "fv-point-q").textContent).toContain("point at the plane")
+    expect(byTestId(screen, "fv-p-scrubber").getAttribute("data-look")).toBe("line")
+  })
+
+  // jsdom resolves no custom properties: the browser checks the bindings.
+  it.runIf(isBrowser())("colours each form letter by its parameter's token", async () => {
+    const screen = await renderV2()
+    const card = byTestId(screen, "fv-equation")
+    for (const param of ["a", "h", "b", "k"]) {
+      const term = card.querySelector(`[data-line="form"] [data-param="${param}"]`)
+      expect(term).not.toBeNull()
+      expect(getComputedStyle(term ?? card).color).toBe(resolved(`var(--param-${param})`, card))
+    }
   })
 })
