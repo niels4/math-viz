@@ -27,6 +27,19 @@
   --chart-line: oklch(0.5106 0.195 276.97);
   --chart-accent: oklch(0.7049 0.1867 47.6);
   --chart-glow: oklch(0.5106 0.195 276.97 / 0.4);
+  /* The C3 sidebar (#demos/function-viewer-v2; figma0 SB3 · C3, sb-params.json and
+   * sb-tokens.json): one colour per parameter wherever it appears, warm for a and k
+   * (outside f), cool for b and h (inside f), each an alias or mix of the ordinals
+   * below; each at 18 % for the hovered row and the dragged box; the sub cards' surface. */
+  --param-a: color-mix(in oklch, var(--ordinal-09) 92%, var(--foreground));
+  --param-k: var(--ordinal-10);
+  --param-b: var(--ordinal-12);
+  --param-h: color-mix(in oklch, var(--ordinal-08) 50%, var(--foreground));
+  --param-a-18: color-mix(in oklch, var(--param-a) 18%, transparent);
+  --param-k-18: color-mix(in oklch, var(--param-k) 18%, transparent);
+  --param-b-18: color-mix(in oklch, var(--param-b) 18%, transparent);
+  --param-h-18: color-mix(in oklch, var(--param-h) 18%, transparent);
+  --section: var(--card);
   --ordinal-01: oklch(0.5106 0.2301 276.97);
   --ordinal-02: oklch(0.7049 0.1867 47.6);
   --ordinal-03: oklch(0.6002 0.1038 184.7);
