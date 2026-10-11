@@ -7,6 +7,7 @@ import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.t
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 import workSansStyles from "#src/style/fonts/work_sans/work_sans.module.css"
+import { focusVisible } from "#src/util/focus/focusVisible.ts"
 import { motionLevel } from "#src/util/motion/motion.ts"
 import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
 
@@ -99,15 +100,6 @@ export type CartesianPlaneProps = {
    */
   onKeyboardFocus?: ((focused: boolean) => void) | undefined
   ref?: Ref<CartesianPlaneHandle>
-}
-
-/** Whether the browser shows this focus (Tab, not a click); false where :focus-visible is unknown. */
-const focusVisible = (el: Element): boolean => {
-  try {
-    return el.matches(":focus-visible")
-  } catch {
-    return false
-  }
 }
 
 /** The canvas's cursor says what a press will do (FV 07 › pointer modes). */

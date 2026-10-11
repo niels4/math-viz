@@ -1,10 +1,13 @@
 import { useRef } from "react"
 
+import { Phrases } from "#src/components/ui/Phrases.tsx"
+
 import type { SidebarProps } from "../sidebar.ts"
 import type { ParamRowHandle } from "./ParamRow.tsx"
 
-import { SECTIONS } from "../copy.ts"
+import { HINTS, SECTIONS } from "../copy.ts"
 import { isIdentity, type TransformParam } from "../math/form.ts"
+import { hintContext, hintFor } from "../model/hints.ts"
 import {
   activeParams,
   curveAt,
@@ -17,20 +20,27 @@ import {
 import { EquationCard } from "../panel/EquationCard.tsx"
 import { FunctionPicker } from "../panel/FunctionPicker.tsx"
 import { readoutSlots } from "../panel/readoutFit.ts"
+import { C3_IDLE } from "./c3Copy.ts"
 import equationStyle from "./C3Equation.module.css"
+import style from "./C3Sidebar.module.css"
 import pointStyle from "./PointRows.module.css"
 import { PRow, QRow } from "./PointRows.tsx"
 import { SubCard } from "./SubCard.tsx"
+import { Tip } from "./Tip.tsx"
 import { ResetAll, TransformRows } from "./TransformRows.tsx"
 
 // figma0's SB3 · C3 · Ordinal correlations (the user's "ordinal color
 // coordination"): B's number rows on B2's sub cards, each of a, k, b and h
 // in one colour wherever it appears. Three sections, each on its own card:
-// the function and its equation, the transforms, the points.
+// the function and its equation, the transforms, the points. No hint bar
+// (B): tips show where they help (a row's, P's), the plane's keys at the
+// panel's foot while the plane has the keyboard's focus, and screen readers
+// hear the hint as they do on today's sidebar.
 export function C3Sidebar({ state, dispatch, eventsOf, bindTerm, explaining }: SidebarProps) {
   const { fn, params, pX, qX } = state
   const slots = readoutSlots(state.view?.extent ?? null)
   const rowsRef = useRef(new Map<TransformParam, ParamRowHandle>())
+  const context = hintContext(state)
   return (
     <>
       <SubCard title={SECTIONS.function.title} testId="fv-section-function">
@@ -87,6 +97,12 @@ export function C3Sidebar({ state, dispatch, eventsOf, bindTerm, explaining }: S
           <QRow x={qX} y={qX === null ? null : curveAt(state, qX)} slots={slots} />
         </div>
       </SubCard>
+      {context.kind === "planeKeys" && (
+        <Tip phrases={HINTS.planeKeys} className={style.foot_tip} testId="fv-plane-keys-tip" />
+      )}
+      <p role="status" className={style.spoken} data-testid="fv-hint-spoken">
+        <Phrases phrases={context.kind === "idle" ? C3_IDLE : hintFor(context).phrases} />
+      </p>
     </>
   )
 }

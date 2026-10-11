@@ -4,6 +4,7 @@ import { useLiveValue } from "#src/components/hooks/useLiveValue.ts"
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import { formatStored } from "#src/util/format/number.ts"
 
+import { RulerMarks } from "./RulerTape.tsx"
 import {
   NUDGE_STEP,
   NUDGE_STEP_SHIFT,
@@ -14,16 +15,10 @@ import {
   type ScrubKind,
   type ScrubMode,
 } from "./scrub.ts"
-import { RULER_HEIGHT, TICK_LENGTH, rulerMarks } from "./scrubRuler.ts"
 import stripStyles from "./ScrubStrip.module.css"
 import { useScrubDrag } from "./useScrubDrag.ts"
 
 export type ScrubStripHandle = { focus: () => void }
-
-const px = (v: number): number => Math.round(v * 100) / 100
-
-const tickPath = (xs: readonly number[], length: number): string =>
-  xs.map((x) => `M${px(x)} 0V${length}`).join("")
 
 // The jog ruler (figma0 transform-control-fv, fvTape; decision D24): a tape
 // of ticks and labels sliding under a fixed index, so the value under the
@@ -147,11 +142,7 @@ export function ScrubStrip({
     }
   }
 
-  const marks = width > 0 ? rulerMarks(kind, value, width) : null
-  const c = width / 2
   const shownMode = mode ?? held
-  // The index line thickens while the tape is held.
-  const indexWidth = shownMode === null ? 2 : 3
   return (
     <div
       ref={stripRef}
@@ -170,53 +161,7 @@ export function ScrubStrip({
       onDoubleClick={onReset}
       onKeyDown={handleKeyDown}
     >
-      {marks !== null && (
-        <>
-          <svg className={stripStyles.marks} width={width} height={RULER_HEIGHT} aria-hidden="true">
-            <g data-nudge="">
-              <path
-                className={stripStyles.tick}
-                d={tickPath(marks.minor, TICK_LENGTH.minor)}
-                strokeWidth={1}
-              />
-              <path className={stripStyles.tick} d={tickPath(marks.mid, TICK_LENGTH.mid)} strokeWidth={1} />
-              <path
-                className={stripStyles.tick}
-                d={tickPath(marks.major, TICK_LENGTH.major)}
-                strokeWidth={1.5}
-              />
-              {marks.home !== null && (
-                <path
-                  className={stripStyles.home}
-                  d={`M${px(marks.home - 4)} 0H${px(marks.home + 4)}L${px(marks.home)} 6Z`}
-                />
-              )}
-            </g>
-            <rect
-              className={stripStyles.index}
-              x={c - indexWidth / 2}
-              y={0}
-              width={indexWidth}
-              height={RULER_HEIGHT}
-            />
-            <path
-              className={stripStyles.index}
-              d={`M${c - 6} ${RULER_HEIGHT}H${c + 6}L${c} ${RULER_HEIGHT - 7}Z`}
-            />
-            <path
-              className={stripStyles.chevrons}
-              d={`M13 11L8 16L13 21M${width - 13} 11L${width - 8} 16L${width - 13} 21`}
-            />
-          </svg>
-          <span className={stripStyles.tape} data-nudge="" aria-hidden="true">
-            {marks.labels.map((mark) => (
-              <span key={mark.text} className={stripStyles.label} style={{ left: mark.left }}>
-                {mark.text}
-              </span>
-            ))}
-          </span>
-        </>
-      )}
+      <RulerMarks kind={kind} value={value} width={width} held={shownMode !== null} />
     </div>
   )
 }

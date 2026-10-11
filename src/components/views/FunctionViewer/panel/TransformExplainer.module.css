@@ -31,8 +31,8 @@ it acts (Work Sans 13 and f( ) in STIX 15, --foreground-muted). */
   font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
   font-size: 19px;
   line-height: 24px;
-  color: var(--primary-foreground);
-  background: var(--primary);
+  color: var(--explainer-ink-text, var(--primary-foreground));
+  background: var(--explainer-ink, var(--primary));
   border-radius: 6px;
 }
 
@@ -122,12 +122,14 @@ its letter lit as the form line lights it. */
 }
 
 /* fvTerm active: --primary at 26 % with a 2 px --primary rule at its foot,
-inside the term's box (padding 0 3 1, the rule counted: 28 tall). */
+inside the term's box (padding 0 3 1, the rule counted: 28 tall). A
+sidebar may ink the chip and the term otherwise (--explainer-ink, and
+--explainer-ink-text for the chip's letter). */
 .snippet [data-lit] {
   padding-bottom: 3px;
   color: var(--foreground);
-  background: color-mix(in oklch, var(--primary) 26%, transparent);
-  box-shadow: inset 0 -2px 0 0 var(--primary);
+  background: color-mix(in oklch, var(--explainer-ink, var(--primary)) 26%, transparent);
+  box-shadow: inset 0 -2px 0 0 var(--explainer-ink, var(--primary));
 }
 
 .rule {

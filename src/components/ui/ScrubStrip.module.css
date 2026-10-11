@@ -90,8 +90,9 @@
     fill: var(--foreground);
   }
 
+  /* The index, in --primary unless the owner names another (--strip-index). */
   .index {
-    fill: var(--primary);
+    fill: var(--strip-index, var(--primary));
   }
 
   .chevrons {

@@ -34,6 +34,8 @@ export type TourTargets = {
   equation: Rect | null
   /** k's control: chip, name, value and ruler. */
   control: Rect | null
+  /** Where the hand grabs k, where the sidebar marks it (C3: k's number box); else k's control's foot. */
+  grip?: Rect | null
   plane: Rect | null
   /** Q's card. */
   qCard: Rect | null
@@ -88,7 +90,7 @@ export const tourLayout = (
   height: number,
   view: View,
 ): TourLayout => {
-  const { equation, control, plane, qCard, curve } = targets
+  const { equation, control, grip = null, plane, qCard, curve } = targets
   const holes = (...rects: (Rect | null)[]) => rects.filter((r) => r !== null).map(pad)
   switch (step) {
     // 1 · The equation and the curve with P; the card right of the equation.
@@ -99,14 +101,18 @@ export const tourLayout = (
         hand: null,
       }
     // 2 · k's control, with room under its tape for the drag path; the card
-    // right of it, a little higher; the hand on the ruler.
+    // right of it, a little higher; the hand on the ruler, or on the grip
+    // the sidebar marks, its fingers over the grip's top edge.
     case 2:
       return control === null
         ? { holes: [], card: null, hand: null }
         : {
             holes: holes({ ...control, h: control.h + 12 }),
             card: beside(control, 28, -20, height, view),
-            hand: { x: control.x + 46, y: control.y + control.h - 34 },
+            hand:
+              grip === null
+                ? { x: control.x + 46, y: control.y + control.h - 34 }
+                : { x: grip.x - 2, y: grip.y - 2 },
           }
     // 3 · The whole plane and Q's card; the card low on the plane, caret up,
     // and above its scale bar in a short plane.

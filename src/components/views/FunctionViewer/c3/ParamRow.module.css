@@ -4,6 +4,7 @@ each), the number box (107 at "1.00"). Its parameter's colour (--row-ink)
 marks the chip, the toggle's glyph and the box; its 18 % tint (--row-band)
 is the band the row takes while its value is active. */
 .row {
+  position: relative;
   display: flex;
   gap: 10px;
   align-items: center;
@@ -165,4 +166,50 @@ on (the value is negative), filled with the colour, the glyph in
 
 .box {
   --box-ink: var(--row-ink);
+}
+
+/* The drag ruler (SB · B › Ruler popover, SB3 · C3 › Drag ruler): 4 px
+under the row and as wide, over whatever lies below, a card (1 px border,
+radius 10, the theme's card shadow, padding 8) holding the tape in the
+parameter's colour: its tint, a 2 px stroke, the index; ticks, labels and
+chevrons in --foreground. A fine or snapping drag colours the stroke as the
+box's. */
+.ruler {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  z-index: 3;
+  padding: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--sig-card-shadow);
+  pointer-events: none;
+}
+
+.tape {
+  --strip-ink: var(--foreground);
+  --strip-fill: var(--row-band);
+  --strip-stroke: var(--row-ink);
+  --strip-stroke-width: 2px;
+  --strip-index: var(--row-ink);
+}
+
+.row[data-mode="fine"] .tape {
+  --strip-stroke: var(--accent);
+}
+
+.row[data-mode="snap"] .tape {
+  --strip-stroke: var(--warning);
+}
+
+/* The tip (c3/Tip): 4 px under the row, its right edge at the box's, no
+wider than the row. */
+.tip {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 6px;
+  z-index: 3;
+  max-width: calc(100% - 12px);
 }

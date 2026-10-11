@@ -1,18 +1,23 @@
-import { useImperativeHandle, useRef, type Ref } from "react"
+import { useImperativeHandle, useRef, useState, type Ref } from "react"
+
+import type { Phrase } from "#src/components/ui/Phrases.tsx"
 
 import { useHover } from "#src/components/hooks/useHover.ts"
 import { FlipIcon, ResetIcon } from "#src/components/ui/icons.tsx"
 import { MathText } from "#src/components/ui/MathText.tsx"
 import { NumberBox, type NumberBoxHandle } from "#src/components/ui/NumberBox.tsx"
+import { RulerTape } from "#src/components/ui/RulerTape.tsx"
 import { formatStored } from "#src/util/format/number.ts"
 
 import type { PartUi } from "../model/selectors.ts"
 import type { FvExplainBy, PartEvents } from "../model/state.ts"
 
-import { FLIP_LABELS, modeBadge, PARAM_NAMES, resetLabel } from "../copy.ts"
+import { FLIP_LABELS, HINTS, modeBadge, PARAM_NAMES, resetLabel } from "../copy.ts"
 import { acceptsValue, DEFAULT_PARAMS, isScale, ZERO_SCALE, type TransformParam } from "../math/form.ts"
 import { useChipExplainer } from "../panel/useChipExplainer.ts"
+import { C3_TIPS } from "./c3Copy.ts"
 import style from "./ParamRow.module.css"
+import { Tip } from "./Tip.tsx"
 
 export type ParamRowHandle = { focus: () => void }
 
@@ -24,7 +29,10 @@ export type ParamRowHandle = { focus: () => void }
 // outline, arrows and value. The row takes a soft band of it while its
 // value is the active one (FV 04: hovered, focused, dragged or typed into,
 // or a partner of it, its term or a handle), and ↺ steps out of a drag so
-// the row holds still. The chip opens the parameter's explainer (D12).
+// the row holds still. The chip opens the parameter's explainer (D12). A tip
+// hangs under the row where the hint bar spoke (SB · B): the box's gestures
+// while the pointer rests on it, its keys under the keyboard's focus, the
+// typing keys or why typed text is refused while it is typed.
 export function ParamRow({
   param,
   value,
@@ -56,12 +64,27 @@ export function ParamRow({
   const hover = useHover(rowRef, events.onHover)
   const explain = useChipExplainer(onExplain)
   useImperativeHandle(ref, () => ({ focus: () => boxRef.current?.focus() }), [])
+  const [resting, setResting] = useState(false)
+  const [keyed, setKeyed] = useState(false)
   const { lit, mode, fine, edit } = ui
   const scale = isScale(param)
   const names = PARAM_NAMES[param]
-  const changed = value !== DEFAULT_PARAMS[param]
+  const reset = DEFAULT_PARAMS[param]
+  const changed = value !== reset
   const error = edit !== null && edit.error !== null
   const badge = mode === "fine" || mode === "snap" ? modeBadge(mode, scale) : null
+  const tip: readonly Phrase[] | null =
+    edit !== null
+      ? edit.error === null
+        ? HINTS.edit
+        : HINTS.refused(edit.error, formatStored(edit.base))
+      : mode !== null
+        ? null
+        : keyed
+          ? C3_TIPS.keys(reset)
+          : resting
+            ? C3_TIPS.drag(reset)
+            : null
   return (
     // The row hears ? from whichever of its parts has the focus: delegation,
     // not a control of its own.
@@ -142,11 +165,35 @@ export function ParamRow({
         describedBy={explainerId}
         onModeChange={events.onDrag}
         onEditChange={events.onEdit}
+        onRest={setResting}
+        onKeyboardFocus={setKeyed}
         held={mode}
         hot={lit && edit === null}
         className={style.box}
+        part={`grip-${param}`}
         testId={`fv-param-${param}`}
       />
+      {tip !== null && (
+        <Tip
+          phrases={tip}
+          tone={error ? "error" : undefined}
+          className={style.tip}
+          testId={`fv-param-${param}-tip`}
+        />
+      )}
+      {mode !== null && (
+        // The ruler while a drag holds the value (SB · B: "the ruler appears
+        // under the row while a drag holds it"): over what lies below, so
+        // nothing moves.
+        <div className={style.ruler} data-testid={`fv-param-${param}-ruler`}>
+          <RulerTape
+            kind={scale ? "multiplicative" : "additive"}
+            value={value}
+            mode={mode}
+            className={style.tape}
+          />
+        </div>
+      )}
     </div>
   )
 }

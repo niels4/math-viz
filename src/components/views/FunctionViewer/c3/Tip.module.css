@@ -1,0 +1,28 @@
+/* SB · B › Tooltip: --card inside a 1 px --border, radius 8, padding 7 10,
+the theme's card shadow, the words in Work Sans 400 13 in their 15 px
+boxes, 4 apart, wrapping whole. Refused text turns it --destructive. */
+.tip {
+  --phrase-text-size: 13px;
+  --phrase-text-line: 15px;
+  --phrase-math-size: 15px;
+  --phrase-math-line: 18px;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  width: max-content;
+  padding: 7px 10px;
+  font-weight: 400;
+  color: var(--foreground);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--sig-card-shadow);
+  pointer-events: none;
+}
+
+.tip[data-tone="error"] {
+  color: var(--destructive);
+  border-color: var(--destructive);
+}

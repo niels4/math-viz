@@ -15,9 +15,19 @@ as the board centres them. */
   --readout-number-line: 24px;
   --readout-align: center;
 
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+/* P's tip while x is typed (c3/Tip): 4 px under the head, at its right end. */
+.tip {
+  position: absolute;
+  top: 34px;
+  right: 0;
+  z-index: 3;
+  max-width: 100%;
 }
 
 /* The head: 30 tall, 8 apart. */

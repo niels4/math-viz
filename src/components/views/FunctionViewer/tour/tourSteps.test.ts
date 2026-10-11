@@ -32,6 +32,18 @@ describe("tourLayout", () => {
     expect(layout.hand).toEqual({ x: 81, y: 497.5 })
   })
 
+  it("puts the hand on the grip a sidebar marks: the C3 row's number box", () => {
+    // k's row (35 + 14, 445.5) 394 × 44 and its box (330, 451.5) 107 × 32.
+    const c3 = {
+      ...TARGETS,
+      control: { x: 49, y: 445.5, w: 394, h: 44 },
+      grip: { x: 330, y: 451.5, w: 107, h: 32 },
+    }
+    const layout = tourLayout(2, c3, 196, VIEW)
+    expect(layout.hand).toEqual({ x: 328, y: 449.5 })
+    expect(layout.holes).toEqual([{ x: 41, y: 437.5, w: 410, h: 72 }])
+  })
+
   it("spotlights the plane and Q's card; the card low on the plane, caret up", () => {
     const layout = tourLayout(3, TARGETS, 196, VIEW)
     expect(layout.holes).toEqual([

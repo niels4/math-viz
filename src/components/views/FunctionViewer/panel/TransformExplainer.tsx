@@ -2,7 +2,7 @@ import { useEffectEvent, useLayoutEffect, useRef, useState } from "react"
 
 import { Callout } from "#src/components/ui/Callout.tsx"
 import { MathText } from "#src/components/ui/MathText.tsx"
-import { Phrases } from "#src/components/ui/Phrases.tsx"
+import { Phrases, type Phrase } from "#src/components/ui/Phrases.tsx"
 
 import type { Rect } from "../../CartesianPlane/rect.ts"
 
@@ -36,11 +36,17 @@ export function TransformExplainer({
   param,
   id,
   locate,
+  gestureLead,
+  className,
   closing = false,
 }: {
   param: TransformParam
   id: string
   locate: () => { chip: Rect; panel: Rect } | null
+  /** What the sidebar has the parameter dragged by, before the keys: "Drag the ruler ·". */
+  gestureLead: readonly Phrase[]
+  /** The sidebar's class for it, e.g. one that inks its chip (--explainer-ink). */
+  className?: string | undefined
   closing?: boolean
 }) {
   const ref = useRef<HTMLDivElement | null>(null)
@@ -77,7 +83,9 @@ export function TransformExplainer({
       width={EXPLAINER_LAYOUT.width}
       tone="plain"
       caret={place?.caret ?? { side: "left", at: EXPLAINER_LAYOUT.tip }}
-      className={place === null ? `${style.explainer} ${style.unplaced}` : style.explainer}
+      className={[style.explainer, place === null ? style.unplaced : "", className ?? ""]
+        .filter(Boolean)
+        .join(" ")}
       closing={closing}
       role="dialog"
       labelledBy={`${id}-name`}
@@ -121,7 +129,7 @@ export function TransformExplainer({
       </p>
       <hr className={style.rule} />
       <p className={style.gestures}>
-        <Phrases words phrases={explainerGestures(scale, DEFAULT_PARAMS[param])} />
+        <Phrases words phrases={explainerGestures(gestureLead, scale, DEFAULT_PARAMS[param])} />
       </p>
     </Callout>
   )

@@ -210,9 +210,12 @@ export const EXPLAINERS: Readonly<Record<TransformParam, { say: string; snippet:
 /** The caps label before an explainer's snippet. */
 export const IN_THE_EQUATION = "In the equation"
 
-/** An explainer's gestures: the ruler's, as the hint says them. */
-export const explainerGestures = (scale: boolean, reset: number): Phrase[] =>
-  gestures([{ text: "Drag the ruler ·" }], scale, reset)
+/** What today's sidebar has the explainer and the tour drag: the ruler. */
+export const RULER_GESTURE_LEAD: readonly Phrase[] = [{ text: "Drag the ruler ·" }]
+
+/** An explainer's gestures, after what to drag (the sidebar's lead), as the hint says them. */
+export const explainerGestures = (lead: readonly Phrase[], scale: boolean, reset: number): Phrase[] =>
+  gestures(lead, scale, reset)
 
 // The first-minute tour (FV 08; decision D19): three steps, each with its
 // title and body as the boards set them (words and maths). Step 1 tells

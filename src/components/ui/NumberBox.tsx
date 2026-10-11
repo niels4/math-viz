@@ -9,6 +9,7 @@ import {
 } from "react"
 
 import { useLiveValue } from "#src/components/hooks/useLiveValue.ts"
+import { focusVisible } from "#src/util/focus/focusVisible.ts"
 import { formatStored } from "#src/util/format/number.ts"
 
 import style from "./NumberBox.module.css"
@@ -33,6 +34,9 @@ import { useScrubDrag } from "./useScrubDrag.ts"
 
 export type NumberBoxHandle = { focus: () => void }
 
+/** The pointer resting this long on the box counts as asking how it works. */
+const REST_MS = 400
+
 function Chevron({ dir }: { dir: "left" | "right" }) {
   return (
     <svg className={style.chevron} width="6" height="12" viewBox="0 0 6 12" aria-hidden="true">
@@ -49,7 +53,9 @@ function Chevron({ dir }: { dir: "left" | "right" }) {
 // Backspace or Delete resets; ← → ↑ ↓ nudge 0.01 (Shift 0.1); Enter types;
 // the wheel scrubs. Screen readers meet a spin button, as on the ruler. Its
 // ink (outline, arrows, value) is the owner's (--box-ink), and its owner
-// hears the drag's mode and the edit, as a ruler's owner does.
+// hears the drag's mode and the edit, as a ruler's owner does, and when to
+// teach it: the pointer resting on it (a mouse, not a touch), or the
+// keyboard's focus.
 export function NumberBox({
   value,
   kind,
@@ -63,9 +69,12 @@ export function NumberBox({
   onModeChange,
   onEditChange,
   onEditEnd,
+  onRest,
+  onKeyboardFocus,
   held = null,
   hot = false,
   className,
+  part,
   testId,
   ref,
 }: {
@@ -88,11 +97,17 @@ export function NumberBox({
   onModeChange?: (mode: ScrubMode | null) => void
   onEditChange?: (edit: NumberFieldEdit | null) => void
   onEditEnd?: (how: NumberFieldEnd) => void
+  /** The pointer has rested on the box 400 ms (true), or has left it or pressed it (false). */
+  onRest?: (resting: boolean) => void
+  /** The box takes or loses a focus the browser shows (Tab, not a click). */
+  onKeyboardFocus?: (focused: boolean) => void
   /** Held from elsewhere (a term or a handle on the same value): drawn as dragged in that mode. */
   held?: ScrubMode | null
   /** Lit as on hover, when the owner's row is hovered. */
   hot?: boolean
   className?: string
+  /** The box's data-part, for its owner's help to find it. */
+  part?: string
   /** The box gets `${testId}-box`, its value field `${testId}-field`. */
   testId?: string
   ref?: Ref<NumberBoxHandle>
@@ -110,6 +125,23 @@ export function NumberBox({
     onTap: () => fieldRef.current?.edit(),
   })
   useImperativeHandle(ref, () => ({ focus: () => boxRef.current?.focus() }), [])
+
+  const restTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const stopRest = () => {
+    if (restTimer.current !== null) {
+      clearTimeout(restTimer.current)
+      restTimer.current = null
+    }
+    onRest?.(false)
+  }
+  useEffect(
+    () => () => {
+      if (restTimer.current !== null) {
+        clearTimeout(restTimer.current)
+      }
+    },
+    [],
+  )
 
   // Notches that land before React renders again each start where the last
   // one left the value (AGENTS.md › a burst of events).
@@ -185,15 +217,33 @@ export function NumberBox({
       aria-valuenow={value}
       aria-valuetext={format(value)}
       data-testid={testId === undefined ? undefined : `${testId}-box`}
+      data-part={part}
       data-mode={shownMode ?? undefined}
       data-hot={hot || undefined}
       data-editing={(editing && edit.error === null) || undefined}
       data-error={(editing && edit.error !== null) || undefined}
       className={className === undefined ? style.box : `${style.box} ${className}`}
+      onPointerEnter={(event) => {
+        if (event.pointerType !== "touch" && onRest !== undefined) {
+          restTimer.current = setTimeout(() => onRest(true), REST_MS)
+        }
+      }}
+      onPointerLeave={stopRest}
       onPointerDown={(event) => {
+        stopRest()
         // While typing, a press belongs to the text.
         if (!editing) {
           handlers.onPointerDown(event)
+        }
+      }}
+      onFocus={(event) => {
+        if (event.target === event.currentTarget && focusVisible(event.currentTarget)) {
+          onKeyboardFocus?.(true)
+        }
+      }}
+      onBlur={(event) => {
+        if (event.target === event.currentTarget) {
+          onKeyboardFocus?.(false)
         }
       }}
       onPointerMove={handlers.onPointerMove}

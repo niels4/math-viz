@@ -11,5 +11,8 @@ declare const styles: {
   readonly "name_slot": string;
   readonly "reset": string;
   readonly "row": string;
+  readonly "ruler": string;
+  readonly "tape": string;
+  readonly "tip": string;
 };
 export = styles;

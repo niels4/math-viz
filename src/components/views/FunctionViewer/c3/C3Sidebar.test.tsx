@@ -1,7 +1,7 @@
 import { getDefaultStore } from "jotai"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { fvTourDoneAtom } from "#src/state/fvTour.ts"
+import { FV_TOUR_KEY, fvTourDoneAtom } from "#src/state/fvTour.ts"
 import arcticTheme from "#src/style/themes/mathviz_arctic_ice.module.css"
 import { act, isBrowser, render, toElement } from "#test"
 
@@ -80,6 +80,7 @@ const resolved = (css: string, within: Element) => {
 
 describe("the C3 sidebar (#demos/function-viewer-v2)", () => {
   afterEach(() => {
+    vi.useRealTimers()
     vi.unstubAllGlobals()
     vi.restoreAllMocks()
   })
@@ -209,5 +210,110 @@ describe("the C3 sidebar (#demos/function-viewer-v2)", () => {
     expect(byTestId(screen, "func-readout").getAttribute("aria-label")).toBe("f(x) = x²")
     expect(exists("fv-reset-all")).toBe(false)
     expect(document.activeElement).toBe(byTestId(screen, "fv-param-a-box"))
+  })
+
+  it("shows the ruler under a row while its drag holds, and drops it on release", async () => {
+    stubPointerCapture()
+    const screen = await renderV2()
+    const box = byTestId(screen, "fv-param-k-box")
+    press(box, "pointerdown", 100, 1)
+    expect(exists("fv-param-k-ruler")).toBe(false)
+    press(box, "pointermove", 150, 1)
+    const ruler = byTestId(screen, "fv-param-k-ruler")
+    expect(ruler.getAttribute("aria-hidden")).toBeNull()
+    expect(ruler.querySelector('[aria-hidden="true"][data-mode="coarse"]')).not.toBeNull()
+    press(box, "pointerup", 150, 0)
+    expect(exists("fv-param-k-ruler")).toBe(false)
+  })
+
+  describe("tips, where the hint bar spoke (SB · B)", () => {
+    const tipOf = (param: string) => document.querySelector(`[data-testid="fv-param-${param}-tip"]`)
+    const pointer = (el: Element, type: string) =>
+      act(() => {
+        el.dispatchEvent(
+          new PointerEvent(type, { bubbles: true, relatedTarget: document.body, pointerType: "mouse" }),
+        )
+      })
+
+    it("teaches a box's gestures in B's words once the pointer rests on it 400 ms", async () => {
+      const screen = await renderV2()
+      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
+      const box = byTestId(screen, "fv-param-a-box")
+      pointer(box, "pointerover")
+      act(() => {
+        vi.advanceTimersByTime(399)
+      })
+      expect(tipOf("a")).toBeNull()
+      act(() => {
+        vi.advanceTimersByTime(1)
+      })
+      expect(tipOf("a")?.textContent?.replaceAll("\u00a0", " ")).toBe(
+        "Drag sideways · Shift for fine · double-click: back to 1",
+      )
+      pointer(box, "pointerout")
+      expect(tipOf("a")).toBeNull()
+    })
+
+    it("names the typing keys while a value is typed, and why refused text is refused", async () => {
+      const screen = await renderV2()
+      const field = byTestId(screen, "fv-param-b-field") as HTMLInputElement
+      act(() => {
+        field.focus()
+      })
+      expect(tipOf("b")?.textContent).toContain("apply")
+      act(() => setInput(field, "0"))
+      keydown(field, "Enter")
+      expect(tipOf("b")?.getAttribute("data-tone")).toBe("error")
+      expect(tipOf("b")?.textContent).toContain("A scale of 0 squashes the curve flat.")
+      // Esc hands the focus back to the box from the keyboard: its keys.
+      keydown(field, "Escape")
+      expect(tipOf("b")?.hasAttribute("data-tone")).toBe(false)
+      expect(tipOf("b")?.textContent).toContain("nudge 0.01")
+    })
+
+    it("says today's hint to screen readers, in C3's words at rest", async () => {
+      const screen = await renderV2()
+      const spokenLine = byTestId(screen, "fv-hint-spoken")
+      expect(spokenLine.getAttribute("role")).toBe("status")
+      expect(spokenLine.textContent?.replaceAll("\u00a0", " ")).toBe(
+        "Drag a number sideways to reshape the curve · point at the plane to read f(x)",
+      )
+      act(() => {
+        byTestId(screen, "fv-param-k-box").focus()
+      })
+      expect(spokenLine.textContent?.replaceAll("\u00a0", " ")).toBe(
+        "Drag to change k · Shift fine · Ctrl whole steps · double-click: back to 0",
+      )
+    })
+  })
+
+  it("has the tour's step 2 drag k's number, the hand on its box", async () => {
+    getDefaultStore().set(fvTourDoneAtom, false)
+    const screen = await renderV2()
+    act(() => {
+      byTestId(screen, "fv-tour-next").dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+    const card = byTestId(screen, "fv-tour")
+    expect(card.textContent).toContain("Change it by dragging")
+    expect(card.textContent?.replaceAll("\u00a0", " ")).toContain(
+      "Drag the k number sideways: the whole curve moves up or down by k. Every number works the same way.",
+    )
+    expect(exists("fv-tour-hand")).toBe(true)
+    act(() => {
+      byTestId(screen, "fv-tour-skip").dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+    expect(localStorage.getItem(FV_TOUR_KEY)).toBe("true")
+  })
+
+  it("has the explainer drag the number, its chip in the parameter's colour", async () => {
+    const screen = await renderV2()
+    const box = byTestId(screen, "fv-param-h-box")
+    act(() => {
+      box.focus()
+    })
+    keydown(box, "?")
+    const explainer = byTestId(screen, "fv-explainer-h")
+    expect(explainer.textContent).toContain("Drag the number")
+    expect(explainer.className).toMatch(/explainer_h/)
   })
 })

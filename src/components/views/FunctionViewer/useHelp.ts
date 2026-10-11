@@ -10,6 +10,7 @@ import type { CartesianPlaneHandle } from "../CartesianPlane/CartesianPlane"
 import type { Rect } from "../CartesianPlane/rect.ts"
 import type { FvAction } from "./model/reducer.ts"
 import type { FvState, FvTourStep } from "./model/state.ts"
+import type { SidebarHelp } from "./sidebar.ts"
 import type { TourTargets } from "./tour/tourSteps.ts"
 
 import { TOUR } from "./copy.ts"
@@ -36,12 +37,14 @@ export type HelpRefs = {
 // (`painted`: FV 08 › Flow, after FV 05's draw-on), and once it ends
 // (finished, skipped, or done by its last action) the browser remembers it.
 // Gives the explainer and the tour where their targets are, and each step's
-// body (step 1's tells about the live curve).
+// body (step 1's tells about the live curve, step 2's names the sidebar's
+// control).
 export const useHelp = (
   state: FvState,
   dispatch: (action: FvAction) => void,
   refs: HelpRefs,
   painted: boolean,
+  sidebarHelp: SidebarHelp,
 ) => {
   const { explainer, tour, fn, params, pX } = state
 
@@ -96,6 +99,7 @@ export const useHelp = (
   const locateTour = (): TourTargets => ({
     equation: part("equation"),
     control: part("control-k"),
+    grip: part("grip-k"),
     plane: part("plane"),
     qCard: part("q-card"),
     curve: refs.plane.current?.regionOf(["f", "p"]) ?? null,
@@ -112,6 +116,8 @@ export const useHelp = (
           describeEquation(equationTokens(fn, params, "live")),
           `f(${formatNumber(pX)}) ${relation(pY)} ${formatNumber(pY)}`,
         )
-      : TOUR.steps[step].body
+      : step === 2
+        ? sidebarHelp.tourDrag
+        : TOUR.steps[step].body
   return { locateChip, locateTour, tourBodyOf }
 }

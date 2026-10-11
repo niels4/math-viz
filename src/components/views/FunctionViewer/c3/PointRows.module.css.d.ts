@@ -12,6 +12,7 @@ declare const styles: {
   readonly "points": string;
   readonly "role": string;
   readonly "role_slot": string;
+  readonly "tip": string;
   readonly "value": string;
   readonly "values-in": string;
   readonly "x_field": string;

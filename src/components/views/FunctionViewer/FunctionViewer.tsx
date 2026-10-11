@@ -91,7 +91,13 @@ export function FunctionViewer({ sidebar = RULER_SIDEBAR }: { sidebar?: FvSideba
   const tourShown = useLeaving(tour?.step ?? null, leaveMs)
   // FV 05: the plane's motion; the tour waits for the first paint (FV 08).
   const painted = useFvMotion(state, sceneInput, { plane: planeRef, root: rootRef })
-  const help = useHelp(state, dispatch, { root: rootRef, panel: panelRef, plane: planeRef }, painted)
+  const help = useHelp(
+    state,
+    dispatch,
+    { root: rootRef, panel: panelRef, plane: planeRef },
+    painted,
+    sidebar.help,
+  )
   // Each panel part reports its hover, focus, drag and edit as its own actions.
   const eventsOf = (part: FvPart): PartEvents => ({
     onHover: (on) => dispatch({ type: "hover", part, on }),
@@ -199,6 +205,8 @@ export function FunctionViewer({ sidebar = RULER_SIDEBAR }: { sidebar?: FvSideba
           param={explainerShown.shown}
           id={explainerId}
           locate={help.locateChip}
+          gestureLead={sidebar.help.explainerLead}
+          className={sidebar.explainerClass?.(explainerShown.shown)}
           closing={explainerShown.closing}
         />
       )}

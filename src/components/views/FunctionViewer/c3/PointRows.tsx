@@ -6,19 +6,20 @@ import { TriangleIcon } from "#src/components/ui/icons.tsx"
 import { NumberField, type NumberFieldHandle } from "#src/components/ui/NumberField.tsx"
 import { PointMark } from "#src/components/ui/PointMark.tsx"
 import { themeColorVar } from "#src/state/useAppTheme.ts"
-import { formatNumber } from "#src/util/format/number.ts"
+import { formatNumber, formatStored } from "#src/util/format/number.ts"
 
 import type { Extent } from "../../CartesianPlane/viewport.ts"
 import type { PartUi } from "../model/selectors.ts"
 import type { PartEvents } from "../model/state.ts"
 import type { ReadoutSlots } from "../panel/readoutFit.ts"
 
-import { MOVED_LABEL, movedBy, P_FIELD_LABEL, P_SCRUBBER_LABEL, POINT_NAMES } from "../copy.ts"
+import { HINTS, MOVED_LABEL, movedBy, P_FIELD_LABEL, P_SCRUBBER_LABEL, POINT_NAMES } from "../copy.ts"
 import { POINT_QUANTUM } from "../model/reducer.ts"
 import { PointReadout } from "../panel/PointReadout.tsx"
 import { POINT_INK } from "../planeScene.ts"
 import { C3_OFF_VIEW_ROLES, C3_POINT_ROLES } from "./c3Copy.ts"
 import style from "./PointRows.module.css"
+import { Tip } from "./Tip.tsx"
 
 // One point's head row (SB3 · C3 › Points): its mark, its letter, its role,
 // anything it adds, and its readout at the far end. The role gives way,
@@ -60,7 +61,8 @@ function PointHead({
 // (Enter on the track opens it, Enter applies, Esc restores), over P's
 // track across the plane's visible x-range. The row lights P's partners
 // while hovered or focused (FV 04), and while a transform's drag moves P it
-// says how far (R5's "moved").
+// says how far (R5's "moved"). While x is typed, a tip under the head
+// names the keys, or why the text is refused.
 export function PRow({
   x,
   y,
@@ -89,6 +91,7 @@ export function PRow({
   const trackRef = useRef<ExtentSliderHandle | null>(null)
   const hover = useHover(rowRef, events.onHover)
   const ink = themeColorVar(POINT_INK.p)
+  const { edit } = ui
   return (
     <div
       ref={rowRef}
@@ -163,6 +166,14 @@ export function PRow({
         onDragChange={(dragging) => events.onDrag(dragging ? "coarse" : null)}
         testId="fv-p-scrubber"
       />
+      {edit !== null && (
+        <Tip
+          phrases={edit.error === null ? HINTS.edit : HINTS.refused(edit.error, formatStored(edit.base))}
+          tone={edit.error === null ? undefined : "error"}
+          className={style.tip}
+          testId="fv-p-tip"
+        />
+      )}
     </div>
   )
 }
