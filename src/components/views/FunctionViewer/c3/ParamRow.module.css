@@ -90,6 +90,17 @@ second line, so it shows whole or not at all. */
   color: var(--foreground);
 }
 
+/* A window narrower than 470 px leaves a scale's row too little room for
+its name beside the flip toggle and ↺, so every row drops its name alike;
+the chips name the parameters, and a modifier's badge still shows. A media
+query, as today's grid uses (TransformGrid.module.css: Safari 26.5 misreads
+container queries under page zoom). */
+@media (max-width: 469px) {
+  .name {
+    display: none;
+  }
+}
+
 /* A held modifier's badge (as today's): a tinted plate inside a 1.5 px
 stroke (a 1 px border and an inset half pixel, as the number box draws
 it: 68 × 21 for "Fine ×0.1"), foreground text. */
