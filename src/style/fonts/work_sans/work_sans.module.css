@@ -1,0 +1,35 @@
+/* Font: Work Sans — sans-serif · Wei Huang · weights 100-900 · normal, italic · variable
+ * Family: "Work Sans" · id work-sans
+ * Source: Google Fonts (OFL) → local woff2, no CDN, works offline
+ * Files: ./WorkSans-Variable.woff2 + ./WorkSans-Italic-Variable.woff2 (woff2, OFL, latin) — local, no CDN, works offline
+ * Licensing: OFL (Open Font License) — free for commercial use · Cost: Free
+ * Usage: CSS Module, per-page. Import as `import fontStyles from "#src/style/fonts/work_sans/work_sans.module.css"` then wrap page/section with `className={fontStyles.font}`. File name provides uniqueness via CSS Modules hashing; wrapper is generic .font.
+ * Role: math-viz UI workhorse — on-screen body, labels, ticks. Crossbarred I over straight l.
+ * No global pollution — @font-face only loads when the page imports this module. No html/body/:root.
+ */
+
+@font-face {
+  font-family: "Work Sans";
+  src: url("./WorkSans-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Work Sans";
+  src: url("./WorkSans-Italic-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+.font {
+  font-family:
+    "Work Sans",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}

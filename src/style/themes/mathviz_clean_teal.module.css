@@ -1,0 +1,41 @@
+/* Theme: MathViz Clean Teal — education · light · dashboard, app-shell
+ * Palette mathviz-clean-teal · generated 2026-09-28T17:56:21.030Z
+ * Source: workspace/color-catalog.json → workspace/themes/mathviz_clean_teal.module.css
+ * Contrast: bg×fg 14.67:1 · primary 5.1:1 · accent 6.25:1
+ * Colors: oklch — perceptually uniform, better for coherent palettes
+ * Usage: CSS Module, per-page. Import as `import styles from "#src/style/themes/mathviz_clean_teal.module.css"` then use `var(--background)`, `var(--foreground)`, etc in component CSS. Themes provide vars only — no utility classes.
+ */
+
+.theme {
+  --background: oklch(0.992 0.0034 67.78);
+  --background-muted: oklch(0.9478 0.008 73.74);
+  --card: oklch(1 0 0);
+  --foreground: oklch(0.2681 0.0299 209.98);
+  --foreground-muted: oklch(0.5283 0.0245 218.88);
+  --primary: oklch(0.5262 0.0935 178.34);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.941 0.0153 171.04);
+  --secondary-foreground: oklch(0.3846 0.0605 182.1);
+  --border: oklch(0.9009 0.0133 71.32);
+  --accent: oklch(0.7001 0.1508 68.7);
+  --accent-foreground: oklch(0.2226 0.0327 85.74);
+  --success: oklch(0.5273 0.1371 150.07);
+  --warning: oklch(0.5553 0.1455 49);
+  --destructive: oklch(0.5771 0.2152 27.33);
+  --chart-grid: oklch(0.9009 0.0133 71.32);
+  --chart-line: oklch(0.5262 0.0935 178.34);
+  --chart-accent: oklch(0.7001 0.1508 68.7);
+  --chart-glow: oklch(0.5262 0.0935 178.34 / 0.4);
+  --ordinal-01: oklch(0.5262 0.0935 178.34);
+  --ordinal-02: oklch(0.7001 0.1508 68.7);
+  --ordinal-03: oklch(0.5106 0.2301 276.97);
+  --ordinal-04: oklch(0.5771 0.2152 27.33);
+  --ordinal-05: oklch(0.5876 0.1389 241.97);
+  --ordinal-06: oklch(0.5575 0.2525 302.32);
+  --ordinal-07: oklch(0.5273 0.1371 150.07);
+  --ordinal-08: oklch(0.5916 0.218 0.58);
+  --ordinal-09: oklch(0.4882 0.2172 264.38);
+  --ordinal-10: oklch(0.6482 0.1754 131.68);
+  --ordinal-11: oklch(0.6461 0.1943 41.12);
+  --ordinal-12: oklch(0.518 0.2258 323.95);
+}

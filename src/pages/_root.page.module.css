@@ -1,0 +1,35 @@
+.page {
+  background: var(--background-muted);
+  margin: var(--space-6);
+  border-radius: var(--radius-xl);
+  border: var(--border-thin) solid var(--border);
+  overflow: hidden;
+}
+
+.top_bar {
+  padding: var(--space-6);
+  display: flex;
+  gap: var(--space-4);
+  border-bottom: var(--border-thin) solid var(--border);
+  align-items: center;
+}
+
+.wordmark {
+  font-weight: 700;
+  font-size: 1.6rem;
+  letter-spacing: 0.01em;
+}
+
+.theme_switcher_button {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--foreground);
+  background: var(--secondary);
+  border: var(--border-thin) solid var(--border);
+  border-radius: 100%;
+  cursor: pointer;
+}

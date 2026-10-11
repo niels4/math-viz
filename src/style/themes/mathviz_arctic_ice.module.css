@@ -1,0 +1,41 @@
+/* Theme: MathViz Arctic Ice — futuristic · dark · dashboard, app-shell
+ * Palette mathviz-arctic-ice · generated 2026-09-28T18:21:22.469Z
+ * Source: workspace/color-catalog.json → workspace/themes/mathviz_arctic_ice.module.css
+ * Contrast: bg×fg 18.06:1 · primary 9.32:1 · accent 13.16:1
+ * Colors: oklch — perceptually uniform, better for coherent palettes
+ * Usage: CSS Module, per-page. Import as `import styles from "#src/style/themes/mathviz_arctic_ice.module.css"` then use `var(--background)`, `var(--foreground)`, etc in component CSS. Themes provide vars only — no utility classes.
+ */
+
+.theme {
+  --background: oklch(0.155 0.0147 242.71);
+  --background-muted: oklch(0.2086 0.0208 245.84);
+  --card: oklch(0.2301 0.0203 245.67);
+  --foreground: oklch(0.9724 0.0053 197.07);
+  --foreground-muted: oklch(0.717 0.0246 213.67);
+  --primary: oklch(0.7472 0.0924 166.32);
+  --primary-foreground: oklch(0.1307 0.0129 241.44);
+  --secondary: oklch(0.2885 0.0208 248.55);
+  --secondary-foreground: oklch(0.9514 0.0096 197);
+  --border: oklch(0.2885 0.0208 248.55);
+  --accent: oklch(0.8532 0.0589 177.1);
+  --accent-foreground: oklch(0.1307 0.0129 241.44);
+  --success: oklch(0.7729 0.1535 163.22);
+  --warning: oklch(0.8369 0.1644 84.43);
+  --destructive: oklch(0.7106 0.1661 22.22);
+  --chart-grid: oklch(0.2885 0.0208 248.55);
+  --chart-line: oklch(0.7472 0.0924 166.32);
+  --chart-accent: oklch(0.8532 0.0589 177.1);
+  --chart-glow: oklch(0.7472 0.0924 166.32 / 0.4);
+  --ordinal-01: oklch(0.7472 0.0924 166.32);
+  --ordinal-02: oklch(0.8532 0.0589 177.1);
+  --ordinal-03: oklch(0.8276 0.1013 230.32);
+  --ordinal-04: oklch(0.8112 0.1013 293.57);
+  --ordinal-05: oklch(0.8228 0.1095 346.02);
+  --ordinal-06: oklch(0.8077 0.1035 19.57);
+  --ordinal-07: oklch(0.879 0.1534 91.61);
+  --ordinal-08: oklch(0.8712 0.1363 154.45);
+  --ordinal-09: oklch(0.8549 0.1251 181.07);
+  --ordinal-10: oklch(0.8091 0.0956 251.81);
+  --ordinal-11: oklch(0.833 0.1322 321.43);
+  --ordinal-12: oklch(0.9842 0.0034 247.86);
+}
