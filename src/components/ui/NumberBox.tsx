@@ -126,6 +126,8 @@ export function NumberBox({
   })
   useImperativeHandle(ref, () => ({ focus: () => boxRef.current?.focus() }), [])
 
+  // Set while a double-click hands the focus back: that focus is the pointer's.
+  const pointerFocus = useRef(false)
   const restTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const stopRest = () => {
     if (restTimer.current !== null) {
@@ -231,13 +233,19 @@ export function NumberBox({
       onPointerLeave={stopRest}
       onPointerDown={(event) => {
         stopRest()
+        // A press is the pointer's: the keyboard's focus no longer shows.
+        onKeyboardFocus?.(false)
         // While typing, a press belongs to the text.
         if (!editing) {
           handlers.onPointerDown(event)
         }
       }}
       onFocus={(event) => {
-        if (event.target === event.currentTarget && focusVisible(event.currentTarget)) {
+        if (
+          event.target === event.currentTarget &&
+          !pointerFocus.current &&
+          focusVisible(event.currentTarget)
+        ) {
           onKeyboardFocus?.(true)
         }
       }}
@@ -254,7 +262,9 @@ export function NumberBox({
         // A double-click resets, whatever the first click opened.
         if (event.detail >= 2) {
           event.preventDefault()
+          pointerFocus.current = true
           fieldRef.current?.cancel()
+          pointerFocus.current = false
           onReset()
         }
       }}
@@ -277,7 +287,8 @@ export function NumberBox({
         }}
         onEditEnd={(how) => {
           if (how !== "blur") {
-            boxRef.current?.focus()
+            // Back to the box; after a double-click, without the keyboard's ring.
+            boxRef.current?.focus(pointerFocus.current ? { focusVisible: false } : undefined)
           }
           onEditEnd?.(how)
         }}
