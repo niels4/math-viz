@@ -1,0 +1,120 @@
+@layer components {
+  /* The number box (figma0 SB3 · C3 › Number box): 32 tall, padding 0 9,
+  ‹ the value › 6 apart, a 1.5 px stroke inside, radius 8, in the well;
+  Figma counts the stroke in the layout: 107 px at "1.00". Engines snap a
+  border to whole device pixels (1.5 px draws 1 at DPR 1), so the stroke is
+  a 1 px border and an inset half pixel, and the padding takes the other
+  half. The owner sets its ink (--box-ink: the outline, the arrows and the
+  value). Hover, focus, a drag and typing thicken the stroke to 2 px
+  inside, so the box keeps its size and nothing beside it moves. A drag
+  tints it (the ink at 18 %) and prints the value in --foreground; fine and
+  snap colour the stroke as the ruler's. */
+  .box {
+    --box-ink: var(--foreground);
+    --box-stroke: var(--box-ink);
+    --box-inset: 0.5px;
+    --box-fill: var(--background-muted);
+    --box-value: var(--box-ink);
+    --box-ring: 0 0 transparent;
+
+    display: inline-flex;
+    flex: none;
+    gap: 6px;
+    align-items: center;
+    height: 32px;
+    padding: 0 9.5px;
+    color: var(--box-ink);
+    background: var(--box-fill);
+    border: 1px solid var(--box-stroke);
+    border-radius: 8px;
+    outline: none;
+    box-shadow:
+      inset 0 0 0 var(--box-inset) var(--box-stroke),
+      var(--box-ring);
+    cursor: ew-resize;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .box:hover,
+  .box[data-hot],
+  .box:focus-visible,
+  .box[data-mode],
+  .box[data-editing],
+  .box[data-error] {
+    --box-inset: 1px;
+  }
+
+  /* Focus = hover + the 3 px ring (FV 07); a drag needs no ring (a Shift
+  held before the press would otherwise light it in Chromium). */
+  .box:focus-visible:not([data-mode]) {
+    --box-ring: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+  }
+
+  .box[data-mode] {
+    --box-fill: color-mix(in oklch, var(--box-ink) 18%, transparent);
+    --box-value: var(--foreground);
+  }
+
+  .box[data-mode="fine"] {
+    --box-stroke: var(--accent);
+  }
+
+  .box[data-mode="snap"] {
+    --box-stroke: var(--warning);
+  }
+
+  .box[data-editing] {
+    --box-value: var(--foreground);
+
+    cursor: text;
+  }
+
+  .box[data-error] {
+    --box-stroke: var(--destructive);
+    --box-value: var(--destructive);
+
+    cursor: text;
+  }
+
+  /* ‹ and ›: 6 × 12, a 1.6 px stroke in the ink. */
+  .chevron {
+    display: block;
+    flex: none;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 1.6px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* The value: the field's readout font (500 17 in its 22 px line box),
+  right-aligned in a slot at least as wide as "−10.00" (Figma's 62 px in
+  every theme), bare at rest and while typed: the box is its frame. These
+  rules name the box too, to beat the field's own in this layer. */
+  .box .field {
+    min-width: 62px;
+    height: 22px;
+    padding: 0;
+    color: var(--box-value);
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    cursor: inherit;
+  }
+
+  .box .field[data-editing],
+  .box .field[aria-invalid="true"] {
+    color: var(--box-value);
+    background: transparent;
+    box-shadow: none;
+  }
+
+  /* Closed, the field lets presses through to the box, which takes the
+  focus as any control does and reads the press: a drag, or a click that
+  opens the field. */
+  .box .field:not([data-editing]) {
+    pointer-events: none;
+  }
+}

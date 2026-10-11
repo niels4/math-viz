@@ -33,6 +33,17 @@ useFitWidth). */
   white-space: nowrap;
 }
 
+/* Figma rounds each run's box up to whole px and sets the runs side by
+side, so its lines run up to 3 px longer than exact advances would: each
+run here takes the same box, and the terms land where the board's do
+(AGENTS.md › Figma rounds every text box). A fraction (parts and a bar,
+EquationTokens) keeps its own stack and sizes its parts itself. */
+.line > :is(span, sup):not(:has(> span + span)),
+.form > :is(span, sup):not(:has(> span + span)) {
+  display: inline-block;
+  width: calc-size(max-content, round(up, size, 1px));
+}
+
 .form_row {
   display: flex;
   align-items: center;

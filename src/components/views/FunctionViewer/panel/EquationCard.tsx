@@ -1,6 +1,7 @@
 import { useRef, useState, type HTMLAttributes, type PointerEvent } from "react"
 
 import { useFitWidth } from "#src/components/hooks/useFitWidth.ts"
+import { useWholePxRuns } from "#src/components/hooks/useWholePxRuns.ts"
 
 import type { BaseFunctionSlug } from "../math/baseFunctions.ts"
 
@@ -24,6 +25,31 @@ export type EquationCardStyles = Readonly<
 
 const isParam = (s: string | null): s is TransformParam =>
   s !== null && (TRANSFORM_PARAMS as readonly string[]).includes(s)
+
+/**
+ * Each line's runs as Figma boxes them (useWholePxRuns): the line's own
+ * parts, and inside a fraction (its parts and bar) each letter and text.
+ * A gap is sized already.
+ */
+const equationRuns = (card: HTMLElement): HTMLElement[] => {
+  const runs: HTMLElement[] = []
+  for (const line of card.querySelectorAll("[data-line]")) {
+    for (const child of line.children) {
+      if (!(child instanceof HTMLElement) || child.textContent === "") {
+        continue
+      }
+      const parts = child.querySelectorAll(":scope > span")
+      if (parts.length < 2) {
+        runs.push(child)
+        continue
+      }
+      for (const part of parts) {
+        runs.push(...part.querySelectorAll<HTMLElement>("var, span:not([class])"))
+      }
+    }
+  }
+  return runs
+}
 
 /** The term and the line under the pointer, from the element it is over. */
 const termAt = (target: EventTarget | null): { param: TransformParam | null; line: Line | null } => {
@@ -57,6 +83,7 @@ export function EquationCard({
   bindTerm,
   styles = style,
   formLabel = FORM_LABEL,
+  wholePxRuns = false,
 }: {
   fn: BaseFunctionSlug
   params: TransformParams
@@ -75,14 +102,18 @@ export function EquationCard({
   styles?: EquationCardStyles
   /** The caps label before the form line; null sets none. */
   formLabel?: string | null
+  /** Box each run in whole px as Figma does, in every engine (the look rounds them where CSS can). */
+  wholePxRuns?: boolean
 }) {
   // Only the term under the pointer hangs the tip, in the line it is in.
   const [line, setLine] = useState<Line | null>(null)
   const live = equationTokens(fn, params, "live", { keep, fine })
   const form = equationTokens(fn, params, "form")
   const said = describeEquation(live)
+  const cardRef = useRef<HTMLDivElement | null>(null)
   const rowRef = useRef<HTMLOutputElement | null>(null)
   const lineRef = useRef<HTMLSpanElement | null>(null)
+  useWholePxRuns(cardRef, equationRuns, wholePxRuns)
   useFitWidth(rowRef, lineRef)
   const track = (event: PointerEvent<HTMLDivElement>) => {
     const at = termAt(event.target)
@@ -99,6 +130,7 @@ export function EquationCard({
   })
   return (
     <div
+      ref={cardRef}
       className={styles.card}
       data-testid="fv-equation"
       data-part="equation"

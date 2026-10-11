@@ -1,6 +1,10 @@
+import { useRef } from "react"
+
 import type { SidebarProps } from "../sidebar.ts"
+import type { ParamRowHandle } from "./ParamRow.tsx"
 
 import { SECTIONS } from "../copy.ts"
+import { isIdentity, type TransformParam } from "../math/form.ts"
 import {
   activeParams,
   curveAt,
@@ -17,14 +21,16 @@ import equationStyle from "./C3Equation.module.css"
 import pointStyle from "./PointRows.module.css"
 import { PRow, QRow } from "./PointRows.tsx"
 import { SubCard } from "./SubCard.tsx"
+import { ResetAll, TransformRows } from "./TransformRows.tsx"
 
 // figma0's SB3 · C3 · Ordinal correlations (the user's "ordinal color
 // coordination"): B's number rows on B2's sub cards, each of a, k, b and h
 // in one colour wherever it appears. Three sections, each on its own card:
 // the function and its equation, the transforms, the points.
-export function C3Sidebar({ state, dispatch, eventsOf, bindTerm }: SidebarProps) {
+export function C3Sidebar({ state, dispatch, eventsOf, bindTerm, explaining }: SidebarProps) {
   const { fn, params, pX, qX } = state
   const slots = readoutSlots(state.view?.extent ?? null)
+  const rowsRef = useRef(new Map<TransformParam, ParamRowHandle>())
   return (
     <>
       <SubCard title={SECTIONS.function.title} testId="fv-section-function">
@@ -41,10 +47,29 @@ export function C3Sidebar({ state, dispatch, eventsOf, bindTerm }: SidebarProps)
           bindTerm={bindTerm}
           styles={equationStyle}
           formLabel={null}
+          wholePxRuns
         />
       </SubCard>
-      <SubCard title={SECTIONS.transform.title} testId="fv-section-transform">
-        {null}
+      <SubCard
+        title={SECTIONS.transform.title}
+        testId="fv-section-transform"
+        action={
+          isIdentity(params) ? null : (
+            <ResetAll onResetAll={() => dispatch({ type: "resetAll" })} rowsRef={rowsRef} />
+          )
+        }
+      >
+        <TransformRows
+          params={params}
+          uiOf={(param) => partUi(state, param)}
+          eventsOf={eventsOf}
+          onChange={(param, value, typed) => dispatch({ type: "setParam", param, value, jump: typed })}
+          onReset={(param) => dispatch({ type: "resetParam", param })}
+          onFlip={(param) => dispatch({ type: "flip", param })}
+          onExplain={(param, by, open) => dispatch({ type: "explain", param, by, open })}
+          explaining={explaining}
+          rowsRef={rowsRef}
+        />
       </SubCard>
       <SubCard title={SECTIONS.points.title} testId="fv-section-points">
         <div className={pointStyle.points}>

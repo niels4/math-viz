@@ -1,0 +1,168 @@
+/* A number row (figma0 SB3 · C3 › Row): 44 tall, radius 10, padding 0 6 0
+8, its parts 10 apart: the chip (26), the name, the flip toggle and ↺ (24
+each), the number box (107 at "1.00"). Its parameter's colour (--row-ink)
+marks the chip, the toggle's glyph and the box; its 18 % tint (--row-band)
+is the band the row takes while its value is active. */
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  height: 44px;
+  padding: 0 6px 0 8px;
+  border-radius: 10px;
+}
+
+.row[data-param="a"] {
+  --row-ink: var(--param-a);
+  --row-band: var(--param-a-18);
+}
+
+.row[data-param="k"] {
+  --row-ink: var(--param-k);
+  --row-band: var(--param-k-18);
+}
+
+.row[data-param="b"] {
+  --row-ink: var(--param-b);
+  --row-band: var(--param-b-18);
+}
+
+.row[data-param="h"] {
+  --row-ink: var(--param-h);
+  --row-band: var(--param-h-18);
+}
+
+/* Lit (FV 04) or dragged: the band, the name in --foreground. */
+.row[data-lit],
+.row[data-mode] {
+  background: var(--row-band);
+}
+
+/* The chip, the colour key: 26, radius 6, solid in the colour, the letter
+in STIX italic 19 (its 24 px box) in --background. It opens the explainer
+(D12), so its cursor is help. */
+.chip {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  line-height: 24px;
+  color: var(--background);
+  background: var(--row-ink);
+  border-radius: 6px;
+  cursor: help;
+}
+
+/* The name's slot takes the row's slack. Its first line is the row's
+height; a name or badge too wide for what is left wraps to the clipped
+second line, so it shows whole or not at all. */
+.name_slot {
+  display: flex;
+  flex: 1 1 0;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: center;
+  min-width: 0;
+  height: 44px;
+  overflow: hidden;
+}
+
+.name_slot::before {
+  height: 44px;
+  content: "";
+}
+
+/* Work Sans 600 15 in its 18 px box, muted; --foreground while lit. */
+.name {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+}
+
+.row[data-lit] .name,
+.row[data-mode] .name {
+  color: var(--foreground);
+}
+
+/* A held modifier's badge (as today's): a tinted plate inside a 1.5 px
+stroke (a 1 px border and an inset half pixel, as the number box draws
+it: 68 × 21 for "Fine ×0.1"), foreground text. */
+.badge {
+  padding: 2.5px 7.5px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 14px;
+  color: var(--foreground);
+  white-space: nowrap;
+  border: 1px solid var(--badge-ink);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 0.5px var(--badge-ink);
+}
+
+.badge[data-mode="fine"] {
+  --badge-ink: var(--accent);
+
+  background: color-mix(in oklch, var(--accent) 24%, transparent);
+}
+
+.badge[data-mode="snap"] {
+  --badge-ink: var(--warning);
+
+  background: color-mix(in oklch, var(--warning) 24%, transparent);
+}
+
+/* The flip toggle and ↺: 24, radius 6. */
+.button {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+}
+
+/* The flip toggle shows at rest (C3): a well with the glyph in the colour;
+on (the value is negative), filled with the colour, the glyph in
+--background. */
+.flip {
+  color: var(--row-ink);
+  background: var(--background-muted);
+}
+
+.flip:hover {
+  background: var(--secondary);
+}
+
+.flip[aria-pressed="true"] {
+  color: var(--background);
+  background: var(--row-ink);
+}
+
+/* ↺: bare, its glyph --foreground-muted. */
+.reset {
+  color: var(--foreground-muted);
+  background: transparent;
+}
+
+.reset:hover,
+.reset:focus-visible {
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.box {
+  --box-ink: var(--row-ink);
+}

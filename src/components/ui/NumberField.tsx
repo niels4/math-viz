@@ -5,7 +5,11 @@ import { FINE_DP, formatStored, parseNumber, roundTo } from "#src/util/format/nu
 import fieldStyles from "./NumberField.module.css"
 import { useFieldId } from "./useFieldId.ts"
 
-export type NumberFieldHandle = { edit: () => void }
+export type NumberFieldHandle = {
+  edit: () => void
+  /** Ends an open edit as Esc does, putting back the value from before it. */
+  cancel: () => void
+}
 
 /** How an edit ended: Enter, Esc, or focus leaving the field. */
 export type NumberFieldEnd = "commit" | "cancel" | "blur"
@@ -96,14 +100,6 @@ export function NumberField({
     }
   }
 
-  useImperativeHandle(ref, () => ({
-    edit: () => {
-      if (inputRef.current !== null) {
-        open(inputRef.current)
-      }
-    },
-  }))
-
   const read = (text: string): Read => {
     const n = parseNumber(text)
     if (n === null) {
@@ -124,6 +120,21 @@ export function NumberField({
     update(null)
     onEditEnd?.(how)
   }
+
+  useImperativeHandle(ref, () => ({
+    edit: () => {
+      if (inputRef.current !== null) {
+        open(inputRef.current)
+      }
+    },
+    cancel: () => {
+      const current = editRef.current
+      if (current !== null) {
+        apply(current.base)
+        end("cancel")
+      }
+    },
+  }))
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     const current = editRef.current

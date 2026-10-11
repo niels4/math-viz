@@ -27,6 +27,9 @@ export const SNAP_STEP: Readonly<Record<ScrubKind, number>> = { additive: 1, mul
 export const NUDGE_STEP = 0.01
 export const NUDGE_STEP_SHIFT = 0.1
 
+/** How far a press on a number box travels before it drags (px): less is a click, which types. */
+export const DRAG_THRESHOLD = 3
+
 export const scrubMode = (keys: { shiftKey: boolean; ctrlKey: boolean; metaKey: boolean }): ScrubMode =>
   keys.ctrlKey || keys.metaKey ? "snap" : keys.shiftKey ? "fine" : "coarse"
 

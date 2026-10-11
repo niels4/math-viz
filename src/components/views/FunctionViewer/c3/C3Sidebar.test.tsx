@@ -31,6 +31,43 @@ const renderV2 = () =>
     </div>,
   )
 
+const setInput = (input: HTMLInputElement, next: string) => {
+  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set
+  setter?.call(input, next)
+  input.dispatchEvent(new Event("input", { bubbles: true }))
+}
+
+const keydown = (el: HTMLElement, key: string) => {
+  act(() => {
+    el.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key }))
+  })
+}
+
+// As a person types a value: open the field, type, Enter.
+const typeParam = (screen: Screen, param: string, text: string) => {
+  const field = byTestId(screen, `fv-param-${param}-field`) as HTMLInputElement
+  act(() => {
+    field.focus()
+    setInput(field, text)
+  })
+  keydown(field, "Enter")
+}
+
+const exists = (id: string) => document.querySelector(`[data-testid="${id}"]`) !== null
+
+// Real Chromium throws on synthetic pointerIds.
+const stubPointerCapture = () => {
+  HTMLDivElement.prototype.setPointerCapture = () => {}
+  HTMLDivElement.prototype.releasePointerCapture = () => {}
+  HTMLDivElement.prototype.hasPointerCapture = () => false
+}
+
+const press = (el: HTMLElement, type: string, clientX: number, buttons: number) => {
+  act(() => {
+    el.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerId: 1, button: 0, buttons, clientX }))
+  })
+}
+
 /** A colour as the browser resolves it, through a probe in the themed tree. */
 const resolved = (css: string, within: Element) => {
   const probe = document.createElement("span")
@@ -100,5 +137,77 @@ describe("the C3 sidebar (#demos/function-viewer-v2)", () => {
       expect(term).not.toBeNull()
       expect(getComputedStyle(term ?? card).color).toBe(resolved(`var(--param-${param})`, card))
     }
+  })
+
+  it("sets a, k | b, h as two named groups of rows, each row's box a spin button", async () => {
+    await renderV2()
+    const groups = [...document.querySelectorAll('[role="group"][aria-label]')].map((group) => ({
+      name: group.getAttribute("aria-label"),
+      boxes: [...group.querySelectorAll('[role="spinbutton"]')].map((el) => el.getAttribute("aria-label")),
+    }))
+    expect(groups).toEqual([
+      { name: "Vertical, outside f", boxes: ["a: Vertical scale", "k: Vertical shift"] },
+      { name: "Horizontal, inside f", boxes: ["b: Horizontal scale", "h: Horizontal shift"] },
+    ])
+  })
+
+  it("shows the flip toggles at rest, and ↺ and Reset all once a value moves", async () => {
+    const screen = await renderV2()
+    expect(exists("fv-param-a-flip") && exists("fv-param-b-flip")).toBe(true)
+    expect(exists("fv-param-k-flip") || exists("fv-param-h-flip")).toBe(false)
+    expect(exists("fv-param-a-reset") || exists("fv-reset-all")).toBe(false)
+    typeParam(screen, "a", "1.5")
+    expect(exists("fv-param-a-reset") && exists("fv-reset-all")).toBe(true)
+    expect(exists("fv-param-k-reset")).toBe(false)
+  })
+
+  it("prints the board's In use values in the boxes and the live equation", async () => {
+    const screen = await renderV2()
+    typeParam(screen, "a", "1.5")
+    typeParam(screen, "h", "1")
+    typeParam(screen, "k", "-1")
+    expect(byTestId(screen, "func-readout").getAttribute("aria-label")).toBe("f(x) = 1.50(x − 1.00)² − 1.00")
+    expect(byTestId(screen, "fv-param-k-box").getAttribute("aria-valuetext")).toBe("−1.00")
+    // Each value's term carries its parameter, which its colour follows.
+    const live = byTestId(screen, "fv-equation").querySelector('[data-line="live"]')
+    expect(
+      [...(live?.querySelectorAll("[data-param]") ?? [])].map((t) => t.getAttribute("data-param")),
+    ).toEqual(["a", "h", "k"])
+  })
+
+  it("flips a with its toggle, pressed while a is negative", async () => {
+    const screen = await renderV2()
+    act(() => {
+      byTestId(screen, "fv-param-a-flip").click()
+    })
+    expect(byTestId(screen, "fv-param-a-box").getAttribute("aria-valuetext")).toBe("−1.00")
+    expect(byTestId(screen, "fv-param-a-flip").getAttribute("aria-pressed")).toBe("true")
+  })
+
+  it("lets ↺ step out of its row while the row is dragged, and bands the row", async () => {
+    stubPointerCapture()
+    const screen = await renderV2()
+    typeParam(screen, "a", "1.5")
+    const box = byTestId(screen, "fv-param-a-box")
+    press(box, "pointerdown", 100, 1)
+    press(box, "pointermove", 140, 1)
+    expect(byTestId(screen, "fv-param-a").getAttribute("data-mode")).toBe("coarse")
+    expect(exists("fv-param-a-reset")).toBe(false)
+    press(box, "pointerup", 140, 0)
+    expect(exists("fv-param-a-reset")).toBe(true)
+  })
+
+  it("puts every value back with Reset all, handing the keyboard's focus to a's box", async () => {
+    const screen = await renderV2()
+    typeParam(screen, "a", "2")
+    typeParam(screen, "k", "1")
+    const resetAll = byTestId(screen, "fv-reset-all")
+    act(() => {
+      resetAll.focus()
+      resetAll.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+    expect(byTestId(screen, "func-readout").getAttribute("aria-label")).toBe("f(x) = x²")
+    expect(exists("fv-reset-all")).toBe(false)
+    expect(document.activeElement).toBe(byTestId(screen, "fv-param-a-box"))
   })
 })

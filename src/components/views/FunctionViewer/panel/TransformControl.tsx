@@ -1,4 +1,4 @@
-import { useEffect, useImperativeHandle, useRef, type KeyboardEvent, type Ref } from "react"
+import { useImperativeHandle, useRef, type Ref } from "react"
 
 import { useHover } from "#src/components/hooks/useHover.ts"
 import { FlipIcon, ResetIcon } from "#src/components/ui/icons.tsx"
@@ -12,8 +12,8 @@ import type { FvExplainBy, PartEvents } from "../model/state.ts"
 
 import { FLIP_LABELS, modeBadge, PARAM_NAMES, resetLabel } from "../copy.ts"
 import { acceptsValue, DEFAULT_PARAMS, isScale, ZERO_SCALE, type TransformParam } from "../math/form.ts"
-import { EXPLAINER_REST_MS } from "./explainer.ts"
 import style from "./TransformControl.module.css"
+import { useChipExplainer } from "./useChipExplainer.ts"
 
 export type TransformControlHandle = { focus: () => void }
 
@@ -69,31 +69,7 @@ export function TransformControl({
   const format = (v: number) => formatStored(v, fine)
   useImperativeHandle(ref, () => ({ focus: () => rulerRef.current?.focus() }), [])
 
-  // The chip's rest timer, and the kind of pointer that last pressed it:
-  // a touch tap toggles, where a mouse click opens at once.
-  const restTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const pressedBy = useRef<string>("mouse")
-  const stopRest = () => {
-    if (restTimer.current !== null) {
-      clearTimeout(restTimer.current)
-      restTimer.current = null
-    }
-  }
-  useEffect(
-    () => () => {
-      if (restTimer.current !== null) {
-        clearTimeout(restTimer.current)
-      }
-    },
-    [],
-  )
-
-  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "?" && !(event.target instanceof HTMLInputElement) && onExplain !== undefined) {
-      event.preventDefault()
-      onExplain("key", "toggle")
-    }
-  }
+  const explain = useChipExplainer(onExplain)
 
   const changed = value !== DEFAULT_PARAMS[param]
   const error = edit !== null && edit.error !== null
@@ -119,7 +95,7 @@ export function TransformControl({
           events.onFocus(false)
         }
       }}
-      onKeyDown={onKeyDown}
+      onKeyDown={explain.onKeyDown}
     >
       <div className={style.head} data-flip={onFlip === undefined ? undefined : true}>
         {/* Pointer-only, hidden from screen readers: ? on the focused control is the keyboard's way in (FV 07). */}
@@ -128,29 +104,7 @@ export function TransformControl({
           data-chip={param}
           data-testid={`fv-param-${param}-chip`}
           aria-hidden="true"
-          onPointerEnter={(event) => {
-            if (event.pointerType !== "touch" && onExplain !== undefined) {
-              stopRest()
-              restTimer.current = setTimeout(() => onExplain("hover", true), EXPLAINER_REST_MS)
-            }
-          }}
-          onPointerLeave={(event) => {
-            stopRest()
-            if (event.pointerType !== "touch") {
-              onExplain?.("hover", false)
-            }
-          }}
-          onPointerDown={(event) => {
-            pressedBy.current = event.pointerType
-          }}
-          onClick={() => {
-            stopRest()
-            if (pressedBy.current === "touch") {
-              onExplain?.("tap", "toggle")
-            } else {
-              onExplain?.("hover", true)
-            }
-          }}
+          {...explain.chip}
         >
           <MathText text={param} />
         </span>

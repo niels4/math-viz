@@ -1,0 +1,49 @@
+/* SB3 · C3 › Rows: two pairs of 44 px rows, an inset rule between them
+(padding 6 8 round a 1 px --background-muted line), 2 apart. */
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+}
+
+.rule {
+  flex: none;
+  height: 1px;
+  margin: 6px 8px;
+  background: var(--background-muted);
+}
+
+/* Reset all: padding 2 4, gap 5, ↺ (16) and Work Sans 600 13 in its 15 px
+box, --foreground-muted; hover and focus fill it with --secondary (FV 07). */
+.reset_all {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  height: 20px;
+  padding: 2px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 15px;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.reset_all:hover,
+.reset_all:focus-visible {
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.reset_all:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+}

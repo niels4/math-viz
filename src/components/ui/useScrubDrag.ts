@@ -12,6 +12,8 @@ type Drag = {
   mode: ScrubMode
   /** The value last sent. */
   value: number
+  /** Pressed, not yet moved past the threshold: no drag shown, a release is a tap. */
+  pending: boolean
 }
 
 export type ScrubDragHandlers = {
@@ -23,24 +25,33 @@ export type ScrubDragHandlers = {
 }
 
 // Pointer dragging for the jog ruler and anything scrubbed like it (the
-// equation's terms, D13): right for more, measured from the press at the
-// ruler's rates (scrub.ts). Shift and Ctrl/⌘ may change mid-drag: the new
-// rate applies from where the pointer is, so letting go of Shift never moves
-// the value, and Ctrl snaps it at once. Letting go anywhere, a lost capture
-// or a lost window focus ends the drag, and a move with no button held
-// drops a drag whose release was missed (AGENTS.md › pointer-capture drags).
-// A drag selects no text, wherever the pointer goes.
+// equation's terms, D13; a number box): right for more, measured from the
+// press at the ruler's rates (scrub.ts). Shift and Ctrl/⌘ may change
+// mid-drag: the new rate applies from where the pointer is, so letting go
+// of Shift never moves the value, and Ctrl snaps it at once. Letting go
+// anywhere, a lost capture or a lost window focus ends the drag, and a move
+// with no button held drops a drag whose release was missed (AGENTS.md ›
+// pointer-capture drags). A drag selects no text, wherever the pointer goes.
+// With a threshold, a press becomes a drag only once the pointer has
+// travelled that far (measured from the press, so nothing jumps), and a
+// press let go before that is a tap.
 export function useScrubDrag({
   value,
   kind,
   onChange,
   onModeChange,
+  threshold = 0,
+  onTap,
 }: {
   value: number
   kind: ScrubKind
   onChange: (next: number) => void
   /** The drag's mode as it starts and changes, null when it ends. */
   onModeChange?: (mode: ScrubMode | null) => void
+  /** How far in px a press travels before it drags; 0 drags from the press. */
+  threshold?: number
+  /** A press let go before it dragged (with a threshold). */
+  onTap?: () => void
 }): { mode: ScrubMode | null; handlers: ScrubDragHandlers } {
   const dragRef = useRef<Drag | null>(null)
   const [mode, setMode] = useState<ScrubMode | null>(null)
@@ -68,9 +79,21 @@ export function useScrubDrag({
   }
 
   const stop = () => {
-    if (dragRef.current !== null) {
+    const drag = dragRef.current
+    if (drag !== null) {
       dragRef.current = null
-      showMode(null)
+      if (!drag.pending) {
+        showMode(null)
+      }
+    }
+  }
+
+  // The drag shows from here: its mode, and a snap's value at once.
+  const begin = (drag: Drag) => {
+    drag.pending = false
+    showMode(drag.mode)
+    if (drag.mode === "snap") {
+      send(drag, scrubDelta({ value: drag.anchorValue, dxPx: 0, kind, mode: drag.mode }))
     }
   }
 
@@ -78,14 +101,19 @@ export function useScrubDrag({
     if (event.button !== 0) {
       return
     }
-    const next = scrubMode(event)
-    const drag: Drag = { anchorX: event.clientX, anchorValue: value, lastX: event.clientX, mode: next, value }
+    const drag: Drag = {
+      anchorX: event.clientX,
+      anchorValue: value,
+      lastX: event.clientX,
+      mode: scrubMode(event),
+      value,
+      pending: threshold > 0,
+    }
     dragRef.current = drag
     event.currentTarget.setPointerCapture(event.pointerId)
     selectNothingUntilRelease(event)
-    showMode(next)
-    if (next === "snap") {
-      send(drag, scrubDelta({ value, dxPx: 0, kind, mode: next }))
+    if (!drag.pending) {
+      begin(drag)
     }
   }
 
@@ -97,6 +125,13 @@ export function useScrubDrag({
     if (event.buttons === 0) {
       stop()
       return
+    }
+    if (drag.pending) {
+      if (Math.abs(event.clientX - drag.anchorX) < threshold) {
+        return
+      }
+      drag.mode = scrubMode(event)
+      begin(drag)
     }
     const next = scrubMode(event)
     if (next !== drag.mode) {
@@ -111,7 +146,7 @@ export function useScrubDrag({
 
   const onWindowKey = useEffectEvent((event: KeyboardEvent) => {
     const drag = dragRef.current
-    if (drag === null) {
+    if (drag === null || drag.pending) {
       return
     }
     const next = scrubMode(event)
@@ -145,7 +180,13 @@ export function useScrubDrag({
     handlers: {
       onPointerDown,
       onPointerMove,
-      onPointerUp: stop,
+      onPointerUp: () => {
+        const tapped = dragRef.current?.pending === true
+        stop()
+        if (tapped) {
+          onTap?.()
+        }
+      },
       onPointerCancel: stop,
       onLostPointerCapture: stop,
     },
