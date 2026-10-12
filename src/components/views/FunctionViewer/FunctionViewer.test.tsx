@@ -107,6 +107,23 @@ const motionPrefs = (reduce: boolean) => (query: string) =>
 
 const FULL_MOTION = motionPrefs(false)
 
+/**
+ * A test that lets real time pass while the page's own ticker runs (GSAP
+ * keeps its clock on Date.now, so fake timers can't step it): outside act,
+ * as testing-library's waitFor waits, so React applies the ticker's updates
+ * as a browser would.
+ */
+const outsideAct = async (run: () => Promise<void>) => {
+  const flags = globalThis as unknown as Record<string, unknown>
+  const was = flags["IS_REACT_ACT_ENVIRONMENT"]
+  flags["IS_REACT_ACT_ENVIRONMENT"] = false
+  try {
+    await run()
+  } finally {
+    flags["IS_REACT_ACT_ENVIRONMENT"] = was
+  }
+}
+
 const ZERO_RECT = {
   x: 0,
   y: 0,
@@ -194,20 +211,13 @@ describe("FunctionViewer", () => {
     expect(document.querySelector("header h1 + p")?.textContent).toBe("Functions · transformations")
     const chip = () => toElement(screen.getByTestId("theme-chip")).textContent
     expect(chip()).toBe("Theme: Arctic Ice")
-    // A plain click event: the menu closes on it, and jsdom's patched click() (src/test/jsdom-setup.ts)
-    // throws on an element that unmounts during its own click.
-    const click = (id: string) => {
-      act(() => {
-        toElement(screen.getByTestId(id)).dispatchEvent(new MouseEvent("click", { bubbles: true }))
-      })
-    }
-    const pick = (slug: string) => {
-      click("settings-button")
-      click(`settings-theme-${slug}`)
-    }
-    pick("clean-teal")
+    // Each pick shows at once; the settings stay open (figma0 SM · Spec › D2).
+    click(screen, "settings-button")
+    click(screen, "settings-mode-light")
     expect(chip()).toBe("Theme: Clean Teal")
-    pick("arctic-ice")
+    click(screen, "settings-theme-sage-editorial")
+    expect(chip()).toBe("Theme: Sage Editorial")
+    click(screen, "settings-mode-dark")
     expect(chip()).toBe("Theme: Arctic Ice")
   })
 
@@ -790,22 +800,47 @@ describe("FunctionViewer", () => {
       expect(localStorage.getItem(FV_TOUR_KEY)).toBe("true")
     })
 
-    it("doesn't run once remembered, and runs again from the settings menu", async () => {
+    // The settings menu's "Show the tour again" has gone until the tour gets
+    // a new home (figma0 SM · Spec › D14); its first-visit start stays.
+    it("doesn't run once remembered, and the settings menu doesn't offer it", async () => {
       const screen = await render(<FunctionViewer />)
       expect(card()).toBeNull()
       click(screen, "settings-button")
-      click(screen, "settings-action-tour")
-      expect(title()).toBe("This is a function")
+      const settings = byTestId(screen, "settings-panel")
+      expect(settings.textContent).not.toContain("tour")
+      expect([...settings.querySelectorAll("button")].every((b) => b.getAttribute("role") === "radio")).toBe(
+        true,
+      )
+      expect(card()).toBeNull()
     })
 
-    it.each([
-      { motion: "full motion", reduce: false, ms: 200 },
-      { motion: "reduced motion", reduce: true, ms: 120 },
-    ])("leaves with $motion: the card and the scrim stay $ms ms, inert, then go", async ({ reduce, ms }) => {
-      vi.stubGlobal("matchMedia", motionPrefs(reduce))
-      const screen = await render(<FunctionViewer />)
-      click(screen, "settings-button")
-      click(screen, "settings-action-tour")
+    // On a page that moves, the tour waits for the first paint's draw-on
+    // (FV 08 › Flow), which runs on GSAP's own clock in real time; its card
+    // and scrim then leave over 200 ms.
+    it("starts on a first visit once the first paint is drawn, and leaves with full motion over 200 ms", async () => {
+      vi.stubGlobal("matchMedia", FULL_MOTION)
+      await outsideAct(async () => {
+        const screen = await firstVisit()
+        await vi.waitFor(() => expect(title()).toBe("This is a function"), { timeout: 4000 })
+        const skipped = performance.now()
+        // As a browser clicks: outside act, React handling the event itself.
+        byTestId(screen, "fv-tour-skip").dispatchEvent(new MouseEvent("click", { bubbles: true }))
+        await vi.waitFor(() => expect(card()?.hasAttribute("data-closing")).toBe(true))
+        expect(card()?.hasAttribute("inert")).toBe(true)
+        expect(document.querySelector('[data-testid="fv-tour-scrim"]')?.hasAttribute("data-closing")).toBe(
+          true,
+        )
+        expect(localStorage.getItem(FV_TOUR_KEY)).toBe("true")
+        await vi.waitFor(() => expect(card()).toBeNull(), { timeout: 2000 })
+        expect(document.querySelector('[data-testid="fv-tour-scrim"]')).toBeNull()
+        expect(performance.now() - skipped).toBeGreaterThanOrEqual(195)
+      })
+    })
+
+    it("leaves with reduced motion: the card and the scrim stay 120 ms, inert, then go", async () => {
+      // Under reduced motion the first paint shows at once, and so does the tour.
+      vi.stubGlobal("matchMedia", motionPrefs(true))
+      const screen = await firstVisit()
       expect(title()).toBe("This is a function")
       vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
       click(screen, "fv-tour-skip")
@@ -814,7 +849,7 @@ describe("FunctionViewer", () => {
       expect(document.querySelector('[data-testid="fv-tour-scrim"]')?.hasAttribute("data-closing")).toBe(true)
       expect(localStorage.getItem(FV_TOUR_KEY)).toBe("true")
       act(() => {
-        vi.advanceTimersByTime(ms - 1)
+        vi.advanceTimersByTime(119)
       })
       expect(card()?.hasAttribute("inert")).toBe(true)
       expect(document.querySelector('[data-testid="fv-tour-scrim"]')).not.toBeNull()

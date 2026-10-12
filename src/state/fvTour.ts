@@ -21,6 +21,6 @@ const storage = {
 /**
  * Decision D19 (which supersedes D11's coach mark with the same rule): the
  * Function Viewer's first-minute tour runs once per browser. True once it
- * has been finished or skipped; the settings menu can show it again.
+ * has been finished or skipped.
  */
 export const fvTourDoneAtom = atomWithStorage<boolean>(FV_TOUR_KEY, false, storage, { getOnInit: true })

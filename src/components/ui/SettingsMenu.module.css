@@ -16,7 +16,9 @@
     cursor: pointer;
   }
 
-  .settings_button:hover {
+  /* D13: open, the gear keeps the hover's border, tying the panel to it. */
+  .settings_button:hover,
+  .settings_button[aria-expanded="true"] {
     border-color: var(--primary);
   }
 
@@ -26,28 +28,27 @@
     box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
   }
 
-  /* An overlay as the explainer and the tour card are: --card in a 1 px
-  --border with the theme's card shadow. It comes out of the gear: growing
-  from 90 % at its top right corner and dropping 8 px on the enter spring
-  at the spring's own pace (dur-enter-settle: in place by 200 ms, 5 % over
-  at 270 ms), while it fades in over dur-fast, linearly. The fade stays off
-  the spring: Firefox paints an opacity eased past 1 washed out. It leaves
+  /* An overlay as the explainer and the tour card are (D11): --card in a 1 px
+  --border with the theme's card corners and shadow. It comes out of the gear:
+  growing from 90 % at its top right corner and dropping 8 px on the enter
+  spring at the spring's own pace (dur-enter-settle: in place by 200 ms, 5 %
+  over at 270 ms), while it fades in over dur-fast, linearly. The fade stays
+  off the spring: Firefox paints an opacity eased past 1 washed out. It leaves
   the same way back, linearly, in dur-overlay-leave (200 ms). Under reduced
-  motion it only fades, 120 ms each way. Squeezed into 120 ms or less,
-  either way reads as a pop. */
-  .settings_menu {
+  motion it only fades, 120 ms each way. Squeezed into 120 ms or less, either
+  way reads as a pop. */
+  .settings_panel {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
     z-index: 20;
     display: grid;
-    gap: 12px;
-    width: max-content;
-    min-width: 230px;
+    gap: 16px;
+    width: 19rem;
     padding: 12px;
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border-radius: var(--sig-card-radius);
     box-shadow: var(--sig-card-shadow);
     transform-origin: top right;
     transition:
@@ -56,13 +57,13 @@
   }
 
   @starting-style {
-    .settings_menu {
+    .settings_panel {
       opacity: 0;
       transform: translateY(-8px) scale(0.9);
     }
   }
 
-  .settings_menu[data-closing] {
+  .settings_panel[data-closing] {
     opacity: 0;
     transform: translateY(-8px) scale(0.9);
     transition:
@@ -71,72 +72,179 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .settings_menu,
-    .settings_menu[data-closing] {
+    .settings_panel,
+    .settings_panel[data-closing] {
       transform: none;
       transition: opacity var(--motion-dur-reduced-fade) linear;
     }
 
     @starting-style {
-      .settings_menu {
+      .settings_panel {
         transform: none;
       }
     }
   }
 
-  .settings_group_label {
-    margin: 0 0 4px;
+  /* Each setting: its label, its control, 8 px apart. Line heights are the
+  boards' text boxes in px (a caps label 14, the help line 18). */
+  .settings_section {
+    display: grid;
+    gap: 8px;
+  }
+
+  .settings_label {
     padding: 0 10px;
     font-size: 0.72rem;
     font-weight: 800;
+    line-height: 14px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--foreground-muted);
   }
 
-  /* Each item on one line: the menu takes the widest item's width. */
-  .settings_option {
+  .settings_help {
+    padding: 0 10px;
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--foreground-muted);
+  }
+
+  /* The Appearance toggle: SegmentedControl in the panel's type, its options
+  sharing the width. Its buttons take their font from it (global.css's
+  button rule outranks a layered one). Inside the card the focus is a 2 px
+  primary line, which reads where the app's 3 px ring doesn't (D10). */
+  .settings_mode {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .settings_mode [role="radio"] {
+    padding: 0 8px;
+  }
+
+  .settings_mode [role="radio"] > span {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .settings_mode [role="radio"]:focus-visible {
+    box-shadow: none;
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  /* The theme rows, 36 px each, names in 16 px Work Sans on one line. */
+  .settings_list {
+    display: grid;
+    font-size: 16px;
+    line-height: 19px;
+  }
+
+  .settings_row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 8px 10px;
+    height: 36px;
+    padding: 0 10px;
     color: var(--foreground);
     text-align: left;
     white-space: nowrap;
     background: transparent;
     border: 0;
-    border-radius: calc(var(--radius) - 4px);
+    border-radius: max(0px, calc(var(--sig-card-radius) - 4px));
     cursor: pointer;
   }
 
-  .settings_option:hover {
+  .settings_row:hover {
     background: var(--secondary);
   }
 
-  /* Focus = hover + the 3 px ring (FV 07). */
-  .settings_option:focus-visible {
+  /* The focus sits on the checked row: hover's fill and a 2 px primary line
+  inside its edge (D10). */
+  .settings_row:focus-visible {
     background: var(--secondary);
-    outline: none;
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
   }
 
-  /* The checked theme keeps its fill under the pointer and the focus. */
-  .settings_option.settings_option_active {
-    color: var(--primary-foreground);
-    background: var(--primary);
+  /* What a row shows: swatch, name, check. Its own box, so a new scheme's
+  content can fade in while the row and its fill stay (D7). */
+  .settings_row_content {
+    display: flex;
+    flex: 1;
+    gap: 10px;
+    align-items: center;
+    min-width: 0;
   }
 
-  /* The view's own items, set off from the themes by a rule. */
-  .settings_actions {
-    padding-top: 12px;
-    border-top: 1px solid var(--border);
+  .settings_name {
+    flex: 1;
   }
 
+  /* D12: the checked theme's name in 600 and the check. */
+  .settings_row[aria-checked="true"] .settings_name {
+    font-weight: 600;
+  }
+
+  /* The check's 14 px stays when it is hidden, so the names line up. */
   .settings_check {
     display: inline-flex;
     flex: none;
-    align-items: center;
-    width: 1.2em;
+    width: 14px;
+    color: var(--primary);
+  }
+
+  /* The swatch's outline is the panel's --border, outside the theme's box. */
+  .settings_swatch {
+    flex: none;
+    width: 30px;
+    height: 20px;
+    border-radius: 5px;
+    outline: 1px solid var(--border);
+  }
+
+  /* Carries the theme's class: its page, curve and P in its own colours. */
+  .settings_swatch_theme {
+    display: block;
+    height: 100%;
+    overflow: hidden;
+    background: var(--background);
+    border-radius: inherit;
+  }
+
+  .settings_swatch_theme svg {
+    display: block;
+  }
+
+  .settings_swatch_curve {
+    fill: none;
+    stroke: var(--chart-line);
+    stroke-width: 1.75;
+    stroke-linecap: round;
+  }
+
+  .settings_swatch_point {
+    fill: var(--chart-point-1);
+  }
+
+  /* D7 (SM · Motion › The mode changes): when the scheme changes while the
+  panel is open, the theme label, the help line and the rows' content fade
+  in over dur-fast, linearly; everything keeps its place. 120 ms under
+  reduced motion. */
+  .settings_swap[data-swapped] {
+    animation: settings-swap-in var(--motion-dur-fast) linear;
+  }
+
+  @keyframes settings-swap-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .settings_swap[data-swapped] {
+      animation-duration: var(--motion-dur-reduced-fade);
+    }
   }
 }

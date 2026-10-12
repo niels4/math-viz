@@ -107,4 +107,29 @@ describe("SegmentedControl", () => {
     expect(checked()).toBe("fn-x2")
     expect(onChange).not.toHaveBeenCalled()
   })
+
+  // The settings menu's Appearance toggle: its help line describes it.
+  it("names what describes it, when told", async () => {
+    await render(
+      <>
+        <SegmentedControl
+          options={OPTIONS}
+          value="x"
+          onChange={() => {}}
+          label="Appearance"
+          describedBy="help"
+        />
+        <p id="help">Your system is dark right now.</p>
+      </>,
+    )
+    const group = document.querySelector('[role="radiogroup"]')
+    expect(document.getElementById(group?.getAttribute("aria-describedby") ?? "")?.textContent).toBe(
+      "Your system is dark right now.",
+    )
+  })
+
+  it("has no description by default", async () => {
+    await render(<Picker onChange={() => {}} />)
+    expect(document.querySelector('[role="radiogroup"]')?.hasAttribute("aria-describedby")).toBe(false)
+  })
 })

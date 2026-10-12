@@ -226,8 +226,6 @@ export const TOUR = {
   skip: "Skip tour",
   next: "Next",
   done: "Done",
-  /** The settings menu's item (FV 08 › Rules). */
-  showAgain: "Show the tour again",
   steps: {
     1: {
       title: "This is a function",

@@ -9,7 +9,7 @@ import { SettingsMenu } from "../../ui/SettingsMenu.tsx"
 import { ThemeChip } from "../../ui/ThemeChip.tsx"
 import { TopBar } from "../../ui/TopBar.tsx"
 import { CartesianPlane, type CartesianPlaneHandle } from "../CartesianPlane/CartesianPlane"
-import { PLANE_KEY_HELP, TOUR, VIEW_SUBTITLE, VIEW_TITLE } from "./copy.ts"
+import { PLANE_KEY_HELP, VIEW_SUBTITLE, VIEW_TITLE } from "./copy.ts"
 import style from "./FunctionViewer.module.css"
 import { GhostToggle } from "./GhostToggle.tsx"
 import { fvReducer } from "./model/reducer.ts"
@@ -115,15 +115,7 @@ export function FunctionViewer({ sidebar = RULER_SIDEBAR }: { sidebar?: FvSideba
         actions={
           <>
             <ThemeChip />
-            <SettingsMenu
-              actions={[
-                {
-                  id: "tour",
-                  label: TOUR.showAgain,
-                  onSelect: () => dispatch({ type: "tour", to: "start" }),
-                },
-              ]}
-            />
+            <SettingsMenu />
           </>
         }
       />

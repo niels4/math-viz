@@ -1,5 +1,6 @@
 import { Fragment, useRef, type KeyboardEvent, type ReactNode } from "react"
 
+import { keyTarget } from "./radioKeys.ts"
 import segmentedStyles from "./SegmentedControl.module.css"
 
 export type SegmentedOption<T extends string> = {
@@ -7,23 +8,6 @@ export type SegmentedOption<T extends string> = {
   label: ReactNode
   /** The option's accessible name when its label isn't plain text ("x squared" for x²). */
   ariaLabel?: string
-}
-
-const keyTarget = (key: string, from: number, last: number): number | undefined => {
-  switch (key) {
-    case "ArrowLeft":
-    case "ArrowUp":
-      return from - 1
-    case "ArrowRight":
-    case "ArrowDown":
-      return from + 1
-    case "Home":
-      return 0
-    case "End":
-      return last
-    default:
-      return undefined
-  }
 }
 
 // figma0's segmented picker (function-picker-fv, FV 07): every option in
@@ -35,6 +19,7 @@ export function SegmentedControl<T extends string>({
   value,
   onChange,
   label,
+  describedBy,
   testId,
   className,
 }: {
@@ -43,6 +28,8 @@ export function SegmentedControl<T extends string>({
   onChange: (next: T) => void
   /** The radiogroup's accessible name. */
   label: string
+  /** The id of what describes the group (`aria-describedby`): the settings menu's help line. */
+  describedBy?: string
   /** Each option gets `${testId}-${value}`. */
   testId?: string
   className?: string
@@ -74,6 +61,7 @@ export function SegmentedControl<T extends string>({
     <div
       role="radiogroup"
       aria-label={label}
+      aria-describedby={describedBy}
       className={className === undefined ? segmentedStyles.group : `${segmentedStyles.group} ${className}`}
     >
       {options.map((option, i) => {

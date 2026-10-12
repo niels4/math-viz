@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+import { testMedia } from "#src/test/motion.ts"
 import { act, renderHook } from "#test"
 
 import {
@@ -15,41 +16,13 @@ import {
 
 const stored = (): unknown => JSON.parse(localStorage.getItem(APPEARANCE_KEY) ?? "null")
 
-/**
- * A system whose appearance can flip: a whole MediaQueryList per query,
- * light or dark, its change listeners called as the OS's would be.
- */
+/** A light or dark system whose appearance can flip, as the OS's does. */
 const system = (dark: boolean) => {
-  const listeners = new Set<(event: MediaQueryListEvent) => void>()
-  let isDark = dark
-  vi.stubGlobal(
-    "matchMedia",
-    (query: string) =>
-      ({
-        get matches() {
-          return query === "(prefers-color-scheme: dark)" && isDark
-        },
-        media: query,
-        onchange: null,
-        addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
-          listeners.add(listener)
-        },
-        removeEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
-          listeners.delete(listener)
-        },
-        dispatchEvent: () => false,
-      }) as unknown as MediaQueryList,
-  )
+  const media = testMedia({ dark })
+  vi.stubGlobal("matchMedia", media.matchMedia)
   return {
-    flip: (toDark: boolean) => {
-      isDark = toDark
-      act(() => {
-        for (const listener of listeners) {
-          listener({ matches: toDark } as MediaQueryListEvent)
-        }
-      })
-    },
-    listening: () => listeners.size,
+    flip: (toDark: boolean) => act(() => media.flip(toDark)),
+    listening: media.listening,
   }
 }
 
