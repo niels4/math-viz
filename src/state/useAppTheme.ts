@@ -1,4 +1,4 @@
-import { useAtom } from "jotai"
+import { atom, useAtomValue, useSetAtom } from "jotai"
 import { atomWithStorage, createJSONStorage } from "jotai/utils"
 import { useMemo } from "react"
 
@@ -12,9 +12,9 @@ import tronTheme from "#src/style/themes/mathviz_tron_cyan.module.css"
 export const DARK_THEME_SLUGS = ["arctic-ice", "tron-cyan", "midnight-violet"] as const
 export const LIGHT_THEME_SLUGS = ["clean-teal", "educational-warm", "sage-editorial"] as const
 
-const DEFAULT_SLUG = DARK_THEME_SLUGS[0]
-
-export type ThemeSlug = (typeof DARK_THEME_SLUGS)[number] | (typeof LIGHT_THEME_SLUGS)[number]
+export type DarkThemeSlug = (typeof DARK_THEME_SLUGS)[number]
+export type LightThemeSlug = (typeof LIGHT_THEME_SLUGS)[number]
+export type ThemeSlug = DarkThemeSlug | LightThemeSlug
 
 export type ThemeDef = {
   label: string
@@ -37,44 +37,152 @@ export const isThemeSlug = (slug: string | undefined | null): slug is ThemeSlug 
   return Object.hasOwn(appThemes, slug)
 }
 
-const jsonStorage = createJSONStorage<ThemeSlug>(() => localStorage)
+const isDarkSlug = (value: unknown): value is DarkThemeSlug =>
+  (DARK_THEME_SLUGS as readonly unknown[]).includes(value)
 
-const validatedStorage = {
-  getItem: (key: string, initialValue: ThemeSlug): ThemeSlug => {
+const isLightSlug = (value: unknown): value is LightThemeSlug =>
+  (LIGHT_THEME_SLUGS as readonly unknown[]).includes(value)
+
+/** What the Appearance toggle sets: follow the system, or always light or always dark. */
+export type ColorMode = "system" | "light" | "dark"
+
+/** Light or dark: what the mode gives, or in System what the system gives. */
+export type ColorScheme = "light" | "dark"
+
+const isColorMode = (value: unknown): value is ColorMode =>
+  value === "system" || value === "light" || value === "dark"
+
+/**
+ * What is stored (figma0 SM · Spec › Data shape, D4): the mode, and one
+ * theme per scheme, as GitHub keeps a day and a night theme. System shows
+ * the pick for the scheme the system gives and switches with it.
+ */
+export type ThemePrefs = { mode: ColorMode; dark: DarkThemeSlug; light: LightThemeSlug }
+
+/** D5: System; Arctic Ice for dark, as before; Clean Teal, Arctic Ice in light, for light. */
+export const DEFAULT_PREFS: ThemePrefs = { mode: "system", dark: "arctic-ice", light: "clean-teal" }
+
+/** Where the preferences live in localStorage (JSON `ThemePrefs`). */
+export const APPEARANCE_KEY = "mathviz-appearance"
+
+/** Where the old menu kept its one theme, a JSON slug: carried over once, then removed. */
+export const LEGACY_THEME_KEY = "mathviz-theme"
+
+export const schemeOf = (slug: ThemeSlug): ColorScheme => (isDarkSlug(slug) ? "dark" : "light")
+
+/** The scheme in use: the mode's, or in System the system's. */
+export const schemeFor = (mode: ColorMode, systemScheme: ColorScheme): ColorScheme =>
+  mode === "system" ? systemScheme : mode
+
+/** The prefs with `slug` picked for its scheme. */
+export const withTheme = (prefs: ThemePrefs, slug: ThemeSlug): ThemePrefs =>
+  isDarkSlug(slug) ? { ...prefs, dark: slug } : { ...prefs, light: slug }
+
+/**
+ * D15, for the controls that list every theme (ThemeSwitcher, the Alpha's
+ * menu): the prefs with `slug` picked and shown. The mode changes only when
+ * the pick would otherwise stay hidden, so System survives a pick that
+ * matches the system.
+ */
+export const showingTheme = (prefs: ThemePrefs, slug: ThemeSlug, systemScheme: ColorScheme): ThemePrefs => {
+  const scheme = schemeOf(slug)
+  const mode = scheme === schemeFor(prefs.mode, systemScheme) ? prefs.mode : scheme
+  return { ...withTheme(prefs, slug), mode }
+}
+
+/** Stored prefs as read: each field checked, a missing or unknown one taking its default. */
+export const parsePrefs = (stored: unknown): ThemePrefs => {
+  const fields = typeof stored === "object" && stored !== null ? (stored as Record<string, unknown>) : {}
+  const mode = fields["mode"]
+  const dark = fields["dark"]
+  const light = fields["light"]
+  if (isColorMode(mode) && isDarkSlug(dark) && isLightSlug(light) && Object.keys(fields).length === 3) {
+    // Valid as stored: the same object, so a re-read changes nothing.
+    return fields as ThemePrefs
+  }
+  return {
+    mode: isColorMode(mode) ? mode : DEFAULT_PREFS.mode,
+    dark: isDarkSlug(dark) ? dark : DEFAULT_PREFS.dark,
+    light: isLightSlug(light) ? light : DEFAULT_PREFS.light,
+  }
+}
+
+/**
+ * The old menu's theme carried over (spec › Migration): a saved slug keeps
+ * showing, so its scheme becomes the mode and the other scheme gets its
+ * default. Anything else gives the defaults, and the system decides.
+ */
+export const migrateLegacy = (legacy: unknown): ThemePrefs =>
+  typeof legacy === "string" && isThemeSlug(legacy)
+    ? withTheme({ ...DEFAULT_PREFS, mode: schemeOf(legacy) }, legacy)
+    : DEFAULT_PREFS
+
+const json = createJSONStorage<unknown>(() => localStorage)
+
+// Each read checks the fields. The first read with no prefs stored moves
+// the old key over, once; storage that throws (a private window) gives the
+// defaults. Another tab's change comes through checked as well.
+const prefsStorage = {
+  getItem: (key: string, initialValue: ThemePrefs): ThemePrefs => {
     try {
-      const stored = jsonStorage.getItem(key, initialValue)
-      return isThemeSlug(stored) ? stored : initialValue
+      if (localStorage.getItem(key) !== null) {
+        return parsePrefs(json.getItem(key, initialValue))
+      }
+      const prefs = migrateLegacy(json.getItem(LEGACY_THEME_KEY, null))
+      localStorage.setItem(key, JSON.stringify(prefs))
+      localStorage.removeItem(LEGACY_THEME_KEY)
+      return prefs
     } catch {
       return initialValue
     }
   },
-  setItem: (key: string, value: ThemeSlug): void => {
-    jsonStorage.setItem(key, value)
+  setItem: (key: string, value: ThemePrefs): void => {
+    json.setItem(key, value)
   },
   removeItem: (key: string): void => {
-    jsonStorage.removeItem(key)
+    json.removeItem(key)
   },
-  subscribe: (key: string, callback: (value: ThemeSlug) => void, initialValue: ThemeSlug) => {
-    if (jsonStorage.subscribe === undefined) {
+  subscribe: (key: string, callback: (value: ThemePrefs) => void, initialValue: ThemePrefs) => {
+    if (json.subscribe === undefined) {
       return undefined
     }
-    return jsonStorage.subscribe(
-      key,
-      (value) => {
-        callback(isThemeSlug(value) ? value : initialValue)
-      },
-      initialValue,
-    )
+    return json.subscribe(key, (value) => callback(parsePrefs(value)), initialValue)
   },
 }
 
 /**
- * Shared theme setting. Any view can `useAtomValue(themeAtom)` to read
- * or `useSetAtom(themeAtom)` to write — no prop drilling, no context.
- * Persisted to localStorage so the choice survives reloads.
+ * The theme preferences, shared and persisted. Read the theme in use
+ * through `useAppTheme`, which derives it from these and the system.
  */
-export const themeAtom = atomWithStorage<ThemeSlug>("mathviz-theme", DEFAULT_SLUG, validatedStorage, {
+export const prefsAtom = atomWithStorage<ThemePrefs>(APPEARANCE_KEY, DEFAULT_PREFS, prefsStorage, {
   getOnInit: true,
+})
+
+const SCHEME_QUERY = "(prefers-color-scheme: dark)"
+
+/** The system's scheme now; dark where there is no matchMedia (jsdom, a server render). */
+const readSystemScheme = (): ColorScheme =>
+  typeof matchMedia !== "function" || matchMedia(SCHEME_QUERY).matches ? "dark" : "light"
+
+/**
+ * The system's scheme, followed live: while anything reads it, a change of
+ * the OS's appearance switches the theme in System without a reload.
+ */
+export const systemSchemeAtom = atom<ColorScheme>(readSystemScheme())
+systemSchemeAtom.onMount = (set) => {
+  set(readSystemScheme())
+  if (typeof matchMedia !== "function") {
+    return
+  }
+  const query = matchMedia(SCHEME_QUERY)
+  const onChange = (event: MediaQueryListEvent) => set(event.matches ? "dark" : "light")
+  query.addEventListener("change", onChange)
+  return () => query.removeEventListener("change", onChange)
+}
+
+/** D15's pick: stored for its scheme and shown, against the system's scheme as it is now. */
+const showThemeAtom = atom(null, (get, set, slug: ThemeSlug) => {
+  set(prefsAtom, showingTheme(get(prefsAtom), slug, get(systemSchemeAtom)))
 })
 
 /** Theme colours as canvas code needs them: each one a plain, resolved colour. */
@@ -174,16 +282,32 @@ const readVarsForClass = (className: string): ThemeVars => {
   }
 }
 
+/**
+ * The theme in use and the preferences behind it. `themeSlug`, `themeClass`,
+ * `themeLabel` and `themeVars` name and resolve the shown theme; `setMode`
+ * and `setTheme` are the settings menu's (a theme is picked within the
+ * scheme in use); `setThemeSlug` shows any theme (D15).
+ */
 export function useAppTheme() {
-  const [themeSlug, setThemeSlug] = useAtom(themeAtom)
+  const prefs = useAtomValue(prefsAtom)
+  const setPrefs = useSetAtom(prefsAtom)
+  const setThemeSlug = useSetAtom(showThemeAtom)
+  const systemScheme = useAtomValue(systemSchemeAtom)
+  const scheme = schemeFor(prefs.mode, systemScheme)
+  const themeSlug: ThemeSlug = prefs[scheme]
   const selection = appThemes[themeSlug]
   const themeVars = useMemo(() => readVarsForClass(selection.className), [selection.className])
 
   return {
     themeSlug,
-    setThemeSlug,
     themeClass: selection.className,
     themeLabel: selection.label,
     themeVars,
+    prefs,
+    scheme,
+    systemScheme,
+    setMode: (mode: ColorMode) => setPrefs((prev) => ({ ...prev, mode })),
+    setTheme: (slug: ThemeSlug) => setPrefs((prev) => withTheme(prev, slug)),
+    setThemeSlug,
   }
 }

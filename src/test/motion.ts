@@ -1,6 +1,19 @@
-/** A browser's matchMedia that prefers motion (or not). */
-export const motionMedia = (reduce: boolean) => (query: string) =>
-  ({ matches: reduce && query.includes("reduce"), media: query }) as MediaQueryList
+/**
+ * A browser's matchMedia that prefers motion (or not), on a light system
+ * unless `dark`. Whole MediaQueryLists: the theme follows the system's
+ * scheme through their change events.
+ */
+export const motionMedia =
+  (reduce: boolean, { dark = false }: { dark?: boolean } = {}) =>
+  (query: string) =>
+    ({
+      matches: query.includes("reduce") ? reduce : query.includes("prefers-color-scheme: dark") && dark,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }) as unknown as MediaQueryList
 
 /** A CSS `linear()` easing with evenly spaced stops, as `cssLinear` writes them, at `progress`. */
 export const runLinear = (easing: string, progress: number): number => {

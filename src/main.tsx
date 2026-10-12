@@ -10,11 +10,14 @@ import { useAppTheme } from "./state/useAppTheme.ts"
 const rootElement = document.getElementById("root")!
 
 export const Root = () => {
-  const { themeClass } = useAppTheme()
+  const { themeClass, scheme } = useAppTheme()
 
+  // The theme's class carries its tokens; its scheme lets native parts
+  // (scrollbars, form controls) follow light or dark.
   useEffect(() => {
     document.body.className = themeClass
-  }, [themeClass])
+    document.body.style.colorScheme = scheme
+  }, [themeClass, scheme])
 
   return (
     <StrictMode>
