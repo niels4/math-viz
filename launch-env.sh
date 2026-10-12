@@ -57,9 +57,6 @@ tmux send-keys -t $editor "nvim" C-m
 # -a: auto-trust — worktree paths change per branch and would each prompt
 tmux send-keys -t $agent "pi -a" C-m
 
-# Open the pages dir in the editor for convenience (new viz pages go here)
-tmux send-keys -t $editor ":e src/pages/" C-m
-
 tmux send-keys -t $server1 "npm i && npm run dev -- --port $port --strictPort" C-m
 
 # DISABLE_WTR=1: disk-only server. The user's live-edit loop

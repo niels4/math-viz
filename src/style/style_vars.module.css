@@ -8,7 +8,7 @@
  */
 
 .style_vars {
-  --space-0: 0; /* 0px */
+  --space-xs: 0.125; /* 2px */
   --space-1: 0.25rem; /* 4px */
   --space-2: 0.5rem; /* 8px */
   --space-3: 0.75rem; /* 12px */
@@ -50,9 +50,9 @@
   --tracking-tight: -0.025em; /* large display type, workmark */
   --tracking-normal: 0; /* body copy default */
   --tracking-wide: 0.025em; /* small caps labels, eyebrows, badges */
+  --tracking-extra-wide: 0.1em; /* small caps labels, eyebrows, badges */
 
   /* Border width only; color lives in themes as --border */
-  --border-0: 0;
   --border-thin: 1px;
   --border-thick: 2px;
 
