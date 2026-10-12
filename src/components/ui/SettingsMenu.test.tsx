@@ -104,26 +104,23 @@ describe("SettingsMenu", () => {
   // D8, D4: in System the line names the system's scheme and the list is
   // that scheme's; Light and Dark say so and list their own.
   it.each([
-    { dark: true, mode: "system", help: "Your system is dark right now.", label: "Dark theme" },
-    { dark: false, mode: "system", help: "Your system is light right now.", label: "Light theme" },
-    { dark: true, mode: "light", help: "Always light.", label: "Light theme" },
-    { dark: false, mode: "dark", help: "Always dark.", label: "Dark theme" },
-  ])(
-    "in $mode on a dark=$dark system says “$help” and lists the $label",
-    async ({ dark, mode, help, label }) => {
-      localStorage.setItem(APPEARANCE_KEY, JSON.stringify({ mode, dark: "arctic-ice", light: "clean-teal" }))
-      await renderMenu({ dark })
-      openByClick()
-      expect(byTestId("settings-help")?.textContent).toBe(help)
-      const themes = byTestId("settings-themes")
-      expect(document.getElementById(themes?.getAttribute("aria-labelledby") ?? "")?.textContent).toBe(label)
-      expect(rowsAsRead()).toEqual(
-        label === "Dark theme"
-          ? ["Arctic Ice ✓", "Tron Cyan", "Midnight Violet"]
-          : ["Clean Teal ✓", "Educational Warm", "Sage Editorial"],
-      )
-    },
-  )
+    { os: "dark", mode: "system", help: "Your system is dark right now.", label: "Dark theme" },
+    { os: "light", mode: "system", help: "Your system is light right now.", label: "Light theme" },
+    { os: "dark", mode: "light", help: "Always light.", label: "Light theme" },
+    { os: "light", mode: "dark", help: "Always dark.", label: "Dark theme" },
+  ])("in $mode on a $os system says “$help” and lists the $label", async ({ os, mode, help, label }) => {
+    localStorage.setItem(APPEARANCE_KEY, JSON.stringify({ mode, dark: "arctic-ice", light: "clean-teal" }))
+    await renderMenu({ dark: os === "dark" })
+    openByClick()
+    expect(byTestId("settings-help")?.textContent).toBe(help)
+    const themes = byTestId("settings-themes")
+    expect(document.getElementById(themes?.getAttribute("aria-labelledby") ?? "")?.textContent).toBe(label)
+    expect(rowsAsRead()).toEqual(
+      label === "Dark theme"
+        ? ["Arctic Ice ✓", "Tron Cyan", "Midnight Violet"]
+        : ["Clean Teal ✓", "Educational Warm", "Sage Editorial"],
+    )
+  })
 
   // D2: a pick applies at once and the panel stays open.
   it("applies a pick at once and stays open, for a theme and for a mode", async () => {
