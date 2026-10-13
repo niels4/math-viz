@@ -1,14 +1,21 @@
-import type { ReactNode } from "react"
+import { useId, type ReactNode } from "react"
 
 import { GearIcon, Logo } from "#src/components/icons/icons.tsx"
 
 import style from "./FunctionViewer.module.css"
 
-const ThemeSwitcher = () => {
+const SettingsMenu = () => {
+  const id = useId()
+  const menuId = `settings-menu-${id}`
   return (
-    <button className={style.theme_switcher_button}>
-      <GearIcon />
-    </button>
+    <>
+      <button className={style.settings_menu_button} popoverTarget={menuId}>
+        <GearIcon />
+      </button>
+      <div className={style.settings_menu} id={menuId} popover="auto">
+        Setting menu!
+      </div>
+    </>
   )
 }
 
@@ -22,7 +29,7 @@ const TopBar = () => {
         <h1 className={style.title}>Function Viewer</h1>
         <div className={style.subtitle}>Functions · Transformations</div>
       </div>
-      <ThemeSwitcher />
+      <SettingsMenu />
     </div>
   )
 }
@@ -31,10 +38,15 @@ const Page = ({ children }: { children: ReactNode | ReactNode[] }) => {
   return <div className={style.page}>{children}</div>
 }
 
+const SideBar = () => {
+  return <div className={style.sidebar}>Sidebar!</div>
+}
+
 export const FunctionViewer = () => {
   return (
     <Page>
       <TopBar />
+      <SideBar />
     </Page>
   )
 }

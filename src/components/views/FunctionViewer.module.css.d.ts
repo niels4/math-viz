@@ -4,8 +4,10 @@
 declare const styles: {
   readonly "divider": string;
   readonly "page": string;
+  readonly "settings_menu": string;
+  readonly "settings_menu_button": string;
+  readonly "sidebar": string;
   readonly "subtitle": string;
-  readonly "theme_switcher_button": string;
   readonly "title": string;
   readonly "top_bar": string;
   readonly "wordmark": string;
