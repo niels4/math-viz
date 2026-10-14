@@ -150,10 +150,11 @@
   }
 }
 
-.light_dark_inner {
+.settings_menu_inner {
   display: flex;
   flex-direction: column;
   gap: var(--space-section);
+  margin-top: calc(var(--space-inline) - var(--space-section));
 }
 
 .light_dark_message {

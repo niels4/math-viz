@@ -3,7 +3,6 @@
 // prettier-ignore
 declare const styles: {
   readonly "light_dark_buttons": string;
-  readonly "light_dark_inner": string;
   readonly "light_dark_input": string;
   readonly "light_dark_message": string;
   readonly "light_dark_selector": string;
@@ -12,6 +11,7 @@ declare const styles: {
   readonly "selected_check": string;
   readonly "settings_menu": string;
   readonly "settings_menu_button": string;
+  readonly "settings_menu_inner": string;
   readonly "settings_swatch_curve": string;
   readonly "settings_swatch_point": string;
   readonly "theme_row": string;

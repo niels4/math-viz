@@ -94,7 +94,7 @@ export const SettingsMenu = () => {
 
       <div className={style.settings_menu} id={menuId} popover="auto">
         <LightDarkSelector {...{ value: lightDark, setValue: setLightDark }} />
-        <div className={style.light_dark_inner}>
+        <div className={style.settings_menu_inner}>
           <div className={style.light_dark_message}>{selectionMessage}</div>
           <fieldset className={style.theme_selector}>
             <legend className={style.theme_selector_title}>{resolvedLightDark} theme</legend>
