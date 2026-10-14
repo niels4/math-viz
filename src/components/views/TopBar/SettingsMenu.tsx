@@ -14,6 +14,7 @@ import {
   type SystemColorScheme,
 } from "#src/state/useAppTheme"
 import { slugToLabel } from "#src/util/format.ts"
+import { withViewTransition } from "#src/util/viewTransition.ts"
 
 import { CheckIcon, DarkIcon, LightIcon, SystemIcon } from "./icons"
 import style from "./SettingsMenu.module.css"
@@ -52,7 +53,7 @@ const LightDarkSelector = ({ value, setValue }: LightDarkSelectorProps) => {
                 name="lightDark"
                 value={key}
                 checked={key === value}
-                onChange={() => setValue(key as LightDarkOptionSlug)}
+                onChange={() => withViewTransition(() => setValue(key as LightDarkOptionSlug))}
               />
               <Icon />
               {slugToLabel(key)}
@@ -113,7 +114,7 @@ export const SettingsMenu = () => {
                     name="themeSelect"
                     value={slug}
                     checked={selected}
-                    onChange={() => setThemeSlug(slug)}
+                    onChange={() => withViewTransition(() => setThemeSlug(slug))}
                   />
                   {slugToLabel(slug)}
                   {selected && (
