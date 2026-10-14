@@ -6,8 +6,10 @@ import style from "./TopBar.module.css"
 export const TopBar = () => {
   return (
     <div className={style.top_bar}>
-      <Logo />
-      <h2 className={style.wordmark}>MathViz</h2>
+      <div className={style.wordmark}>
+        <Logo />
+        <h2 className={style.wordmark_text}>MathViz</h2>
+      </div>
       <div className={style.divider} />
       <div>
         <h1 className={style.title}>Function Viewer</h1>

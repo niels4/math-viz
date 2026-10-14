@@ -8,7 +8,7 @@
   color: var(--foreground);
   background: var(--secondary);
   border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-circle);
   cursor: pointer;
   anchor-name: --settings-menu;
   transition:
@@ -38,7 +38,7 @@
   margin: 0;
 
   /* position */
-  margin-top: var(--space-2);
+  margin-top: var(--space-inline);
   position: fixed;
   position-anchor: --settings-menu;
   top: anchor(bottom);
@@ -46,7 +46,10 @@
 
   /* outline box */
   width: 19rem;
-  padding: var(--space-3);
+  padding: var(--space-inset);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-section);
   background: var(--card);
   color: var(--foreground);
   border: 1px solid var(--border);
@@ -82,7 +85,7 @@
 .light_dark_selector {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-inline);
   border: 0;
   margin: 0;
   padding: 0;
@@ -93,19 +96,19 @@
 }
 
 .light_dark_title {
-  padding: 0;
+  padding: 0 var(--space-inset);
   font-size: var(--text-label);
   font-weight: 700;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--foreground-muted);
-  margin-bottom: var(--space-2);
-  margin-left: var(--space-2);
+  margin-bottom: var(--space-inline);
 }
 
 .light_dark_buttons {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  height: 36px;
   border-radius: var(--radius-card);
   overflow: hidden;
   border: 1px solid var(--border);
@@ -117,8 +120,8 @@
 
 .light_dark_input {
   display: flex;
-  gap: var(--space-2);
-  padding: var(--space-3) 0;
+  gap: var(--space-inline);
+  padding: 0 var(--space-inline);
   font-size: var(--text-control);
   font-weight: 600;
   align-items: center;
@@ -150,13 +153,11 @@
 .light_dark_inner {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  margin: var(--space-2);
-  margin-bottom: 0;
-  margin-right: 0;
+  gap: var(--space-section);
 }
 
 .light_dark_message {
+  padding: 0 var(--space-inset);
   font-size: var(--text-help);
   color: var(--foreground-muted);
 }
@@ -189,20 +190,21 @@
 }
 
 .theme_selector_title {
-  padding: 0;
+  padding: 0 var(--space-inset);
   font-size: var(--text-label);
   font-weight: 700;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--foreground-muted);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-inline);
 }
 
 .theme_row {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2);
+  height: 36px;
+  gap: var(--space-inline);
+  padding: 0 var(--space-inset);
   font-size: var(--text-body);
   border-radius: var(--radius-card-inset);
 

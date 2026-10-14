@@ -1,6 +1,7 @@
 .page {
   display: grid;
-  padding: var(--space-6);
+  padding: var(--space-section);
+  gap: var(--space-section);
   grid-template-rows: max-content 1fr;
   grid-template-columns: 400px 1fr;
 }
@@ -9,6 +10,5 @@
   background: var(--background-muted);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: var(--space-3) var(--space-4);
-  margin-top: var(--space-4);
+  padding: var(--space-card);
 }

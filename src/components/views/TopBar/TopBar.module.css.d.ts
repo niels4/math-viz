@@ -7,5 +7,6 @@ declare const styles: {
   readonly "title": string;
   readonly "top_bar": string;
   readonly "wordmark": string;
+  readonly "wordmark_text": string;
 };
 export = styles;
