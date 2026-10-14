@@ -1,12 +1,13 @@
 import cn from "classnames"
-import { useAtomValue } from "jotai"
-import { useId, useState } from "react"
+import { useAtom, useAtomValue } from "jotai"
+import { useId } from "react"
 
 import { GearIcon } from "#src/components/icons/icons.tsx"
 import {
-  appThemes,
+  appThemeClasses,
   DARK_THEME_SLUGS,
   LIGHT_THEME_SLUGS,
+  selectedLightDarkAtom,
   systemColorSchemeAtom,
   useAppTheme,
   type LightDarkOptionSlug,
@@ -74,7 +75,7 @@ function ThemeSwatch() {
 
 export const SettingsMenu = () => {
   const { themeSlug, setThemeSlug } = useAppTheme()
-  const [lightDark, setLightDark] = useState<LightDarkOptionSlug>("system")
+  const [lightDark, setLightDark] = useAtom(selectedLightDarkAtom)
   const systemColorScheme = useAtomValue(systemColorSchemeAtom)
 
   const selectionMessage = getLightDarkSelectionMessage(lightDark, systemColorScheme)
@@ -103,7 +104,7 @@ export const SettingsMenu = () => {
               return (
                 <label
                   key={slug}
-                  className={cn(style.theme_row, appThemes[slug].className, { [style.selected]: selected })}
+                  className={cn(style.theme_row, appThemeClasses[slug], { [style.selected]: selected })}
                 >
                   <ThemeSwatch />
 

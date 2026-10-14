@@ -153,6 +153,7 @@
   gap: var(--space-3);
   margin: var(--space-2);
   margin-bottom: 0;
+  margin-right: 0;
 }
 
 .light_dark_message {

@@ -1,6 +1,6 @@
-import { useAtom, atom, getDefaultStore } from "jotai"
+import { atom, getDefaultStore, useAtomValue, useSetAtom } from "jotai"
 import { atomWithStorage, createJSONStorage } from "jotai/utils"
-import { useMemo } from "react"
+import { useCallback, useMemo } from "react"
 
 import arcticTheme from "#src/style/themes/mathviz_arctic_ice.module.css"
 import tealTheme from "#src/style/themes/mathviz_clean_teal.module.css"
@@ -15,6 +15,13 @@ export type SystemColorScheme = "dark" | "light"
 
 export type LightDarkOptionSlug = "system" | SystemColorScheme
 
+export const DARK_THEME_SLUGS = ["arctic-ice", "tron-cyan", "midnight-violet"] as const
+export const LIGHT_THEME_SLUGS = ["clean-teal", "educational-warm", "sage-editorial"] as const
+
+type DarkThemeSlug = (typeof DARK_THEME_SLUGS)[number]
+type LightThemeSlug = (typeof LIGHT_THEME_SLUGS)[number]
+export type ThemeSlug = DarkThemeSlug | LightThemeSlug
+
 const systemColorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)")
 const getSystemColorScheme = (query: MediaQueryList | MediaQueryListEvent): SystemColorScheme =>
   query.matches ? "dark" : "light"
@@ -28,32 +35,39 @@ systemColorSchemeQuery.addEventListener("change", (e) => {
   atomStore.set(systemColorSchemeAtom, newScheme)
 })
 
-export const DARK_THEME_SLUGS = ["arctic-ice", "tron-cyan", "midnight-violet"] as const
-export const LIGHT_THEME_SLUGS = ["clean-teal", "educational-warm", "sage-editorial"] as const
+export const selectedLightDarkAtom = atom<LightDarkOptionSlug>("system")
+const selectedDarkThemeAtom = atom<DarkThemeSlug>(DARK_THEME_SLUGS[0])
+const selectedLightThemeAtom = atom<LightThemeSlug>(LIGHT_THEME_SLUGS[0])
+
+const appThemeAtom = atom<ThemeSlug>((get) => {
+  const systemColorScheme = get(systemColorSchemeAtom)
+  const lightDark = get(selectedLightDarkAtom)
+  // this get function doesnt seem to trigger when lightDark changes
+  const resolvedLightDark: SystemColorScheme = lightDark === "system" ? systemColorScheme : lightDark
+  return resolvedLightDark === "dark" ? get(selectedDarkThemeAtom) : get(selectedLightThemeAtom)
+})
 
 const DEFAULT_THEME = DARK_THEME_SLUGS[1]
-
-export type ThemeSlug = (typeof DARK_THEME_SLUGS)[number] | (typeof LIGHT_THEME_SLUGS)[number]
 
 export type ThemeDef = {
   label: string
   className: string
 }
 
-export const appThemes: Record<ThemeSlug, ThemeDef> = {
-  "arctic-ice": { label: "Arctic Ice", className: arcticTheme.theme },
-  "tron-cyan": { label: "Tron Cyan", className: tronTheme.theme },
-  "midnight-violet": { label: "Midnight Violet", className: violetTheme.theme },
-  "clean-teal": { label: "Clean Teal", className: tealTheme.theme },
-  "educational-warm": { label: "Educational Warm", className: warmTheme.theme },
-  "sage-editorial": { label: "Sage Editorial", className: sageTheme.theme },
+export const appThemeClasses: Record<ThemeSlug, string> = {
+  "arctic-ice": arcticTheme.theme,
+  "tron-cyan": tronTheme.theme,
+  "midnight-violet": violetTheme.theme,
+  "clean-teal": tealTheme.theme,
+  "educational-warm": warmTheme.theme,
+  "sage-editorial": sageTheme.theme,
 } as const
 
 export const isThemeSlug = (slug: string | undefined | null): slug is ThemeSlug => {
   if (slug == null) {
     return false
   }
-  return Object.hasOwn(appThemes, slug)
+  return Object.hasOwn(appThemeClasses, slug)
 }
 
 const jsonStorage = createJSONStorage<ThemeSlug>(() => localStorage)
@@ -168,15 +182,32 @@ const readVarsForClass = (className: string): ThemeVars => {
 }
 
 export function useAppTheme() {
-  const [themeSlug, setThemeSlug] = useAtom(themeAtom)
-  const selection = appThemes[themeSlug]
-  const themeVars = useMemo(() => readVarsForClass(selection.className), [selection.className])
+  const systemColorScheme = useAtomValue(systemColorSchemeAtom)
+  const lightDark = useAtomValue(selectedLightDarkAtom)
+  const setDarkThemeSlug = useSetAtom(selectedDarkThemeAtom)
+  const setLightThemeSlug = useSetAtom(selectedLightThemeAtom)
+  const themeSlug = useAtomValue(appThemeAtom)
+
+  const setThemeSlug = useCallback(
+    (slug: ThemeSlug) => {
+      console.log("setting theme slug", slug, systemColorScheme)
+      const resolvedLightDark: SystemColorScheme = lightDark === "system" ? systemColorScheme : lightDark
+      if (resolvedLightDark === "dark") {
+        setDarkThemeSlug(slug as DarkThemeSlug)
+      } else {
+        setLightThemeSlug(slug as LightThemeSlug)
+      }
+    },
+    [systemColorScheme, lightDark, setDarkThemeSlug, setLightThemeSlug],
+  )
+
+  const themeClass = appThemeClasses[themeSlug]
+  const themeVars = useMemo(() => readVarsForClass(themeClass), [themeClass])
 
   return {
     themeSlug,
     setThemeSlug,
-    themeClass: selection.className,
-    themeLabel: selection.label,
+    themeClass,
     themeVars,
   }
 }
