@@ -73,7 +73,7 @@ function ThemeSwatch() {
 }
 
 export const SettingsMenu = () => {
-  const { themeSlug } = useAppTheme()
+  const { themeSlug, setThemeSlug } = useAppTheme()
   const [lightDark, setLightDark] = useState<LightDarkOptionSlug>("system")
   const systemColorScheme = useAtomValue(systemColorSchemeAtom)
 
@@ -95,27 +95,35 @@ export const SettingsMenu = () => {
         <LightDarkSelector {...{ value: lightDark, setValue: setLightDark }} />
         <div className={style.light_dark_inner}>
           <div className={style.light_dark_message}>{selectionMessage}</div>
-          <div className={style.light_dark_subtitle}>{resolvedLightDark} theme</div>
-          <div className={style.theme_selector}>
+          <fieldset className={style.theme_selector}>
+            <legend className={style.theme_selector_title}>{resolvedLightDark} theme</legend>
             {themeSlugs.map((slug) => {
               const selected = slug === themeSlug
 
               return (
-                <div
+                <label
                   key={slug}
                   className={cn(style.theme_row, appThemes[slug].className, { [style.selected]: selected })}
                 >
                   <ThemeSwatch />
+
+                  <input
+                    type="radio"
+                    name="themeSelect"
+                    value={slug}
+                    checked={selected}
+                    onChange={() => setThemeSlug(slug)}
+                  />
                   {slugToLabel(slug)}
                   {selected && (
                     <div className={style.selected_check}>
                       <CheckIcon />
                     </div>
                   )}
-                </div>
+                </label>
               )
             })}
-          </div>
+          </fieldset>
         </div>
       </div>
     </>

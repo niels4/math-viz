@@ -7,7 +7,6 @@ declare const styles: {
   readonly "light_dark_input": string;
   readonly "light_dark_message": string;
   readonly "light_dark_selector": string;
-  readonly "light_dark_subtitle": string;
   readonly "light_dark_title": string;
   readonly "selected": string;
   readonly "selected_check": string;
@@ -17,6 +16,7 @@ declare const styles: {
   readonly "settings_swatch_point": string;
   readonly "theme_row": string;
   readonly "theme_selector": string;
+  readonly "theme_selector_title": string;
   readonly "theme_swatch": string;
 };
 export = styles;
