@@ -57,8 +57,8 @@ html {
 /* *** */
 
 /* Load app fonts here — vendored woff2, offline-first. Families stay
- * usable everywhere (including canvas ctx.font); the per-page .font
- * wrappers in src/style/fonts/* still own which family a section uses. */
+ * usable everywhere (including canvas ctx.font); --font-* stacks in
+ * style_vars.module.css pick which family a section uses. */
 
 @font-face {
   font-family: "Work Sans";

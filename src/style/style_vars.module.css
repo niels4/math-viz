@@ -29,7 +29,7 @@
   --radius-full: 999px; /* pill */
   --radius-round: 50%; /* circle */
 
-  /* Type: stacks match src/style/fonts/* modules */
+  /* Type: stacks match the @font-face families in global.css */
   --font-sans: "Work Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-serif: "STIX Two Text", Georgia, "Times New Roman", serif;
   --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -49,7 +49,7 @@
   /* Tracking = letter-spacing: horizontal density of characters */
   --tracking-tight: -0.025em; /* large display type, workmark */
   --tracking-normal: 0; /* body copy default */
-  --tracking-wide: 0.025em; /* small caps labels, eyebrows, badges */
+  --tracking-wide: 0.035em; /* small caps labels, eyebrows, badges */
   --tracking-extra-wide: 0.1em; /* small caps labels, eyebrows, badges */
 
   /* Border width only; color lives in themes as --border */
