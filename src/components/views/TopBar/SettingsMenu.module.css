@@ -98,7 +98,7 @@
 .light_dark_title {
   padding: 0 var(--space-inset);
   font-size: var(--text-label);
-  font-weight: 700;
+  font-weight: var(--weight-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--foreground-muted);
@@ -123,7 +123,7 @@
   gap: var(--space-inline);
   padding: 0 var(--space-inline);
   font-size: var(--text-control);
-  font-weight: 600;
+  font-weight: var(--weight-strong);
   align-items: center;
   justify-content: center;
 
@@ -193,7 +193,7 @@
 .theme_selector_title {
   padding: 0 var(--space-inset);
   font-size: var(--text-label);
-  font-weight: 700;
+  font-weight: var(--weight-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--foreground-muted);
@@ -214,7 +214,7 @@
   }
 
   &.selected {
-    font-weight: 600;
+    font-weight: var(--weight-strong);
   }
 
   input {

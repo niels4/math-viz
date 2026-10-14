@@ -34,6 +34,11 @@
   --text-help: 0.8125rem; /* 13px - secondary explanatory text in menus */
   --text-label: 0.75rem; /* 12px - caps labels: view subtitle, menu section labels */
 
+  /* Weight by role. 400 is the default and has no var. */
+  --weight-heading: 700; /* wordmark, view title */
+  --weight-strong: 600; /* a control or a selection: segmented options, selected theme row, view subtitle */
+  --weight-label: 800; /* caps section labels in menus */
+
   /* Tracking = letter-spacing. Uppercase text at default spacing reads
    * cramped; this opens it up. Mixed-case text needs none. */
   --tracking-label: 0.08em; /* every uppercase label: view subtitle, menu section labels */
