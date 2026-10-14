@@ -11,7 +11,7 @@ for arg in "$@"; do
   esac
 done
 
-session="math-viz-$(git branch --show-current)"
+session="math-viz2-$(git branch --show-current)"
 
 if tmux has-session -t "$session" 2>/dev/null; then
   if [[ $detach -eq 1 ]]; then
