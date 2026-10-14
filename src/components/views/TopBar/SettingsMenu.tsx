@@ -60,7 +60,9 @@ const LightDarkSelector = () => {
         })}
       </div>
 
-      <div>{selectionMessage}</div>
+      <div className={style.light_dark_inner}>
+        <div className={style.light_dark_message}>{selectionMessage}</div>
+      </div>
     </fieldset>
   )
 }
