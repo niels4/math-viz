@@ -18,6 +18,26 @@ HTMLCanvasElement.prototype.setPointerCapture = () => {}
 HTMLCanvasElement.prototype.releasePointerCapture = () => {}
 HTMLCanvasElement.prototype.hasPointerCapture = () => false
 
+// jsdom has no matchMedia (no media query engine). Tests that import
+// the theme state need it to exist. Defaults every test to light.
+if (typeof window.matchMedia !== "function") {
+  const stubQuery = (query: string): MediaQueryList =>
+    ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }) as unknown as MediaQueryList
+
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    configurable: true,
+    value: stubQuery,
+  })
+}
+
 // make sure we clean up the screen after every test
 afterEach(() => {
   cleanup()

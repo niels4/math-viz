@@ -1,32 +1,42 @@
-import { useEffect, useId, useState } from "react"
+import { useAtomValue } from "jotai"
+import { useId, useState } from "react"
 
 import { GearIcon } from "#src/components/icons/icons.tsx"
+import {
+  systemColorSchemeAtom,
+  type LightDarkOptionSlug,
+  type SystemColorScheme,
+} from "#src/state/useAppTheme"
 
+import { DarkIcon, LightIcon, SystemIcon } from "./icons"
 import style from "./SettingsMenu.module.css"
-
-const PlaceholderIcon = () => {
-  return <span className={style.icon_placeholder} />
-}
-
-type LightDarkSlug = "system" | "dark" | "light"
 
 type OptionWithIcon = {
   label: string
   Icon: React.ComponentType
 }
 
-const lightDarkOptions: Record<LightDarkSlug, OptionWithIcon> = {
-  system: { label: "System", Icon: PlaceholderIcon },
-  dark: { label: "Dark", Icon: PlaceholderIcon },
-  light: { label: "Light", Icon: PlaceholderIcon },
+const lightDarkOptions: Record<LightDarkOptionSlug, OptionWithIcon> = {
+  system: { label: "System", Icon: SystemIcon },
+  dark: { label: "Dark", Icon: DarkIcon },
+  light: { label: "Light", Icon: LightIcon },
 } as const
 
-const LightDarkSelector = () => {
-  const [lightDark, setLightDark] = useState<LightDarkSlug>("system")
+const getLightDarkSelectionMessage = (
+  lightDark: LightDarkOptionSlug,
+  systemColorScheme: SystemColorScheme,
+): string => {
+  if (lightDark === "system") {
+    return `Your system is ${systemColorScheme} right now.`
+  }
+  return `Always ${lightDark}.`
+}
 
-  useEffect(() => {
-    console.log("lightdark option:", lightDark)
-  }, [lightDark])
+const LightDarkSelector = () => {
+  const systemColorScheme = useAtomValue(systemColorSchemeAtom)
+  const [lightDark, setLightDark] = useState<LightDarkOptionSlug>("system")
+
+  const selectionMessage = getLightDarkSelectionMessage(lightDark, systemColorScheme)
 
   return (
     <fieldset className={style.light_dark_selector}>
@@ -41,7 +51,7 @@ const LightDarkSelector = () => {
                 name="lightDark"
                 value={key}
                 checked={key === lightDark}
-                onChange={() => setLightDark(key as LightDarkSlug)}
+                onChange={() => setLightDark(key as LightDarkOptionSlug)}
               />
               <Icon />
               {label}
@@ -50,7 +60,7 @@ const LightDarkSelector = () => {
         })}
       </div>
 
-      <div>{lightDark}</div>
+      <div>{selectionMessage}</div>
     </fieldset>
   )
 }

@@ -1,4 +1,4 @@
-import { useAtom } from "jotai"
+import { useAtom, atom, getDefaultStore } from "jotai"
 import { atomWithStorage, createJSONStorage } from "jotai/utils"
 import { useMemo } from "react"
 
@@ -8,6 +8,25 @@ import warmTheme from "#src/style/themes/mathviz_educational_warm.module.css"
 import violetTheme from "#src/style/themes/mathviz_midnight_violet.module.css"
 import sageTheme from "#src/style/themes/mathviz_sage_editorial.module.css"
 import tronTheme from "#src/style/themes/mathviz_tron_cyan.module.css"
+
+const atomStore = getDefaultStore()
+
+export type SystemColorScheme = "dark" | "light"
+
+export type LightDarkOptionSlug = "system" | SystemColorScheme
+
+const systemColorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)")
+const getSystemColorScheme = (query: MediaQueryList | MediaQueryListEvent): SystemColorScheme =>
+  query.matches ? "dark" : "light"
+
+const initialSystemColorScheme = getSystemColorScheme(systemColorSchemeQuery)
+
+export const systemColorSchemeAtom = atom(initialSystemColorScheme)
+
+systemColorSchemeQuery.addEventListener("change", (e) => {
+  const newScheme = getSystemColorScheme(e)
+  atomStore.set(systemColorSchemeAtom, newScheme)
+})
 
 export const DARK_THEME_SLUGS = ["arctic-ice", "tron-cyan", "midnight-violet"] as const
 export const LIGHT_THEME_SLUGS = ["clean-teal", "educational-warm", "sage-editorial"] as const
