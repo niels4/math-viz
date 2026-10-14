@@ -18,9 +18,51 @@ export type LightDarkOptionSlug = "system" | SystemColorScheme
 export const DARK_THEME_SLUGS = ["arctic-ice", "tron-cyan", "midnight-violet"] as const
 export const LIGHT_THEME_SLUGS = ["clean-teal", "educational-warm", "sage-editorial"] as const
 
-type DarkThemeSlug = (typeof DARK_THEME_SLUGS)[number]
-type LightThemeSlug = (typeof LIGHT_THEME_SLUGS)[number]
+export type DarkThemeSlug = (typeof DARK_THEME_SLUGS)[number]
+export type LightThemeSlug = (typeof LIGHT_THEME_SLUGS)[number]
 export type ThemeSlug = DarkThemeSlug | LightThemeSlug
+
+export const isLightDarkOptionSlug = (slug: unknown): slug is LightDarkOptionSlug =>
+  slug === "system" || slug === "dark" || slug === "light"
+
+export const isDarkThemeSlug = (slug: unknown): slug is DarkThemeSlug =>
+  typeof slug === "string" && (DARK_THEME_SLUGS as readonly string[]).includes(slug)
+
+export const isLightThemeSlug = (slug: unknown): slug is LightThemeSlug =>
+  typeof slug === "string" && (LIGHT_THEME_SLUGS as readonly string[]).includes(slug)
+
+/** localStorage with validation: corrupt or foreign values fall back to the initial value. */
+const storageFor = <T>(isValid: (value: unknown) => value is T) => {
+  const jsonStorage = createJSONStorage<T>(() => localStorage)
+  return {
+    getItem: (key: string, initialValue: T): T => {
+      try {
+        const stored = jsonStorage.getItem(key, initialValue)
+        return isValid(stored) ? stored : initialValue
+      } catch {
+        return initialValue
+      }
+    },
+    setItem: (key: string, value: T): void => {
+      jsonStorage.setItem(key, value)
+    },
+    removeItem: (key: string): void => {
+      jsonStorage.removeItem(key)
+    },
+    subscribe: (key: string, callback: (value: T) => void, initialValue: T) => {
+      if (jsonStorage.subscribe === undefined) {
+        return undefined
+      }
+      return jsonStorage.subscribe(
+        key,
+        (value) => {
+          callback(isValid(value) ? value : initialValue)
+        },
+        initialValue,
+      )
+    },
+  }
+}
 
 const systemColorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)")
 const getSystemColorScheme = (query: MediaQueryList | MediaQueryListEvent): SystemColorScheme =>
@@ -35,19 +77,35 @@ systemColorSchemeQuery.addEventListener("change", (e) => {
   atomStore.set(systemColorSchemeAtom, newScheme)
 })
 
-export const selectedLightDarkAtom = atom<LightDarkOptionSlug>("system")
-const selectedDarkThemeAtom = atom<DarkThemeSlug>(DARK_THEME_SLUGS[0])
-const selectedLightThemeAtom = atom<LightThemeSlug>(LIGHT_THEME_SLUGS[0])
+/**
+ * The three persisted picks. On login atomWithStorage rehydrates them and
+ * appThemeAtom derives the current theme — no single theme value stored.
+ */
+export const selectedLightDarkAtom = atomWithStorage<LightDarkOptionSlug>(
+  "mathviz-light-dark",
+  "system",
+  storageFor(isLightDarkOptionSlug),
+  { getOnInit: true },
+)
+export const selectedDarkThemeAtom = atomWithStorage<DarkThemeSlug>(
+  "mathviz-dark-theme",
+  DARK_THEME_SLUGS[0],
+  storageFor(isDarkThemeSlug),
+  { getOnInit: true },
+)
+export const selectedLightThemeAtom = atomWithStorage<LightThemeSlug>(
+  "mathviz-light-theme",
+  LIGHT_THEME_SLUGS[0],
+  storageFor(isLightThemeSlug),
+  { getOnInit: true },
+)
 
 const appThemeAtom = atom<ThemeSlug>((get) => {
   const systemColorScheme = get(systemColorSchemeAtom)
   const lightDark = get(selectedLightDarkAtom)
-  // this get function doesnt seem to trigger when lightDark changes
   const resolvedLightDark: SystemColorScheme = lightDark === "system" ? systemColorScheme : lightDark
   return resolvedLightDark === "dark" ? get(selectedDarkThemeAtom) : get(selectedLightThemeAtom)
 })
-
-const DEFAULT_THEME = DARK_THEME_SLUGS[1]
 
 export type ThemeDef = {
   label: string
@@ -69,46 +127,6 @@ export const isThemeSlug = (slug: string | undefined | null): slug is ThemeSlug 
   }
   return Object.hasOwn(appThemeClasses, slug)
 }
-
-const jsonStorage = createJSONStorage<ThemeSlug>(() => localStorage)
-
-const validatedStorage = {
-  getItem: (key: string, initialValue: ThemeSlug): ThemeSlug => {
-    try {
-      const stored = jsonStorage.getItem(key, initialValue)
-      return isThemeSlug(stored) ? stored : initialValue
-    } catch {
-      return initialValue
-    }
-  },
-  setItem: (key: string, value: ThemeSlug): void => {
-    jsonStorage.setItem(key, value)
-  },
-  removeItem: (key: string): void => {
-    jsonStorage.removeItem(key)
-  },
-  subscribe: (key: string, callback: (value: ThemeSlug) => void, initialValue: ThemeSlug) => {
-    if (jsonStorage.subscribe === undefined) {
-      return undefined
-    }
-    return jsonStorage.subscribe(
-      key,
-      (value) => {
-        callback(isThemeSlug(value) ? value : initialValue)
-      },
-      initialValue,
-    )
-  },
-}
-
-/**
- * Shared theme setting. Any view can `useAtomValue(themeAtom)` to read
- * or `useSetAtom(themeAtom)` to write — no prop drilling, no context.
- * Persisted to localStorage so the choice survives reloads.
- */
-export const themeAtom = atomWithStorage<ThemeSlug>("mathviz-theme", DEFAULT_THEME, validatedStorage, {
-  getOnInit: true,
-})
 
 /** Theme colours as canvas code needs them: each one a plain, resolved colour. */
 export type ThemeVars = {
@@ -190,7 +208,6 @@ export function useAppTheme() {
 
   const setThemeSlug = useCallback(
     (slug: ThemeSlug) => {
-      console.log("setting theme slug", slug, systemColorScheme)
       const resolvedLightDark: SystemColorScheme = lightDark === "system" ? systemColorScheme : lightDark
       if (resolvedLightDark === "dark") {
         setDarkThemeSlug(slug as DarkThemeSlug)
