@@ -3,23 +3,23 @@ import { useId, useState } from "react"
 
 import { GearIcon } from "#src/components/icons/icons.tsx"
 import {
+  DARK_THEME_SLUGS,
+  LIGHT_THEME_SLUGS,
   systemColorSchemeAtom,
+  useAppTheme,
   type LightDarkOptionSlug,
   type SystemColorScheme,
+  type ThemeSlug,
 } from "#src/state/useAppTheme"
+import { slugToLabel } from "#src/util/format.ts"
 
-import { DarkIcon, LightIcon, SystemIcon } from "./icons"
+import { CheckIcon, DarkIcon, LightIcon, SystemIcon } from "./icons"
 import style from "./SettingsMenu.module.css"
 
-type OptionWithIcon = {
-  label: string
-  Icon: React.ComponentType
-}
-
-const lightDarkOptions: Record<LightDarkOptionSlug, OptionWithIcon> = {
-  system: { label: "System", Icon: SystemIcon },
-  dark: { label: "Dark", Icon: DarkIcon },
-  light: { label: "Light", Icon: LightIcon },
+const lightDarkOptions: Record<LightDarkOptionSlug, React.ComponentType> = {
+  system: SystemIcon,
+  dark: DarkIcon,
+  light: LightIcon,
 } as const
 
 const getLightDarkSelectionMessage = (
@@ -32,44 +32,57 @@ const getLightDarkSelectionMessage = (
   return `Always ${lightDark}.`
 }
 
-const LightDarkSelector = () => {
-  const systemColorScheme = useAtomValue(systemColorSchemeAtom)
-  const [lightDark, setLightDark] = useState<LightDarkOptionSlug>("system")
-
-  const selectionMessage = getLightDarkSelectionMessage(lightDark, systemColorScheme)
-
+type LightDarkSelectorProps = {
+  value: LightDarkOptionSlug
+  setValue: (value: LightDarkOptionSlug) => void
+}
+const LightDarkSelector = ({ value, setValue }: LightDarkSelectorProps) => {
   return (
     <fieldset className={style.light_dark_selector}>
       <legend className={style.light_dark_title}>Appearance</legend>
 
       <div className={style.light_dark_buttons}>
-        {Object.entries(lightDarkOptions).map(([key, { label, Icon }]) => {
+        {Object.entries(lightDarkOptions).map(([key, Icon]) => {
           return (
             <label key={key} className={style.light_dark_input}>
               <input
                 type="radio"
                 name="lightDark"
                 value={key}
-                checked={key === lightDark}
-                onChange={() => setLightDark(key as LightDarkOptionSlug)}
+                checked={key === value}
+                onChange={() => setValue(key as LightDarkOptionSlug)}
               />
               <Icon />
-              {label}
+              {slugToLabel(key)}
             </label>
           )
         })}
-      </div>
-
-      <div className={style.light_dark_inner}>
-        <div className={style.light_dark_message}>{selectionMessage}</div>
       </div>
     </fieldset>
   )
 }
 
+function ThemeSwatch() {
+  return (
+    <svg viewBox="0 0 30 20" width="30" height="20" aria-hidden="true">
+      <path className={style.settings_swatch_curve} d="M6 4.63Q15 25.37 24 4.63" />
+      <circle className={style.settings_swatch_point} cx="21" cy="10.39" r="2.25" />
+    </svg>
+  )
+}
+
 export const SettingsMenu = () => {
+  const { themeSlug } = useAppTheme()
+  const [lightDark, setLightDark] = useState<LightDarkOptionSlug>("system")
+  const systemColorScheme = useAtomValue(systemColorSchemeAtom)
+
+  const selectionMessage = getLightDarkSelectionMessage(lightDark, systemColorScheme)
+  const resolvedLightDark: SystemColorScheme = lightDark === "system" ? systemColorScheme : lightDark
+
   const id = useId()
   const menuId = `settings-menu-${id}`
+
+  const themeSlugs = resolvedLightDark === "dark" ? DARK_THEME_SLUGS : LIGHT_THEME_SLUGS
 
   return (
     <>
@@ -78,7 +91,27 @@ export const SettingsMenu = () => {
       </button>
 
       <div className={style.settings_menu} id={menuId} popover="auto">
-        <LightDarkSelector />
+        <LightDarkSelector {...{ value: lightDark, setValue: setLightDark }} />
+        <div className={style.light_dark_inner}>
+          <div className={style.light_dark_message}>{selectionMessage}</div>
+          <div className={style.light_dark_subtitle}>{resolvedLightDark} theme</div>
+          <div className={style.theme_selector}>
+            {themeSlugs.map((slug) => {
+              return (
+                <div key={slug} className={style.theme_row}>
+                  <ThemeSwatch />
+                  {slugToLabel(slug)}
+
+                  {slug === themeSlug && (
+                    <div className={style.selected_check}>
+                      <CheckIcon />
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
       </div>
     </>
   )
