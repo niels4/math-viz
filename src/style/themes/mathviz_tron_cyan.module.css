@@ -38,4 +38,5 @@
   --ordinal-10: oklch(0.7845 0.1325 181.91);
   --ordinal-11: oklch(0.7477 0.207 322.16);
   --ordinal-12: oklch(0.9683 0.0069 247.9);
+  --shadow-color: transparent;
 }

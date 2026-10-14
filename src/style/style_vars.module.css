@@ -43,11 +43,8 @@
    * cramped; this opens it up. Mixed-case text needs none. */
   --tracking-label: 0.08em; /* every uppercase label: view subtitle, menu section labels */
 
-  /* Elevation: neutral black alpha so one set works on light and dark */
-  --shadow-none: none;
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
-  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.16);
+  /* Shadow: shape here, color from the theme (transparent on dark themes) */
+  --shadow-card: 0 6px 18px var(--shadow-color); /* top bar, popover */
 
   /* Motion */
   --duration-fast: 160ms;
