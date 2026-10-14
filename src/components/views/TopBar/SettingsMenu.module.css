@@ -7,8 +7,8 @@
   height: 40px;
   color: var(--foreground);
   background: var(--secondary);
-  border: var(--border-thin) solid var(--border);
-  border-radius: var(--radius-round);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
   cursor: pointer;
   anchor-name: --settings-menu;
   transition:
@@ -49,8 +49,8 @@
   padding: var(--space-3);
   background: var(--card);
   color: var(--foreground);
-  border: var(--border-thin) solid var(--border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-lg);
   box-sizing: border-box;
 
@@ -106,7 +106,7 @@
 .light_dark_buttons {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-card);
   overflow: hidden;
   border: 1px solid var(--border);
 
@@ -203,7 +203,7 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-2);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-card-inset);
 
   &:hover {
     background: var(--secondary);

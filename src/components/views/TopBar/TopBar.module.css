@@ -5,7 +5,7 @@
   display: flex;
   gap: var(--space-4);
   align-items: center;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   grid-column: 1 / -1;
 }
 

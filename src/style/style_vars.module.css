@@ -1,14 +1,13 @@
-/* Style vars: shared non-color tokens (spacing, radius, type, border,
+/* Style vars: shared non-color tokens (spacing, radius, type,
  * shadow, motion, layout, z-index, state)
  * Usage: CSS Module, per-page. Import as `import styleVars from "#src/style/style_vars.module.css"`
  * then wrap page root with `className={styleVars.style_vars}` next to the theme.
  * Component CSS consumes these via var(--space-*), var(--radius-*), etc.
  * No utility classes here. Color stays in themes.
- * Radius runs outer to inner so nested cards keep concentric curves.
  */
 
 .style_vars {
-  --space-xs: 0.125; /* 2px */
+  --space-xs: 0.125rem; /* 2px */
   --space-1: 0.25rem; /* 4px */
   --space-2: 0.5rem; /* 8px */
   --space-3: 0.75rem; /* 12px */
@@ -19,15 +18,12 @@
   --space-16: 4rem; /* 64px */
   --space-24: 6rem; /* 96px */
 
-  /* Radius by nesting level, outermost first */
-  --radius-xl: 1.25rem; /* 20px - page section */
-  --radius-lg: 1rem; /* 16px - outer card */
-  --radius-md: 0.75rem; /* 12px - nested card */
-  --radius-sm: 0.5rem; /* 8px - inner well */
-  --radius-xs: 0.375rem; /* 6px - control, chip */
-  --radius-2xs: 0.25rem; /* 4px - innermost, kbd */
-  --radius-full: 999px; /* pill */
-  --radius-round: 50%; /* circle */
+  /* Radius by role. A thing inside a card subtracts its inset from the
+   * card radius so the curves stay concentric. */
+  --radius-card: 4px; /* panels: top bar, sidebar, popover, segmented control */
+  --radius-card-inset: max(0px, calc(var(--radius-card) - 4px)); /* rows padded 4px inside a card */
+  --radius-pill: 999px; /* gear button, search box, chips, switch */
+  --radius-circle: 50%; /* dots, slider handles */
 
   /* Type: stacks match the @font-face families in global.css */
   --font-sans: "Work Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -51,10 +47,6 @@
   --tracking-normal: 0; /* body copy default */
   --tracking-wide: 0.035em; /* small caps labels, eyebrows, badges */
   --tracking-extra-wide: 0.1em; /* small caps labels, eyebrows, badges */
-
-  /* Border width only; color lives in themes as --border */
-  --border-thin: 1px;
-  --border-thick: 2px;
 
   /* Elevation: neutral black alpha so one set works on light and dark */
   --shadow-none: none;
