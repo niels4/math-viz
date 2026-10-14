@@ -1,15 +1,16 @@
+import cn from "classnames"
 import { useAtomValue } from "jotai"
 import { useId, useState } from "react"
 
 import { GearIcon } from "#src/components/icons/icons.tsx"
 import {
+  appThemes,
   DARK_THEME_SLUGS,
   LIGHT_THEME_SLUGS,
   systemColorSchemeAtom,
   useAppTheme,
   type LightDarkOptionSlug,
   type SystemColorScheme,
-  type ThemeSlug,
 } from "#src/state/useAppTheme"
 import { slugToLabel } from "#src/util/format.ts"
 
@@ -64,7 +65,7 @@ const LightDarkSelector = ({ value, setValue }: LightDarkSelectorProps) => {
 
 function ThemeSwatch() {
   return (
-    <svg viewBox="0 0 30 20" width="30" height="20" aria-hidden="true">
+    <svg viewBox="0 0 30 20" width="30" height="20" aria-hidden="true" className={style.theme_swatch}>
       <path className={style.settings_swatch_curve} d="M6 4.63Q15 25.37 24 4.63" />
       <circle className={style.settings_swatch_point} cx="21" cy="10.39" r="2.25" />
     </svg>
@@ -97,12 +98,16 @@ export const SettingsMenu = () => {
           <div className={style.light_dark_subtitle}>{resolvedLightDark} theme</div>
           <div className={style.theme_selector}>
             {themeSlugs.map((slug) => {
+              const selected = slug === themeSlug
+
               return (
-                <div key={slug} className={style.theme_row}>
+                <div
+                  key={slug}
+                  className={cn(style.theme_row, appThemes[slug].className, { [style.selected]: selected })}
+                >
                   <ThemeSwatch />
                   {slugToLabel(slug)}
-
-                  {slug === themeSlug && (
+                  {selected && (
                     <div className={style.selected_check}>
                       <CheckIcon />
                     </div>
