@@ -4,7 +4,7 @@ import { useRef } from "react"
 import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.ts"
 import { useHotReload } from "#src/components/hooks/useHotReload.ts"
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
-import { useQueryParam } from "#src/components/router/query-param-atom.ts"
+import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
 import style from "./CartesianPlain.module.css"
 import { drawCartesianPlane } from "./drawCartesianPlane"

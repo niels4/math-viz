@@ -18,11 +18,6 @@ export type QueryParamDef<T> = QueryParamOptions<T> & {
   equals: (a: T, b: T) => boolean
 }
 
-// Define once per param at module level. One atom per key matches the single
-// URL bar, and nested components share live state without prop drilling.
-// Live values compare exactly. Serialized comparison is URL-only (echo
-// guard, default pruning), never a gate on live updates, so display
-// precision can never clamp gesture precision.
 const defaultEquals = <T>(a: T, b: T): boolean => {
   if (Object.is(a, b)) {
     return true
@@ -33,7 +28,7 @@ const defaultEquals = <T>(a: T, b: T): boolean => {
   return false
 }
 
-export const defineQueryParam = <T>(key: string, options: QueryParamOptions<T>): QueryParamDef<T> => {
+export const queryParamAtom = <T>(key: string, options: QueryParamOptions<T>): QueryParamDef<T> => {
   const { parse, serialize, defaultValue, debounceMs = 200, equals = defaultEquals } = options
   const initial = parse(getCurrentSearchParams().get(key)) ?? defaultValue
   return { key, parse, serialize, defaultValue, debounceMs, equals, atom: atom<T>(initial) }

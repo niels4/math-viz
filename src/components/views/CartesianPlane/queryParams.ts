@@ -1,6 +1,6 @@
-import { defineQueryParam } from "#src/components/router/query-param-atom.ts"
+import { queryParamAtom } from "#src/components/router/queryParamAtom.ts"
 
-export const centerParam = defineQueryParam<[number, number]>("center", {
+export const centerParam = queryParamAtom<[number, number]>("center", {
   parse: (raw) => {
     if (raw == null) {
       return undefined
@@ -18,7 +18,7 @@ export const centerParam = defineQueryParam<[number, number]>("center", {
   debounceMs: 200,
 })
 
-export const scaleParam = defineQueryParam<number>("scale", {
+export const scaleParam = queryParamAtom<number>("scale", {
   parse: (raw) => {
     if (raw == null) {
       return undefined
