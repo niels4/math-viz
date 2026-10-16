@@ -1,6 +1,37 @@
 import { unscaledUnitSize } from "./constants"
 import { drawOverlay } from "./drawOverlay"
 
+type AxisLabel = {
+  unitVal: number
+  ctxVal: number
+}
+
+const drawAxis = (
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  xOrigin: number | null,
+  yOrigin: number | null,
+  xLabels: AxisLabel[],
+  yLabels: AxisLabel[],
+) => {
+  ctx.strokeStyle = "#0a3"
+  ctx.lineWidth = 2
+  if (xOrigin != null) {
+    ctx.beginPath()
+    ctx.moveTo(xOrigin, 0)
+    ctx.lineTo(xOrigin, height)
+    ctx.stroke()
+  }
+
+  if (yOrigin != null) {
+    ctx.beginPath()
+    ctx.moveTo(0, yOrigin)
+    ctx.lineTo(width, yOrigin)
+    ctx.stroke()
+  }
+}
+
 const drawGrid = (
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -15,6 +46,11 @@ const drawGrid = (
   const ctxCenterX = Math.floor(width / 2)
   const ctxCenterY = Math.floor(height / 2)
 
+  let xOrigin: number | null = null
+  let yOrigin: number | null = null
+  const xLabels: AxisLabel[] = []
+  const yLabels: AxisLabel[] = []
+
   const numWidthUnits = Math.ceil(width / unitSize)
   const halfNumWidthUnits = Math.ceil(numWidthUnits / 2) + 1
   const xOffset = (center[0] % 1) * unitSize
@@ -27,23 +63,26 @@ const drawGrid = (
     const x1 = startX + i
     const x2 = startX - i
 
-    ctx.strokeStyle = x1 === 0 ? "#0f0" : "#fff"
+    if (x1 === 0) {
+      xOrigin = ctx1
+    } else if (x2 === 0) {
+      xOrigin = ctx2
+    }
+
+    xLabels.push({ unitVal: x1, ctxVal: ctx1 })
+    if (x1 !== x2) {
+      xLabels.push({ unitVal: x2, ctxVal: ctx2 })
+    }
+
     ctx.beginPath()
     ctx.moveTo(ctx1, 0)
     ctx.lineTo(ctx1, height)
     ctx.stroke()
 
-    ctx.strokeStyle = x2 === 0 ? "#0f0" : "#fff"
     ctx.beginPath()
     ctx.moveTo(ctx2, 0)
     ctx.lineTo(ctx2, height)
     ctx.stroke()
-
-    ctx.textAlign = "center"
-    ctx.textBaseline = "middle"
-    ctx.fillStyle = "hsl(160, 70%, 40%)"
-    ctx.fillText(String(x1), ctx1, ctxCenterY)
-    ctx.fillText(String(x2), ctx2, ctxCenterY)
   }
 
   const numHeightUnits = Math.ceil(height / unitSize)
@@ -58,24 +97,29 @@ const drawGrid = (
     const y1 = startY + i
     const y2 = startY - i
 
-    ctx.strokeStyle = y1 === 0 ? "#0f0" : "#fff"
+    if (y1 === 0) {
+      yOrigin = ctx1
+    } else if (y2 === 0) {
+      yOrigin = ctx2
+    }
+
+    yLabels.push({ unitVal: y1, ctxVal: ctx1 })
+    if (y1 !== y2) {
+      yLabels.push({ unitVal: y2, ctxVal: ctx2 })
+    }
+
     ctx.beginPath()
     ctx.moveTo(0, ctx1)
     ctx.lineTo(width, ctx1)
     ctx.stroke()
 
-    ctx.strokeStyle = y2 === 0 ? "#0f0" : "#fff"
     ctx.beginPath()
     ctx.moveTo(0, ctx2)
     ctx.lineTo(width, ctx2)
     ctx.stroke()
-
-    ctx.textAlign = "center"
-    ctx.textBaseline = "middle"
-    ctx.fillStyle = "hsl(160, 70%, 40%)"
-    ctx.fillText(String(y1), ctxCenterX, ctx1)
-    ctx.fillText(String(y2), ctxCenterX, ctx2)
   }
+
+  drawAxis(ctx, width, height, xOrigin, yOrigin, xLabels, yLabels)
 }
 
 export const drawCartesianPlane = (
@@ -85,7 +129,6 @@ export const drawCartesianPlane = (
   center: [number, number],
   zoom: number,
 ) => {
-  console.log("drawing plane", center, zoom)
   drawGrid(ctx, width, height, center, zoom)
   drawOverlay(ctx, width, height, unscaledUnitSize, zoom)
 
