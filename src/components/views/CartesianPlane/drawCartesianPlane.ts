@@ -1,8 +1,9 @@
 import { drawOverlay } from "./drawOverlay"
 
 const unscaledUnitSize = 25
-const center = [-2.41, 1.32] as const
-const zoom = 1.04
+const center = [0.53, 2.29] as const
+const zoomIn = 4.67
+const zoom = Math.min(Math.max(0.1, zoomIn), 5)
 
 const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
   ctx.strokeStyle = "#fff"
