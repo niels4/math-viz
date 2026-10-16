@@ -105,7 +105,11 @@ export const useSetSearchParams = () => {
         updatedParams.set(key, String(value))
       }
     }
-    const newHash = createFullHash(currentRoute, updatedParams.toString())
+    // URLSearchParams encodes commas as %2C. Commas are valid in queries
+    // and parse back identically, so keep them literal for readable URLs.
+    // Safe: a literal "%2C" in input encodes as %252C, never bare %2C.
+    const searchString = updatedParams.toString().replaceAll(/%2C/gi, ",")
+    const newHash = createFullHash(currentRoute, searchString)
     if (options?.replaceHistory === true) {
       history.replaceState(null, "", `#${newHash}`)
     } else {

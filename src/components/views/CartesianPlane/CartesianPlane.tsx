@@ -1,13 +1,14 @@
-import { useEffect, useState, type RefObject } from "react"
+import { useEffect, type RefObject } from "react"
 import { useRef } from "react"
 
 import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.ts"
 import { useHotReload } from "#src/components/hooks/useHotReload.ts"
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
-import { defineQueryParam, useQueryParam } from "#src/components/router/query-param-atom.ts"
+import { useQueryParam } from "#src/components/router/query-param-atom.ts"
 
 import style from "./CartesianPlain.module.css"
 import { drawCartesianPlane } from "./drawCartesianPlane"
+import { centerParam, zoomParam } from "./queryParams"
 import { usePan } from "./usePan"
 import { useZoom } from "./useZoom"
 
@@ -46,26 +47,13 @@ const useUpdateCanvas = (
   }, [ref, width, height, dpr, center, zoom, draw])
 }
 
-const zoomParam = defineQueryParam<number>("zoom", {
-  parse: (raw) => {
-    if (raw == null) {
-      return undefined
-    }
-    const n = Number(raw)
-    return Number.isFinite(n) && n >= 0.1 && n <= 5 ? n : undefined
-  },
-  serialize: (v) => v.toFixed(3),
-  defaultValue: 0.5,
-  debounceMs: 200,
-})
-
 export const CartesianPlane = () => {
   const ref = useRef<HTMLCanvasElement | null>(null)
   const { width, height } = useResizeObserver(ref)
-  const [center, setCenter] = useState<[number, number]>([0, 0])
+  const [center, setCenter, flushCenter] = useQueryParam(centerParam)
   const [zoom, setZoom] = useQueryParam(zoomParam)
 
-  usePan(ref, setCenter, zoom)
+  usePan(ref, setCenter, zoom, flushCenter)
   useZoom(ref, setZoom)
   useUpdateCanvas(ref, width, height, center, zoom)
 

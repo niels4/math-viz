@@ -8,6 +8,7 @@ export const usePan = (
   ref: RefObject<HTMLCanvasElement | null>,
   setCenter: Dispatch<SetStateAction<[number, number]>>,
   zoom: number,
+  onPanEndFlush?: () => void,
 ) => {
   const prevMouse = useRef<[number, number]>([0, 0])
 
@@ -29,6 +30,7 @@ export const usePan = (
     const onPanEnd = () => {
       window.removeEventListener("mouseup", onPanEnd)
       window.removeEventListener("mousemove", onPanUpdate)
+      onPanEndFlush?.()
     }
 
     const onPanStart = (e: MouseEvent) => {
@@ -45,5 +47,5 @@ export const usePan = (
       window.removeEventListener("mouseup", onPanEnd)
       window.removeEventListener("mousemove", onPanUpdate)
     }
-  }, [ref, zoom, setCenter])
+  }, [ref, zoom, setCenter, onPanEndFlush])
 }
