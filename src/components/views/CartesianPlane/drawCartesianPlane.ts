@@ -1,77 +1,59 @@
-import { formatFixed } from "#src/util/format.ts"
-
-const center = [0, 0]
-const zoom = 10.34
+import { drawOverlay } from "./drawOverlay"
 
 const unscaledUnitSize = 25
+const center = [-1.33, -1.17] as const
+const zoom = 1.04
 
-const scaleWindowRight = 10
-const scaleWindowBottom = 10
-const scaleWindowPadding = 10
-const scaleLegendHeight = 5
-const scaleWindowHeight = scaleLegendHeight + scaleWindowPadding * 2
-
-const drawOverlay = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-  ctx.strokeStyle = "hsl(0, 0%, 30%)"
+const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+  ctx.strokeStyle = "#fff"
   ctx.lineWidth = 1
+  const unitSize = unscaledUnitSize / zoom
 
-  ctx.font = `12px "Roboto Mono"`
-  const scaleText = ` ${formatFixed(2, zoom)} u`
-  const scaleWindowTextWidth = ctx.measureText(scaleText).width
+  const ctxCenterX = Math.floor(width / 2)
+  const numWidthUnits = Math.ceil(width / unitSize)
+  const halfNumWidthUnits = Math.ceil(numWidthUnits / 2)
+  const xOffset = center[0] * unitSize
 
-  const scaleWindowWidth = unscaledUnitSize + scaleWindowTextWidth + scaleWindowPadding * 2
+  for (let i = 0; i < halfNumWidthUnits; i++) {
+    const xDiff = i * unitSize
 
-  ctx.beginPath()
-  ctx.moveTo(width - scaleWindowRight, height - scaleWindowBottom)
-  ctx.roundRect(
-    width - scaleWindowRight,
-    height - scaleWindowBottom,
-    -scaleWindowWidth,
-    -scaleWindowHeight,
-    4,
-  )
-  ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(ctxCenterX + xDiff - xOffset, 0)
+    ctx.lineTo(ctxCenterX + xDiff - xOffset, height)
+    ctx.stroke()
 
-  ctx.lineWidth = 1.5
-  ctx.strokeStyle = "hsl(0, 0%, 100%)"
-  let curX = width - scaleWindowRight - scaleWindowPadding - scaleWindowTextWidth - unscaledUnitSize
-  let curY = height - scaleWindowBottom - scaleWindowPadding - scaleLegendHeight
-  ctx.beginPath()
-  ctx.moveTo(curX, curY)
-  ctx.lineTo(curX, (curY += scaleLegendHeight))
-  ctx.lineTo((curX += unscaledUnitSize), curY)
-  ctx.lineTo(curX, (curY -= scaleLegendHeight))
-  ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(ctxCenterX - xDiff - xOffset, 0)
+    ctx.lineTo(ctxCenterX - xDiff - xOffset, height)
+    ctx.stroke()
+  }
 
-  ctx.textAlign = "left"
-  ctx.textBaseline = "middle"
-  ctx.fillStyle = "hsl(0, 0%, 100%)"
-  curY += scaleLegendHeight / 2
-  ctx.fillText(scaleText, curX, curY)
+  const ctxCenterY = Math.floor(height / 2)
+  const numHeightUnits = Math.ceil(height / unitSize)
+  const halfNumHeightUnits = Math.ceil(numHeightUnits / 2) + 1
+  const yOffset = center[1] * unitSize
+
+  for (let i = 0; i < halfNumHeightUnits; i++) {
+    const yDiff = i * unitSize
+
+    ctx.beginPath()
+    ctx.moveTo(0, ctxCenterY + yDiff + yOffset)
+    ctx.lineTo(width, ctxCenterY + yDiff + yOffset)
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.moveTo(0, ctxCenterY - yDiff + yOffset)
+    ctx.lineTo(width, ctxCenterY - yDiff + yOffset)
+    ctx.stroke()
+  }
 }
 
 export const drawCartesianPlane = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-  ctx.strokeStyle = "#fff"
-  ctx.lineWidth = 1
+  drawGrid(ctx, width, height)
+  drawOverlay(ctx, width, height, unscaledUnitSize, zoom)
 
-  const x0 = Math.floor(width / 2) + 0.5
-  const y0 = Math.floor(height / 2) + 0.5
-
-  ctx.beginPath()
-  ctx.moveTo(0, y0)
-  ctx.lineTo(width, y0)
-  ctx.stroke()
-
-  ctx.beginPath()
-  ctx.moveTo(x0, 0)
-  ctx.lineTo(x0, height)
-  ctx.stroke()
-
-  ctx.strokeStyle = "#0ff"
   ctx.fillStyle = "#0ff"
   ctx.beginPath()
   ctx.arc(width / 2 - 120, height / 2 + 89, 50, 0, Math.PI * 2)
   ctx.fill()
-
-  drawOverlay(ctx, width, height)
 }

@@ -4,4 +4,7 @@
   height: 100%;
   min-width: 0;
   min-height: 0;
+  overflow: visible;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
 }
