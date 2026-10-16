@@ -8,9 +8,9 @@ import { useQueryParam } from "#src/components/router/query-param-atom.ts"
 
 import style from "./CartesianPlain.module.css"
 import { drawCartesianPlane } from "./drawCartesianPlane"
-import { centerParam, zoomParam } from "./queryParams"
+import { centerParam, scaleParam } from "./queryParams"
 import { usePan } from "./usePan"
-import { useZoom } from "./useZoom"
+import { useScale } from "./useScale"
 
 const ctxOptions: CanvasRenderingContext2DSettings = { colorSpace: "display-p3" } as const
 
@@ -19,7 +19,7 @@ const useUpdateCanvas = (
   width: number,
   height: number,
   center: [number, number],
-  zoom: number,
+  scale: number,
 ) => {
   const draw = useHotReload(drawCartesianPlane)
   const dpr = useDevicePixelRatio()
@@ -43,19 +43,19 @@ const useUpdateCanvas = (
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, width, height)
 
-    draw(ctx, width, height, center, zoom)
-  }, [ref, width, height, dpr, center, zoom, draw])
+    draw(ctx, width, height, center, scale)
+  }, [ref, width, height, dpr, center, scale, draw])
 }
 
 export const CartesianPlane = () => {
   const ref = useRef<HTMLCanvasElement | null>(null)
   const { width, height } = useResizeObserver(ref)
   const [center, setCenter, flushCenter] = useQueryParam(centerParam)
-  const [zoom, setZoom] = useQueryParam(zoomParam)
+  const [scale, setScale] = useQueryParam(scaleParam)
 
-  usePan(ref, setCenter, zoom, flushCenter)
-  useZoom(ref, setZoom)
-  useUpdateCanvas(ref, width, height, center, zoom)
+  usePan(ref, setCenter, scale, flushCenter)
+  useScale(ref, setScale)
+  useUpdateCanvas(ref, width, height, center, scale)
 
   return <canvas ref={ref} className={style.cartesian_plane} />
 }

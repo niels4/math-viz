@@ -56,11 +56,11 @@ const drawGrid = (
   width: number,
   height: number,
   center: [number, number],
-  zoom: number,
+  scale: number,
 ) => {
   ctx.strokeStyle = "hsl(0, 0%, 30%)"
   ctx.lineWidth = 1
-  const unitSize = unscaledUnitSize / zoom
+  const unitSize = unscaledUnitSize / scale
 
   const ctxCenterX = Math.floor(width / 2)
   const ctxCenterY = Math.floor(height / 2)
@@ -146,8 +146,8 @@ export const drawCartesianPlane = (
   width: number,
   height: number,
   center: [number, number],
-  zoom: number,
+  scale: number,
 ) => {
-  drawGrid(ctx, width, height, center, zoom)
-  drawOverlay(ctx, width, height, unscaledUnitSize, zoom)
+  drawGrid(ctx, width, height, center, scale)
+  drawOverlay(ctx, width, height, unscaledUnitSize, scale)
 }

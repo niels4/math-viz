@@ -7,7 +7,7 @@ import { unscaledUnitSize } from "./constants"
 export const usePan = (
   ref: RefObject<HTMLCanvasElement | null>,
   setCenter: Dispatch<SetStateAction<[number, number]>>,
-  zoom: number,
+  scale: number,
   onPanEndFlush?: () => void,
 ) => {
   const prevMouse = useRef<[number, number]>([0, 0])
@@ -19,7 +19,7 @@ export const usePan = (
     }
 
     const onPanUpdate = (e: MouseEvent) => {
-      const ctxUnit = unscaledUnitSize / zoom
+      const ctxUnit = unscaledUnitSize / scale
       const xDiff = e.clientX - prevMouse.current[0]
       const yDiff = e.clientY - prevMouse.current[1]
       prevMouse.current[0] = e.clientX
@@ -47,5 +47,5 @@ export const usePan = (
       window.removeEventListener("mouseup", onPanEnd)
       window.removeEventListener("mousemove", onPanUpdate)
     }
-  }, [ref, zoom, setCenter, onPanEndFlush])
+  }, [ref, scale, setCenter, onPanEndFlush])
 }

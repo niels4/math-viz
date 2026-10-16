@@ -18,7 +18,7 @@ export const centerParam = defineQueryParam<[number, number]>("center", {
   debounceMs: 200,
 })
 
-export const zoomParam = defineQueryParam<number>("zoom", {
+export const scaleParam = defineQueryParam<number>("scale", {
   parse: (raw) => {
     if (raw == null) {
       return undefined
@@ -26,7 +26,7 @@ export const zoomParam = defineQueryParam<number>("zoom", {
     const n = Number(raw)
     return Number.isFinite(n) && n >= 0.1 && n <= 5 ? n : undefined
   },
-  serialize: (v) => v.toFixed(3),
+  serialize: (v) => v.toFixed(2),
   defaultValue: 0.5,
   debounceMs: 200,
 })

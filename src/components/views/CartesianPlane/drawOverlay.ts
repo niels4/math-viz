@@ -11,13 +11,13 @@ export const drawOverlay = (
   width: number,
   height: number,
   unscaledUnitSize: number,
-  zoom: number,
+  scale: number,
 ) => {
   ctx.strokeStyle = "hsl(0, 0%, 30%)"
   ctx.lineWidth = 1
 
   ctx.font = `12px "Roboto Mono"`
-  const scaleText = ` ${formatFixed(2, zoom)} u`
+  const scaleText = ` ${formatFixed(2, scale)} u`
   const scaleWindowTextWidth = ctx.measureText(scaleText).width
 
   const scaleWindowWidth = unscaledUnitSize + scaleWindowTextWidth + scaleWindowPadding * 2
