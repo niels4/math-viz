@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState, type RefObject } from "react"
 import { useRef } from "react"
 
 import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.ts"
@@ -7,12 +7,17 @@ import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 
 import style from "./CartesianPlain.module.css"
 import { drawCartesianPlane } from "./drawCartesianPlane"
+import { usePan } from "./usePan"
 
 const ctxOptions: CanvasRenderingContext2DSettings = { colorSpace: "display-p3" } as const
 
-export const CartesianPlane = () => {
-  const ref = useRef<HTMLCanvasElement | null>(null)
-  const { width, height } = useResizeObserver(ref)
+const useUpdateCanvas = (
+  ref: RefObject<HTMLCanvasElement | null>,
+  width: number,
+  height: number,
+  center: [number, number],
+  zoom: number,
+) => {
   const draw = useHotReload(drawCartesianPlane)
   const dpr = useDevicePixelRatio()
 
@@ -35,8 +40,18 @@ export const CartesianPlane = () => {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, width, height)
 
-    draw(ctx, width, height)
-  }, [width, height, dpr, draw])
+    draw(ctx, width, height, center, zoom)
+  }, [ref, width, height, dpr, center, zoom, draw])
+}
+
+export const CartesianPlane = () => {
+  const ref = useRef<HTMLCanvasElement | null>(null)
+  const { width, height } = useResizeObserver(ref)
+  const [center, setCenter] = useState<[number, number]>([0, 0])
+  const [zoom] = useState<number>(0.5)
+
+  usePan(ref, setCenter, zoom)
+  useUpdateCanvas(ref, width, height, center, zoom)
 
   return <canvas ref={ref} className={style.cartesian_plane} />
 }

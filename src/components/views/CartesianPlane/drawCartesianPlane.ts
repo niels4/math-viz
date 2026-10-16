@@ -1,11 +1,13 @@
+import { unscaledUnitSize } from "./constants"
 import { drawOverlay } from "./drawOverlay"
 
-const unscaledUnitSize = 25
-const center = [0.53, 2.29] as const
-const zoomIn = 4.67
-const zoom = Math.min(Math.max(0.1, zoomIn), 5)
-
-const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+const drawGrid = (
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  center: [number, number],
+  zoom: number,
+) => {
   ctx.strokeStyle = "#fff"
   ctx.lineWidth = 1
   const unitSize = unscaledUnitSize / zoom
@@ -76,8 +78,15 @@ const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) 
   }
 }
 
-export const drawCartesianPlane = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-  drawGrid(ctx, width, height)
+export const drawCartesianPlane = (
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  center: [number, number],
+  zoom: number,
+) => {
+  console.log("drawing plane", center)
+  drawGrid(ctx, width, height, center, zoom)
   drawOverlay(ctx, width, height, unscaledUnitSize, zoom)
 
   ctx.fillStyle = "#0ff"
