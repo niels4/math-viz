@@ -6,6 +6,9 @@ type AxisLabel = {
   ctxVal: number
 }
 
+const labelXPadding = 6
+const labelYPadding = 6
+
 const drawAxis = (
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -30,6 +33,22 @@ const drawAxis = (
     ctx.lineTo(width, yOrigin)
     ctx.stroke()
   }
+
+  ctx.font = '12px "Roboto Mono"'
+  ctx.fillStyle = "#fff"
+  ctx.textAlign = "right"
+  ctx.textBaseline = "top"
+
+  for (const { unitVal, ctxVal } of xLabels) {
+    ctx.fillText(String(unitVal), ctxVal - labelXPadding, (yOrigin ?? 20) + labelYPadding)
+  }
+
+  for (const { unitVal, ctxVal } of yLabels) {
+    if (unitVal === 0) {
+      continue
+    }
+    ctx.fillText(String(unitVal), (xOrigin ?? 0) - labelXPadding, ctxVal + labelYPadding)
+  }
 }
 
 const drawGrid = (
@@ -39,7 +58,7 @@ const drawGrid = (
   center: [number, number],
   zoom: number,
 ) => {
-  ctx.strokeStyle = "#fff"
+  ctx.strokeStyle = "hsl(0, 0%, 30%)"
   ctx.lineWidth = 1
   const unitSize = unscaledUnitSize / zoom
 
@@ -131,9 +150,4 @@ export const drawCartesianPlane = (
 ) => {
   drawGrid(ctx, width, height, center, zoom)
   drawOverlay(ctx, width, height, unscaledUnitSize, zoom)
-
-  ctx.fillStyle = "#0ff"
-  ctx.beginPath()
-  ctx.arc(width / 2 - 120, height / 2 + 89, 50, 0, Math.PI * 2)
-  ctx.fill()
 }

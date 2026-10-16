@@ -22,9 +22,8 @@ export const drawOverlay = (
 
   const scaleWindowWidth = unscaledUnitSize + scaleWindowTextWidth + scaleWindowPadding * 2
 
-  ctx.fillStyle = "hsl(0 0%, 20%)"
+  ctx.fillStyle = "hsl(0, 0%, 5%)"
   ctx.beginPath()
-  ctx.moveTo(width - scaleWindowRight, height - scaleWindowBottom)
   ctx.roundRect(
     width - scaleWindowRight,
     height - scaleWindowBottom,
