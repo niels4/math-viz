@@ -151,6 +151,33 @@ describe("queryParamAtom", () => {
       expect(result.current[0]).toBe(7)
       await unmount()
     })
+
+    it("keeps a zoom when a pan writes the url before the zoom does", async () => {
+      await updateLocationHash("#?qp-scale=1")
+      const scaleDef = numberDef("qp-scale")
+      const panDef = numberDef("qp-pan")
+      const { result, unmount } = await renderHook(() => ({
+        scale: useQueryParam(scaleDef),
+        pan: useQueryParam(panDef),
+      }))
+
+      // Zoom to 2. The url keeps scale 1 until the debounce fires.
+      act(() => {
+        result.current.scale[1](2)
+      })
+      // A pan ends and writes the url now, which still says scale 1.
+      act(() => {
+        result.current.pan[1](3, { flush: true })
+      })
+      expect(window.location.hash).toContain("qp-scale=1")
+
+      // The zoom stays at 2, not back to the url's 1.
+      expect(result.current.scale[0]).toBe(2)
+      await wait(50)
+      expect(window.location.hash).toContain("qp-scale=2.00")
+      expect(window.location.hash).toContain("qp-pan=3.00")
+      await unmount()
+    })
   })
 
   describe("tuple params", () => {

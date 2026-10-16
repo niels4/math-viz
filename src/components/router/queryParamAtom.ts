@@ -48,12 +48,22 @@ export const useQueryParam = <T>(def: QueryParamDef<T>) => {
   const [value, setLive] = useAtom(def.atom)
   const setParams = useSetSearchParams()
 
-  // External URL changes (back/forward, manual edit, other writers) flow
-  // into the live atom. Own flushes echo back and hit the equality guard.
+  // When something else changes this key in the URL (back/forward, an edit
+  // in the address bar, another component), copy the new value into the
+  // live atom. When our own flush lands in the URL, the value there already
+  // equals the live value, so nothing changes.
   useEffect(() => {
     const store = getDefaultStore()
+    let lastRaw: string | null | undefined
     const syncFromUrl = (params: URLSearchParams) => {
-      const next = def.parse(params.get(def.key)) ?? def.defaultValue
+      const raw = params.get(def.key)
+      // This listener runs when any param is written, not only this one, so
+      // skip unless this key's text in the URL changed.
+      if (raw === lastRaw) {
+        return
+      }
+      lastRaw = raw
+      const next = def.parse(raw) ?? def.defaultValue
       const current = store.get(def.atom)
       if (!sameSerialized(def, current, next)) {
         store.set(def.atom, next)
