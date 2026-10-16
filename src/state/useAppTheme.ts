@@ -138,6 +138,8 @@ export type ThemeVars = {
   chartLine: string
   chartAccent: string
   chartGrid: string
+  chartGridMajor: string
+  chartAxis: string
   ordinal01: string
   ordinal02: string
   ordinal03: string
@@ -161,6 +163,8 @@ const themeColorMapping: Record<string, keyof ThemeVars> = {
   "--chart-line": "chartLine",
   "--chart-accent": "chartAccent",
   "--chart-grid": "chartGrid",
+  "--chart-grid-major": "chartGridMajor",
+  "--chart-axis": "chartAxis",
   "--ordinal-01": "ordinal01",
   "--ordinal-02": "ordinal02",
   "--ordinal-03": "ordinal03",

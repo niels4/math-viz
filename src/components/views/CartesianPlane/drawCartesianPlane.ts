@@ -1,3 +1,5 @@
+import type { ThemeVars } from "#src/state/useAppTheme.ts"
+
 import { unscaledUnitSize } from "./constants"
 import { drawOverlay } from "./drawOverlay"
 
@@ -17,8 +19,9 @@ const drawAxis = (
   yOrigin: number | null,
   xLabels: AxisLabel[],
   yLabels: AxisLabel[],
+  theme: ThemeVars,
 ) => {
-  ctx.strokeStyle = "#0a3"
+  ctx.strokeStyle = theme.chartAxis
   ctx.lineWidth = 2
   if (xOrigin != null) {
     ctx.beginPath()
@@ -34,8 +37,8 @@ const drawAxis = (
     ctx.stroke()
   }
 
-  ctx.font = '12px "Roboto Mono"'
-  ctx.fillStyle = "#fff"
+  ctx.font = '500 14px "Roboto Mono"'
+  ctx.fillStyle = theme.foregroundMuted
   ctx.textAlign = "right"
   ctx.textBaseline = "top"
 
@@ -57,8 +60,11 @@ const drawGrid = (
   height: number,
   center: [number, number],
   scale: number,
+  theme: ThemeVars,
 ) => {
-  ctx.strokeStyle = "hsl(0, 0%, 30%)"
+  // One grid type for now: these lines carry the labels, so they use the
+  // major token. Minor lines arrive with grid scaling later.
+  ctx.strokeStyle = theme.chartGridMajor
   ctx.lineWidth = 1
   const unitSize = unscaledUnitSize / scale
 
@@ -138,7 +144,7 @@ const drawGrid = (
     ctx.stroke()
   }
 
-  drawAxis(ctx, width, height, xOrigin, yOrigin, xLabels, yLabels)
+  drawAxis(ctx, width, height, xOrigin, yOrigin, xLabels, yLabels, theme)
 }
 
 export const drawCartesianPlane = (
@@ -147,7 +153,8 @@ export const drawCartesianPlane = (
   height: number,
   center: [number, number],
   scale: number,
+  theme: ThemeVars,
 ) => {
-  drawGrid(ctx, width, height, center, scale)
-  drawOverlay(ctx, width, height, unscaledUnitSize, scale)
+  drawGrid(ctx, width, height, center, scale, theme)
+  drawOverlay(ctx, width, height, unscaledUnitSize, scale, theme)
 }

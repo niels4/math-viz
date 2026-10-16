@@ -1,3 +1,5 @@
+import type { ThemeVars } from "#src/state/useAppTheme.ts"
+
 import { formatFixed } from "#src/util/format.ts"
 
 const scaleWindowRight = 10
@@ -12,17 +14,20 @@ export const drawOverlay = (
   height: number,
   unscaledUnitSize: number,
   scale: number,
+  theme: ThemeVars,
 ) => {
-  ctx.strokeStyle = "hsl(0, 0%, 30%)"
+  // chartGrid carries the --border value in every theme, so it rims the
+  // plate the way the reference's var(--border) does.
+  ctx.strokeStyle = theme.chartGrid
   ctx.lineWidth = 1
 
-  ctx.font = `12px "Roboto Mono"`
+  ctx.font = `500 13px "Roboto Mono"`
   const scaleText = ` ${formatFixed(2, scale)} u`
   const scaleWindowTextWidth = ctx.measureText(scaleText).width
 
   const scaleWindowWidth = unscaledUnitSize + scaleWindowTextWidth + scaleWindowPadding * 2
 
-  ctx.fillStyle = "hsl(0, 0%, 5%)"
+  ctx.fillStyle = theme.background
   ctx.beginPath()
   ctx.roundRect(
     width - scaleWindowRight,
@@ -34,8 +39,8 @@ export const drawOverlay = (
   ctx.fill()
   ctx.stroke()
 
-  ctx.lineWidth = 1.5
-  ctx.strokeStyle = "hsl(0, 0%, 100%)"
+  ctx.lineWidth = 2
+  ctx.strokeStyle = theme.foreground
   let curX = width - scaleWindowRight - scaleWindowPadding - scaleWindowTextWidth - unscaledUnitSize
   let curY = height - scaleWindowBottom - scaleWindowPadding - scaleLegendHeight
   ctx.beginPath()
@@ -47,7 +52,7 @@ export const drawOverlay = (
 
   ctx.textAlign = "left"
   ctx.textBaseline = "middle"
-  ctx.fillStyle = "hsl(0, 0%, 100%)"
+  ctx.fillStyle = theme.foregroundMuted
   curY += scaleLegendHeight / 2
   ctx.fillText(scaleText, curX, curY)
 }

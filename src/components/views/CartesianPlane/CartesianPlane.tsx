@@ -5,6 +5,7 @@ import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.t
 import { useHotReload } from "#src/components/hooks/useHotReload.ts"
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
+import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 
 import style from "./CartesianPlain.module.css"
 import { drawCartesianPlane } from "./drawCartesianPlane"
@@ -20,6 +21,7 @@ const useUpdateCanvas = (
   height: number,
   center: [number, number],
   scale: number,
+  theme: ThemeVars,
 ) => {
   const draw = useHotReload(drawCartesianPlane)
   const dpr = useDevicePixelRatio()
@@ -43,8 +45,8 @@ const useUpdateCanvas = (
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, width, height)
 
-    draw(ctx, width, height, center, scale)
-  }, [ref, width, height, dpr, center, scale, draw])
+    draw(ctx, width, height, center, scale, theme)
+  }, [ref, width, height, dpr, center, scale, theme, draw])
 }
 
 export const CartesianPlane = () => {
@@ -52,10 +54,11 @@ export const CartesianPlane = () => {
   const { width, height } = useResizeObserver(ref)
   const [center, setCenter, flushCenter] = useQueryParam(centerParam)
   const [scale, setScale] = useQueryParam(scaleParam)
+  const { themeVars } = useAppTheme()
 
   usePan(ref, setCenter, scale, flushCenter)
   useScale(ref, setScale)
-  useUpdateCanvas(ref, width, height, center, scale)
+  useUpdateCanvas(ref, width, height, center, scale, themeVars)
 
   return <canvas ref={ref} className={style.cartesian_plane} />
 }

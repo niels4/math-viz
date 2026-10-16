@@ -26,6 +26,8 @@
   --chart-line: oklch(0.5262 0.0935 178.34);
   --chart-accent: oklch(0.7001 0.1508 68.7);
   --chart-glow: oklch(0.5262 0.0935 178.34 / 0.4);
+  --chart-axis: color-mix(in oklch, var(--foreground-muted) 75%, var(--background));
+  --chart-grid-major: color-mix(in oklch, var(--foreground-muted) 35%, var(--chart-grid));
   --ordinal-01: oklch(0.5262 0.0935 178.34);
   --ordinal-02: oklch(0.7001 0.1508 68.7);
   --ordinal-03: oklch(0.5106 0.2301 276.97);
