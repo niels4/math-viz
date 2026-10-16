@@ -8,20 +8,35 @@ export type QueryParamOptions<T> = {
   serialize: (value: T) => string | number | null
   defaultValue: T
   debounceMs?: number
+  equals?: (a: T, b: T) => boolean
 }
 
 export type QueryParamDef<T> = QueryParamOptions<T> & {
   key: string
   atom: ReturnType<typeof atom<T>>
   debounceMs: number
+  equals: (a: T, b: T) => boolean
 }
 
 // Define once per param at module level. One atom per key matches the single
 // URL bar, and nested components share live state without prop drilling.
+// Live values compare exactly. Serialized comparison is URL-only (echo
+// guard, default pruning), never a gate on live updates, so display
+// precision can never clamp gesture precision.
+const defaultEquals = <T>(a: T, b: T): boolean => {
+  if (Object.is(a, b)) {
+    return true
+  }
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((v, i) => Object.is(v, (b as unknown[])[i]))
+  }
+  return false
+}
+
 export const defineQueryParam = <T>(key: string, options: QueryParamOptions<T>): QueryParamDef<T> => {
-  const { parse, serialize, defaultValue, debounceMs = 200 } = options
+  const { parse, serialize, defaultValue, debounceMs = 200, equals = defaultEquals } = options
   const initial = parse(getCurrentSearchParams().get(key)) ?? defaultValue
-  return { key, parse, serialize, defaultValue, debounceMs, atom: atom<T>(initial) }
+  return { key, parse, serialize, defaultValue, debounceMs, equals, atom: atom<T>(initial) }
 }
 
 const sameSerialized = <T>(def: QueryParamDef<T>, a: T, b: T): boolean =>
@@ -70,7 +85,7 @@ export const useQueryParam = <T>(def: QueryParamDef<T>) => {
       const store = getDefaultStore()
       const current = store.get(def.atom)
       const next = typeof update === "function" ? (update as (prev: T) => T)(current) : update
-      if (sameSerialized(def, current, next)) {
+      if (def.equals(current, next)) {
         return
       }
       setLive(next)
