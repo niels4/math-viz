@@ -1,4 +1,4 @@
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises"
+import { mkdir, rm, writeFile } from "node:fs/promises"
 import { basename, join } from "node:path"
 import { beforeAll, describe, expect, it } from "vitest"
 
@@ -77,8 +77,8 @@ describe("generate-routes", () => {
       const pagesDirName = basename(pagesDir)
       await generateRoutes(pagesDir, outputFile, `./${pagesDirName}/`)
       result = (await import(outputFile)).default
-      const outputText = (await readFile(outputFile)).toString()
-      console.log("output:", outputText)
+      // const outputText = (await readFile(outputFile)).toString()
+      // console.log("output:", outputText)
     })
 
     it("should create a routes object with root and _not_found properties", () => {
@@ -108,8 +108,8 @@ describe("generate-routes", () => {
       const pagesDirName = basename(pagesDir)
       await generateRoutes(pagesDir, outputFile, `./${pagesDirName}/`)
       result = (await import(outputFile)).default
-      const outputText = (await readFile(outputFile)).toString()
-      console.log("output:", outputText)
+      // const outputText = (await readFile(outputFile)).toString()
+      // console.log("output:", outputText)
     })
 
     it("should create a routes object with root and _not_found properties", () => {

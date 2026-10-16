@@ -3,8 +3,6 @@ import { render, renderHook } from "vitest-browser-react"
 
 import { _renderSetup, defaultElementLocatorTimeout } from "./includes"
 
-console.log("browser-setup")
-
 // Synthetic PointerEvents use arbitrary pointerIds, so the real
 // setPointerCapture would throw NotFoundError. Force no-ops so
 // dispatchEvent-based pinch/drag tests work in real Chromium.

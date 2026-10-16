@@ -10,8 +10,6 @@ import {
   type RenderHookFunc,
 } from "./includes.tsx"
 
-console.log("jsdom-setup")
-
 // Mirror browser-setup: synthetic pointerIds never had capture, so keep
 // these as no-ops in jsdom too (jsdom lacks them entirely).
 HTMLCanvasElement.prototype.setPointerCapture = () => {}
