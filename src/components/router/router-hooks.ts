@@ -82,8 +82,12 @@ export const useSearchParams = () => {
 // to delete a parameter, set the value to null
 export type SetSearchParamsObject = Record<string, string | number | null>
 
+export type SetSearchParamsOptions = {
+  replaceHistory?: boolean
+}
+
 export const useSetSearchParams = () => {
-  return useCallback((paramUpdates: SetSearchParamsObject) => {
+  return useCallback((paramUpdates: SetSearchParamsObject, options?: SetSearchParamsOptions) => {
     const updatedParams = new URLSearchParams(currentSearchParams)
     for (const [key, value] of Object.entries(paramUpdates)) {
       if (value == null) {
@@ -92,6 +96,12 @@ export const useSetSearchParams = () => {
         updatedParams.set(key, String(value))
       }
     }
-    window.location.hash = createFullHash(currentRoute, updatedParams.toString())
+    const newHash = createFullHash(currentRoute, updatedParams.toString())
+    if (options?.replaceHistory === true) {
+      history.replaceState(null, "", `#${newHash}`)
+    } else {
+      window.location.hash = newHash
+    }
+    onHashChange()
   }, [])
 }
