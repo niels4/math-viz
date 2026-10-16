@@ -12,7 +12,7 @@ const friction = 0.0045
 const stopSpeed = 0.02
 // Clamp frame steps so a backgrounded tab does not jump on return.
 const maxFrameDt = 50
-// Weight of each mousemove sample in the velocity average.
+// Weight of each pointermove sample in the velocity average.
 const velocitySmoothing = 0.25
 
 export const usePan = (
@@ -25,10 +25,11 @@ export const usePan = (
   const lastMoveTime = useRef(0)
   const velocity = useRef<[number, number]>([0, 0])
   const glideFrame = useRef(0)
+  const activePointerId = useRef<number | null>(null)
 
   // Mirrored so the gesture listeners below stay attached for the whole
   // drag. Reading props through this ref keeps the effect deps to [ref],
-  // so a rerender mid-gesture never tears down the window listeners.
+  // so a rerender mid-gesture never tears down the canvas listeners.
   const live = useRef({ setCenter, scale, onPanEndFlush })
   useEffect(() => {
     live.current = { setCenter, scale, onPanEndFlush }
@@ -76,7 +77,10 @@ export const usePan = (
       glideFrame.current = requestAnimationFrame(step)
     }
 
-    const onPanUpdate = (e: MouseEvent) => {
+    const onPanUpdate = (e: PointerEvent) => {
+      if (e.pointerId !== activePointerId.current) {
+        return
+      }
       const now = performance.now()
       const dt = now - lastMoveTime.current
       const dx = e.clientX - prevMouse.current[0]
@@ -97,9 +101,11 @@ export const usePan = (
       live.current.setCenter(([x, y]) => [x - dx / ctxUnit, y + dy / ctxUnit])
     }
 
-    const onPanEnd = () => {
-      window.removeEventListener("mouseup", onPanEnd)
-      window.removeEventListener("mousemove", onPanUpdate)
+    const onPanEnd = (e: PointerEvent) => {
+      if (e.pointerId !== activePointerId.current) {
+        return
+      }
+      activePointerId.current = null
       const [vx, vy] = velocity.current
       velocity.current = [0, 0]
 
@@ -110,21 +116,38 @@ export const usePan = (
       }
     }
 
-    const onPanStart = (e: MouseEvent) => {
+    const onPanStart = (e: PointerEvent) => {
+      if (activePointerId.current !== null) {
+        return
+      }
+      if (e.pointerType === "mouse" && e.button !== 0) {
+        return
+      }
       cancelGlide()
+      activePointerId.current = e.pointerId
       prevMouse.current = [e.clientX, e.clientY]
       lastMoveTime.current = performance.now()
       velocity.current = [0, 0]
-      window.addEventListener("mouseup", onPanEnd)
-      window.addEventListener("mousemove", onPanUpdate)
+      try {
+        canvas.setPointerCapture(e.pointerId)
+      } catch {
+        // Synthetic events in tests use arbitrary pointerIds that were
+        // never captured, and some browsers throw for those. The drag
+        // still works without capture in that case.
+      }
     }
 
-    canvas.addEventListener("mousedown", onPanStart)
+    canvas.addEventListener("pointerdown", onPanStart)
+    canvas.addEventListener("pointermove", onPanUpdate)
+    canvas.addEventListener("pointerup", onPanEnd)
+    canvas.addEventListener("pointercancel", onPanEnd)
 
     return () => {
-      canvas.removeEventListener("mousedown", onPanStart)
-      window.removeEventListener("mouseup", onPanEnd)
-      window.removeEventListener("mousemove", onPanUpdate)
+      canvas.removeEventListener("pointerdown", onPanStart)
+      canvas.removeEventListener("pointermove", onPanUpdate)
+      canvas.removeEventListener("pointerup", onPanEnd)
+      canvas.removeEventListener("pointercancel", onPanEnd)
+      activePointerId.current = null
       cancelGlide()
     }
   }, [ref])
