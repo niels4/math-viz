@@ -64,6 +64,15 @@ export const useRoute = () => {
   return route
 }
 
+export const getCurrentSearchParams = () => currentSearchParams
+
+export const subscribeSearchParams = (listener: SearchParamsListener) => {
+  searchParamListeners.add(listener)
+  return () => {
+    searchParamListeners.delete(listener)
+  }
+}
+
 export const useSearchParams = () => {
   const [searchParams, setSearchParams] = useState(currentSearchParams)
 
