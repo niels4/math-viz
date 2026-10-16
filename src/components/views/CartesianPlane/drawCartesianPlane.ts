@@ -85,7 +85,7 @@ export const drawCartesianPlane = (
   center: [number, number],
   zoom: number,
 ) => {
-  console.log("drawing plane", center)
+  console.log("drawing plane", center, zoom)
   drawGrid(ctx, width, height, center, zoom)
   drawOverlay(ctx, width, height, unscaledUnitSize, zoom)
 

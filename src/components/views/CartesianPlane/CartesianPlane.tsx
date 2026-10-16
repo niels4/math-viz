@@ -8,6 +8,7 @@ import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import style from "./CartesianPlain.module.css"
 import { drawCartesianPlane } from "./drawCartesianPlane"
 import { usePan } from "./usePan"
+import { useZoom } from "./useZoom"
 
 const ctxOptions: CanvasRenderingContext2DSettings = { colorSpace: "display-p3" } as const
 
@@ -48,9 +49,10 @@ export const CartesianPlane = () => {
   const ref = useRef<HTMLCanvasElement | null>(null)
   const { width, height } = useResizeObserver(ref)
   const [center, setCenter] = useState<[number, number]>([0, 0])
-  const [zoom] = useState<number>(0.5)
+  const [zoom, setZoom] = useState<number>(0.5)
 
   usePan(ref, setCenter, zoom)
+  useZoom(ref, setZoom)
   useUpdateCanvas(ref, width, height, center, zoom)
 
   return <canvas ref={ref} className={style.cartesian_plane} />
