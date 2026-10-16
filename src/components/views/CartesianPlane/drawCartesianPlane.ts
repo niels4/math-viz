@@ -1,7 +1,7 @@
 import { drawOverlay } from "./drawOverlay"
 
 const unscaledUnitSize = 25
-const center = [-1.33, -1.17] as const
+const center = [0.2, -0.4] as const
 const zoom = 1.04
 
 const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
@@ -10,40 +10,45 @@ const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) 
   const unitSize = unscaledUnitSize / zoom
 
   const ctxCenterX = Math.floor(width / 2)
+  const ctxCenterY = Math.floor(height / 2)
+
   const numWidthUnits = Math.ceil(width / unitSize)
-  const halfNumWidthUnits = Math.ceil(numWidthUnits / 2)
-  const xOffset = center[0] * unitSize
+  const halfNumWidthUnits = Math.ceil(numWidthUnits / 2) + 1
+  const xOffset = (center[0] % 1) * unitSize
 
   for (let i = 0; i < halfNumWidthUnits; i++) {
-    const xDiff = i * unitSize
+    const ctxDiff = i * unitSize
+    const ctx1 = ctxCenterX + ctxDiff - xOffset
+    const ctx2 = ctxCenterX - ctxDiff - xOffset
 
     ctx.beginPath()
-    ctx.moveTo(ctxCenterX + xDiff - xOffset, 0)
-    ctx.lineTo(ctxCenterX + xDiff - xOffset, height)
+    ctx.moveTo(ctx1, 0)
+    ctx.lineTo(ctx1, height)
     ctx.stroke()
 
     ctx.beginPath()
-    ctx.moveTo(ctxCenterX - xDiff - xOffset, 0)
-    ctx.lineTo(ctxCenterX - xDiff - xOffset, height)
+    ctx.moveTo(ctx2, 0)
+    ctx.lineTo(ctx2, height)
     ctx.stroke()
   }
 
-  const ctxCenterY = Math.floor(height / 2)
   const numHeightUnits = Math.ceil(height / unitSize)
   const halfNumHeightUnits = Math.ceil(numHeightUnits / 2) + 1
-  const yOffset = center[1] * unitSize
+  const yOffset = (center[1] % 1) * unitSize
 
   for (let i = 0; i < halfNumHeightUnits; i++) {
-    const yDiff = i * unitSize
+    const ctxDiff = i * unitSize
+    const ctx1 = ctxCenterY - ctxDiff + yOffset
+    const ctx2 = ctxCenterY + ctxDiff + yOffset
 
     ctx.beginPath()
-    ctx.moveTo(0, ctxCenterY + yDiff + yOffset)
-    ctx.lineTo(width, ctxCenterY + yDiff + yOffset)
+    ctx.moveTo(0, ctx1)
+    ctx.lineTo(width, ctx1)
     ctx.stroke()
 
     ctx.beginPath()
-    ctx.moveTo(0, ctxCenterY - yDiff + yOffset)
-    ctx.lineTo(width, ctxCenterY - yDiff + yOffset)
+    ctx.moveTo(0, ctx2)
+    ctx.lineTo(width, ctx2)
     ctx.stroke()
   }
 }
