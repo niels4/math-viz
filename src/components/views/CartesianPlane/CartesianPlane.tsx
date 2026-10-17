@@ -11,7 +11,6 @@ import style from "./CartesianPlain.module.css"
 import { drawCartesianPlane } from "./drawCartesianPlane"
 import { centerParam, scaleParam } from "./queryParams"
 import { useCamera } from "./useCamera"
-import { usePan } from "./usePan"
 
 const ctxOptions: CanvasRenderingContext2DSettings = { colorSpace: "display-p3" } as const
 
@@ -56,13 +55,13 @@ export const CartesianPlane = () => {
   const [scale, setScale, flushScale] = useQueryParam(scaleParam)
   const { themeVars } = useAppTheme()
 
-  // A zoom moves the center too, so both reach the URL when it settles.
+  // The URL gets the camera's center and scale together, once it stops
+  // after a drag, a glide or a zoom.
   const flushCamera = () => {
     flushCenter()
     flushScale()
   }
 
-  usePan(ref, setCenter, scale, flushCenter)
   useCamera(ref, center, scale, setCenter, setScale, flushCamera)
   useUpdateCanvas(ref, width, height, center, scale, themeVars)
 

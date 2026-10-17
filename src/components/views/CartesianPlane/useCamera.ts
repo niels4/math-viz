@@ -16,6 +16,14 @@ const maxScale = 5
 const zoomRate = 0.012
 // The zoom snaps to its target once it is this close.
 const scaleEpsilon = 0.0005
+// Release faster than this (px per ms) starts a glide; slower just stops.
+const minFlickSpeed = 0.15
+// Exponential decay of the glide per ms. Higher stops sooner.
+const friction = 0.0045
+// The glide ends below this speed (px per ms).
+const stopSpeed = 0.02
+// Weight of each pointermove sample in the velocity average.
+const velocitySmoothing = 0.25
 // Clamp frame steps so a backgrounded tab does not jump on return.
 const maxFrameDt = 50
 // The first frame of an animation has no earlier frame to measure from,
@@ -38,12 +46,14 @@ const offsetFromCenter = (canvas: HTMLCanvasElement, e: MouseEvent): Center => {
   ]
 }
 
-// Wheel zoom about the cursor for the Cartesian plane, eased by one
-// animation loop. The center and scale props come from the URL params.
-// While the camera is still they are the truth, and the first event of a
-// gesture starts from them; while it moves, the hook's own values are the
-// truth and every write to React happens once per frame in the loop.
-// onSettle runs once when the camera comes to rest.
+// Pan, glide and wheel zoom for the Cartesian plane, on one animation
+// loop. A drag pans, a fast release glides on, and the wheel eases the
+// zoom about the cursor; all three can run at once. The center and scale
+// props come from the URL params. While the camera is still they are the
+// truth, and the first event of a gesture starts from them; while it moves,
+// the hook's own values are the truth and every write to React happens
+// once per frame in the loop. onSettle runs once when the camera comes to
+// rest and no pointer holds the plane.
 export const useCamera = (
   ref: RefObject<HTMLCanvasElement | null>,
   center: Center,
@@ -73,10 +83,23 @@ export const useCamera = (
     let targetScale = cur.scale
     // Cursor of the latest wheel event, as offsetFromCenter measures it.
     let anchor: Center = [0, 0]
+    // Release velocity in screen px per ms while the plane glides.
+    let glide: Center | null = null
+    // The pointer that drags the plane: its last position and time, and a
+    // running average of its velocity in px per ms.
+    let pointer: { id: number; last: Center; time: number; velocity: Center } | null = null
     let frame = 0
     let lastFrameTime: number | null = null
 
-    const idle = () => targetScale === cur.scale
+    const zooming = () => targetScale !== cur.scale
+    const idle = () => pointer === null && glide === null && !zooming()
+
+    // Moves the center so the plane follows the pointer or the glide by
+    // (dx, dy) screen px at the scale drawn now.
+    const panBy = (dx: number, dy: number) => {
+      const unit = unscaledUnitSize / cur.scale
+      cur.center = [cur.center[0] - dx / unit, cur.center[1] + dy / unit]
+    }
 
     const adoptIfIdle = () => {
       if (!idle()) {
@@ -116,12 +139,31 @@ export const useCamera = (
       const [ox, oy] = anchor
       cur.center = [cur.center[0] + ox * d, cur.center[1] - oy * d]
 
+      // The glide moves the plane after the zoom, at the scale drawn this
+      // frame, so the plane point under the cursor moves with the glide.
+      if (glide !== null) {
+        const decay = Math.exp(-friction * dt)
+        glide = [glide[0] * decay, glide[1] * decay]
+        if (Math.hypot(glide[0], glide[1]) < stopSpeed) {
+          glide = null
+        } else {
+          panBy(glide[0] * dt, glide[1] * dt)
+        }
+      }
+
       publish()
 
       if (idle()) {
         frame = 0
         lastFrameTime = null
         props.current.onSettle()
+        return
+      }
+      // A held pointer with nothing else moving: the next pointermove
+      // starts the loop again.
+      if (glide === null && !zooming()) {
+        frame = 0
+        lastFrameTime = null
         return
       }
       frame = requestAnimationFrame(step)
@@ -144,12 +186,76 @@ export const useCamera = (
       ensureLoop()
     }
 
+    // Catching the plane ends a glide; a zoom in flight carries on.
+    const onPointerDown = (e: PointerEvent) => {
+      if (pointer !== null) {
+        return
+      }
+      if (e.pointerType === "mouse" && e.button !== 0) {
+        return
+      }
+      adoptIfIdle()
+      glide = null
+      pointer = { id: e.pointerId, last: [e.clientX, e.clientY], time: performance.now(), velocity: [0, 0] }
+      try {
+        canvas.setPointerCapture(e.pointerId)
+      } catch {
+        // Synthetic events in tests use arbitrary pointerIds that were
+        // never captured, and some browsers throw for those. The drag
+        // still works without capture in that case.
+      }
+    }
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (pointer === null || e.pointerId !== pointer.id) {
+        return
+      }
+      const now = performance.now()
+      const dt = now - pointer.time
+      const dx = e.clientX - pointer.last[0]
+      const dy = e.clientY - pointer.last[1]
+      if (dt > 0) {
+        const [vx, vy] = pointer.velocity
+        pointer.velocity = [
+          vx * (1 - velocitySmoothing) + (dx / dt) * velocitySmoothing,
+          vy * (1 - velocitySmoothing) + (dy / dt) * velocitySmoothing,
+        ]
+      }
+      pointer.last = [e.clientX, e.clientY]
+      pointer.time = now
+      panBy(dx, dy)
+      ensureLoop()
+    }
+
+    // The next frame glides on, or settles and writes the URL.
+    const onPointerUp = (e: PointerEvent) => {
+      if (pointer === null || e.pointerId !== pointer.id) {
+        return
+      }
+      const [vx, vy] = pointer.velocity
+      pointer = null
+      if (Math.hypot(vx, vy) >= minFlickSpeed) {
+        glide = [vx, vy]
+      }
+      ensureLoop()
+    }
+
     canvas.addEventListener("wheel", onWheel)
+    canvas.addEventListener("pointerdown", onPointerDown)
+    canvas.addEventListener("pointermove", onPointerMove)
+    canvas.addEventListener("pointerup", onPointerUp)
+    canvas.addEventListener("pointercancel", onPointerUp)
 
     return () => {
       canvas.removeEventListener("wheel", onWheel)
+      canvas.removeEventListener("pointerdown", onPointerDown)
+      canvas.removeEventListener("pointermove", onPointerMove)
+      canvas.removeEventListener("pointerup", onPointerUp)
+      canvas.removeEventListener("pointercancel", onPointerUp)
       cancelAnimationFrame(frame)
       frame = 0
+      glide = null
+      pointer = null
     }
   }, [ref])
 }
