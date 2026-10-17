@@ -10,6 +10,13 @@ const minGridPx = 20
 /** Neighbouring x labels closer than this read as crowded. */
 const minLabelGap = 12
 
+/** x labels end this far left of their line, and y labels this far left of the y-axis. */
+const labelGapX = 6
+/** x labels' tops sit this far below the x-axis, and each y label's top this far below its line. */
+const labelGapY = 6
+/** With its axis near or past an edge, a label row stays this far inside it. */
+const labelEdgePad = 8
+
 export type GridSteps = {
   minor: number
   major: number
@@ -32,6 +39,16 @@ export type GridLayout = {
   /** Screen x of the y-axis (x = 0) and screen y of the x-axis (y = 0), null while off screen and past the margin. */
   xOrigin: number | null
   yOrigin: number | null
+  /** Screen x and y of the origin, on screen or not. */
+  origin: [number, number]
+}
+
+/** A label's axis and text, the screen x of its right edge and the screen y of its top. */
+export type GridLabel = {
+  axis: "x" | "y"
+  text: string
+  right: number
+  top: number
 }
 
 const eps = 1e-9
@@ -69,6 +86,8 @@ const multiples = (min: number, max: number, step: number): number[] => {
 const onStep = (u: number, step: number): boolean => Math.abs(u / step - Math.round(u / step)) < 1e-6
 
 const inRange = (v: number, lo: number, hi: number): number | null => (v >= lo && v <= hi ? v : null)
+
+const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v))
 
 /**
  * The grid of a width by height canvas. Lines and axes up to margin px past
@@ -125,6 +144,7 @@ export const layoutGrid = (
     majorY: ys.major,
     xOrigin: inRange(screenX(0), -margin, width + margin),
     yOrigin: inRange(screenY(0), -margin, height + margin),
+    origin: [screenX(0), screenY(0)],
   }
 }
 
@@ -149,4 +169,60 @@ export const xLabelLines = (
     return grid.majorX
   }
   return grid.majorX.filter((line) => onStep(line.unit, 2 * grid.steps.major))
+}
+
+/**
+ * The axis labels. x labels sit below the x-axis, right-aligned left of their
+ * lines, or above it when there is no room below. y labels sit left of the
+ * y-axis, right-aligned, below their lines, or right of it, left-aligned,
+ * when there is no room left. While an axis is past an edge, its labels stay
+ * along that edge. labelHeight is the labels' font size, and labelWidth
+ * measures a label.
+ */
+export const layoutLabels = (
+  grid: GridLayout,
+  width: number,
+  height: number,
+  labelHeight: number,
+  labelWidth: (text: string) => number,
+): GridLabel[] => {
+  const [originX, originY] = grid.origin
+
+  const below = originY + labelGapY
+  const above = originY - labelGapY - labelHeight
+  const xTop = clamp(
+    below + labelHeight <= height - labelEdgePad ? below : above,
+    labelEdgePad,
+    height - labelEdgePad - labelHeight,
+  )
+  const labels: GridLabel[] = xLabelLines(grid, width, labelWidth).map(({ unit, px }) => ({
+    axis: "x",
+    text: String(unit),
+    right: px - labelGapX,
+    top: xTop,
+  }))
+  // The grid lists no line at 0, where the axes are. The origin's 0 shows
+  // once, in the x labels.
+  if (grid.xOrigin !== null) {
+    labels.push({ axis: "x", text: "0", right: grid.xOrigin - labelGapX, top: xTop })
+  }
+
+  // The y labels go left of the y-axis while the widest on the canvas fits there.
+  const onCanvas = grid.majorY.filter((line) => line.px >= 0 && line.px <= height)
+  const widest = Math.max(0, ...onCanvas.map((line) => labelWidth(String(line.unit))))
+  const roomLeft = originX - labelGapX - widest >= labelEdgePad
+  for (const { unit, px } of grid.majorY) {
+    const text = String(unit)
+    const top = px + labelGapY
+    // Where the x labels run along an edge, the y label beside them is left out.
+    if (Math.abs(top - xTop) < labelHeight) {
+      continue
+    }
+    const w = labelWidth(text)
+    const right = roomLeft
+      ? Math.min(originX - labelGapX, width - labelEdgePad)
+      : clamp(originX + labelGapX, labelEdgePad, width - labelEdgePad - w) + w
+    labels.push({ axis: "y", text, right, top })
+  }
+  return labels
 }

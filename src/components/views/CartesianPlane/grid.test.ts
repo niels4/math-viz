@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import type { GridLayout, GridLine } from "./grid"
 
-import { layoutGrid, xLabelLines } from "./grid"
+import { layoutGrid, layoutLabels, xLabelLines, type GridLabel } from "./grid"
 
 const units = (lines: GridLine[]) => lines.map((l) => l.unit)
 
@@ -182,5 +182,80 @@ describe("xLabelLines", () => {
       const multiplesOf400 = units(grid.majorX).filter((u) => u % 400 === 0)
       expect(units(xLabelLines(grid, 800, labelWidth))).toEqual(multiplesOf400)
     }
+  })
+})
+
+describe("layoutLabels", () => {
+  // The default view's 800 by 600 canvas, 14 px labels, 64 px margin.
+  const labelsAt = (center: [number, number]) =>
+    layoutLabels(layoutGrid(800, 600, center, 0.5, 64), 800, 600, 14, labelWidth)
+  const ofAxis = (labels: GridLabel[], axis: "x" | "y") => labels.filter((l) => l.axis === axis)
+
+  it("puts x labels below the x-axis and y labels left of the y-axis", () => {
+    // The origin is at (400, 300) and a unit is 50 px.
+    const labels = labelsAt([0, 0])
+    // x labels end 6 px left of their line, 6 px below the axis.
+    expect(ofAxis(labels, "x")).toContainEqual({ axis: "x", text: "1", right: 444, top: 306 })
+    // y labels end 6 px left of the axis, 6 px below their line.
+    expect(ofAxis(labels, "y")).toContainEqual({ axis: "y", text: "1", right: 394, top: 256 })
+    // The origin's 0 shows once, among the x labels.
+    expect(labels.filter((l) => l.text === "0")).toEqual([{ axis: "x", text: "0", right: 394, top: 306 }])
+  })
+
+  it("keeps the x labels along the top edge while the x-axis is above the plane", () => {
+    // y = 0 is 100 u, 5000 px, above the canvas center.
+    for (const label of ofAxis(labelsAt([0, -100]), "x")) {
+      expect(label.top).toBe(8)
+    }
+  })
+
+  it("keeps the x labels along the bottom edge while the x-axis is below the plane", () => {
+    // 14 px labels whose bottoms stay 8 px above the 600 px canvas's edge.
+    for (const label of ofAxis(labelsAt([0, 100]), "x")) {
+      expect(label.top).toBe(578)
+    }
+  })
+
+  it("keeps the y labels along the left edge, left-aligned, while the y-axis is left of the plane", () => {
+    const labels = ofAxis(labelsAt([100, 0]), "y")
+    expect(labels.length).toBeGreaterThan(0)
+    for (const label of labels) {
+      expect(label.right - labelWidth(label.text)).toBeCloseTo(8)
+    }
+  })
+
+  it("keeps the y labels along the right edge while the y-axis is right of the plane", () => {
+    for (const label of ofAxis(labelsAt([-100, 0]), "y")) {
+      expect(label.right).toBe(792)
+    }
+  })
+
+  it("puts the x labels above the x-axis when it is too near the bottom edge for them below", () => {
+    // y = 0 is 10 px above the bottom edge: 590 px. Below it, 14 px labels
+    // would run past the edge, so their tops sit 6 + 14 px above the axis.
+    for (const label of ofAxis(labelsAt([0, 5.8]), "x")) {
+      expect(label.top).toBeCloseTo(570)
+    }
+  })
+
+  it("puts the y labels right of the y-axis when it is too near the left edge for them left of it", () => {
+    // x = 0 is 15 px from the left edge, too near for -6, 16.8 px wide, so
+    // the labels start 6 px right of the axis.
+    const labels = ofAxis(labelsAt([7.7, 0]), "y")
+    expect(labels.length).toBeGreaterThan(0)
+    for (const label of labels) {
+      expect(label.right - labelWidth(label.text)).toBeCloseTo(21)
+    }
+  })
+
+  it("leaves out the y label that would overlap the x labels along the top edge", () => {
+    // The x-axis is far above the canvas, so the x labels run along the top
+    // edge, 8 px down. The canvas center shows y = -100, so y = -94 is at
+    // 0 px and its label at 6 px would overlap them; y = -95 is 50 px lower.
+    const labels = labelsAt([0, -100])
+    expect(ofAxis(labels, "x")[0]?.top).toBe(8)
+    const yTexts = ofAxis(labels, "y").map((l) => l.text)
+    expect(yTexts).not.toContain("-94")
+    expect(yTexts).toContain("-95")
   })
 })

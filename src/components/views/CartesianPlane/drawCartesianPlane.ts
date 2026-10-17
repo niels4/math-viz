@@ -1,11 +1,11 @@
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
-import { unscaledUnitSize } from "./constants"
+import { planeFontSize, unscaledUnitSize } from "./constants"
 import { drawScaleLegend } from "./drawScaleLegend"
-import { layoutGrid, xLabelLines, type GridLayout, type GridLine } from "./grid"
+import { layoutGrid, layoutLabels, type GridLayout, type GridLine } from "./grid"
 
-const labelXPadding = 6
-const labelYPadding = 6
+// Ticks cross an axis at each major line, this far to each side.
+const tickHalf = 5
 
 const drawAxis = (
   ctx: CanvasRenderingContext2D,
@@ -18,19 +18,24 @@ const drawAxis = (
   const { xOrigin, yOrigin } = grid
   ctx.strokeStyle = theme.chartAxis
   ctx.lineWidth = 2
-  if (xOrigin != null) {
-    ctx.beginPath()
+  ctx.beginPath()
+  if (xOrigin !== null) {
     ctx.moveTo(xOrigin, 0)
     ctx.lineTo(xOrigin, height)
-    ctx.stroke()
+    for (const { px } of grid.majorY) {
+      ctx.moveTo(xOrigin - tickHalf, px)
+      ctx.lineTo(xOrigin + tickHalf, px)
+    }
   }
-
-  if (yOrigin != null) {
-    ctx.beginPath()
+  if (yOrigin !== null) {
     ctx.moveTo(0, yOrigin)
     ctx.lineTo(width, yOrigin)
-    ctx.stroke()
+    for (const { px } of grid.majorX) {
+      ctx.moveTo(px, yOrigin - tickHalf)
+      ctx.lineTo(px, yOrigin + tickHalf)
+    }
   }
+  ctx.stroke()
 
   // The labels wait for their font rather than show in a fallback face.
   if (font === null) {
@@ -41,20 +46,9 @@ const drawAxis = (
   ctx.fillStyle = theme.foregroundMuted
   ctx.textAlign = "right"
   ctx.textBaseline = "top"
-
-  const xLabelTop = (yOrigin ?? 20) + labelYPadding
-  // Labels at the major lines; along x, every other one once they crowd.
-  for (const { unit, px } of xLabelLines(grid, width, (text) => ctx.measureText(text).width)) {
-    ctx.fillText(String(unit), px - labelXPadding, xLabelTop)
-  }
-  // The grid lists no line at 0, where the axes are. The origin's 0 shows
-  // once, in the x labels.
-  if (xOrigin !== null) {
-    ctx.fillText("0", xOrigin - labelXPadding, xLabelTop)
-  }
-
-  for (const { unit, px } of grid.majorY) {
-    ctx.fillText(String(unit), (xOrigin ?? 0) - labelXPadding, px + labelYPadding)
+  const labelWidth = (text: string) => ctx.measureText(text).width
+  for (const { text, right, top } of layoutLabels(grid, width, height, planeFontSize, labelWidth)) {
+    ctx.fillText(text, right, top)
   }
 }
 
