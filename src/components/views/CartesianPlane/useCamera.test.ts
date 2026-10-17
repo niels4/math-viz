@@ -20,8 +20,8 @@ let canvas: HTMLCanvasElement
 let ref: RefObject<HTMLCanvasElement | null>
 
 // Animation frames run only when a test calls runFrame, 16 ms apart.
-// performance.now reads the same clock, so a pointer that moves between
-// frames has a velocity in px per ms of test time.
+// Pointer events carry the same clock in their timeStamp, so a pointer
+// that moves between frames has a velocity in px per ms of test time.
 let frames = new Map<number, FrameRequestCallback>()
 let nextFrameId = 1
 let frameTime = 0
@@ -47,9 +47,10 @@ const wheel = (deltaY: number, clientX = canvasCenterX, clientY = canvasCenterY)
 }
 
 const pointer = (type: string, clientX: number, clientY: number) => {
-  canvas.dispatchEvent(
-    new PointerEvent(type, { pointerId: 1, pointerType: "mouse", button: 0, clientX, clientY }),
-  )
+  const event = new PointerEvent(type, { pointerId: 1, pointerType: "mouse", button: 0, clientX, clientY })
+  // Stamped with the test clock, as a real event carries the time it happened.
+  Object.defineProperty(event, "timeStamp", { value: frameTime })
+  canvas.dispatchEvent(event)
 }
 const down = (clientX: number, clientY: number) => pointer("pointerdown", clientX, clientY)
 const move = (clientX: number, clientY: number) => pointer("pointermove", clientX, clientY)
@@ -125,7 +126,6 @@ beforeEach(() => {
     }),
   )
   ref = { current: canvas }
-  vi.spyOn(performance, "now").mockImplementation(() => frameTime)
 })
 
 afterEach(() => {
@@ -328,6 +328,63 @@ describe("useCamera pan and glide", () => {
 
     // Holding the pointer still leaves no animation running.
     expect(frames.size).toBe(0)
+
+    await unmount()
+  })
+
+  it("stops without a glide when the pointer is held still before letting go", async () => {
+    const { onSettle, latest, unmount } = await renderCamera({ center: [0, 0], scale: 1 })
+
+    // A drag at flick speed, 20 px a frame for five frames: 100 px right,
+    // which is four units at 25 px a unit.
+    down(300, 200)
+    for (let i = 1; i <= 5; i++) {
+      runFrame()
+      move(300 + 20 * i, 200)
+    }
+    runFrame()
+    expect(latest().center[0]).toBeCloseTo(-4, 12)
+
+    // The pointer is held still for six frames, about 100 ms, then lets go.
+    for (let i = 0; i < 6; i++) {
+      runFrame()
+    }
+    up(400, 200)
+
+    // The plane stays where it was held, and the url is written.
+    runUntilStill()
+    expect(latest().center[0]).toBeCloseTo(-4, 12)
+    expect(onSettle).toHaveBeenCalledTimes(1)
+
+    await unmount()
+  })
+
+  it("stops without a glide when the mouse twitches as it lets go after a pause", async () => {
+    const { onSettle, latest, unmount } = await renderCamera({ center: [0, 0], scale: 1 })
+
+    // A drag at flick speed, 20 px a frame for five frames: 100 px right,
+    // which is four units at 25 px a unit.
+    down(300, 200)
+    for (let i = 1; i <= 5; i++) {
+      runFrame()
+      move(300 + 20 * i, 200)
+    }
+    runFrame()
+    expect(latest().center[0]).toBeCloseTo(-4, 12)
+
+    // The pointer rests for about half a second, 30 frames.
+    for (let i = 0; i < 30; i++) {
+      runFrame()
+    }
+
+    // Letting go, the mouse twitches 1 px and the button comes up right after.
+    move(401, 200)
+    up(401, 200)
+
+    // The plane follows the twitch and stops there, with the url written.
+    runUntilStill()
+    expect(latest().center[0]).toBeCloseTo(-4.04, 12)
+    expect(onSettle).toHaveBeenCalledTimes(1)
 
     await unmount()
   })

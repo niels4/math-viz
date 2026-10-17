@@ -22,8 +22,9 @@ const minFlickSpeed = 0.15
 const friction = 0.0045
 // The glide ends below this speed (px per ms).
 const stopSpeed = 0.02
-// Weight of each pointermove sample in the velocity average.
-const velocitySmoothing = 0.25
+// The release speed is the pointer's average over this many ms before
+// letting go, so a pause before the release counts as standing still.
+const flickWindow = 80
 // Clamp frame steps so a backgrounded tab does not jump on return.
 const maxFrameDt = 50
 // The first frame of an animation has no earlier frame to measure from,
@@ -33,6 +34,34 @@ const firstFrameDt = 1000 / 60
 const clampScale = (scale: number) => Math.min(maxScale, Math.max(minScale, scale))
 
 const sameCenter = (a: Center, b: Center) => a[0] === b[0] && a[1] === b[1]
+
+// A pointer position and its event's timeStamp. Event times, not the time
+// the handler runs, so moves the browser dispatches back to back keep the
+// spacing they happened with.
+type Sample = { time: number; at: Center }
+
+// Drops samples from before the flick window that ends at `now`, keeping
+// the latest one at or before its start, where the release speed measures
+// from.
+const trimSamples = (samples: Sample[], now: number) => {
+  while ((samples[1]?.time ?? Infinity) <= now - flickWindow) {
+    samples.shift()
+  }
+}
+
+// The pointer's average velocity in px per ms over the flick window before
+// `now`. A pointer held still sends no moves, so a rest before letting go
+// lowers the speed, down to zero for a rest as long as the window.
+const releaseVelocity = (samples: Sample[], now: number): Center => {
+  trimSamples(samples, now)
+  const first = samples[0]
+  const last = samples.at(-1)
+  if (first === undefined || last === undefined || now <= first.time) {
+    return [0, 0]
+  }
+  const dt = now - first.time
+  return [(last.at[0] - first.at[0]) / dt, (last.at[1] - first.at[1]) / dt]
+}
 
 // Cursor position in CSS px from the point the draw code treats as the
 // canvas center: half the content box, inside the border, rounded down.
@@ -85,9 +114,9 @@ export const useCamera = (
     let anchor: Center = [0, 0]
     // Release velocity in screen px per ms while the plane glides.
     let glide: Center | null = null
-    // The pointer that drags the plane: its last position and time, and a
-    // running average of its velocity in px per ms.
-    let pointer: { id: number; last: Center; time: number; velocity: Center } | null = null
+    // The pointer that drags the plane: where it last was, and its recent
+    // positions for the release speed.
+    let pointer: { id: number; last: Center; samples: Sample[] } | null = null
     let frame = 0
     let lastFrameTime: number | null = null
 
@@ -196,7 +225,8 @@ export const useCamera = (
       }
       adoptIfIdle()
       glide = null
-      pointer = { id: e.pointerId, last: [e.clientX, e.clientY], time: performance.now(), velocity: [0, 0] }
+      const at: Center = [e.clientX, e.clientY]
+      pointer = { id: e.pointerId, last: at, samples: [{ time: e.timeStamp, at }] }
       try {
         canvas.setPointerCapture(e.pointerId)
       } catch {
@@ -210,19 +240,12 @@ export const useCamera = (
       if (pointer === null || e.pointerId !== pointer.id) {
         return
       }
-      const now = performance.now()
-      const dt = now - pointer.time
-      const dx = e.clientX - pointer.last[0]
-      const dy = e.clientY - pointer.last[1]
-      if (dt > 0) {
-        const [vx, vy] = pointer.velocity
-        pointer.velocity = [
-          vx * (1 - velocitySmoothing) + (dx / dt) * velocitySmoothing,
-          vy * (1 - velocitySmoothing) + (dy / dt) * velocitySmoothing,
-        ]
-      }
-      pointer.last = [e.clientX, e.clientY]
-      pointer.time = now
+      const at: Center = [e.clientX, e.clientY]
+      const dx = at[0] - pointer.last[0]
+      const dy = at[1] - pointer.last[1]
+      pointer.last = at
+      pointer.samples.push({ time: e.timeStamp, at })
+      trimSamples(pointer.samples, e.timeStamp)
       panBy(dx, dy)
       ensureLoop()
     }
@@ -232,10 +255,10 @@ export const useCamera = (
       if (pointer === null || e.pointerId !== pointer.id) {
         return
       }
-      const [vx, vy] = pointer.velocity
+      const velocity = releaseVelocity(pointer.samples, e.timeStamp)
       pointer = null
-      if (Math.hypot(vx, vy) >= minFlickSpeed) {
-        glide = [vx, vy]
+      if (Math.hypot(velocity[0], velocity[1]) >= minFlickSpeed) {
+        glide = velocity
       }
       ensureLoop()
     }
