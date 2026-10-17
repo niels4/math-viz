@@ -2,7 +2,7 @@ import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
 import { unscaledUnitSize } from "./constants"
 import { drawScaleLegend } from "./drawScaleLegend"
-import { layoutGrid, type GridLine } from "./grid"
+import { layoutGrid, xLabelLines, type GridLayout, type GridLine } from "./grid"
 
 const labelXPadding = 6
 const labelYPadding = 6
@@ -11,13 +11,11 @@ const drawAxis = (
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
-  xOrigin: number | null,
-  yOrigin: number | null,
-  xLabels: GridLine[],
-  yLabels: GridLine[],
+  grid: GridLayout,
   theme: ThemeVars,
   font: string | null,
 ) => {
+  const { xOrigin, yOrigin } = grid
   ctx.strokeStyle = theme.chartAxis
   ctx.lineWidth = 2
   if (xOrigin != null) {
@@ -45,7 +43,8 @@ const drawAxis = (
   ctx.textBaseline = "top"
 
   const xLabelTop = (yOrigin ?? 20) + labelYPadding
-  for (const { unit, px } of xLabels) {
+  // Labels at the major lines; along x, every other one once they crowd.
+  for (const { unit, px } of xLabelLines(grid, width, (text) => ctx.measureText(text).width)) {
     ctx.fillText(String(unit), px - labelXPadding, xLabelTop)
   }
   // The grid lists no line at 0, where the axes are. The origin's 0 shows
@@ -54,7 +53,7 @@ const drawAxis = (
     ctx.fillText("0", xOrigin - labelXPadding, xLabelTop)
   }
 
-  for (const { unit, px } of yLabels) {
+  for (const { unit, px } of grid.majorY) {
     ctx.fillText(String(unit), (xOrigin ?? 0) - labelXPadding, px + labelYPadding)
   }
 }
@@ -101,7 +100,7 @@ const drawGrid = (
   strokeVertical(ctx, grid.majorX, height)
   strokeHorizontal(ctx, grid.majorY, width)
 
-  drawAxis(ctx, width, height, grid.xOrigin, grid.yOrigin, grid.majorX, grid.majorY, theme, font)
+  drawAxis(ctx, width, height, grid, theme, font)
 }
 
 export const drawCartesianPlane = (

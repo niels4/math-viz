@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import type { GridLayout, GridLine } from "./grid"
 
-import { layoutGrid } from "./grid"
+import { layoutGrid, xLabelLines } from "./grid"
 
 const units = (lines: GridLine[]) => lines.map((l) => l.unit)
 
@@ -19,6 +19,9 @@ const yPositions = (grid: GridLayout) =>
     .map((l) => l.px)
     .concat(grid.yOrigin ?? [])
     .toSorted((a, b) => a - b)
+
+// Roboto Mono at 14 px is 8.4 px a character: "-1600" is 42 px wide.
+const labelWidth = (text: string) => text.length * 8.4
 
 const gaps = (px: number[]) => px.slice(1).map((p, i) => p - (px[i] ?? p))
 
@@ -137,5 +140,47 @@ describe("layoutGrid", () => {
     // y is still near 0, so the horizontal lines and the x-axis are drawn as usual.
     expect(grid.majorY.length).toBeGreaterThan(0)
     expect(grid.yOrigin).toBe(300)
+  })
+})
+
+describe("xLabelLines", () => {
+  it("shows every x label while they fit", () => {
+    // The default view: labels like -8, 50 px apart.
+    const grid = layoutGrid(800, 600, [0, 0], 0.5)
+    expect(xLabelLines(grid, 800, labelWidth)).toEqual(grid.majorX)
+  })
+
+  it("shows every other x label where the minus sign makes negative labels crowd", () => {
+    // At scale 100 the labels are 200 u, 50 px, apart. Panned right, the
+    // widest is 4600: 34 px, which leaves 16 px before the next.
+    const positive = layoutGrid(800, 600, [3000, 0], 100)
+    expect(units(xLabelLines(positive, 800, labelWidth))).toEqual(units(positive.majorX))
+
+    // Panned left, -4600 is 42 px and leaves only 8 px, so every other label
+    // shows: the multiples of 400.
+    const negative = layoutGrid(800, 600, [-3000, 0], 100)
+    expect(units(negative.majorX)).toContain(-4200)
+    expect(units(xLabelLines(negative, 800, labelWidth))).toEqual([
+      -4400, -4000, -3600, -3200, -2800, -2400, -2000, -1600,
+    ])
+  })
+
+  it("keeps every x label when only a label past the edge is too wide", () => {
+    // At scale 6.2 the labels are 10 u, 40 px, apart, and the 800 px canvas
+    // shows x = -99 to 99: labels up to -90, which fit. The 64 px margin
+    // lists -110 and -100 too, which wouldn't, but they aren't on screen.
+    const grid = layoutGrid(800, 600, [0, 0], 6.2, 64)
+    expect(units(grid.majorX)).toContain(-110)
+    expect(xLabelLines(grid, 800, labelWidth)).toEqual(grid.majorX)
+  })
+
+  it("keeps the same x labels as the plane pans", () => {
+    // Pans of less than one label step and of an odd number of steps: the
+    // labels that show are always the multiples of 400 in view.
+    for (const x of [-3000, -2950, -2800, -2633, -2200]) {
+      const grid = layoutGrid(800, 600, [x, 0], 100)
+      const multiplesOf400 = units(grid.majorX).filter((u) => u % 400 === 0)
+      expect(units(xLabelLines(grid, 800, labelWidth))).toEqual(multiplesOf400)
+    }
   })
 })

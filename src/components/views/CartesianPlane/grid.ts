@@ -7,6 +7,9 @@ import { unscaledUnitSize } from "./constants"
 /** Minor grid lines stay at least this many px apart. */
 const minGridPx = 20
 
+/** Neighbouring x labels closer than this read as crowded. */
+const minLabelGap = 12
+
 export type GridSteps = {
   minor: number
   major: number
@@ -123,4 +126,27 @@ export const layoutGrid = (
     xOrigin: inRange(screenX(0), -margin, width + margin),
     yOrigin: inRange(screenY(0), -margin, height + margin),
   }
+}
+
+/**
+ * The major lines that get an x label: all of them, or every other one once
+ * the widest label of a line on the canvas leaves less than minLabelGap
+ * before the next. Every other one means the multiples of twice the major
+ * step, so the same labels stay as the plane pans. A label is String(unit),
+ * and labelWidth measures it.
+ */
+export const xLabelLines = (
+  grid: GridLayout,
+  width: number,
+  labelWidth: (text: string) => number,
+): GridLine[] => {
+  const spacing = grid.steps.major * grid.pxPerUnit
+  // Lines past the edge are listed so their labels slide in, but a wide
+  // label there isn't seen yet and mustn't thin the ones that are.
+  const onCanvas = grid.majorX.filter((line) => line.px >= 0 && line.px <= width)
+  const widest = Math.max(0, ...onCanvas.map((line) => labelWidth(String(line.unit))))
+  if (widest + minLabelGap <= spacing) {
+    return grid.majorX
+  }
+  return grid.majorX.filter((line) => onStep(line.unit, 2 * grid.steps.major))
 }
