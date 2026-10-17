@@ -7,6 +7,7 @@ declare const styles: {
   readonly "cartesian_plane": string;
   readonly "corner_chrome": string;
   readonly "html_overlay": string;
+  readonly "return_to_center": string;
   readonly "top_left_chrome": string;
   readonly "top_right_chrome": string;
   readonly "wrapper": string;

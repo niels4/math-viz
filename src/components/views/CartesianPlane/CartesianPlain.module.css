@@ -64,3 +64,31 @@ picks the two sides. */
   border-right-width: var(--corner-width);
   border-bottom-width: var(--corner-width);
 }
+
+/* Above the scale window, which drawScaleLegend.ts draws on the canvas. */
+.return_to_center {
+  position: absolute;
+  right: calc(28.5px - var(--space-inset));
+  bottom: calc(57.5px + 10px - var(--space-inset));
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: var(--foreground);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  pointer-events: auto;
+
+  &:hover {
+    background: var(--secondary);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+  }
+}
