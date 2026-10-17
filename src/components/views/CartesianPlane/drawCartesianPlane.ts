@@ -20,6 +20,7 @@ const drawAxis = (
   xLabels: AxisLabel[],
   yLabels: AxisLabel[],
   theme: ThemeVars,
+  font: string,
 ) => {
   ctx.strokeStyle = theme.chartAxis
   ctx.lineWidth = 2
@@ -37,7 +38,7 @@ const drawAxis = (
     ctx.stroke()
   }
 
-  ctx.font = '500 14px "Roboto Mono"'
+  ctx.font = font
   ctx.fillStyle = theme.foregroundMuted
   ctx.textAlign = "right"
   ctx.textBaseline = "top"
@@ -61,6 +62,7 @@ const drawGrid = (
   center: [number, number],
   scale: number,
   theme: ThemeVars,
+  font: string,
 ) => {
   // One grid type for now: these lines carry the labels, so they use the
   // major token. Minor lines arrive with grid scaling later.
@@ -144,7 +146,7 @@ const drawGrid = (
     ctx.stroke()
   }
 
-  drawAxis(ctx, width, height, xOrigin, yOrigin, xLabels, yLabels, theme)
+  drawAxis(ctx, width, height, xOrigin, yOrigin, xLabels, yLabels, theme, font)
 }
 
 export const drawCartesianPlane = (
@@ -154,7 +156,8 @@ export const drawCartesianPlane = (
   center: [number, number],
   scale: number,
   theme: ThemeVars,
+  font: string,
 ) => {
-  drawGrid(ctx, width, height, center, scale, theme)
-  drawScaleLegend(ctx, width, height, unscaledUnitSize, scale, theme)
+  drawGrid(ctx, width, height, center, scale, theme, font)
+  drawScaleLegend(ctx, width, height, unscaledUnitSize, scale, theme, font)
 }

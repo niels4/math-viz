@@ -15,13 +15,14 @@ export const drawScaleLegend = (
   unscaledUnitSize: number,
   scale: number,
   theme: ThemeVars,
+  font: string,
 ) => {
   // chartGrid carries the --border value in every theme, so it rims the
   // plate the way the reference's var(--border) does.
   ctx.strokeStyle = theme.chartGrid
   ctx.lineWidth = 1
 
-  ctx.font = `500 13px "Roboto Mono"`
+  ctx.font = font
   const scaleText = ` ${formatFixed(2, scale)} u`
   const scaleWindowTextWidth = ctx.measureText(scaleText).width
 
