@@ -179,26 +179,45 @@ describe("useCamera zoom", () => {
   })
 
   it("stops at the scale limits without starting an animation", async () => {
-    // Zoomed out near the limit, a big notch outward stops at scale 5.
-    const zoomedOut = await renderCamera({ center: [0, 0], scale: 4.9 })
+    // Zoomed out near the limit, a big notch outward stops at scale 100.
+    const zoomedOut = await renderCamera({ center: [0, 0], scale: 99 })
     wheel(1000)
     runUntilStill()
-    expect(zoomedOut.latest().scale).toBe(5)
+    expect(zoomedOut.latest().scale).toBe(100)
     await zoomedOut.unmount()
 
-    // At scale 5, another notch outward has nothing to animate.
-    const atMax = await renderCamera({ center: [0, 0], scale: 5 })
+    // At scale 100, another notch outward has nothing to animate.
+    const atMax = await renderCamera({ center: [0, 0], scale: 100 })
     wheel(100)
     expect(frames.size).toBe(0)
     expect(atMax.setScale).not.toHaveBeenCalled()
     await atMax.unmount()
 
-    // Likewise at scale 0.1 for a notch inward.
-    const atMin = await renderCamera({ center: [0, 0], scale: 0.1 })
+    // Likewise at scale 0.01 for a notch inward.
+    const atMin = await renderCamera({ center: [0, 0], scale: 0.01 })
     wheel(-100)
     expect(frames.size).toBe(0)
     expect(atMin.setScale).not.toHaveBeenCalled()
     await atMin.unmount()
+  })
+
+  it("ends a zoom at scale 0.02 without a jump at the edge of the plane", async () => {
+    // Zoomed far in, where a unit is 1250 px wide, a notch inward at the
+    // canvas center eases toward scale 0.02 / e^0.1.
+    const { setScale, latest, unmount } = await renderCamera({ center: [0, 0], scale: 0.02 })
+    wheel(-100)
+    runUntilStill()
+    expect(latest().scale).toBe(0.02 * Math.exp(-0.1))
+
+    // Each frame moves a point at the canvas edge, 200 px from the center,
+    // by 200 px times the scale's ratio to the frame before. The last frame
+    // snaps the rest of the way, and that snap moves it by under a px.
+    const scales = [0.02, ...setScale.mock.calls.map(([s]) => s)]
+    const edgeShift = (i: number) => 200 * Math.abs((scales[i - 1] ?? 0) / (scales[i] ?? 1) - 1)
+    expect(scales.length).toBeGreaterThan(5)
+    expect(edgeShift(scales.length - 1)).toBeLessThan(1)
+
+    await unmount()
   })
 
   it("keeps the plane point under the cursor in place while zooming", async () => {

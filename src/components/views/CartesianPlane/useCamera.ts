@@ -3,19 +3,19 @@ import type { RefObject } from "react"
 import { useEffect, useRef } from "react"
 
 import { unscaledUnitSize } from "./constants"
+import { maxScale, minScale } from "./queryParams"
 
 type Center = [number, number]
 
 // A wheel event multiplies the scale by exp(deltaY * scaleSpeed), so equal
 // notches zoom by equal ratios at every scale.
 const scaleSpeed = 0.001
-const minScale = 0.1
-const maxScale = 5
 // The scale eases toward its target: each ms covers this fraction of the
 // remaining distance, so the distance shrinks by e every 83 ms.
 const zoomRate = 0.012
-// The zoom snaps to its target once it is this close.
-const scaleEpsilon = 0.0005
+// The zoom snaps to its target once it is within this fraction of it, so the
+// snap moves a point 400 px from the cursor by under half a px at any scale.
+const scaleEpsilon = 0.001
 // Release faster than this (px per ms) starts a glide; slower just stops.
 const minFlickSpeed = 0.15
 // Exponential decay of the glide per ms. Higher stops sooner.
@@ -158,7 +158,7 @@ export const useCamera = (
 
       const prevScale = cur.scale
       cur.scale += (targetScale - cur.scale) * (1 - Math.exp(-zoomRate * dt))
-      if (Math.abs(targetScale - cur.scale) < scaleEpsilon) {
+      if (Math.abs(targetScale - cur.scale) < scaleEpsilon * targetScale) {
         cur.scale = targetScale
       }
       // A plane unit is unscaledUnitSize / scale px wide, so this shift

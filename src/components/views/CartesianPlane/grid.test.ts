@@ -24,6 +24,7 @@ const gaps = (px: number[]) => px.slice(1).map((p, i) => p - (px[i] ?? p))
 
 describe("layoutGrid", () => {
   it.each([
+    { scale: 0.01, pxPerUnit: 2500, minor: 0.01, major: 0.02, minorPx: 25 },
     { scale: 0.1, pxPerUnit: 250, minor: 0.1, major: 0.2, minorPx: 25 },
     { scale: 0.25, pxPerUnit: 100, minor: 0.2, major: 0.5, minorPx: 20 },
     { scale: 0.5, pxPerUnit: 50, minor: 0.5, major: 1, minorPx: 25 },
@@ -31,6 +32,8 @@ describe("layoutGrid", () => {
     { scale: 1.25, pxPerUnit: 20, minor: 1, major: 2, minorPx: 20 },
     { scale: 2, pxPerUnit: 12.5, minor: 2, major: 5, minorPx: 25 },
     { scale: 5, pxPerUnit: 5, minor: 5, major: 10, minorPx: 25 },
+    { scale: 10, pxPerUnit: 2.5, minor: 10, major: 20, minorPx: 25 },
+    { scale: 100, pxPerUnit: 0.25, minor: 100, major: 200, minorPx: 25 },
   ])(
     "at scale $scale spaces minor lines $minor u ($minorPx px) apart and majors $major u apart",
     ({ scale, pxPerUnit, minor, major, minorPx }) => {
@@ -73,8 +76,8 @@ describe("layoutGrid", () => {
   })
 
   it("keeps minor lines between 20 and 50 px apart at every scale", () => {
-    // Sweep the whole zoom range, 0.1 to 5, with the origin off center.
-    for (let scale = 0.1; scale <= 5; scale += 0.01) {
+    // Sweep the whole zoom range, 0.01 to 100 in steps of 1%, with the origin off center.
+    for (let scale = 0.01; scale <= 100; scale *= 1.01) {
       const grid = layoutGrid(800, 600, [0.37, -2.1], scale)
       // With the axis in the place of the line at 0, every line is one minor step from the next.
       for (const gap of [...gaps(xPositions(grid)), ...gaps(yPositions(grid))]) {
@@ -96,15 +99,18 @@ describe("layoutGrid", () => {
   })
 
   it.each([
+    { scale: 0.01, major: 0.02 },
     { scale: 0.1, major: 0.2 },
     { scale: 0.25, major: 0.5 },
-  ])("labels read as short decimals, not float noise, with majors every $major u", ({ scale }) => {
+  ])("labels read as short decimals, not float noise, with majors every $major u", ({ scale, major }) => {
     // Far from the origin, where n × 0.2 gives values like 12.600000000000001.
     const grid = layoutGrid(800, 600, [12.3, -45.6], scale)
     const labels = units([...grid.majorX, ...grid.majorY]).map(String)
     expect(labels.length).toBeGreaterThan(0)
+    // No label has more decimals than the step: 12.14 with majors every 0.02.
+    const decimals = (s: string) => s.split(".")[1]?.length ?? 0
     for (const label of labels) {
-      expect(label).toMatch(/^-?\d+(\.\d)?$/)
+      expect(decimals(label)).toBeLessThanOrEqual(decimals(String(major)))
     }
   })
 
