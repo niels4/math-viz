@@ -98,6 +98,21 @@ describe("layoutGrid", () => {
     expect(units(grid.majorY)).toEqual([94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106])
   })
 
+  it("lists lines and axes up to the margin past each edge", () => {
+    // At 50 px per unit with a 64 px margin, the 800 by 600 canvas lists x = -9
+    // to 9 (-50 to 850 px) and y = -7 to 7 (650 to -50 px).
+    const grid = layoutGrid(800, 600, [0, 0], 0.5, 64)
+    expect(grid.majorX.at(0)).toEqual({ unit: -9, px: -50 })
+    expect(grid.majorX.at(-1)).toEqual({ unit: 9, px: 850 })
+    expect(grid.majorY.at(0)).toEqual({ unit: -7, px: 650 })
+    expect(grid.majorY.at(-1)).toEqual({ unit: 7, px: -50 })
+
+    // Panned so the y-axis is 50 px left of the canvas, it is still listed.
+    const panned = layoutGrid(800, 600, [9, 0], 0.5, 64)
+    expect(panned.xOrigin).toBe(-50)
+    expect(layoutGrid(800, 600, [9, 0], 0.5).xOrigin).toBeNull()
+  })
+
   it.each([
     { scale: 0.01, major: 0.02 },
     { scale: 0.1, major: 0.2 },

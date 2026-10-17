@@ -2,11 +2,7 @@ import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
 import { unscaledUnitSize } from "./constants"
 import { drawScaleLegend } from "./drawScaleLegend"
-
-type AxisLabel = {
-  unitVal: number
-  ctxVal: number
-}
+import { layoutGrid, type GridLine } from "./grid"
 
 const labelXPadding = 6
 const labelYPadding = 6
@@ -17,8 +13,8 @@ const drawAxis = (
   height: number,
   xOrigin: number | null,
   yOrigin: number | null,
-  xLabels: AxisLabel[],
-  yLabels: AxisLabel[],
+  xLabels: GridLine[],
+  yLabels: GridLine[],
   theme: ThemeVars,
   font: string | null,
 ) => {
@@ -48,16 +44,42 @@ const drawAxis = (
   ctx.textAlign = "right"
   ctx.textBaseline = "top"
 
-  for (const { unitVal, ctxVal } of xLabels) {
-    ctx.fillText(String(unitVal), ctxVal - labelXPadding, (yOrigin ?? 20) + labelYPadding)
+  const xLabelTop = (yOrigin ?? 20) + labelYPadding
+  for (const { unit, px } of xLabels) {
+    ctx.fillText(String(unit), px - labelXPadding, xLabelTop)
+  }
+  // The grid lists no line at 0, where the axes are. The origin's 0 shows
+  // once, in the x labels.
+  if (xOrigin !== null) {
+    ctx.fillText("0", xOrigin - labelXPadding, xLabelTop)
   }
 
-  for (const { unitVal, ctxVal } of yLabels) {
-    if (unitVal === 0) {
-      continue
-    }
-    ctx.fillText(String(unitVal), (xOrigin ?? 0) - labelXPadding, ctxVal + labelYPadding)
+  for (const { unit, px } of yLabels) {
+    ctx.fillText(String(unit), (xOrigin ?? 0) - labelXPadding, px + labelYPadding)
   }
+}
+
+// Lines this far past an edge still get their labels, so a label slides in
+// with its line instead of popping in: a label sits left of or below its
+// line, and one like -1234 is under 64 px wide.
+const labelMargin = 64
+
+const strokeVertical = (ctx: CanvasRenderingContext2D, lines: GridLine[], height: number) => {
+  ctx.beginPath()
+  for (const { px } of lines) {
+    ctx.moveTo(px, 0)
+    ctx.lineTo(px, height)
+  }
+  ctx.stroke()
+}
+
+const strokeHorizontal = (ctx: CanvasRenderingContext2D, lines: GridLine[], width: number) => {
+  ctx.beginPath()
+  for (const { px } of lines) {
+    ctx.moveTo(0, px)
+    ctx.lineTo(width, px)
+  }
+  ctx.stroke()
 }
 
 const drawGrid = (
@@ -69,89 +91,17 @@ const drawGrid = (
   theme: ThemeVars,
   font: string | null,
 ) => {
-  // One grid type for now: these lines carry the labels, so they use the
-  // major token. Minor lines arrive with grid scaling later.
-  ctx.strokeStyle = theme.chartGridMajor
+  const grid = layoutGrid(width, height, center, scale, labelMargin)
+
   ctx.lineWidth = 1
-  const unitSize = unscaledUnitSize / scale
+  ctx.strokeStyle = theme.chartGrid
+  strokeVertical(ctx, grid.minorX, height)
+  strokeHorizontal(ctx, grid.minorY, width)
+  ctx.strokeStyle = theme.chartGridMajor
+  strokeVertical(ctx, grid.majorX, height)
+  strokeHorizontal(ctx, grid.majorY, width)
 
-  const ctxCenterX = Math.floor(width / 2)
-  const ctxCenterY = Math.floor(height / 2)
-
-  let xOrigin: number | null = null
-  let yOrigin: number | null = null
-  const xLabels: AxisLabel[] = []
-  const yLabels: AxisLabel[] = []
-
-  const numWidthUnits = Math.ceil(width / unitSize)
-  const halfNumWidthUnits = Math.ceil(numWidthUnits / 2) + 1
-  const xOffset = (center[0] % 1) * unitSize
-
-  for (let i = 0; i < halfNumWidthUnits; i++) {
-    const ctxDiff = i * unitSize
-    const ctx1 = ctxCenterX + ctxDiff - xOffset
-    const ctx2 = ctxCenterX - ctxDiff - xOffset
-    const startX = center[0] >= 0 ? Math.floor(center[0]) : Math.ceil(center[0])
-    const x1 = startX + i
-    const x2 = startX - i
-
-    if (x1 === 0) {
-      xOrigin = ctx1
-    } else if (x2 === 0) {
-      xOrigin = ctx2
-    }
-
-    xLabels.push({ unitVal: x1, ctxVal: ctx1 })
-    if (x1 !== x2) {
-      xLabels.push({ unitVal: x2, ctxVal: ctx2 })
-    }
-
-    ctx.beginPath()
-    ctx.moveTo(ctx1, 0)
-    ctx.lineTo(ctx1, height)
-    ctx.stroke()
-
-    ctx.beginPath()
-    ctx.moveTo(ctx2, 0)
-    ctx.lineTo(ctx2, height)
-    ctx.stroke()
-  }
-
-  const numHeightUnits = Math.ceil(height / unitSize)
-  const halfNumHeightUnits = Math.ceil(numHeightUnits / 2) + 1
-  const yOffset = (center[1] % 1) * unitSize
-
-  for (let i = 0; i < halfNumHeightUnits; i++) {
-    const ctxDiff = i * unitSize
-    const ctx1 = ctxCenterY - ctxDiff + yOffset
-    const ctx2 = ctxCenterY + ctxDiff + yOffset
-    const startY = center[1] >= 0 ? Math.floor(center[1]) : Math.ceil(center[1])
-    const y1 = startY + i
-    const y2 = startY - i
-
-    if (y1 === 0) {
-      yOrigin = ctx1
-    } else if (y2 === 0) {
-      yOrigin = ctx2
-    }
-
-    yLabels.push({ unitVal: y1, ctxVal: ctx1 })
-    if (y1 !== y2) {
-      yLabels.push({ unitVal: y2, ctxVal: ctx2 })
-    }
-
-    ctx.beginPath()
-    ctx.moveTo(0, ctx1)
-    ctx.lineTo(width, ctx1)
-    ctx.stroke()
-
-    ctx.beginPath()
-    ctx.moveTo(0, ctx2)
-    ctx.lineTo(width, ctx2)
-    ctx.stroke()
-  }
-
-  drawAxis(ctx, width, height, xOrigin, yOrigin, xLabels, yLabels, theme, font)
+  drawAxis(ctx, width, height, grid.xOrigin, grid.yOrigin, grid.majorX, grid.majorY, theme, font)
 }
 
 export const drawCartesianPlane = (

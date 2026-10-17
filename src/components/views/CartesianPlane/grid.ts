@@ -26,7 +26,7 @@ export type GridLayout = {
   majorX: GridLine[]
   minorY: GridLine[]
   majorY: GridLine[]
-  /** Screen x of the y-axis (x = 0) and screen y of the x-axis (y = 0), null while off screen. */
+  /** Screen x of the y-axis (x = 0) and screen y of the x-axis (y = 0), null while off screen and past the margin. */
   xOrigin: number | null
   yOrigin: number | null
 }
@@ -67,11 +67,17 @@ const onStep = (u: number, step: number): boolean => Math.abs(u / step - Math.ro
 
 const inRange = (v: number, lo: number, hi: number): number | null => (v >= lo && v <= hi ? v : null)
 
+/**
+ * The grid of a width by height canvas. Lines and axes up to margin px past
+ * each edge are listed too, so a label beside a line just off screen still
+ * shows.
+ */
 export const layoutGrid = (
   width: number,
   height: number,
   center: [number, number],
   scale: number,
+  margin = 0,
 ): GridLayout => {
   const pxPerUnit = unscaledUnitSize / scale
   const steps = gridSteps(pxPerUnit)
@@ -100,14 +106,12 @@ export const layoutGrid = (
     return { minor, major }
   }
 
-  const xs = split(
-    multiples(center[0] - centerX / pxPerUnit, center[0] + (width - centerX) / pxPerUnit, steps.minor),
-    screenX,
-  )
-  const ys = split(
-    multiples(center[1] - (height - centerY) / pxPerUnit, center[1] + centerY / pxPerUnit, steps.minor),
-    screenY,
-  )
+  const left = center[0] - (centerX + margin) / pxPerUnit
+  const right = center[0] + (width - centerX + margin) / pxPerUnit
+  const bottom = center[1] - (height - centerY + margin) / pxPerUnit
+  const top = center[1] + (centerY + margin) / pxPerUnit
+  const xs = split(multiples(left, right, steps.minor), screenX)
+  const ys = split(multiples(bottom, top, steps.minor), screenY)
 
   return {
     steps,
@@ -116,7 +120,7 @@ export const layoutGrid = (
     majorX: xs.major,
     minorY: ys.minor,
     majorY: ys.major,
-    xOrigin: inRange(screenX(0), 0, width),
-    yOrigin: inRange(screenY(0), 0, height),
+    xOrigin: inRange(screenX(0), -margin, width + margin),
+    yOrigin: inRange(screenY(0), -margin, height + margin),
   }
 }
