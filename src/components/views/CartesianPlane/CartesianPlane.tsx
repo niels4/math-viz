@@ -10,6 +10,7 @@ import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 import style from "./CartesianPlain.module.css"
 import { planeFont } from "./constants"
 import { drawCartesianPlane } from "./drawCartesianPlane"
+import { HtmlOverlay } from "./HtmlOverlay"
 import { centerParam, scaleParam } from "./queryParams"
 import { useCamera } from "./useCamera"
 
@@ -94,5 +95,10 @@ export const CartesianPlane = () => {
   useCamera(ref, center, scale, setCenter, setScale, flushCamera)
   useUpdateCanvas(ref, width, height, center, scale, themeVars, font)
 
-  return <canvas ref={ref} className={style.cartesian_plane} />
+  return (
+    <div className={style.wrapper}>
+      <canvas ref={ref} className={style.cartesian_plane} />
+      <HtmlOverlay />
+    </div>
+  )
 }

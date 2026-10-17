@@ -2,8 +2,8 @@ import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
 import { formatFixed } from "#src/util/format.ts"
 
-const scaleWindowRight = 10
-const scaleWindowBottom = 10
+const scaleWindowRight = 24
+const scaleWindowBottom = 24
 const scaleWindowPadding = 10
 const scaleLegendHeight = 5
 const scaleWindowHeight = scaleLegendHeight + scaleWindowPadding * 2
