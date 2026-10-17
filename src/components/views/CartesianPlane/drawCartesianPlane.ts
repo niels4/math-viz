@@ -1,7 +1,7 @@
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
 import { unscaledUnitSize } from "./constants"
-import { drawOverlay } from "./drawOverlay"
+import { drawScaleLegend } from "./drawScaleLegend"
 
 type AxisLabel = {
   unitVal: number
@@ -156,5 +156,5 @@ export const drawCartesianPlane = (
   theme: ThemeVars,
 ) => {
   drawGrid(ctx, width, height, center, scale, theme)
-  drawOverlay(ctx, width, height, unscaledUnitSize, scale, theme)
+  drawScaleLegend(ctx, width, height, unscaledUnitSize, scale, theme)
 }

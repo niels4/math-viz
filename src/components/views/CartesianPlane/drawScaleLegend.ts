@@ -8,7 +8,7 @@ const scaleWindowPadding = 10
 const scaleLegendHeight = 5
 const scaleWindowHeight = scaleLegendHeight + scaleWindowPadding * 2
 
-export const drawOverlay = (
+export const drawScaleLegend = (
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
