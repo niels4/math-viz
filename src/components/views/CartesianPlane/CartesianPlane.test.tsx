@@ -77,7 +77,7 @@ describe("CartesianPlane", () => {
     // #test's act can't await an async callback, so wait for the draw instead.
     finishFontLoad()
     await vi.waitFor(() => {
-      expect(textsOf(lastDraw())).toEqual(expect.arrayContaining(["1", "-1", " 0.50 u"]))
+      expect(textsOf(lastDraw())).toEqual(expect.arrayContaining(["1", "-1", "0.50 u"]))
     })
     expect(lastDraw().calls).toContain("roundRect")
     expect(new Set(lastDraw().texts.map((t) => t.font))).toEqual(new Set([planeFont]))
@@ -91,7 +91,7 @@ describe("CartesianPlane", () => {
     // browser's fallback face rather than not at all.
     failFontLoad()
     await vi.waitFor(() => {
-      expect(textsOf(lastDraw())).toEqual(expect.arrayContaining(["1", "-1", " 0.50 u"]))
+      expect(textsOf(lastDraw())).toEqual(expect.arrayContaining(["1", "-1", "0.50 u"]))
     })
   })
 })

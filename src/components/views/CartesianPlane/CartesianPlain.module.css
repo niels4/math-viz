@@ -17,64 +17,50 @@
   user-select: none;
 }
 
+/* Sits over the plane, inset by the gap between the plane's edge and its
+corner brackets. */
 .html_overlay {
-  pointer-events: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: block;
-  margin: var(--space-inset); /* this spacing needs fixing */
-  width: calc(100% - var(--space-inset) * 2);
-  height: calc(100% - var(--space-inset) * 2);
-  min-width: 0;
-  min-height: 0;
-  overflow: visible;
-  border-radius: var(--radius-card);
-  background: none;
+  --corner-length: 26px;
+  --corner-width: 2.5px;
 
-  --corner-length: 24px;
+  position: absolute;
+  inset: var(--space-inset);
+  pointer-events: none;
+}
+
+/* A corner bracket: two sides of a square box. Each corner class below
+picks the two sides. */
+.corner_chrome {
+  position: absolute;
+  width: var(--corner-length);
+  height: var(--corner-length);
+  border: 0 solid var(--foreground-muted);
 }
 
 .top_left_chrome {
-  display: inline-block;
-  height: var(--corner-length);
-  width: var(--corner-length);
-  position: absolute;
   top: 0;
   left: 0;
-  border-top: 2px solid var(--border);
-  border-left: 2px solid var(--border); /* this border color needs fixing */
+  border-top-width: var(--corner-width);
+  border-left-width: var(--corner-width);
 }
 
 .top_right_chrome {
-  display: inline-block;
-  height: var(--corner-length);
-  width: var(--corner-length);
-  position: absolute;
   top: 0;
   right: 0;
-  border-top: 2px solid var(--border);
-  border-right: 2px solid var(--border); /* this border color needs fixing */
+  border-top-width: var(--corner-width);
+  border-right-width: var(--corner-width);
 }
 
 .bottom_left_chrome {
-  display: inline-block;
-  height: var(--corner-length);
-  width: var(--corner-length);
-  position: absolute;
   bottom: 0;
   left: 0;
-  border-bottom: 2px solid var(--border);
-  border-left: 2px solid var(--border); /* this border color needs fixing */
+  border-bottom-width: var(--corner-width);
+  border-left-width: var(--corner-width);
 }
 
 .bottom_right_chrome {
-  display: inline-block;
-  height: var(--corner-length);
-  width: var(--corner-length);
-  position: absolute;
-  bottom: 0;
   right: 0;
-  border-bottom: 2px solid var(--border);
-  border-right: 2px solid var(--border); /* this border color needs fixing */
+  bottom: 0;
+  border-right-width: var(--corner-width);
+  border-bottom-width: var(--corner-width);
 }

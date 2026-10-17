@@ -5,6 +5,7 @@ declare const styles: {
   readonly "bottom_left_chrome": string;
   readonly "bottom_right_chrome": string;
   readonly "cartesian_plane": string;
+  readonly "corner_chrome": string;
   readonly "html_overlay": string;
   readonly "top_left_chrome": string;
   readonly "top_right_chrome": string;
