@@ -8,19 +8,19 @@ import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 
 import style from "./CartesianPlain.module.css"
-import { planeFallbackFont, planeFont } from "./constants"
+import { planeFont } from "./constants"
 import { drawCartesianPlane } from "./drawCartesianPlane"
 import { centerParam, scaleParam } from "./queryParams"
 import { useCamera } from "./useCamera"
 
 const ctxOptions: CanvasRenderingContext2DSettings = { colorSpace: "display-p3" } as const
 
-// The font to draw canvas text in: fallback until font has loaded, then
-// font. The browser fetches a global.css font only when something uses it,
-// so load it here. Canvas text drawn before the font arrives would stay in a
-// fallback face until the next draw; the font this returns changes when it
-// arrives, and useUpdateCanvas draws again with it.
-const useCanvasFont = (font: string, fallback: string): string => {
+// The font to draw canvas text in, or null until it has loaded. The browser
+// fetches a global.css font only when something uses it, so load it here.
+// While this is null the plane leaves its text out, rather than show it in a
+// fallback face, and useUpdateCanvas draws the text once the font arrives. If
+// the font fails to load, the text draws anyway, in the browser's fallback.
+const useCanvasFont = (font: string): string | null => {
   const [loaded, setLoaded] = useState<string | null>(null)
   useEffect(() => {
     // jsdom has no document.fonts.
@@ -28,16 +28,17 @@ const useCanvasFont = (font: string, fallback: string): string => {
       return
     }
     let mounted = true
-    void document.fonts.load(font).then(() => {
+    const showText = () => {
       if (mounted) {
         setLoaded(font)
       }
-    })
+    }
+    void document.fonts.load(font).then(showText, showText)
     return () => {
       mounted = false
     }
   }, [font])
-  return loaded === font ? font : fallback
+  return loaded === font ? font : null
 }
 
 const useUpdateCanvas = (
@@ -47,7 +48,7 @@ const useUpdateCanvas = (
   center: [number, number],
   scale: number,
   theme: ThemeVars,
-  font: string,
+  font: string | null,
 ) => {
   const draw = useHotReload(drawCartesianPlane)
   const dpr = useDevicePixelRatio()
@@ -81,7 +82,7 @@ export const CartesianPlane = () => {
   const [center, setCenter, flushCenter] = useQueryParam(centerParam)
   const [scale, setScale, flushScale] = useQueryParam(scaleParam)
   const { themeVars } = useAppTheme()
-  const font = useCanvasFont(planeFont, planeFallbackFont)
+  const font = useCanvasFont(planeFont)
 
   // The URL gets the camera's center and scale together, once it stops
   // after a drag, a glide or a zoom.

@@ -20,7 +20,7 @@ const drawAxis = (
   xLabels: AxisLabel[],
   yLabels: AxisLabel[],
   theme: ThemeVars,
-  font: string,
+  font: string | null,
 ) => {
   ctx.strokeStyle = theme.chartAxis
   ctx.lineWidth = 2
@@ -36,6 +36,11 @@ const drawAxis = (
     ctx.moveTo(0, yOrigin)
     ctx.lineTo(width, yOrigin)
     ctx.stroke()
+  }
+
+  // The labels wait for their font rather than show in a fallback face.
+  if (font === null) {
+    return
   }
 
   ctx.font = font
@@ -62,7 +67,7 @@ const drawGrid = (
   center: [number, number],
   scale: number,
   theme: ThemeVars,
-  font: string,
+  font: string | null,
 ) => {
   // One grid type for now: these lines carry the labels, so they use the
   // major token. Minor lines arrive with grid scaling later.
@@ -156,8 +161,12 @@ export const drawCartesianPlane = (
   center: [number, number],
   scale: number,
   theme: ThemeVars,
-  font: string,
+  font: string | null,
 ) => {
   drawGrid(ctx, width, height, center, scale, theme, font)
-  drawScaleLegend(ctx, width, height, unscaledUnitSize, scale, theme, font)
+  // The legend's plate is as wide as its text, so the whole legend waits for
+  // the font with the labels.
+  if (font !== null) {
+    drawScaleLegend(ctx, width, height, unscaledUnitSize, scale, theme, font)
+  }
 }
