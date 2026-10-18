@@ -9,7 +9,7 @@ import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 
 import style from "./CartesianPlain.module.css"
 import { planeFont } from "./constants"
-import { drawCartesianPlane } from "./drawCartesianPlane"
+import { drawCartesianPlane, type PlotFunction } from "./drawCartesianPlane"
 import { HtmlOverlay } from "./HtmlOverlay"
 import { centerParam, scaleParam } from "./queryParams"
 import { useCamera } from "./useCamera"
@@ -50,6 +50,7 @@ const useUpdateCanvas = (
   scale: number,
   theme: ThemeVars,
   font: string | null,
+  plotFunction: PlotFunction,
 ) => {
   const draw = useHotReload(drawCartesianPlane)
   const dpr = useDevicePixelRatio()
@@ -73,11 +74,11 @@ const useUpdateCanvas = (
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, width, height)
 
-    draw(ctx, width, height, center, scale, theme, font)
-  }, [ref, width, height, dpr, center, scale, theme, font, draw])
+    draw(ctx, width, height, center, scale, theme, font, plotFunction)
+  }, [ref, width, height, dpr, center, scale, theme, font, plotFunction, draw])
 }
 
-export const CartesianPlane = () => {
+export const CartesianPlane = ({ plotFunction }: { plotFunction: PlotFunction }) => {
   const ref = useRef<HTMLCanvasElement | null>(null)
   const { width, height } = useResizeObserver(ref)
   const [center, setCenter, flushCenter] = useQueryParam(centerParam)
@@ -93,7 +94,7 @@ export const CartesianPlane = () => {
   }
 
   useCamera(ref, center, scale, setCenter, setScale, flushCamera)
-  useUpdateCanvas(ref, width, height, center, scale, themeVars, font)
+  useUpdateCanvas(ref, width, height, center, scale, themeVars, font, plotFunction)
 
   return (
     <div className={style.wrapper}>

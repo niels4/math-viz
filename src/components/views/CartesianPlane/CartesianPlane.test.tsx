@@ -2,8 +2,13 @@ import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vite
 
 import { render } from "#test"
 
+import type { PlotFunction } from "./drawCartesianPlane"
+
 import { CartesianPlane } from "./CartesianPlane"
 import { planeFont } from "./constants"
+
+// The plane graphs y = x.
+const identity: PlotFunction = (x) => x
 
 // Every draw of the canvas: the context calls it made, and each piece of its
 // text with the font it was drawn in.
@@ -61,7 +66,7 @@ afterEach(() => {
 
 describe("CartesianPlane", () => {
   it("shows no numbers until Roboto Mono has loaded, then shows them in it", async () => {
-    await render(<CartesianPlane />)
+    await render(<CartesianPlane plotFunction={identity} />)
 
     // Before the font arrives, the plane draws its grid and axes, but no axis
     // numbers and no scale legend.
@@ -84,7 +89,7 @@ describe("CartesianPlane", () => {
   })
 
   it("shows the numbers anyway when Roboto Mono fails to load", async () => {
-    await render(<CartesianPlane />)
+    await render(<CartesianPlane plotFunction={identity} />)
     expect(lastDraw().texts).toEqual([])
 
     // The font file doesn't arrive, so the numbers and the legend show in the

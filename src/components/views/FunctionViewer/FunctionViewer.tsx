@@ -1,8 +1,12 @@
 import { type ReactNode } from "react"
 
+import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
+
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
 import { TopBar } from "../TopBar/TopBar"
+import { baseFunctions } from "./baseFunctions"
 import style from "./FunctionViewer.module.css"
+import { funcParam } from "./queryParams"
 import { SideBar } from "./SideBar/SideBar"
 
 const Page = ({ children }: { children: ReactNode | ReactNode[] }) => {
@@ -10,11 +14,13 @@ const Page = ({ children }: { children: ReactNode | ReactNode[] }) => {
 }
 
 export const FunctionViewer = () => {
+  const [func] = useQueryParam(funcParam)
+
   return (
     <Page>
       <TopBar />
       <SideBar />
-      <CartesianPlane />
+      <CartesianPlane plotFunction={baseFunctions[func]} />
     </Page>
   )
 }

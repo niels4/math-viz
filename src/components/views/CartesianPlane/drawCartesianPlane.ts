@@ -4,6 +4,9 @@ import { planeFontSize, unscaledUnitSize } from "./constants"
 import { drawScaleLegend } from "./drawScaleLegend"
 import { layoutGrid, layoutLabels, type GridLayout, type GridLine } from "./grid"
 
+/** A function the plane graphs as y = f(x). */
+export type PlotFunction = (x: number) => number
+
 // Ticks cross an axis at each major line, this far to each side.
 const tickHalf = 5
 
@@ -79,13 +82,10 @@ const drawGrid = (
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
-  center: [number, number],
-  scale: number,
+  grid: GridLayout,
   theme: ThemeVars,
   font: string | null,
 ) => {
-  const grid = layoutGrid(width, height, center, scale, labelMargin)
-
   ctx.lineWidth = 1
   ctx.strokeStyle = theme.chartGrid
   strokeVertical(ctx, grid.minorX, height)
@@ -97,6 +97,26 @@ const drawGrid = (
   drawAxis(ctx, width, height, grid, theme, font)
 }
 
+// y = f(x) across the canvas, one point per px column.
+const drawCurve = (
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  grid: GridLayout,
+  plotFunction: PlotFunction,
+  theme: ThemeVars,
+) => {
+  const [originX, originY] = grid.origin
+  ctx.strokeStyle = theme.chartLine
+  ctx.lineWidth = 3
+  ctx.lineJoin = "round"
+  ctx.beginPath()
+  for (let px = 0; px <= width; px++) {
+    const y = plotFunction((px - originX) / grid.pxPerUnit)
+    ctx.lineTo(px, originY - y * grid.pxPerUnit)
+  }
+  ctx.stroke()
+}
+
 export const drawCartesianPlane = (
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -105,8 +125,11 @@ export const drawCartesianPlane = (
   scale: number,
   theme: ThemeVars,
   font: string | null,
+  plotFunction: PlotFunction,
 ) => {
-  drawGrid(ctx, width, height, center, scale, theme, font)
+  const grid = layoutGrid(width, height, center, scale, labelMargin)
+  drawGrid(ctx, width, height, grid, theme, font)
+  drawCurve(ctx, width, grid, plotFunction, theme)
   // The legend's plate is as wide as its text, so the whole legend waits for
   // the font with the labels.
   if (font !== null) {
