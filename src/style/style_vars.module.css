@@ -29,6 +29,7 @@
   /* Text size by role */
   --text-wordmark: 1.5rem; /* 24px - the MathViz wordmark in a view header */
   --text-title: 1.25rem; /* 20px - view title */
+  --text-heading: 1.0625rem; /* 17px - sidebar card titles */
   --text-body: 1rem; /* 16px - default copy, theme row names */
   --text-control: 0.875rem; /* 14px - segmented options, chips, buttons */
   --text-help: 0.8125rem; /* 13px - secondary explanatory text in menus */
