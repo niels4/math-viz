@@ -9,10 +9,11 @@ import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 
 import style from "./CartesianPlain.module.css"
 import { planeFont } from "./constants"
-import { drawCartesianPlane, type PlotFunction } from "./drawCartesianPlane"
+import { drawCartesianPlane, type PlotCurve, type PlotFunction } from "./drawCartesianPlane"
 import { HtmlOverlay } from "./HtmlOverlay"
 import { centerParam, scaleParam } from "./queryParams"
 import { useCamera } from "./useCamera"
+import { usePlotCurves } from "./usePlotCurves"
 
 const ctxOptions: CanvasRenderingContext2DSettings = { colorSpace: "display-p3" } as const
 
@@ -50,7 +51,7 @@ const useUpdateCanvas = (
   scale: number,
   theme: ThemeVars,
   font: string | null,
-  plotFunction: PlotFunction,
+  curves: readonly PlotCurve[],
 ) => {
   const draw = useHotReload(drawCartesianPlane)
   const dpr = useDevicePixelRatio()
@@ -74,8 +75,8 @@ const useUpdateCanvas = (
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, width, height)
 
-    draw(ctx, width, height, center, scale, theme, font, [{ fn: plotFunction, alpha: 1, drawTo: 1 }])
-  }, [ref, width, height, dpr, center, scale, theme, font, plotFunction, draw])
+    draw(ctx, width, height, center, scale, theme, font, curves)
+  }, [ref, width, height, dpr, center, scale, theme, font, curves, draw])
 }
 
 export const CartesianPlane = ({ plotFunction }: { plotFunction: PlotFunction }) => {
@@ -93,8 +94,10 @@ export const CartesianPlane = ({ plotFunction }: { plotFunction: PlotFunction })
     flushScale()
   }
 
+  const curves = usePlotCurves(plotFunction)
+
   useCamera(ref, center, scale, setCenter, setScale, flushCamera)
-  useUpdateCanvas(ref, width, height, center, scale, themeVars, font, plotFunction)
+  useUpdateCanvas(ref, width, height, center, scale, themeVars, font, curves)
 
   return (
     <div className={style.wrapper}>
