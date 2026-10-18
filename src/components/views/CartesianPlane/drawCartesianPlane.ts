@@ -7,6 +7,12 @@ import { layoutGrid, layoutLabels, type GridLayout, type GridLine } from "./grid
 /** A function the plane graphs as y = f(x). */
 export type PlotFunction = (x: number) => number
 
+/**
+ * A function's curve as one frame shows it: its opacity, and how much of its
+ * length inside the canvas is drawn, from the left (1 for all of it).
+ */
+export type PlotCurve = { fn: PlotFunction; alpha: number; drawTo: number }
+
 // Ticks cross an axis at each major line, this far to each side.
 const tickHalf = 5
 
@@ -97,24 +103,63 @@ const drawGrid = (
   drawAxis(ctx, width, height, grid, theme, font)
 }
 
-// y = f(x) across the canvas, one point per px column.
+// The share of the segment from y0 to y1 that lies between the canvas's top
+// and bottom edges.
+const insideShare = (y0: number, y1: number, height: number) => {
+  const lo = Math.min(y0, y1)
+  const hi = Math.max(y0, y1)
+  if (hi < 0 || lo > height) {
+    return 0
+  }
+  if (hi === lo) {
+    return 1
+  }
+  return (Math.min(hi, height) - Math.max(lo, 0)) / (hi - lo)
+}
+
+// y = f(x) across the canvas, one point per px column. A curve drawn partway
+// stops once it has drawn its share of the length inside the canvas, so the
+// pen spends no time above or below the canvas.
 const drawCurve = (
   ctx: CanvasRenderingContext2D,
   width: number,
+  height: number,
   grid: GridLayout,
-  plotFunction: PlotFunction,
+  curve: PlotCurve,
   theme: ThemeVars,
 ) => {
   const [originX, originY] = grid.origin
+  // Each point with the length inside the canvas from the left edge to it.
+  const points: { x: number; y: number; at: number }[] = []
+  let at = 0
+  for (let px = 0; px <= width; px++) {
+    const y = originY - curve.fn((px - originX) / grid.pxPerUnit) * grid.pxPerUnit
+    const prev = points.at(-1)
+    if (prev !== undefined) {
+      at += Math.hypot(px - prev.x, y - prev.y) * insideShare(prev.y, y, height)
+    }
+    points.push({ x: px, y, at })
+  }
+  const stop = curve.drawTo * at
+
+  ctx.globalAlpha = curve.alpha
   ctx.strokeStyle = theme.chartLine
   ctx.lineWidth = 3
   ctx.lineJoin = "round"
   ctx.beginPath()
-  for (let px = 0; px <= width; px++) {
-    const y = plotFunction((px - originX) / grid.pxPerUnit)
-    ctx.lineTo(px, originY - y * grid.pxPerUnit)
+  let prev: { x: number; y: number; at: number } | undefined
+  for (const point of points) {
+    // The pen stops partway along this segment.
+    if (prev !== undefined && point.at > stop) {
+      const t = (stop - prev.at) / (point.at - prev.at)
+      ctx.lineTo(prev.x + (point.x - prev.x) * t, prev.y + (point.y - prev.y) * t)
+      break
+    }
+    ctx.lineTo(point.x, point.y)
+    prev = point
   }
   ctx.stroke()
+  ctx.globalAlpha = 1
 }
 
 export const drawCartesianPlane = (
@@ -125,11 +170,14 @@ export const drawCartesianPlane = (
   scale: number,
   theme: ThemeVars,
   font: string | null,
-  plotFunction: PlotFunction,
+  curves: readonly PlotCurve[],
 ) => {
   const grid = layoutGrid(width, height, center, scale, labelMargin)
   drawGrid(ctx, width, height, grid, theme, font)
-  drawCurve(ctx, width, grid, plotFunction, theme)
+  // In order, so each curve draws over the ones before it.
+  for (const curve of curves) {
+    drawCurve(ctx, width, height, grid, curve, theme)
+  }
   // The legend's plate is as wide as its text, so the whole legend waits for
   // the font with the labels.
   if (font !== null) {

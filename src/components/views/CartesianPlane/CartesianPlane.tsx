@@ -74,7 +74,7 @@ const useUpdateCanvas = (
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, width, height)
 
-    draw(ctx, width, height, center, scale, theme, font, plotFunction)
+    draw(ctx, width, height, center, scale, theme, font, [{ fn: plotFunction, alpha: 1, drawTo: 1 }])
   }, [ref, width, height, dpr, center, scale, theme, font, plotFunction, draw])
 }
 
