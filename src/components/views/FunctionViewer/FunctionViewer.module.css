@@ -6,14 +6,3 @@
   grid-template-columns: 400px minmax(0, 1fr);
   height: 100dvh;
 }
-
-.sidebar {
-  background: var(--background-muted);
-  border: 1px solid var(--border);
-  padding: var(--space-card);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  min-width: 0;
-  min-height: 0;
-  overflow: auto;
-}

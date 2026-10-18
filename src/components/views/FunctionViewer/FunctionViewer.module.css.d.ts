@@ -3,6 +3,5 @@
 // prettier-ignore
 declare const styles: {
   readonly "page": string;
-  readonly "sidebar": string;
 };
 export = styles;
