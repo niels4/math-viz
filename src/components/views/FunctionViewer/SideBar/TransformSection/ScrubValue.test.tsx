@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { act, render, selectionMayStart, toElement, updateLocationHash } from "#test"
 
@@ -63,6 +63,18 @@ const type = (field: HTMLInputElement, text: string) =>
 
 const press = (field: HTMLInputElement, key: string, keys: Keys = {}) =>
   act(() => field.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, ...keys })))
+
+// The browser's word, as the second of two quick clicks lets go, that they
+// were a double-click.
+const doubleClick = (target: HTMLElement) =>
+  act(() => target.dispatchEvent(new MouseEvent("dblclick", { bubbles: true })))
+
+// A mouse moving onto or off the box.
+const point = (box: HTMLElement, type: "pointerover" | "pointerout") =>
+  act(() => box.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerType: "mouse" })))
+
+// The words of the box's tip, empty while it shows none.
+const tip = (box: HTMLElement) => [...box.querySelectorAll("span")].map((word) => word.textContent).join(" ")
 
 const urlValue = (key: string) => new URLSearchParams(window.location.hash.split("?")[1]).get(key)
 
@@ -277,5 +289,88 @@ describe("arrow keys in a transform row's box", () => {
     // ↑ grows its size to 0.02.
     press(field, "ArrowUp")
     expect(field).toHaveValue("-0.02")
+  })
+})
+
+describe("double-clicking a transform row's box", () => {
+  it("puts a shift back to 0 and closes the box", async () => {
+    // A link with k=2 shows 2.00.
+    await updateLocationHash("#?k=2")
+    const { field, box } = await renderRow("Vertical shift", "k")
+    await expect.element(field).toHaveValue("2.00")
+
+    // The first click opens the box for typing.
+    down(box, 100)
+    up(box, 100)
+    expect(document.activeElement).toBe(field)
+
+    // The second click lands on the open field. As it lets go, the box
+    // shows 0.00, closes and takes k out of the URL.
+    down(field, 100)
+    up(field, 100)
+    doubleClick(field)
+    expect(field).toHaveValue("0.00")
+    expect(document.activeElement).not.toBe(field)
+    await expect.poll(() => urlValue("k")).toBeNull()
+  })
+
+  it("puts a scale back to 1 over text typed into it", async () => {
+    // A link with a=2 shows 2.00.
+    await updateLocationHash("#?a=2")
+    const { field, box } = await renderRow("Vertical scale", "a")
+    await expect.element(field).toHaveValue("2.00")
+
+    // A click opens the box, and typing 3 shows it.
+    down(box, 100)
+    up(box, 100)
+    type(field, "3")
+    expect(field).toHaveValue("3")
+
+    // A double-click on the text shows 1.00, not 3, and takes a out of the
+    // URL.
+    down(field, 100)
+    up(field, 100)
+    down(field, 100)
+    up(field, 100)
+    expect(field).toHaveValue("3")
+    doubleClick(field)
+    expect(field).toHaveValue("1.00")
+    await expect.poll(() => urlValue("a")).toBeNull()
+  })
+})
+
+describe("the tip on a transform row's box", () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it("shows how to drag once a mouse rests on the box, until it presses", async () => {
+    // A fresh page shows k's box with no tip.
+    const { field, box } = await renderRow("Vertical shift", "k")
+    await expect.element(field).toHaveValue("0.00")
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
+    expect(tip(box)).toBe("")
+
+    // A mouse passing over for 300 ms shows nothing.
+    point(box, "pointerover")
+    act(() => vi.advanceTimersByTime(300))
+    point(box, "pointerout")
+    act(() => vi.advanceTimersByTime(300))
+    expect(tip(box)).toBe("")
+
+    // Coming back and resting 400 ms shows the tip.
+    point(box, "pointerover")
+    act(() => vi.advanceTimersByTime(399))
+    expect(tip(box)).toBe("")
+    act(() => vi.advanceTimersByTime(1))
+    expect(tip(box)).toBe("Drag sideways · Shift for fine · double-click: back to 0")
+
+    // Pressing the box hides it, and letting go opens the box for typing
+    // with no tip.
+    down(box, 100)
+    expect(tip(box)).toBe("")
+    up(box, 100)
+    expect(document.activeElement).toBe(field)
+    expect(tip(box)).toBe("")
   })
 })

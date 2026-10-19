@@ -14,6 +14,12 @@ import style from "./ScrubValue.module.css"
 // value.
 const DRAG_THRESHOLD = 3
 
+// A mouse resting this long on the box counts as asking how it works, and
+// the box answers with its tip, word by word so it wraps like prose.
+const REST_MS = 400
+const tipWords = (defaultValue: number) =>
+  `Drag sideways · Shift for fine · double-click: back to ${defaultValue}`.split(" ")
+
 type Press = {
   pointerId: number
   // Where the drag's current stretch began and the value there. Pressing or
@@ -33,8 +39,8 @@ type Press = {
 // A transform parameter's value in a box between ‹ and ›. Drag the box
 // sideways to change the value, right for more, holding Shift for fine or
 // Ctrl or ⌘ to snap; the wheel does the same. Click the box to type a
-// value, and ↑ ↓ nudge it by 0.01, or 0.1 with Shift. `id` lets the row's
-// label name the box.
+// value, and ↑ ↓ nudge it by 0.01, or 0.1 with Shift. Double-click it to
+// put back the default. `id` lets the row's label name the box.
 export const ScrubValue = ({ id, param }: { id: string; param: TransformParam }) => {
   const isScale = param === "a" || param === "b"
   const urlParam = transformParams[param]
@@ -46,6 +52,10 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
   const [draft, setDraft] = useState<string | null>(null)
   // The mode of the drag in progress, which sets the decimals it shows.
   const [mode, setMode] = useState<ScrubMode | null>(null)
+  // Whether a mouse is on the box, and whether it has rested there. A press
+  // ends the rest until the pointer comes back.
+  const [pointerOn, setPointerOn] = useState(false)
+  const [resting, setResting] = useState(false)
   const boxRef = useRef<HTMLDivElement>(null)
   const fieldRef = useRef<HTMLInputElement>(null)
   const press = useRef<Press | null>(null)
@@ -161,12 +171,33 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
     return () => box.removeEventListener("wheel", wheel)
   }, [])
 
+  useEffect(() => {
+    if (!pointerOn) {
+      return
+    }
+    const timer = setTimeout(() => setResting(true), REST_MS)
+    return () => clearTimeout(timer)
+  }, [pointerOn])
+
+  const endRest = () => {
+    setPointerOn(false)
+    setResting(false)
+  }
+
   return (
     <div
       ref={boxRef}
       className={style.box}
       data-lit={lit ? "" : undefined}
+      onPointerEnter={(e) => {
+        // A finger can't rest on the box without pressing it.
+        if (e.pointerType !== "touch") {
+          setPointerOn(true)
+        }
+      }}
+      onPointerLeave={endRest}
       onPointerDown={(e) => {
+        endRest()
         // While you type, a press belongs to the text.
         if (e.button !== 0 || typing()) {
           return
@@ -211,6 +242,13 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
       }}
       onPointerCancel={stop}
       onLostPointerCapture={stop}
+      onDoubleClick={() => {
+        // A double-click puts back the default, whatever the first click
+        // opened. Leaving the box first ends any typing, so the typed text
+        // can't land after the default.
+        fieldRef.current?.blur()
+        setValue(urlParam.defaultValue, { flush: true })
+      }}
     >
       <Chevron dir="left" />
       <input
@@ -235,6 +273,14 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
         onBlur={commit}
       />
       <Chevron dir="right" />
+      {/* Seen, not heard: it repeats the gestures for the pointer. */}
+      {resting && (
+        <div className={style.tip} aria-hidden="true">
+          {tipWords(urlParam.defaultValue).map((word, i) => (
+            <span key={i}>{word}</span>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

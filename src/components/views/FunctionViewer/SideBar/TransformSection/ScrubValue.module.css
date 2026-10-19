@@ -2,6 +2,7 @@
   --box-inset: 0.5px;
   --box-ring: 0 0 transparent;
 
+  position: relative;
   display: flex;
   flex: none;
   gap: 6px;
@@ -62,5 +63,28 @@
 
   &:not(:focus) {
     pointer-events: none;
+  }
+}
+
+.tip {
+  position: absolute;
+  top: calc(100% + 11px);
+  right: -1px;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: max-content;
+  padding: 7px 10px;
+  font: 400 13px/15px var(--font-sans);
+  font-variant-numeric: normal;
+  color: var(--foreground);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  pointer-events: none;
+
+  .box:focus-within & {
+    display: none;
   }
 }
