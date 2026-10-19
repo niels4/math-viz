@@ -37,6 +37,10 @@
   stroke: currentcolor;
 }
 
+.index {
+  fill: var(--row-ink);
+}
+
 .label {
   font: 500 12px var(--font-mono);
   fill: currentcolor;

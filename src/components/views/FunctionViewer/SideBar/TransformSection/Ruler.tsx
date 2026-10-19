@@ -9,6 +9,10 @@ import { rulerMarks } from "./rulerMarks.ts"
 const TICK_LENGTH = { minor: 3, mid: 6, major: 9 }
 // The labels' baseline in px down from the tape's top edge.
 const LABEL_BASELINE = 25
+// The index marks the tape's centre, where the current value sits: a bar
+// down the tape and a pointer rising from its bottom edge. It draws over
+// the labels and may hide the one under it, whose value the box shows.
+const INDEX = { width: 3, pointerWidth: 8.6, pointerHeight: 5 }
 
 const tickPath = (xs: number[], length: number) => xs.map((x) => `M${x.toFixed(2)} 0V${length}`).join("")
 
@@ -49,6 +53,8 @@ const Marks = ({
   height: number
 }) => {
   const marks = rulerMarks(value, width, isScale)
+  const c = width / 2
+  const halfPointer = INDEX.pointerWidth / 2
   return (
     <svg className={style.marks} width={width} height={height}>
       <path className={style.tick} d={tickPath(marks.minor, TICK_LENGTH.minor)} strokeWidth={1} />
@@ -59,6 +65,11 @@ const Marks = ({
           {text}
         </text>
       ))}
+      <rect className={style.index} x={c - INDEX.width / 2} y={0} width={INDEX.width} height={height} />
+      <path
+        className={style.index}
+        d={`M${c - halfPointer} ${height}H${c + halfPointer}L${c} ${height - INDEX.pointerHeight}Z`}
+      />
     </svg>
   )
 }
