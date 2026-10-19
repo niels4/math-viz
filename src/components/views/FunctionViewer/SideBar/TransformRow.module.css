@@ -53,6 +53,9 @@
 }
 
 .box {
+  --box-inset: 0.5px;
+  --box-ring: 0 0 transparent;
+
   width: 107px;
   height: 32px;
   padding: 0 var(--space-inset);
@@ -60,6 +63,19 @@
   text-align: right;
   color: var(--foreground);
   background: var(--background-muted);
-  border: 1px solid var(--border);
+  border: 1px solid var(--row-ink);
   border-radius: var(--radius-card);
+  outline: none;
+  box-shadow:
+    inset 0 0 0 var(--box-inset) var(--row-ink),
+    var(--box-ring);
+
+  .row[data-lit] &,
+  &:focus {
+    --box-inset: 1px;
+  }
+
+  &:focus-visible {
+    --box-ring: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+  }
 }
