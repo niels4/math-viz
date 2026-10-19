@@ -2,10 +2,7 @@
 // WARNING: THIS FILE IS AUTO GENERATED, PLEASE DO NOT EDIT IT MANUALLY.
 // prettier-ignore
 declare const styles: {
-  readonly "box": string;
-  readonly "chevron": string;
   readonly "chip": string;
-  readonly "field": string;
   readonly "name": string;
   readonly "row": string;
 };
