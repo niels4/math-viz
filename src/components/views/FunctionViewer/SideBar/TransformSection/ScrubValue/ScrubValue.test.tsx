@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { act, render, selectionMayStart, toElement, updateLocationHash } from "#test"
 
-import { TransformRow } from "./TransformRow"
+import { ScrubValue } from "./ScrubValue"
 
 afterEach(async () => {
   await updateLocationHash("")
@@ -76,22 +76,22 @@ const point = (box: HTMLElement, type: "pointerover" | "pointerout") =>
 // The words of the box's tip, empty while it shows none.
 const tip = (box: HTMLElement) => [...box.querySelectorAll("span")].map((word) => word.textContent).join(" ")
 
-// The ruler under the box's row, null while it shows none.
+// The ruler after the box, null while it shows none.
 const ruler = (box: HTMLElement) => box.nextElementSibling
 
 const urlValue = (key: string) => new URLSearchParams(window.location.hash.split("?")[1]).get(key)
 
-const renderRow = async (name: string, param: "a" | "k") => {
-  const screen = await render(<TransformRow name={name} param={param} />)
-  const field = toElement(screen.getByLabelText(name)) as HTMLInputElement
+const renderBox = async (param: "a" | "k") => {
+  const screen = await render(<ScrubValue id="value" param={param} />)
+  const field = toElement(screen.getByRole("textbox")) as HTMLInputElement
   const box = field.parentElement as HTMLElement
   return { field, box }
 }
 
-describe("dragging a transform row's box", () => {
+describe("dragging the value box", () => {
   it("moves a shift 0.02 per px and writes the URL on letting go", async () => {
     // A fresh page shows k at 0.00.
-    const { field, box } = await renderRow("Vertical shift", "k")
+    const { field, box } = await renderBox("k")
     await expect.element(field).toHaveValue("0.00")
 
     // Pressing and twitching 1 px leaves k alone.
@@ -117,7 +117,7 @@ describe("dragging a transform row's box", () => {
   it("multiplies a scale, and stops it at 0.01 short of 0", async () => {
     // A link with a=2 shows 2.00.
     await updateLocationHash("#?a=2")
-    const { field, box } = await renderRow("Vertical scale", "a")
+    const { field, box } = await renderBox("a")
     await expect.element(field).toHaveValue("2.00")
 
     // 347 px right doubles it, as each px grows it 0.2 %.
@@ -134,7 +134,7 @@ describe("dragging a transform row's box", () => {
 
   it("moves a tenth as fast with Shift, to a third decimal, and holds still when Shift is let go", async () => {
     // A fresh page shows k at 0.00.
-    const { field, box } = await renderRow("Vertical shift", "k")
+    const { field, box } = await renderBox("k")
     await expect.element(field).toHaveValue("0.00")
 
     // A Shift drag 30 px right reaches 0.06, shown with three decimals so
@@ -160,7 +160,7 @@ describe("dragging a transform row's box", () => {
 
   it("snaps a shift to a whole number as soon as Ctrl is pressed", async () => {
     // A fresh page shows k at 0.00.
-    const { field, box } = await renderRow("Vertical shift", "k")
+    const { field, box } = await renderBox("k")
     await expect.element(field).toHaveValue("0.00")
 
     // A drag 30 px right shows 0.60.
@@ -184,7 +184,7 @@ describe("dragging a transform row's box", () => {
 
   it("snaps a scale to a quarter with ⌘", async () => {
     // A fresh page shows a at 1.00.
-    const { field, box } = await renderRow("Vertical scale", "a")
+    const { field, box } = await renderBox("a")
     await expect.element(field).toHaveValue("1.00")
 
     // A ⌘ drag 100 px right grows it to 1.22, which snaps to 1.25.
@@ -197,7 +197,7 @@ describe("dragging a transform row's box", () => {
 
   it("ends when the window loses focus", async () => {
     // A fresh page shows k at 0.00.
-    const { field, box } = await renderRow("Vertical shift", "k")
+    const { field, box } = await renderBox("k")
     await expect.element(field).toHaveValue("0.00")
 
     // A drag 50 px right shows 1.00.
@@ -216,7 +216,7 @@ describe("dragging a transform row's box", () => {
 
   it("shows the ruler while the drag holds the value", async () => {
     // A fresh page shows k's box with no ruler.
-    const { field, box } = await renderRow("Vertical shift", "k")
+    const { field, box } = await renderBox("k")
     await expect.element(field).toHaveValue("0.00")
     expect(ruler(box)).toBeNull()
 
@@ -236,7 +236,7 @@ describe("dragging a transform row's box", () => {
 
   it("opens the box for typing on a click that doesn't drag", async () => {
     // A fresh page shows k at 0.00.
-    const { field, box } = await renderRow("Vertical shift", "k")
+    const { field, box } = await renderBox("k")
     await expect.element(field).toHaveValue("0.00")
 
     // A click that twitches 1 px leaves k alone and selects its text.
@@ -254,10 +254,10 @@ describe("dragging a transform row's box", () => {
   })
 })
 
-describe("the wheel over a transform row's box", () => {
+describe("the wheel over the value box", () => {
   it("moves a shift as a 15 px drag per notch, and scrolls the page while typing", async () => {
     // A fresh page shows k at 0.00.
-    const { field, box } = await renderRow("Vertical shift", "k")
+    const { field, box } = await renderBox("k")
     await expect.element(field).toHaveValue("0.00")
 
     // A notch up adds 0.30, and the page doesn't scroll.
@@ -276,10 +276,10 @@ describe("the wheel over a transform row's box", () => {
   })
 })
 
-describe("arrow keys in a transform row's box", () => {
+describe("arrow keys in the value box", () => {
   it("nudge a shift from the text typed so far", async () => {
     // A fresh page shows k at 0.00.
-    const { field } = await renderRow("Vertical shift", "k")
+    const { field } = await renderBox("k")
     await expect.element(field).toHaveValue("0.00")
 
     // Typing 2.5 and pressing ↑ shows 2.51.
@@ -297,7 +297,7 @@ describe("arrow keys in a transform row's box", () => {
   it("nudge a scale's size and stop it at 0.01", async () => {
     // A link with a=-0.05 shows -0.05.
     await updateLocationHash("#?a=-0.05")
-    const { field } = await renderRow("Vertical scale", "a")
+    const { field } = await renderBox("a")
     await expect.element(field).toHaveValue("-0.05")
 
     // ↓ shrinks its size to 0.04.
@@ -315,11 +315,11 @@ describe("arrow keys in a transform row's box", () => {
   })
 })
 
-describe("double-clicking a transform row's box", () => {
+describe("double-clicking the value box", () => {
   it("puts a shift back to 0 and closes the box", async () => {
     // A link with k=2 shows 2.00.
     await updateLocationHash("#?k=2")
-    const { field, box } = await renderRow("Vertical shift", "k")
+    const { field, box } = await renderBox("k")
     await expect.element(field).toHaveValue("2.00")
 
     // The first click opens the box for typing.
@@ -340,7 +340,7 @@ describe("double-clicking a transform row's box", () => {
   it("puts a scale back to 1 over text typed into it", async () => {
     // A link with a=2 shows 2.00.
     await updateLocationHash("#?a=2")
-    const { field, box } = await renderRow("Vertical scale", "a")
+    const { field, box } = await renderBox("a")
     await expect.element(field).toHaveValue("2.00")
 
     // A click opens the box, and typing 3 shows it.
@@ -362,14 +362,14 @@ describe("double-clicking a transform row's box", () => {
   })
 })
 
-describe("the tip on a transform row's box", () => {
+describe("the tip on the value box", () => {
   afterEach(() => {
     vi.useRealTimers()
   })
 
   it("shows how to drag once a mouse rests on the box, until it presses", async () => {
     // A fresh page shows k's box with no tip.
-    const { field, box } = await renderRow("Vertical shift", "k")
+    const { field, box } = await renderBox("k")
     await expect.element(field).toHaveValue("0.00")
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
     expect(tip(box)).toBe("")
