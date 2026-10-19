@@ -7,6 +7,9 @@
   min-width: 0;
   min-height: 0;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-inset);
 
   &[data-theme="clean-teal"] {
     --param-a: oklch(0.5431 0.1898 337.99);
