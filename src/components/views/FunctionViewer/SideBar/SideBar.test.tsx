@@ -34,6 +34,20 @@ describe("the function selector", () => {
   })
 })
 
+describe("the transform card", () => {
+  it("shows each parameter a link sets in its own row", async () => {
+    // A link sets all four parameters to different values.
+    await updateLocationHash("#?a=2&k=-1&b=0.5&h=3")
+    const screen = await render(<SideBar />)
+
+    // Each row's box shows its parameter's value.
+    await expect.element(screen.getByLabelText("Vertical scale")).toHaveValue("2.00")
+    await expect.element(screen.getByLabelText("Vertical shift")).toHaveValue("-1.00")
+    await expect.element(screen.getByLabelText("Horizontal scale")).toHaveValue("0.50")
+    await expect.element(screen.getByLabelText("Horizontal shift")).toHaveValue("3.00")
+  })
+})
+
 const point = (el: HTMLElement, type: "pointerover" | "pointerout") =>
   act(() => el.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerType: "mouse" })))
 

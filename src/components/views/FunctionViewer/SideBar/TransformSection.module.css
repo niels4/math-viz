@@ -1,0 +1,5 @@
+.rule {
+  height: 1px;
+  margin: 8px;
+  background: var(--background-muted);
+}
