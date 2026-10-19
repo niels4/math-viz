@@ -88,3 +88,17 @@
     display: none;
   }
 }
+
+.ruler {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  z-index: 1;
+  height: 50px;
+  padding: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  pointer-events: none;
+}

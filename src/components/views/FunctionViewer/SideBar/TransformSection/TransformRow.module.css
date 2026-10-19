@@ -1,6 +1,7 @@
 .row {
   --row-tint: color-mix(in oklch, var(--row-ink) 18%, transparent);
 
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-inset);

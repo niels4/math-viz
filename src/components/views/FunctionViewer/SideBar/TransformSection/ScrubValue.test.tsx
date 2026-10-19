@@ -76,6 +76,9 @@ const point = (box: HTMLElement, type: "pointerover" | "pointerout") =>
 // The words of the box's tip, empty while it shows none.
 const tip = (box: HTMLElement) => [...box.querySelectorAll("span")].map((word) => word.textContent).join(" ")
 
+// The ruler under the box's row, null while it shows none.
+const ruler = (box: HTMLElement) => box.nextElementSibling
+
 const urlValue = (key: string) => new URLSearchParams(window.location.hash.split("?")[1]).get(key)
 
 const renderRow = async (name: string, param: "a" | "k") => {
@@ -209,6 +212,26 @@ describe("dragging a transform row's box", () => {
     // Moves after that change nothing.
     move(box, 200)
     expect(field).toHaveValue("1.00")
+  })
+
+  it("shows the ruler while the drag holds the value", async () => {
+    // A fresh page shows k's box with no ruler.
+    const { field, box } = await renderRow("Vertical shift", "k")
+    await expect.element(field).toHaveValue("0.00")
+    expect(ruler(box)).toBeNull()
+
+    // Pressing and twitching 1 px shows none.
+    down(box, 100)
+    move(box, 101)
+    expect(ruler(box)).toBeNull()
+
+    // Dragging 30 px right shows it.
+    move(box, 130)
+    expect(ruler(box)).not.toBeNull()
+
+    // Letting go takes it away.
+    up(box, 130)
+    expect(ruler(box)).toBeNull()
   })
 
   it("opens the box for typing on a click that doesn't drag", async () => {
