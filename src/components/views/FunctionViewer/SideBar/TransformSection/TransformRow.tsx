@@ -1,7 +1,11 @@
 import { useAtomValue, useSetAtom } from "jotai"
 import { useId } from "react"
 
+import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
+
+import { transformParams } from "../../queryParams"
 import { focusAtom, highlightAtoms, hoverAtom, type TransformParam } from "../../state"
+import { FlipIcon } from "./FlipIcon.tsx"
 import { ResetIcon } from "./ResetIcon.tsx"
 import { ScrubValue } from "./ScrubValue/ScrubValue.tsx"
 import style from "./TransformRow.module.css"
@@ -13,6 +17,8 @@ export const TransformRow = ({ name, param }: { name: string; param: TransformPa
   const setFocus = useSetAtom(focusAtom)
   const id = useId()
   const { changed, defaultValue, reset } = useReset(param)
+  const [value, setValue] = useQueryParam(transformParams[param])
+  const isScale = param === "a" || param === "b"
 
   return (
     <div
@@ -30,6 +36,17 @@ export const TransformRow = ({ name, param }: { name: string; param: TransformPa
       <label htmlFor={id} className={style.name}>
         {name}
       </label>
+      {isScale && (
+        <button
+          type="button"
+          className={style.flip}
+          aria-label={param === "a" ? "Flip upside down" : "Mirror left to right"}
+          aria-pressed={value < 0}
+          onClick={() => setValue((v) => -v, { flush: true })}
+        >
+          <FlipIcon axis={param === "a" ? "vertical" : "horizontal"} />
+        </button>
+      )}
       {changed && (
         <button
           type="button"

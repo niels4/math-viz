@@ -27,3 +27,19 @@ describe("the Transform card's Reset all", () => {
     expect(resetAll.isConnected).toBe(false)
   })
 })
+
+describe("the Transform card's flip buttons", () => {
+  it("show on the two scale rows only", async () => {
+    const screen = await render(<TransformSection />)
+    const a = toElement(screen.getByLabelText("y scale", { exact: true }))
+    await expect.element(a).toHaveValue("1.00")
+
+    const flips = [...(a.closest("section")?.querySelectorAll("[aria-pressed]") ?? [])]
+    expect(
+      flips.map((f) => [f.closest("[data-param]")?.getAttribute("data-param"), f.getAttribute("aria-label")]),
+    ).toEqual([
+      ["a", "Flip upside down"],
+      ["b", "Mirror left to right"],
+    ])
+  })
+})

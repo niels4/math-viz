@@ -3,6 +3,7 @@
 // prettier-ignore
 declare const styles: {
   readonly "chip": string;
+  readonly "flip": string;
   readonly "name": string;
   readonly "reset": string;
   readonly "row": string;

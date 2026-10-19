@@ -115,3 +115,24 @@ describe("a transform row's reset button", () => {
     expect(row.hasAttribute("data-lit")).toBe(false)
   })
 })
+
+describe("a transform row's flip button", () => {
+  it("flips y scale's sign, pressed while the value is negative", async () => {
+    await updateLocationHash("#?a=2")
+    const screen = await render(<TransformRow name="y scale" param="a" />)
+    const box = toElement(screen.getByLabelText("y scale", { exact: true })) as HTMLInputElement
+    await expect.element(box).toHaveValue("2.00")
+    const flip = toElement(screen.getByRole("button", { name: "Flip upside down" }))
+    expect(flip).toHaveAttribute("aria-pressed", "false")
+
+    act(() => flip.dispatchEvent(new MouseEvent("click", { bubbles: true })))
+    expect(box).toHaveValue("-2.00")
+    expect(flip).toHaveAttribute("aria-pressed", "true")
+    await expect.poll(() => urlValue("a")).toBe("-2")
+
+    act(() => flip.dispatchEvent(new MouseEvent("click", { bubbles: true })))
+    expect(box).toHaveValue("2.00")
+    expect(flip).toHaveAttribute("aria-pressed", "false")
+    await expect.poll(() => urlValue("a")).toBe("2")
+  })
+})
