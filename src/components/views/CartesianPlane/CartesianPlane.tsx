@@ -91,14 +91,14 @@ export const CartesianPlane = ({
   const [scale, setScale, flushScale] = useQueryParam(scaleParam)
   const { themeVars } = useAppTheme()
   const font = useCanvasFont(planeFont)
-  const [cursor] = useState<Cursor>("pan")
 
   const flushCamera = () => {
     flushCenter()
     flushScale()
   }
 
-  useCamera(ref, center, scale, setCenter, setScale, flushCamera)
+  const panning = useCamera(ref, center, scale, setCenter, setScale, flushCamera)
+  const cursor: Cursor = panning ? "grab-active" : "pan"
   useUpdateCanvas(ref, width, height, center, scale, themeVars, font, curves, handles, lines)
 
   return (

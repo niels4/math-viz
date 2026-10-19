@@ -1,6 +1,6 @@
 import type { RefObject } from "react"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { unscaledUnitSize } from "./constants"
 import { maxScale, minScale } from "./queryParams"
@@ -58,6 +58,7 @@ export const useCamera = (
   setScale: (scale: number) => void,
   onSettle: () => void,
 ) => {
+  const [panning, setPanning] = useState(false)
   const props = useRef({ center, scale, setCenter, setScale, onSettle })
   useEffect(() => {
     props.current = { center, scale, setCenter, setScale, onSettle }
@@ -174,6 +175,7 @@ export const useCamera = (
       glide = null
       const at: Center = [e.clientX, e.clientY]
       pointer = { id: e.pointerId, last: at, samples: [{ time: e.timeStamp, at }] }
+      setPanning(true)
       try {
         canvas.setPointerCapture(e.pointerId)
       } catch {}
@@ -199,6 +201,7 @@ export const useCamera = (
       }
       const velocity = releaseVelocity(pointer.samples, e.timeStamp)
       pointer = null
+      setPanning(false)
       if (Math.hypot(velocity[0], velocity[1]) >= minFlickSpeed) {
         glide = velocity
       }
@@ -223,4 +226,6 @@ export const useCamera = (
       pointer = null
     }
   }, [ref])
+
+  return panning
 }

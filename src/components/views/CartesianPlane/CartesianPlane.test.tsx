@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest"
 
-import { render } from "#test"
+import { act, render, toElement } from "#test"
 
 import type { PlotFunction } from "./drawCartesianPlane"
 
@@ -84,5 +84,33 @@ describe("CartesianPlane", () => {
     await vi.waitFor(() => {
       expect(textsOf(lastDraw())).toEqual(expect.arrayContaining(["1", "-1", "0.50 u"]))
     })
+  })
+
+  it("shows a closed hand while the plane is dragged and the crosshair again once it is let go", async () => {
+    await render(<CartesianPlane curves={[{ fn: identity, alpha: 1, drawTo: 1 }]} handles={[]} lines={[]} />)
+    const canvas = toElement(document.querySelector("canvas"))
+    const pointer = (type: string, clientX: number) =>
+      act(() =>
+        canvas.dispatchEvent(
+          new PointerEvent(type, {
+            pointerId: 1,
+            pointerType: "mouse",
+            button: 0,
+            buttons: type === "pointerup" ? 0 : 1,
+            clientX,
+            clientY: 150,
+          }),
+        ),
+      )
+    expect(canvas.dataset["cursor"]).toBe("pan")
+
+    pointer("pointerdown", 200)
+    expect(canvas.dataset["cursor"]).toBe("grab-active")
+
+    pointer("pointermove", 240)
+    expect(canvas.dataset["cursor"]).toBe("grab-active")
+
+    pointer("pointerup", 240)
+    expect(canvas.dataset["cursor"]).toBe("pan")
   })
 })
