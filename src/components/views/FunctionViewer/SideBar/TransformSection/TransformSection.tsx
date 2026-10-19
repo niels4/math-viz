@@ -1,7 +1,7 @@
 import { useId } from "react"
 
-import sidebarStyle from "./SideBar.module.css"
-import { TransformRow } from "./TransformRow"
+import sidebarStyle from "../SideBar.module.css"
+import { TransformRow } from "./TransformRow.tsx"
 import style from "./TransformSection.module.css"
 
 export const TransformSection = () => {

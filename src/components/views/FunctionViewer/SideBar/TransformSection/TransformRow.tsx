@@ -3,8 +3,8 @@ import { useId, useState } from "react"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
-import { transformParams } from "../queryParams"
-import { focusAtom, highlightAtoms, hoverAtom, type TransformParam } from "../state"
+import { transformParams } from "../../queryParams"
+import { focusAtom, highlightAtoms, hoverAtom, type TransformParam } from "../../state"
 import style from "./TransformRow.module.css"
 
 // One transform parameter: its name, and its value in a box you can type in.

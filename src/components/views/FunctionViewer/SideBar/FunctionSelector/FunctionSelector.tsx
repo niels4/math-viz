@@ -2,11 +2,11 @@ import type { ReactNode } from "react"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
-import { funcParam } from "../queryParams"
-import { type FunctionSlug } from "../queryParams"
+import { funcParam } from "../../queryParams"
+import { type FunctionSlug } from "../../queryParams"
+import sidebarStyle from "../SideBar.module.css"
 import { FunctionReadout } from "./FunctionReadout"
 import style from "./FunctionSelector.module.css"
-import sidebarStyle from "./SideBar.module.css"
 
 const functionLabels: Record<FunctionSlug, ReactNode> = {
   x1: <var>x</var>,

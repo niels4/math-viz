@@ -4,8 +4,8 @@ import { useRef, type ReactNode } from "react"
 import { useFitWidth } from "#src/components/hooks/useFitWidth.ts"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
-import { aParam, bParam, funcParam, hParam, kParam, type FunctionSlug } from "../queryParams"
-import { highlightAtoms, hoverAtom, type TransformParam } from "../state"
+import { aParam, bParam, funcParam, hParam, kParam, type FunctionSlug } from "../../queryParams"
+import { highlightAtoms, hoverAtom, type TransformParam } from "../../state"
 import style from "./FunctionReadout.module.css"
 
 const MINUS = "−"

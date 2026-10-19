@@ -1,8 +1,8 @@
 import { useAppTheme } from "#src/state/useAppTheme.ts"
 
-import { FunctionSelector } from "./FunctionSelector"
+import { FunctionSelector } from "./FunctionSelector/FunctionSelector"
 import style from "./SideBar.module.css"
-import { TransformSection } from "./TransformSection"
+import { TransformSection } from "./TransformSection/TransformSection"
 
 export const SideBar = () => {
   const { themeSlug } = useAppTheme()
