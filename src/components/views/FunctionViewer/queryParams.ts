@@ -1,4 +1,6 @@
-import { queryParamAtom } from "#src/components/router/queryParamAtom.ts"
+import { queryParamAtom, type QueryParamDef } from "#src/components/router/queryParamAtom.ts"
+
+import type { TransformParam } from "./state"
 
 export const FUNCTION_SLUGS = ["x1", "x2", "x3", "sinx"] as const
 export type FunctionSlug = (typeof FUNCTION_SLUGS)[number]
@@ -33,3 +35,11 @@ export const aParam = transformParam("a", 1, true)
 export const bParam = transformParam("b", 1, true)
 export const hParam = transformParam("h", 0, false)
 export const kParam = transformParam("k", 0, false)
+
+// Each transform parameter's query param, by its letter.
+export const transformParams: Record<TransformParam, QueryParamDef<number>> = {
+  a: aParam,
+  b: bParam,
+  h: hParam,
+  k: kParam,
+}

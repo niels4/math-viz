@@ -1,8 +1,16 @@
 .row {
+  --row-tint: color-mix(in oklch, var(--row-ink) 18%, transparent);
+
   display: flex;
   align-items: center;
   gap: var(--space-inset);
   height: 44px;
+  padding: 0 6px 0 8px;
+  border-radius: var(--radius-card);
+
+  &[data-lit] {
+    background: var(--row-tint);
+  }
 
   &[data-param="a"] {
     --row-ink: var(--param-a);
@@ -38,6 +46,10 @@
   font-size: 15px;
   font-weight: var(--weight-strong);
   color: var(--foreground-muted);
+
+  .row[data-lit] & {
+    color: var(--foreground);
+  }
 }
 
 .box {

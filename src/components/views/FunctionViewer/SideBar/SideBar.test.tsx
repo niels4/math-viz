@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest"
 
-import { render, toElement, updateLocationHash } from "#test"
+import { act, render, toElement, updateLocationHash } from "#test"
 
 import { SideBar } from "./SideBar"
 
@@ -31,5 +31,37 @@ describe("the function selector", () => {
     const screen = await render(<SideBar />)
     await expect.element(screen.getByLabelText("sin x")).toBeChecked()
     expect(toElement(screen.getByLabelText("x²"))).not.toBeChecked()
+  })
+})
+
+const point = (el: HTMLElement, type: "pointerover" | "pointerout") =>
+  act(() => el.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerType: "mouse" })))
+
+describe("highlighting a parameter", () => {
+  it("lights a's row and a in the form together, from either one", async () => {
+    // A fresh page shows the row for a and the form with its a.
+    const screen = await render(<SideBar />)
+    const row = toElement(screen.getByLabelText("Vertical scale")).closest<HTMLElement>("[data-param]")
+    const form = toElement(screen.getByTestId("function-form"))
+    const term = toElement(form.querySelector('[data-param="a"]'))
+    const lit = (el: HTMLElement | null) => el?.hasAttribute("data-lit")
+    expect(lit(row)).toBe(false)
+    expect(lit(term)).toBe(false)
+
+    // Pointing at the row lights it and the form's a.
+    point(toElement(row), "pointerover")
+    expect(lit(row)).toBe(true)
+    expect(lit(term)).toBe(true)
+
+    // Moving off it puts both out.
+    point(toElement(row), "pointerout")
+    expect(lit(row)).toBe(false)
+    expect(lit(term)).toBe(false)
+
+    // Pointing at the form's a lights the row too.
+    point(term, "pointerover")
+    expect(lit(row)).toBe(true)
+    point(term, "pointerout")
+    expect(lit(row)).toBe(false)
   })
 })

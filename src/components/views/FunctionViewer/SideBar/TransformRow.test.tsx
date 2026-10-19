@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it } from "vitest"
 
 import { act, render, toElement, updateLocationHash } from "#test"
 
-import { aParam } from "../queryParams"
 import { TransformRow } from "./TransformRow"
 
 afterEach(async () => {
@@ -27,7 +26,7 @@ const urlValue = (key: string) => new URLSearchParams(window.location.hash.split
 describe("a transform row's box", () => {
   it("sets the value when Enter is pressed, not while typing", async () => {
     // A fresh page shows a at 1.00.
-    const screen = await render(<TransformRow name="Vertical scale" param={aParam} />)
+    const screen = await render(<TransformRow name="Vertical scale" param="a" />)
     const box = toElement(screen.getByLabelText("Vertical scale")) as HTMLInputElement
     await expect.element(box).toHaveValue("1.00")
 
@@ -46,7 +45,7 @@ describe("a transform row's box", () => {
   it("puts the old value back when a scale of 0 is typed", async () => {
     // A link with a=2 shows 2.00.
     await updateLocationHash("#?a=2")
-    const screen = await render(<TransformRow name="Vertical scale" param={aParam} />)
+    const screen = await render(<TransformRow name="Vertical scale" param="a" />)
     const box = toElement(screen.getByLabelText("Vertical scale")) as HTMLInputElement
     await expect.element(box).toHaveValue("2.00")
 

@@ -1,6 +1,5 @@
 import { useId } from "react"
 
-import { aParam } from "../queryParams"
 import sidebarStyle from "./SideBar.module.css"
 import { TransformRow } from "./TransformRow"
 
@@ -12,7 +11,7 @@ export const TransformSection = () => {
       <h2 id={titleId} className={sidebarStyle.card_title}>
         Transform
       </h2>
-      <TransformRow name="Vertical scale" param={aParam} />
+      <TransformRow name="Vertical scale" param="a" />
     </section>
   )
 }
