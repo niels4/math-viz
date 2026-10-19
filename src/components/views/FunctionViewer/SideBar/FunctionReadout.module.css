@@ -1,0 +1,51 @@
+.readout {
+  display: flex;
+  align-items: center;
+  min-height: 60px;
+  margin-top: var(--space-inset);
+  padding: 0 4px;
+}
+
+.line {
+  font: 1.75rem var(--font-serif);
+  font-variant-numeric: tabular-nums;
+  line-height: round(up, 1.25em, 1px);
+  white-space: nowrap;
+}
+
+.term {
+  display: inline-block;
+  padding: 0 3px 1px;
+}
+
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 round(nearest, 0.15em, 1px);
+  font-size: round(nearest, 0.8em, 1px);
+  text-align: center;
+  vertical-align: middle;
+
+  > span:not(.bar) {
+    padding: 0 4px;
+  }
+}
+
+.bar {
+  height: max(1.5px, 0.06875em);
+  background: currentcolor;
+}
+
+.sup {
+  margin-left: 1px;
+  font-size: round(nearest, 0.68em, 1px);
+  line-height: 0;
+  vertical-align: 0.58em;
+}
+
+.paren_big {
+  font-size: round(nearest, 1.42em, 1px);
+  line-height: 1;
+  vertical-align: -0.0775em;
+}

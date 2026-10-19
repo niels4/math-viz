@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
 import { funcParam, type FunctionSlug } from "../queryParams"
+import { FunctionReadout } from "./FunctionReadout"
 import style from "./SideBar.module.css"
 
 const functionLabels: Record<FunctionSlug, ReactNode> = {
@@ -48,6 +49,7 @@ const FunctionSelector = () => {
           ))}
         </div>
       </fieldset>
+      <FunctionReadout />
     </div>
   )
 }
