@@ -6,6 +6,7 @@ import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
 
 import { transformParams } from "../../queryParams"
 import { highlightAtoms, type TransformParam } from "../../state"
+import { Ruler } from "./Ruler.tsx"
 import { nudged, scrubbed, scrubMode, shown, wheelDx, type ScrubMode } from "./scrub.ts"
 import style from "./ScrubValue.module.css"
 
@@ -286,13 +287,8 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
         )}
       </div>
       {/* A sibling of the box, so the row places it: under the row and as
-        wide, over what lies below so nothing moves. Seen, not heard: the
-        field reads the value. */}
-      {mode !== null && (
-        <div className={style.ruler} aria-hidden="true">
-          <div className={style.tape} data-mode={mode} />
-        </div>
-      )}
+        wide, over what lies below so nothing moves. */}
+      {mode !== null && <Ruler value={value} isScale={isScale} mode={mode} />}
     </>
   )
 }

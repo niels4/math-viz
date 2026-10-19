@@ -14,6 +14,12 @@ export const scrubMode = (keys: { shiftKey: boolean; ctrlKey: boolean; metaKey: 
 const quantize = (v: number, step: number) =>
   Number((Math.sign(v) * Math.round(Math.abs(v) / step) * step).toPrecision(12))
 
+// How far a plain drag moves a value per px: a shift by 0.02, a scale by
+// 0.2 % of itself. The ruler under the row draws at the same rates, so its
+// marks move as far as the pointer.
+export const SHIFT_PER_PX = 0.02
+export const SCALE_PER_PX = 0.002
+
 // The value a drag reaches dx px to the right of where it started at
 // `from`. Each value comes from the start, not from the last move, so
 // rounding can't build up over a long drag. Shifts move 0.02 per px. Scales
@@ -22,7 +28,7 @@ const quantize = (v: number, step: number) =>
 // instead. A scale stops one step short of 0, which would squash the curve
 // flat.
 export const scrubbed = (from: number, dx: number, isScale: boolean, mode: ScrubMode) => {
-  const rate = (isScale ? 0.002 : 0.02) * (mode === "fine" ? 0.1 : 1)
+  const rate = (isScale ? SCALE_PER_PX : SHIFT_PER_PX) * (mode === "fine" ? 0.1 : 1)
   const raw = isScale && from !== 0 ? from * (1 + rate) ** dx : from + rate * dx
   const step = mode === "snap" ? (isScale ? 0.25 : 1) : mode === "fine" ? 0.001 : 0.01
   const next = quantize(raw, step)

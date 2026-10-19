@@ -1,0 +1,44 @@
+.ruler {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  z-index: 1;
+  padding: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  pointer-events: none;
+}
+
+.tape {
+  height: 32px;
+  overflow: hidden;
+  color: var(--foreground);
+  background: var(--row-tint);
+  border: 2px solid var(--row-ink);
+  border-radius: var(--radius-card);
+
+  &[data-mode="fine"] {
+    border-color: var(--accent);
+  }
+
+  &[data-mode="snap"] {
+    border-color: var(--warning);
+  }
+}
+
+.marks {
+  display: block;
+}
+
+.tick {
+  fill: none;
+  stroke: currentcolor;
+}
+
+.label {
+  font: 500 12px var(--font-mono);
+  fill: currentcolor;
+  text-anchor: middle;
+}
