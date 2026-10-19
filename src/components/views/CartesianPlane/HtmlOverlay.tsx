@@ -4,8 +4,9 @@ import style from "./CartesianPlain.module.css"
 import { centerParam, scaleParam } from "./queryParams"
 
 export const HtmlOverlay = () => {
-  const [, setCenter] = useQueryParam(centerParam)
-  const [, setScale] = useQueryParam(scaleParam)
+  const [center, setCenter] = useQueryParam(centerParam)
+  const [scale, setScale] = useQueryParam(scaleParam)
+  const moved = !centerParam.equals(center, centerParam.defaultValue) || scale !== scaleParam.defaultValue
 
   return (
     <div className={style.html_overlay}>
@@ -13,30 +14,35 @@ export const HtmlOverlay = () => {
       <div className={`${style.corner_chrome} ${style.top_right_chrome}`} />
       <div className={`${style.corner_chrome} ${style.bottom_left_chrome}`} />
       <div className={`${style.corner_chrome} ${style.bottom_right_chrome}`} />
-      <button
-        type="button"
-        className={style.return_to_center}
-        aria-label="Return to center"
-        onClick={() => {
-          setCenter(centerParam.defaultValue, { flush: true })
-          setScale(scaleParam.defaultValue, { flush: true })
-        }}
-      >
-        <svg
-          viewBox="0 0 24 24"
-          width="20"
-          height="20"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          aria-hidden="true"
+      {moved && (
+        <button
+          type="button"
+          className={style.return_to_center}
+          aria-label="Reset view to origin"
+          onClick={() => {
+            setCenter(centerParam.defaultValue, { flush: true })
+            setScale(scaleParam.defaultValue, { flush: true })
+          }}
         >
-          <circle cx="12" cy="12" r="6.5" />
-          <circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none" />
-          <path d="M12 2.5V5.5M12 18.5V21.5M2.5 12H5.5M18.5 12H21.5" />
-        </svg>
-      </button>
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="6.5" />
+            <circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none" />
+            <path d="M12 2.5V5.5M12 18.5V21.5M2.5 12H5.5M18.5 12H21.5" />
+          </svg>
+          <span className={style.tip} aria-hidden="true">
+            Reset view to origin
+          </span>
+        </button>
+      )}
     </div>
   )
 }

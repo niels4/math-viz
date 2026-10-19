@@ -8,6 +8,7 @@ declare const styles: {
   readonly "corner_chrome": string;
   readonly "html_overlay": string;
   readonly "return_to_center": string;
+  readonly "tip": string;
   readonly "top_left_chrome": string;
   readonly "top_right_chrome": string;
   readonly "wrapper": string;

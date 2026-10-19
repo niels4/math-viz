@@ -86,4 +86,31 @@
     border-color: var(--primary);
     box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
   }
+
+  @media (hover: hover) {
+    &:hover .tip {
+      visibility: visible;
+      transition: visibility 0s 400ms;
+    }
+  }
+
+  &:focus-visible .tip {
+    visibility: visible;
+  }
+}
+
+.tip {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 8px);
+  padding: 7px 10px;
+  font: 400 13px/15px var(--font-sans);
+  white-space: nowrap;
+  color: var(--foreground);
+  visibility: hidden;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  translate: 0 -50%;
+  pointer-events: none;
 }
