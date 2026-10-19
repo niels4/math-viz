@@ -287,7 +287,11 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
       {/* A sibling of the box, so the row places it: under the row and as
         wide, over what lies below so nothing moves. Seen, not heard: the
         field reads the value. */}
-      {mode !== null && <div className={style.ruler} aria-hidden="true" />}
+      {mode !== null && (
+        <div className={style.ruler} aria-hidden="true">
+          <div className={style.tape} />
+        </div>
+      )}
     </>
   )
 }

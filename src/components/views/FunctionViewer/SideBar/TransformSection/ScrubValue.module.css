@@ -95,10 +95,15 @@
   right: 0;
   left: 0;
   z-index: 1;
-  height: 50px;
   padding: 8px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
   pointer-events: none;
+}
+
+.tape {
+  height: 32px;
+  border: 2px solid var(--row-ink);
+  border-radius: var(--radius-card);
 }
