@@ -10,43 +10,71 @@ afterEach(async () => {
   await updateLocationHash("")
 })
 
+// A line as a screen reader reads it: its text for readers only included,
+// the parts hidden from readers left out.
+const readable = (el: Element): string =>
+  [...el.childNodes]
+    .map((node) => {
+      if (!(node instanceof Element)) {
+        return node.textContent ?? ""
+      }
+      return node.getAttribute("aria-hidden") === "true" ? "" : readable(node)
+    })
+    .join("")
+
+const spoken = (el: Element): string => readable(el).replace(/\s+/g, " ").trim()
+
 const readout = async (hash: string) => {
   await updateLocationHash(hash)
   const screen = await render(<FunctionReadout />)
-  return screen.getByRole("status")
+  return toElement(screen.getByTestId("function-readout"))
 }
 
 describe("the function readout", () => {
   it("shows the bare function when every value is at its default", async () => {
     // A fresh page graphs x, untransformed.
-    await expect.element(await readout("")).toHaveTextContent("f(x) = x")
+    const line = await readout("")
+    await expect.poll(() => spoken(line)).toBe("f(x) = x")
   })
 
   it("prints a link's values with two decimals and true minus signs", async () => {
     // x² flipped and stretched by a, moved left by h and up by k.
-    await expect
-      .element(await readout("#?func=x2&a=-1.5&h=-2&k=0.75"))
-      .toHaveTextContent("f(x) = −1.50(x + 2.00)2 + 0.75")
+    const line = await readout("#?func=x2&a=-1.5&h=-2&k=0.75")
+    await expect.poll(() => spoken(line)).toBe("f(x) = −1.50(x + 2.00)² + 0.75")
   })
 
   it("leaves out the values at their defaults", async () => {
     // Only k is off its default, so x³ keeps its bare x.
-    await expect.element(await readout("#?func=x3&k=-1")).toHaveTextContent("f(x) = x3 − 1.00")
+    const line = await readout("#?func=x3&k=-1")
+    await expect.poll(() => spoken(line)).toBe("f(x) = x³ − 1.00")
   })
 
   it("scales a bare x without parentheses", async () => {
-    await expect.element(await readout("#?a=3")).toHaveTextContent("f(x) = 3.00x")
+    const line = await readout("#?a=3")
+    await expect.poll(() => spoken(line)).toBe("f(x) = 3.00x")
   })
 
   it("puts a scaled x in parentheses when it is shifted", async () => {
-    await expect.element(await readout("#?a=3&h=1")).toHaveTextContent("f(x) = 3.00(x − 1.00)")
+    const line = await readout("#?a=3&h=1")
+    await expect.poll(() => spoken(line)).toBe("f(x) = 3.00(x − 1.00)")
   })
 
-  it("stacks the inside of sin over b", async () => {
-    // The fraction reads its top (x − 1.00), then its bottom (0.50).
-    await expect
-      .element(await readout("#?func=sinx&a=2&b=0.5&h=1&k=-1"))
-      .toHaveTextContent("f(x) = 2.00 sin(x − 1.000.50) − 1.00")
+  it("reads x over b without parentheses", async () => {
+    const line = await readout("#?b=2")
+    await expect.poll(() => spoken(line)).toBe("f(x) = x/2.00")
+  })
+
+  it("reads a stacked fraction as top over bottom", async () => {
+    // On screen, x − 1.00 sits over 0.50; read aloud, it is (x − 1.00)/0.50.
+    const line = await readout("#?func=sinx&a=2&b=0.5&h=1&k=-1")
+    await expect.poll(() => spoken(line)).toBe("f(x) = 2.00 sin((x − 1.00)/0.50) − 1.00")
+  })
+
+  it("leaves announcing changes to the transform controls", async () => {
+    // A screen reader reads the line when its user moves to it, not each time it changes.
+    const line = await readout("#?a=2")
+    await expect.poll(() => spoken(line)).toBe("f(x) = 2.00x")
+    expect(line.closest("output, [role='status'], [aria-live]")).toBeNull()
   })
 
   it.runIf(isBrowser())("shrinks a long equation to fit the sidebar", async () => {
@@ -57,12 +85,12 @@ describe("the function readout", () => {
         <FunctionReadout />
       </div>,
     )
-    const output = toElement(screen.getByRole("status"))
-    await expect.element(output).toHaveTextContent("f(x) = 20.00(x − 10.0030.00) + 12.50")
+    const row = toElement(screen.getByTestId("function-readout"))
+    await expect.poll(() => spoken(row)).toBe("f(x) = 20.00((x − 10.00)/30.00) + 12.50")
 
     // The line ends just inside the column instead of running past it.
-    const line = toElement(output.firstElementChild)
-    const edge = output.getBoundingClientRect().right
+    const line = toElement(row.firstElementChild)
+    const edge = row.getBoundingClientRect().right
     await expect.poll(() => line.getBoundingClientRect().right).toBeLessThanOrEqual(edge)
     expect(line.getBoundingClientRect().right).toBeGreaterThan(edge - 4)
   })
@@ -71,17 +99,19 @@ describe("the function readout", () => {
 const form = async (hash: string) => {
   await updateLocationHash(hash)
   const screen = await render(<FunctionReadout />)
-  return screen.getByTestId("function-form")
+  return toElement(screen.getByTestId("function-form"))
 }
 
 describe("the function's form", () => {
   it("shows every letter, even for values at their defaults", async () => {
     // Only k is set, but the form under x² still shows a, h and b.
-    await expect.element(await form("#?func=x2&k=1")).toHaveTextContent("f(x) = a(x − hb)2 + k")
+    const line = await form("#?func=x2&k=1")
+    await expect.poll(() => spoken(line)).toBe("Form: f(x) = a((x − h)/b)² + k")
   })
 
   it("puts a before sin", async () => {
-    await expect.element(await form("#?func=sinx")).toHaveTextContent("f(x) = a sin(x − hb) + k")
+    const line = await form("#?func=sinx")
+    await expect.poll(() => spoken(line)).toBe("Form: f(x) = a sin((x − h)/b) + k")
   })
 })
 
@@ -93,9 +123,9 @@ describe("highlighting a parameter", () => {
     // x² scaled by a = 2: a shows in both lines, h only in the form.
     await updateLocationHash("#?func=x2&a=2")
     const screen = await render(<FunctionReadout />)
-    await expect.element(screen.getByRole("status")).toHaveTextContent("f(x) = 2.00x2")
-    const values = toElement(screen.getByRole("status"))
+    const values = toElement(screen.getByTestId("function-readout"))
     const letters = toElement(screen.getByTestId("function-form"))
+    await expect.poll(() => spoken(values)).toBe("f(x) = 2.00x²")
     const term = (line: HTMLElement, param: string) =>
       toElement(line.querySelector(`[data-param="${param}"]`))
     const lit = (line: HTMLElement, param: string) => term(line, param).hasAttribute("data-lit")

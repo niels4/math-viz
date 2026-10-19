@@ -5,6 +5,7 @@ declare const styles: {
   readonly "bar": string;
   readonly "form": string;
   readonly "frac": string;
+  readonly "hidden": string;
   readonly "line": string;
   readonly "minus": string;
   readonly "paren_big": string;

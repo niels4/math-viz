@@ -33,7 +33,11 @@ const Term = ({ param, children }: { param: TransformParam; children: ReactNode 
   )
 }
 
-const EXPONENTS: Partial<Record<string, string>> = { x2: "2", x3: "3" }
+// Each exponent as it shows, and as a screen reader reads it.
+const EXPONENTS: Partial<Record<string, [string, string]>> = { x2: ["2", "²"], x3: ["3", "³"] }
+
+// Text for screen readers only, where the layout carries the meaning on screen.
+const Hidden = ({ children }: { children: string }) => <span className={style.hidden}>{children}</span>
 
 type Terms = { a: ReactNode; b: ReactNode; h: ReactNode; k: ReactNode }
 
@@ -76,11 +80,24 @@ const Equation = ({ func, terms }: { func: FunctionSlug; terms: Terms }) => {
         {x} {terms.h}
       </>
     )
+  const numerator =
+    terms.h === null ? (
+      x
+    ) : (
+      <>
+        <Hidden>(</Hidden>
+        {shifted}
+        <Hidden>)</Hidden>
+      </>
+    )
   const inner = stacked ? (
     <span className={style.frac}>
-      <span>{shifted}</span>
+      <span>{numerator}</span>
       <span className={style.bar} />
-      <span>{terms.b}</span>
+      <span>
+        <Hidden>/</Hidden>
+        {terms.b}
+      </span>
     </span>
   ) : (
     shifted
@@ -104,7 +121,10 @@ const Equation = ({ func, terms }: { func: FunctionSlug; terms: Terms }) => {
     body = (
       <>
         {bare ? x : wrapped}
-        <sup className={style.sup}>{exponent}</sup>
+        <sup className={style.sup} aria-hidden="true">
+          {exponent[0]}
+        </sup>
+        <Hidden>{exponent[1]}</Hidden>
       </>
     )
   }
@@ -125,7 +145,7 @@ export const FunctionReadout = () => {
   const [b] = useQueryParam(bParam)
   const [h] = useQueryParam(hParam)
   const [k] = useQueryParam(kParam)
-  const rowRef = useRef<HTMLOutputElement>(null)
+  const rowRef = useRef<HTMLDivElement>(null)
   const lineRef = useRef<HTMLSpanElement>(null)
   useFitWidth(rowRef, lineRef)
 
@@ -138,12 +158,15 @@ export const FunctionReadout = () => {
 
   return (
     <>
-      <output ref={rowRef} className={style.readout}>
+      {/* Not a live region: the transform controls announce their own values,
+      so reading the equation on every change would only repeat them. */}
+      <div ref={rowRef} className={style.readout} data-testid="function-readout">
         <span ref={lineRef} className={style.line}>
           <Equation func={func} terms={values} />
         </span>
-      </output>
+      </div>
       <p className={style.form} data-testid="function-form">
+        <Hidden>Form: </Hidden>
         <Equation func={func} terms={LETTERS} />
       </p>
     </>
