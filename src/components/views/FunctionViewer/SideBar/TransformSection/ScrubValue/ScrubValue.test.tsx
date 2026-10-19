@@ -60,7 +60,11 @@ const doubleClick = (target: HTMLElement) =>
 const point = (box: HTMLElement, type: "pointerover" | "pointerout") =>
   act(() => box.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerType: "mouse" })))
 
-const tip = (box: HTMLElement) => [...box.querySelectorAll("span")].map((word) => word.textContent).join(" ")
+const tip = (box: HTMLElement) =>
+  [...box.querySelectorAll("span, kbd")]
+    .map((item) => item.textContent)
+    .filter((text) => text !== "")
+    .join(" ")
 
 const ruler = (box: HTMLElement) => box.nextElementSibling
 
@@ -256,6 +260,29 @@ describe("arrow keys in the value box", () => {
   })
 })
 
+describe("Esc in the value box", () => {
+  it("puts back the value from before the box opened, over nudges and typed text, and closes the box", async () => {
+    await updateLocationHash("#?k=2")
+    const { field, box } = await renderBox("k")
+    await expect.element(field).toHaveValue("2.00")
+
+    down(box, 100)
+    up(box, 100)
+    type(field, "5")
+    press(field, "ArrowUp")
+    expect(field).toHaveValue("5.01")
+    await expect.poll(() => urlValue("k")).toBe("5.01")
+
+    type(field, "7")
+    expect(field).toHaveValue("7")
+
+    press(field, "Escape")
+    expect(field).toHaveValue("2.00")
+    expect(document.activeElement).not.toBe(field)
+    await expect.poll(() => urlValue("k")).toBe("2")
+  })
+})
+
 describe("double-clicking the value box", () => {
   it("puts a shift back to 0 and closes the box", async () => {
     await updateLocationHash("#?k=2")
@@ -300,7 +327,7 @@ describe("the tip on the value box", () => {
     vi.useRealTimers()
   })
 
-  it("shows how to drag once a mouse rests on the box, until it presses", async () => {
+  it("shows how to drag once a mouse rests on the box, and the keys while the box is typed into", async () => {
     const { field, box } = await renderBox("k")
     await expect.element(field).toHaveValue("0.00")
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
@@ -322,6 +349,9 @@ describe("the tip on the value box", () => {
     expect(tip(box)).toBe("")
     up(box, 100)
     expect(document.activeElement).toBe(field)
+    expect(tip(box)).toBe("Enter apply · Esc cancel · nudge 0.01")
+
+    press(field, "Escape")
     expect(tip(box)).toBe("")
   })
 })

@@ -32,6 +32,7 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
   const [value, setValue, flushValue] = useQueryParam(urlParam)
   const lit = useAtomValue(highlightAtoms[param])
   const [draft, setDraft] = useState<string | null>(null)
+  const [typingFrom, setTypingFrom] = useState<number | null>(null)
   const [mode, setMode] = useState<ScrubMode | null>(null)
   const [pointerOn, setPointerOn] = useState(false)
   const [resting, setResting] = useState(false)
@@ -227,17 +228,40 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
               const delta = (e.key === "ArrowUp" ? 1 : -1) * (e.shiftKey ? 0.1 : 0.01)
               setValue(nudged(from, isScale, delta))
               setDraft(null)
+            } else if (e.key === "Escape" && typingFrom !== null) {
+              e.currentTarget.blur()
+              setValue(typingFrom, { flush: true })
             }
           }}
-          onBlur={commit}
+          onFocus={() => setTypingFrom(value)}
+          onBlur={() => {
+            commit()
+            setTypingFrom(null)
+          }}
         />
         <Chevron dir="right" />
-        {resting && (
+        {typingFrom !== null ? (
           <div className={style.tip} aria-hidden="true">
-            {tipWords(urlParam.defaultValue).map((word, i) => (
-              <span key={i}>{word}</span>
-            ))}
+            <kbd className={style.key}>Enter</kbd>
+            <span>apply ·</span>
+            <kbd className={style.key}>Esc</kbd>
+            <span>cancel ·</span>
+            <kbd className={style.key}>
+              <Arrow dir="up" />
+            </kbd>
+            <kbd className={style.key}>
+              <Arrow dir="down" />
+            </kbd>
+            <span>nudge 0.01</span>
           </div>
+        ) : (
+          resting && (
+            <div className={style.tip} aria-hidden="true">
+              {tipWords(urlParam.defaultValue).map((word, i) => (
+                <span key={i}>{word}</span>
+              ))}
+            </div>
+          )
         )}
       </div>
       {mode !== null && <Ruler value={value} isScale={isScale} mode={mode} />}
@@ -248,5 +272,11 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
 const Chevron = ({ dir }: { dir: "left" | "right" }) => (
   <svg className={style.chevron} width="6" height="12" viewBox="0 0 6 12" aria-hidden="true">
     <path d={dir === "left" ? "M5 2L1 6L5 10" : "M1 2L5 6L1 10"} />
+  </svg>
+)
+
+const Arrow = ({ dir }: { dir: "up" | "down" }) => (
+  <svg className={style.arrow} width="18" height="14" viewBox="0 0 18 14" aria-hidden="true">
+    <path d={dir === "up" ? "M4 8L9 2L14 8M9 2V14" : "M4 8L9 14L14 8M9 14V2"} />
   </svg>
 )

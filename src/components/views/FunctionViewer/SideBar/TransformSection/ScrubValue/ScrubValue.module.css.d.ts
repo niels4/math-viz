@@ -2,9 +2,11 @@
 // WARNING: THIS FILE IS AUTO GENERATED, PLEASE DO NOT EDIT IT MANUALLY.
 // prettier-ignore
 declare const styles: {
+  readonly "arrow": string;
   readonly "box": string;
   readonly "chevron": string;
   readonly "field": string;
+  readonly "key": string;
   readonly "tip": string;
 };
 export = styles;
