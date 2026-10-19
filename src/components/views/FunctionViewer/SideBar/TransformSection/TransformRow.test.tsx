@@ -150,4 +150,24 @@ describe("a transform row's flip button", () => {
     point(row, "pointerout")
     expect(row.hasAttribute("data-lit")).toBe(false)
   })
+
+  it.runIf(isBrowser())("keeps its place while the reset button shows and hides", async () => {
+    const screen = await render(<TransformRow name="y scale" param="a" />)
+    const box = toElement(screen.getByLabelText("y scale", { exact: true })) as HTMLInputElement
+    await expect.element(box).toHaveValue("1.00")
+    const flip = toElement(screen.getByRole("button", { name: "Flip upside down" }))
+    const restingLeft = flip.getBoundingClientRect().left
+
+    act(() => flip.dispatchEvent(new MouseEvent("click", { bubbles: true })))
+    const reset = toElement(screen.getByRole("button", { name: "Reset y scale to 1" }))
+    expect(getComputedStyle(reset).display).not.toBe("none")
+    expect(flip.getBoundingClientRect().left).toBe(restingLeft)
+
+    pointer("pointerdown", box, 100)
+    pointer("pointermove", box, 130)
+    expect(getComputedStyle(reset).display).toBe("none")
+    expect(flip.getBoundingClientRect().left).toBe(restingLeft)
+
+    pointer("pointerup", box, 130)
+  })
 })

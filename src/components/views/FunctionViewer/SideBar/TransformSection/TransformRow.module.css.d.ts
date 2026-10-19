@@ -6,6 +6,7 @@ declare const styles: {
   readonly "flip": string;
   readonly "name": string;
   readonly "reset": string;
+  readonly "reset_slot": string;
   readonly "row": string;
 };
 export = styles;

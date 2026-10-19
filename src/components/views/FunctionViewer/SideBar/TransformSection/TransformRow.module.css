@@ -85,6 +85,11 @@
   }
 }
 
+.reset_slot {
+  flex: none;
+  width: 24px;
+}
+
 .reset {
   color: var(--foreground-muted);
   background: transparent;

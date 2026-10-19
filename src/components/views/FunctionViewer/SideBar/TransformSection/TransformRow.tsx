@@ -52,20 +52,22 @@ export const TransformRow = ({ name, param }: { name: string; param: TransformPa
           <FlipIcon axis={param === "a" ? "vertical" : "horizontal"} />
         </button>
       )}
-      {changed && (
-        <button
-          type="button"
-          tabIndex={-1}
-          className={style.reset}
-          aria-label={`Reset ${name} to ${defaultValue}`}
-          onClick={(e) => {
-            e.currentTarget.blur()
-            reset()
-          }}
-        >
-          <ResetIcon />
-        </button>
-      )}
+      <span className={style.reset_slot}>
+        {changed && (
+          <button
+            type="button"
+            tabIndex={-1}
+            className={style.reset}
+            aria-label={`Reset ${name} to ${defaultValue}`}
+            onClick={(e) => {
+              e.currentTarget.blur()
+              reset()
+            }}
+          >
+            <ResetIcon />
+          </button>
+        )}
+      </span>
       <ScrubValue id={id} param={param} />
     </div>
   )
