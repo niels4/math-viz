@@ -45,7 +45,6 @@ export const FunctionSelector = () => {
                 checked={slug === func}
                 onChange={() => setFunc(slug as FunctionSlug, { flush: true })}
               />
-              {/* In a span, so the flex label keeps the space in "sin x". */}
               <span>{label}</span>
             </label>
           ))}

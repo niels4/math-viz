@@ -39,8 +39,6 @@ const sameSerialized = <T>(def: QueryParamDef<T>, a: T, b: T): boolean =>
 
 const pendingTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
-// Defaults stay out of the URL so links stay short. A value equal to the
-// default flushes as a deletion, and a missing key parses back to default.
 const toUrlValue = <T>(def: QueryParamDef<T>, next: T): string | number | null =>
   sameSerialized(def, next, def.defaultValue) ? null : def.serialize(next)
 
@@ -48,17 +46,11 @@ export const useQueryParam = <T>(def: QueryParamDef<T>) => {
   const [value, setLive] = useAtom(def.atom)
   const setParams = useSetSearchParams()
 
-  // When something else changes this key in the URL (back/forward, an edit
-  // in the address bar, another component), copy the new value into the
-  // live atom. When our own flush lands in the URL, the value there already
-  // equals the live value, so nothing changes.
   useEffect(() => {
     const store = getDefaultStore()
     let lastRaw: string | null | undefined
     const syncFromUrl = (params: URLSearchParams) => {
       const raw = params.get(def.key)
-      // This listener runs when any param is written, not only this one, so
-      // skip unless this key's text in the URL changed.
       if (raw === lastRaw) {
         return
       }
@@ -113,7 +105,6 @@ export const useQueryParam = <T>(def: QueryParamDef<T>) => {
     [def, setLive, setParams, flush],
   )
 
-  // Gesture end / unmount path: write the current live value now.
   const flushCurrent = useCallback(() => {
     flush(getDefaultStore().get(def.atom))
   }, [def, flush])

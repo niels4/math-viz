@@ -161,17 +161,14 @@ describe("queryParamAtom", () => {
         pan: useQueryParam(panDef),
       }))
 
-      // Zoom to 2. The url keeps scale 1 until the debounce fires.
       act(() => {
         result.current.scale[1](2)
       })
-      // A pan ends and writes the url now, which still says scale 1.
       act(() => {
         result.current.pan[1](3, { flush: true })
       })
       expect(window.location.hash).toContain("qp-scale=1")
 
-      // The zoom stays at 2, not back to the url's 1.
       expect(result.current.scale[0]).toBe(2)
       await wait(50)
       expect(window.location.hash).toContain("qp-scale=2.00")

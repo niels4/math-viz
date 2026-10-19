@@ -17,8 +17,6 @@
   user-select: none;
 }
 
-/* Sits over the plane, inset by the gap between the plane's edge and its
-corner brackets. */
 .html_overlay {
   --corner-length: 26px;
   --corner-width: 2.5px;
@@ -28,8 +26,6 @@ corner brackets. */
   pointer-events: none;
 }
 
-/* A corner bracket: two sides of a square box. Each corner class below
-picks the two sides. */
 .corner_chrome {
   position: absolute;
   width: var(--corner-length);
@@ -65,7 +61,6 @@ picks the two sides. */
   border-bottom-width: var(--corner-width);
 }
 
-/* Above the scale window, which drawScaleLegend.ts draws on the canvas. */
 .return_to_center {
   position: absolute;
   right: calc(28.5px - var(--space-inset));

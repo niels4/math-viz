@@ -15,8 +15,6 @@ const formatValue = (v: number): string => v.toFixed(2).replace("-", MINUS)
 const signed = (v: number, positive: string, negative: string): string =>
   `${v >= 0 ? positive : negative} ${formatValue(Math.abs(v))}`
 
-// A parameter's part of the equation. Pointing at it highlights the parameter
-// everywhere it shows.
 const Term = ({ param, children }: { param: TransformParam; children: ReactNode }) => {
   const lit = useAtomValue(highlightAtoms[param])
   const setHover = useSetAtom(hoverAtom)
@@ -34,10 +32,8 @@ const Term = ({ param, children }: { param: TransformParam; children: ReactNode 
   )
 }
 
-// Each exponent as it shows, and as a screen reader reads it.
 const EXPONENTS: Partial<Record<string, [string, string]>> = { x2: ["2", "²"], x3: ["3", "³"] }
 
-// Text for screen readers only, where the layout carries the meaning on screen.
 const Hidden = ({ children }: { children: string }) => <span className={style.hidden}>{children}</span>
 
 type Terms = { a: ReactNode; b: ReactNode; h: ReactNode; k: ReactNode }
@@ -68,7 +64,6 @@ const LETTERS: Terms = {
   ),
 }
 
-// Lays out the function with its four terms. A null term is left out.
 const Equation = ({ func, terms }: { func: FunctionSlug; terms: Terms }) => {
   const x = <var>x</var>
   const stacked = terms.b !== null
@@ -159,8 +154,6 @@ export const FunctionReadout = () => {
 
   return (
     <>
-      {/* Not a live region: the transform controls announce their own values,
-      so reading the equation on every change would only repeat them. */}
       <div ref={rowRef} className={style.readout} data-testid="function-readout">
         <span ref={lineRef} className={style.line}>
           <Equation func={func} terms={values} />

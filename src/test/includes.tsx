@@ -38,11 +38,6 @@ export const _renderSetup = ({ isBrowser, render, renderHook }: RenderSetupParam
   _renderHook = renderHook
 }
 
-// Cross-env act: `import { act } from "react"` warns in browser mode because
-// vitest-browser-react only enables IS_REACT_ACT_ENVIRONMENT inside its own
-// render calls. Setting the flag around React's act makes pointer-event
-// batching (`act(() => { down(); move(); ... })`) work in both jsdom and
-// real Chromium with the same sync semantics.
 export const act = (callback: () => unknown): unknown => {
   const g = globalThis as unknown as Record<string, unknown>
   const prev = g["IS_REACT_ACT_ENVIRONMENT"]
@@ -83,10 +78,6 @@ const hasElementMethod = (node: unknown): node is WithElementMethod => {
   )
 }
 
-// Cross-env element resolver: jsdom `getByTestId` returns a real element,
-// browser mode returns a Locator. Unwrap Locators via `.element()` so
-// `dispatchEvent(new PointerEvent(...))` works in both environments.
-// Callers narrow via `as`, e.g. `toElement(screen.getByTestId("x")) as HTMLCanvasElement`.
 export const toElement = (node: unknown): HTMLElement => {
   if (hasElementMethod(node)) {
     return node.element()
@@ -94,8 +85,5 @@ export const toElement = (node: unknown): HTMLElement => {
   return node as HTMLElement
 }
 
-// Whether a text selection may start: a selectstart on the page goes
-// uncancelled. A pointer drag holds it off until it is let go
-// (#src/util/pointer/selectNothing.ts).
 export const selectionMayStart = () =>
   document.body.dispatchEvent(new Event("selectstart", { bubbles: true, cancelable: true }))

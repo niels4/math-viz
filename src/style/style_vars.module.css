@@ -1,53 +1,35 @@
-/* Style vars: shared non-color tokens (spacing, radius, type,
- * shadow, motion, z-index, state)
- * Usage: CSS Module, per-page. Import as `import styleVars from "#src/style/style_vars.module.css"`
- * then wrap page root with `className={styleVars.style_vars}` next to the theme.
- * Component CSS consumes these via var(--space-*), var(--radius-*), etc.
- * No utility classes here. Color stays in themes.
- */
-
 .style_vars {
-  /* Spacing: 4px grid, closer means more related */
-  --space-text: 0.25rem; /* 4px - title from subtitle */
-  --space-inline: 0.5rem; /* 8px - icon from label, label from its control, popover from its button */
-  --space-inset: 0.75rem; /* 12px - padding inside a row, popover or menu text */
-  --space-section: 1rem; /* 16px - between sections, between cards, page edge */
-  --space-card: 1.25rem; /* 20px - padding inside a card */
+  --space-text: 0.25rem;
+  --space-inline: 0.5rem;
+  --space-inset: 0.75rem;
+  --space-section: 1rem;
+  --space-card: 1.25rem;
 
-  /* Radius by role. A thing inside a card subtracts its inset from the
-   * card radius so the curves stay concentric. */
-  --radius-card: 4px; /* panels: top bar, sidebar, popover, segmented control */
-  --radius-card-inset: max(0px, calc(var(--radius-card) - 4px)); /* rows padded 4px inside a card */
-  --radius-pill: 999px; /* search box, chips, switch */
-  --radius-circle: 50%; /* gear button, dots, slider handles */
+  --radius-card: 4px;
+  --radius-card-inset: max(0px, calc(var(--radius-card) - 4px));
+  --radius-pill: 999px;
+  --radius-circle: 50%;
 
-  /* Type: stacks match the @font-face families in global.css */
   --font-sans: "Work Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-serif: "STIX Two Text", Georgia, "Times New Roman", serif;
   --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Text size by role */
-  --text-wordmark: 1.5rem; /* 24px - the MathViz wordmark in a view header */
-  --text-title: 1.25rem; /* 20px - view title */
-  --text-heading: 1.0625rem; /* 17px - sidebar card titles */
-  --text-body: 1rem; /* 16px - default copy, theme row names */
-  --text-control: 0.875rem; /* 14px - segmented options, chips, buttons */
-  --text-help: 0.8125rem; /* 13px - secondary explanatory text in menus */
-  --text-label: 0.75rem; /* 12px - caps labels: view subtitle, menu section labels */
+  --text-wordmark: 1.5rem;
+  --text-title: 1.25rem;
+  --text-heading: 1.0625rem;
+  --text-body: 1rem;
+  --text-control: 0.875rem;
+  --text-help: 0.8125rem;
+  --text-label: 0.75rem;
 
-  /* Weight by role. 400 is the default and has no var. */
-  --weight-heading: 700; /* wordmark, view title */
-  --weight-strong: 600; /* a control or a selection: segmented options, selected theme row, view subtitle */
-  --weight-label: 800; /* caps section labels in menus */
+  --weight-heading: 700;
+  --weight-strong: 600;
+  --weight-label: 800;
 
-  /* Tracking = letter-spacing. Uppercase text at default spacing reads
-   * cramped; this opens it up. Mixed-case text needs none. */
-  --tracking-label: 0.08em; /* every uppercase label: view subtitle, menu section labels */
+  --tracking-label: 0.08em;
 
-  /* Shadow: shape here, color from the theme (transparent on dark themes) */
-  --shadow-card: 0 6px 18px var(--shadow-color); /* top bar, popover */
+  --shadow-card: 0 6px 18px var(--shadow-color);
 
-  /* Motion */
   --duration-fast: 160ms;
   --duration-base: 240ms;
   --duration-slow: 320ms;
@@ -55,14 +37,12 @@
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
 
-  /* Stacking order */
   --z-dropdown: 100;
   --z-sticky: 200;
   --z-modal: 300;
   --z-toast: 400;
   --z-tooltip: 500;
 
-  /* States; focus color comes from theme (primary or accent) */
   --opacity-disabled: 0.5;
   --opacity-muted: 0.7;
   --focus-ring-width: 2px;

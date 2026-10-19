@@ -7,11 +7,8 @@ import type { PlotFunction } from "./drawCartesianPlane"
 import { CartesianPlane } from "./CartesianPlane"
 import { planeFont } from "./constants"
 
-// The plane graphs y = x.
 const identity: PlotFunction = (x) => x
 
-// Every draw of the canvas: the context calls it made, and each piece of its
-// text with the font it was drawn in.
 type Draw = { calls: string[]; texts: { text: string; font: string }[] }
 let draws: Draw[]
 let finishFontLoad: () => void
@@ -24,7 +21,6 @@ const textsOf = (draw: Draw) => draw.texts.map((t) => t.text)
 beforeEach(() => {
   draws = []
 
-  // jsdom has no canvas: a context that records each draw.
   const fake = new Proxy<Record<string | symbol, unknown>>(
     {},
     {
@@ -43,14 +39,10 @@ beforeEach(() => {
     },
   )
   vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(fake as never)
-  // jsdom lays nothing out: the canvas is 400 by 300 px, so it shows x = -1 and 1.
   vi.spyOn(HTMLCanvasElement.prototype, "getBoundingClientRect").mockReturnValue(
     DOMRect.fromRect({ width: 400, height: 300 }),
   )
 
-  // jsdom has no document.fonts either: Roboto Mono arrives, or fails to,
-  // when the test says, as it does over the network on a reload with an
-  // empty cache.
   const fontArrived = new Promise<FontFace[]>((resolve, reject) => {
     finishFontLoad = () => resolve([])
     failFontLoad = () => reject(new Error("NetworkError"))
@@ -68,8 +60,6 @@ describe("CartesianPlane", () => {
   it("shows no numbers until Roboto Mono has loaded, then shows them in it", async () => {
     await render(<CartesianPlane plotFunction={identity} />)
 
-    // Before the font arrives, the plane draws its grid and axes, but no axis
-    // numbers and no scale legend.
     expect(fontLoad).toHaveBeenCalledWith(planeFont)
     expect(draws.length).toBeGreaterThan(0)
     for (const draw of draws) {
@@ -78,8 +68,6 @@ describe("CartesianPlane", () => {
       expect(draw.texts).toEqual([])
     }
 
-    // The font arrives, and the plane draws the numbers and the legend in it.
-    // #test's act can't await an async callback, so wait for the draw instead.
     finishFontLoad()
     await vi.waitFor(() => {
       expect(textsOf(lastDraw())).toEqual(expect.arrayContaining(["1", "-1", "0.50 u"]))
@@ -92,8 +80,6 @@ describe("CartesianPlane", () => {
     await render(<CartesianPlane plotFunction={identity} />)
     expect(lastDraw().texts).toEqual([])
 
-    // The font file doesn't arrive, so the numbers and the legend show in the
-    // browser's fallback face rather than not at all.
     failFontLoad()
     await vi.waitFor(() => {
       expect(textsOf(lastDraw())).toEqual(expect.arrayContaining(["1", "-1", "0.50 u"]))

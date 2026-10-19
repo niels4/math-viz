@@ -1,11 +1,3 @@
-// A pointer drag selects no text. `user-select: none` on the dragged element
-// isn't enough: WebKit lets a selection start inside such an element and
-// extend over any text the pointer crosses, pointer capture or not. So from
-// the press until that pointer lets go, the document cancels `selectstart`,
-// which each engine sends before a press or a drag starts a selection. A
-// selection made before the press stays as it was. The hold ends on the
-// pointer's pointerup or pointercancel, the window losing focus, or a move
-// of that pointer with no button held, which shows its release went missing.
 export const selectNothingUntilRelease = ({ pointerId }: { pointerId: number }): void => {
   const cancel = (event: Event) => {
     event.preventDefault()

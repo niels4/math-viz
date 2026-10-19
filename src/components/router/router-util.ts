@@ -1,6 +1,5 @@
 const trimSlashRegex = /^([/]*)|[/](?=[/])|([/]*)$/g
 
-// remove starting, trailing, and duplicate slashes (see router-util.test.ts for examples)
 export const trimSlashes = (route: string): string => route.replaceAll(trimSlashRegex, "")
 
 export type RouteAndSearchString = {

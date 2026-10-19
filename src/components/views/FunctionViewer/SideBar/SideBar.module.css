@@ -54,7 +54,6 @@
   }
 }
 
-/* One section of the sidebar on its own surface, titled. */
 .card {
   background: var(--section);
   border-radius: var(--radius-card);

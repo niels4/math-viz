@@ -16,8 +16,6 @@ export type RouterProps = {
 export const Router = ({ routes }: RouterProps) => {
   const route = useRoute()
 
-  // Only the routes' own keys are pages: #constructor or #__proto__ would
-  // read Object.prototype.
   const page = Object.hasOwn(routes, route) ? routes[route] : undefined
   const CurrentPage = page ?? routes["_not_found"] ?? NotFoundPlaceholder
 

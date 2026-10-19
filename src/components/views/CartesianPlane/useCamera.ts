@@ -7,51 +7,28 @@ import { maxScale, minScale } from "./queryParams"
 
 type Center = [number, number]
 
-// A wheel event multiplies the scale by exp(deltaY * scaleSpeed), so equal
-// notches zoom by equal ratios at every scale.
 const scaleSpeed = 0.001
-// The scale eases toward its target: each ms covers this fraction of the
-// remaining distance, so the distance shrinks by e every 83 ms.
 const zoomRate = 0.012
-// The zoom snaps to its target once it is within this fraction of it, so the
-// snap moves a point 400 px from the cursor by under half a px at any scale.
 const scaleEpsilon = 0.001
-// Release faster than this (px per ms) starts a glide; slower just stops.
 const minFlickSpeed = 0.15
-// Exponential decay of the glide per ms. Higher stops sooner.
 const friction = 0.0045
-// The glide ends below this speed (px per ms).
 const stopSpeed = 0.02
-// The release speed is the pointer's average over this many ms before
-// letting go, so a pause before the release counts as standing still.
 const flickWindow = 80
-// Clamp frame steps so a backgrounded tab does not jump on return.
 const maxFrameDt = 50
-// The first frame of an animation has no earlier frame to measure from,
-// and its timestamp can be earlier than the event that requested it.
 const firstFrameDt = 1000 / 60
 
 const clampScale = (scale: number) => Math.min(maxScale, Math.max(minScale, scale))
 
 const sameCenter = (a: Center, b: Center) => a[0] === b[0] && a[1] === b[1]
 
-// A pointer position and its event's timeStamp. Event times, not the time
-// the handler runs, so moves the browser dispatches back to back keep the
-// spacing they happened with.
 type Sample = { time: number; at: Center }
 
-// Drops samples from before the flick window that ends at `now`, keeping
-// the latest one at or before its start, where the release speed measures
-// from.
 const trimSamples = (samples: Sample[], now: number) => {
   while ((samples[1]?.time ?? Infinity) <= now - flickWindow) {
     samples.shift()
   }
 }
 
-// The pointer's average velocity in px per ms over the flick window before
-// `now`. A pointer held still sends no moves, so a rest before letting go
-// lowers the speed, down to zero for a rest as long as the window.
 const releaseVelocity = (samples: Sample[], now: number): Center => {
   trimSamples(samples, now)
   const first = samples[0]
@@ -63,8 +40,6 @@ const releaseVelocity = (samples: Sample[], now: number): Center => {
   return [(last.at[0] - first.at[0]) / dt, (last.at[1] - first.at[1]) / dt]
 }
 
-// Cursor position in CSS px from the point the draw code treats as the
-// canvas center: half the content box, inside the border, rounded down.
 const offsetFromCenter = (canvas: HTMLCanvasElement, e: MouseEvent): Center => {
   const rect = canvas.getBoundingClientRect()
   const width = rect.width - canvas.clientLeft * 2
@@ -75,14 +50,6 @@ const offsetFromCenter = (canvas: HTMLCanvasElement, e: MouseEvent): Center => {
   ]
 }
 
-// Pan, glide and wheel zoom for the Cartesian plane, on one animation
-// loop. A drag pans, a fast release glides on, and the wheel eases the
-// zoom about the cursor; all three can run at once. The center and scale
-// props come from the URL params. While the camera is still they are the
-// truth, and the first event of a gesture starts from them; while it moves,
-// the hook's own values are the truth and every write to React happens
-// once per frame in the loop. onSettle runs once when the camera comes to
-// rest and no pointer holds the plane.
 export const useCamera = (
   ref: RefObject<HTMLCanvasElement | null>,
   center: Center,
@@ -91,7 +58,6 @@ export const useCamera = (
   setScale: (scale: number) => void,
   onSettle: () => void,
 ) => {
-  // Mirrored so the listeners below stay attached for the whole gesture.
   const props = useRef({ center, scale, setCenter, setScale, onSettle })
   useEffect(() => {
     props.current = { center, scale, setCenter, setScale, onSettle }
@@ -103,19 +69,11 @@ export const useCamera = (
       return
     }
 
-    // What is drawn, and the only values ever written to React.
     const cur = { center: props.current.center, scale: props.current.scale }
-    // What React was last given, so a frame writes only what changed.
     const published = { ...cur }
-    // Where the zoom is heading. The center has no target: a zoom shifts
-    // it by however much the scale changed this frame.
     let targetScale = cur.scale
-    // Cursor of the latest wheel event, as offsetFromCenter measures it.
     let anchor: Center = [0, 0]
-    // Release velocity in screen px per ms while the plane glides.
     let glide: Center | null = null
-    // The pointer that drags the plane: where it last was, and its recent
-    // positions for the release speed.
     let pointer: { id: number; last: Center; samples: Sample[] } | null = null
     let frame = 0
     let lastFrameTime: number | null = null
@@ -123,8 +81,6 @@ export const useCamera = (
     const zooming = () => targetScale !== cur.scale
     const idle = () => pointer === null && glide === null && !zooming()
 
-    // Moves the center so the plane follows the pointer or the glide by
-    // (dx, dy) screen px at the scale drawn now.
     const panBy = (dx: number, dy: number) => {
       const unit = unscaledUnitSize / cur.scale
       cur.center = [cur.center[0] - dx / unit, cur.center[1] + dy / unit]
@@ -161,15 +117,10 @@ export const useCamera = (
       if (Math.abs(targetScale - cur.scale) < scaleEpsilon * targetScale) {
         cur.scale = targetScale
       }
-      // A plane unit is unscaledUnitSize / scale px wide, so this shift
-      // keeps the plane point under the anchor at the same place on screen.
-      // Screen y points down and plane y up.
       const d = (prevScale - cur.scale) / unscaledUnitSize
       const [ox, oy] = anchor
       cur.center = [cur.center[0] + ox * d, cur.center[1] - oy * d]
 
-      // The glide moves the plane after the zoom, at the scale drawn this
-      // frame, so the plane point under the cursor moves with the glide.
       if (glide !== null) {
         const decay = Math.exp(-friction * dt)
         glide = [glide[0] * decay, glide[1] * decay]
@@ -188,8 +139,6 @@ export const useCamera = (
         props.current.onSettle()
         return
       }
-      // A held pointer with nothing else moving: the next pointermove
-      // starts the loop again.
       if (glide === null && !zooming()) {
         frame = 0
         lastFrameTime = null
@@ -208,14 +157,12 @@ export const useCamera = (
       adoptIfIdle()
       anchor = offsetFromCenter(canvas, e)
       targetScale = clampScale(targetScale * Math.exp(e.deltaY * scaleSpeed))
-      // Already at a scale limit: nothing to animate.
       if (targetScale === cur.scale) {
         return
       }
       ensureLoop()
     }
 
-    // Catching the plane ends a glide; a zoom in flight carries on.
     const onPointerDown = (e: PointerEvent) => {
       if (pointer !== null) {
         return
@@ -229,11 +176,7 @@ export const useCamera = (
       pointer = { id: e.pointerId, last: at, samples: [{ time: e.timeStamp, at }] }
       try {
         canvas.setPointerCapture(e.pointerId)
-      } catch {
-        // Synthetic events in tests use arbitrary pointerIds that were
-        // never captured, and some browsers throw for those. The drag
-        // still works without capture in that case.
-      }
+      } catch {}
     }
 
     const onPointerMove = (e: PointerEvent) => {
@@ -250,7 +193,6 @@ export const useCamera = (
       ensureLoop()
     }
 
-    // The next frame glides on, or settles and writes the URL.
     const onPointerUp = (e: PointerEvent) => {
       if (pointer === null || e.pointerId !== pointer.id) {
         return

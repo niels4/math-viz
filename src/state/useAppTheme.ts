@@ -31,7 +31,6 @@ export const isDarkThemeSlug = (slug: unknown): slug is DarkThemeSlug =>
 export const isLightThemeSlug = (slug: unknown): slug is LightThemeSlug =>
   typeof slug === "string" && (LIGHT_THEME_SLUGS as readonly string[]).includes(slug)
 
-/** localStorage with validation: corrupt or foreign values fall back to the initial value. */
 const storageFor = <T>(isValid: (value: unknown) => value is T) => {
   const jsonStorage = createJSONStorage<T>(() => localStorage)
   return {
@@ -77,10 +76,6 @@ systemColorSchemeQuery.addEventListener("change", (e) => {
   atomStore.set(systemColorSchemeAtom, newScheme)
 })
 
-/**
- * The three persisted picks. On login atomWithStorage rehydrates them and
- * appThemeAtom derives the current theme — no single theme value stored.
- */
 export const selectedLightDarkAtom = atomWithStorage<LightDarkOptionSlug>(
   "mathviz-light-dark",
   "system",
@@ -128,7 +123,6 @@ export const isThemeSlug = (slug: string | undefined | null): slug is ThemeSlug 
   return Object.hasOwn(appThemeClasses, slug)
 }
 
-/** Theme colours as canvas code needs them: each one a plain, resolved colour. */
 export type ThemeVars = {
   background: string
   foreground: string
@@ -179,14 +173,11 @@ const themeColorMapping: Record<string, keyof ThemeVars> = {
   "--ordinal-12": "ordinal12",
 }
 
-/** A canvas colour as CSS, so DOM parts match the canvas's inks: "chartLine" → "var(--chart-line)". */
 export const themeColorVar = (key: keyof ThemeVars): string => {
   const cssVar = Object.keys(themeColorMapping).find((name) => themeColorMapping[name] === key)
   return cssVar === undefined ? "currentcolor" : `var(${cssVar})`
 }
 
-// Each colour token goes through a probe's computed `color`, so aliases and
-// color-mix() tokens reach the canvas as plain colours it can parse.
 const readVarsForClass = (className: string): ThemeVars => {
   const colors: Partial<ThemeVars> = {}
   const el = document.createElement("div")

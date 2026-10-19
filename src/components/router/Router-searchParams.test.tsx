@@ -65,7 +65,6 @@ describe("Router - search params", () => {
         await unmount()
 
         await updateLocationHash(searchString3)
-        // should not update anymore after unmounting
         expect(result.current).toEqual(expected2)
       })
     })

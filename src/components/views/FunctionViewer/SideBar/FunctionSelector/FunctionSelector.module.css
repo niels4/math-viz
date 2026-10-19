@@ -4,7 +4,6 @@
   padding: 0;
 }
 
-/* Labels are maths: STIX Two Text 20, x in italic. */
 .function_buttons {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

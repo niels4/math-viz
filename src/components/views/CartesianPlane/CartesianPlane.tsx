@@ -17,15 +17,9 @@ import { usePlotCurves } from "./usePlotCurves"
 
 const ctxOptions: CanvasRenderingContext2DSettings = { colorSpace: "display-p3" } as const
 
-// The font to draw canvas text in, or null until it has loaded. The browser
-// fetches a global.css font only when something uses it, so load it here.
-// While this is null the plane leaves its text out, rather than show it in a
-// fallback face, and useUpdateCanvas draws the text once the font arrives. If
-// the font fails to load, the text draws anyway, in the browser's fallback.
 const useCanvasFont = (font: string): string | null => {
   const [loaded, setLoaded] = useState<string | null>(null)
   useEffect(() => {
-    // jsdom has no document.fonts.
     if (!("fonts" in document)) {
       return
     }
@@ -87,8 +81,6 @@ export const CartesianPlane = ({ plotFunction }: { plotFunction: PlotFunction })
   const { themeVars } = useAppTheme()
   const font = useCanvasFont(planeFont)
 
-  // The URL gets the camera's center and scale together, once it stops
-  // after a drag, a glide or a zoom.
   const flushCamera = () => {
     flushCenter()
     flushScale()

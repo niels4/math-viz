@@ -3,3 +3,38 @@
   margin: 8px;
   background: var(--background-muted);
 }
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.reset_all {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  height: 20px;
+  margin-top: 4px;
+  padding: 2px 4px;
+  font-size: 13px;
+  font-weight: var(--weight-strong);
+  line-height: 15px;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-card);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--foreground);
+    background: var(--secondary);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+  }
+}

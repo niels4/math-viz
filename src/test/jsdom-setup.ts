@@ -10,14 +10,10 @@ import {
   type RenderHookFunc,
 } from "./includes.tsx"
 
-// Mirror browser-setup: synthetic pointerIds never had capture, so keep
-// these as no-ops in jsdom too (jsdom lacks them entirely).
 HTMLCanvasElement.prototype.setPointerCapture = () => {}
 HTMLCanvasElement.prototype.releasePointerCapture = () => {}
 HTMLCanvasElement.prototype.hasPointerCapture = () => false
 
-// jsdom has no matchMedia (no media query engine). Tests that import
-// the theme state need it to exist. Defaults every test to light.
 if (typeof window.matchMedia !== "function") {
   const stubQuery = (query: string): MediaQueryList =>
     ({
@@ -36,7 +32,6 @@ if (typeof window.matchMedia !== "function") {
   })
 }
 
-// make sure we clean up the screen after every test
 afterEach(() => {
   cleanup()
 })
@@ -46,7 +41,6 @@ expect.element = (element, options = { defaultElementLocatorTimeout: defaultElem
   return expect.poll(() => element, options)
 }
 
-// clicking a tags that update the hash will cause the location.hash to update
 const _oldClick = HTMLElement.prototype.click as () => Promise<void>
 HTMLElement.prototype.click = async function () {
   await _oldClick.call(this)

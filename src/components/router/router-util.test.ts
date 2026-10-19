@@ -12,8 +12,8 @@ import {
 describe("router-util", () => {
   describe("trimSlashes", () => {
     const tests: [string, string][] = [
-      ["", ""], // should not transform
-      ["hello/there", "hello/there"], // should not transform
+      ["", ""],
+      ["hello/there", "hello/there"],
       ["/", ""],
       ["//", ""],
       ["///////", ""],
@@ -37,7 +37,7 @@ describe("router-util", () => {
     const tests: [string, RouteAndSearchString][] = [
       ["", { route: "", search: "" }],
       ["#", { route: "", search: "" }],
-      ["#/", { route: "/", search: "" }], // slashes aren't automatically removed here
+      ["#/", { route: "/", search: "" }],
       ["#hello-there", { route: "hello-there", search: "" }],
       ["?search", { route: "", search: "search" }],
       ["#?search", { route: "", search: "search" }],

@@ -86,9 +86,6 @@ export const useSearchParams = () => {
   return searchParams
 }
 
-// export a hook that returns a function to update search parameters
-// will merge with existing parameters
-// to delete a parameter, set the value to null
 export type SetSearchParamsObject = Record<string, string | number | null>
 
 export type SetSearchParamsOptions = {
@@ -105,9 +102,6 @@ export const useSetSearchParams = () => {
         updatedParams.set(key, String(value))
       }
     }
-    // URLSearchParams encodes commas as %2C. Commas are valid in queries
-    // and parse back identically, so keep them literal for readable URLs.
-    // Safe: a literal "%2C" in input encodes as %252C, never bare %2C.
     const searchString = updatedParams.toString().replaceAll(/%2C/gi, ",")
     const newHash = createFullHash(currentRoute, searchString)
     if (options?.replaceHistory === true) {

@@ -4,16 +4,10 @@ import { planeFontSize, unscaledUnitSize } from "./constants"
 import { drawScaleLegend } from "./drawScaleLegend"
 import { layoutGrid, layoutLabels, type GridLayout, type GridLine } from "./grid"
 
-/** A function the plane graphs as y = f(x). */
 export type PlotFunction = (x: number) => number
 
-/**
- * A function's curve as one frame shows it: its opacity, and how much of its
- * length inside the canvas is drawn, from the left (1 for all of it).
- */
 export type PlotCurve = { fn: PlotFunction; alpha: number; drawTo: number }
 
-// Ticks cross an axis at each major line, this far to each side.
 const tickHalf = 5
 
 const drawAxis = (
@@ -46,7 +40,6 @@ const drawAxis = (
   }
   ctx.stroke()
 
-  // The labels wait for their font rather than show in a fallback face.
   if (font === null) {
     return
   }
@@ -61,9 +54,6 @@ const drawAxis = (
   }
 }
 
-// Lines this far past an edge still get their labels, so a label slides in
-// with its line instead of popping in: a label sits left of or below its
-// line, and one like -1234 is under 64 px wide.
 const labelMargin = 64
 
 const strokeVertical = (ctx: CanvasRenderingContext2D, lines: GridLine[], height: number) => {
@@ -103,8 +93,6 @@ const drawGrid = (
   drawAxis(ctx, width, height, grid, theme, font)
 }
 
-// The share of the segment from y0 to y1 that lies between the canvas's top
-// and bottom edges.
 const insideShare = (y0: number, y1: number, height: number) => {
   const lo = Math.min(y0, y1)
   const hi = Math.max(y0, y1)
@@ -117,9 +105,6 @@ const insideShare = (y0: number, y1: number, height: number) => {
   return (Math.min(hi, height) - Math.max(lo, 0)) / (hi - lo)
 }
 
-// y = f(x) across the canvas, one point per px column. A curve drawn partway
-// stops once it has drawn its share of the length inside the canvas, so the
-// pen spends no time above or below the canvas.
 const drawCurve = (
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -129,7 +114,6 @@ const drawCurve = (
   theme: ThemeVars,
 ) => {
   const [originX, originY] = grid.origin
-  // Each point with the length inside the canvas from the left edge to it.
   const points: { x: number; y: number; at: number }[] = []
   let at = 0
   for (let px = 0; px <= width; px++) {
@@ -149,7 +133,6 @@ const drawCurve = (
   ctx.beginPath()
   let prev: { x: number; y: number; at: number } | undefined
   for (const point of points) {
-    // The pen stops partway along this segment.
     if (prev !== undefined && point.at > stop) {
       const t = (stop - prev.at) / (point.at - prev.at)
       ctx.lineTo(prev.x + (point.x - prev.x) * t, prev.y + (point.y - prev.y) * t)
@@ -174,12 +157,9 @@ export const drawCartesianPlane = (
 ) => {
   const grid = layoutGrid(width, height, center, scale, labelMargin)
   drawGrid(ctx, width, height, grid, theme, font)
-  // In order, so each curve draws over the ones before it.
   for (const curve of curves) {
     drawCurve(ctx, width, height, grid, curve, theme)
   }
-  // The legend's plate is as wide as its text, so the whole legend waits for
-  // the font with the labels.
   if (font !== null) {
     drawScaleLegend(ctx, width, height, unscaledUnitSize, scale, theme, font)
   }

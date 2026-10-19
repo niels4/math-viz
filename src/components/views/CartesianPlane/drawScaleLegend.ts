@@ -2,16 +2,12 @@ import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
 import { formatFixed } from "#src/util/format.ts"
 
-// The window sits inside the bottom-right corner bracket (HtmlOverlay), clear
-// of both its arms.
 const scaleWindowRight = 28
 const scaleWindowBottom = 22
 const scaleWindowPaddingX = 14
 const scaleWindowPaddingY = 8
 const scaleWindowRadius = 4
-// Space between the legend's unit bar and its label.
 const scaleLabelGap = 8
-// Line height of the label in planeFont, which sets the window's height.
 const scaleLabelLineHeight = 18
 const scaleLegendHeight = 5
 const scaleWindowHeight = scaleLabelLineHeight + scaleWindowPaddingY * 2
@@ -25,8 +21,6 @@ export const drawScaleLegend = (
   theme: ThemeVars,
   font: string,
 ) => {
-  // chartGrid carries the --border value in every theme, so it rims the
-  // plate the way the reference's var(--border) does.
   ctx.strokeStyle = theme.chartGrid
   ctx.lineWidth = 1
 

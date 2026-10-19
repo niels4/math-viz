@@ -10,8 +10,6 @@ afterEach(async () => {
   await updateLocationHash("")
 })
 
-// A line as a screen reader reads it: its text for readers only included,
-// the parts hidden from readers left out.
 const readable = (el: Element): string =>
   [...el.childNodes]
     .map((node) => {
@@ -32,19 +30,16 @@ const readout = async (hash: string) => {
 
 describe("the function readout", () => {
   it("shows the bare function when every value is at its default", async () => {
-    // A fresh page graphs x, untransformed.
     const line = await readout("")
     await expect.poll(() => spoken(line)).toBe("f(x) = x")
   })
 
   it("prints a link's values with two decimals and true minus signs", async () => {
-    // x² flipped and stretched by a, moved left by h and up by k.
     const line = await readout("#?func=x2&a=-1.5&h=-2&k=0.75")
     await expect.poll(() => spoken(line)).toBe("f(x) = −1.50(x + 2.00)² + 0.75")
   })
 
   it("leaves out the values at their defaults", async () => {
-    // Only k is off its default, so x³ keeps its bare x.
     const line = await readout("#?func=x3&k=-1")
     await expect.poll(() => spoken(line)).toBe("f(x) = x³ − 1.00")
   })
@@ -65,20 +60,17 @@ describe("the function readout", () => {
   })
 
   it("reads a stacked fraction as top over bottom", async () => {
-    // On screen, x − 1.00 sits over 0.50; read aloud, it is (x − 1.00)/0.50.
     const line = await readout("#?func=sinx&a=2&b=0.5&h=1&k=-1")
     await expect.poll(() => spoken(line)).toBe("f(x) = 2.00 sin((x − 1.00)/0.50) − 1.00")
   })
 
   it("leaves announcing changes to the transform controls", async () => {
-    // A screen reader reads the line when its user moves to it, not each time it changes.
     const line = await readout("#?a=2")
     await expect.poll(() => spoken(line)).toBe("f(x) = 2.00x")
     expect(line.closest("output, [role='status'], [aria-live]")).toBeNull()
   })
 
   it.runIf(isBrowser())("shrinks a long equation to fit the sidebar", async () => {
-    // Every value set, in a column as wide as the sidebar's card.
     await updateLocationHash("#?a=20&b=30&h=10&k=12.5")
     const screen = await render(
       <div className={style_vars} style={{ width: 320 }}>
@@ -88,7 +80,6 @@ describe("the function readout", () => {
     const row = toElement(screen.getByTestId("function-readout"))
     await expect.poll(() => spoken(row)).toBe("f(x) = 20.00((x − 10.00)/30.00) + 12.50")
 
-    // The line ends just inside the column instead of running past it.
     const line = toElement(row.firstElementChild)
     const edge = row.getBoundingClientRect().right
     await expect.poll(() => line.getBoundingClientRect().right).toBeLessThanOrEqual(edge)
@@ -104,7 +95,6 @@ const form = async (hash: string) => {
 
 describe("the function's form", () => {
   it("shows every letter, even for values at their defaults", async () => {
-    // Only k is set, but the form under x² still shows a, h and b.
     const line = await form("#?func=x2&k=1")
     await expect.poll(() => spoken(line)).toBe("Form: f(x) = a((x − h)/b)² + k")
   })
@@ -120,7 +110,6 @@ const point = (el: HTMLElement, type: "pointerover" | "pointerout") =>
 
 describe("highlighting a parameter", () => {
   it("lights its term in both lines while the pointer is on either one", async () => {
-    // x² scaled by a = 2: a shows in both lines, h only in the form.
     await updateLocationHash("#?func=x2&a=2")
     const screen = await render(<FunctionReadout />)
     const values = toElement(screen.getByTestId("function-readout"))
@@ -130,22 +119,18 @@ describe("highlighting a parameter", () => {
       toElement(line.querySelector(`[data-param="${param}"]`))
     const lit = (line: HTMLElement, param: string) => term(line, param).hasAttribute("data-lit")
 
-    // Nothing is lit at rest.
     expect(lit(values, "a")).toBe(false)
     expect(lit(letters, "a")).toBe(false)
 
-    // Pointing at 2.00 lights a in both lines, and nothing else.
     point(term(values, "a"), "pointerover")
     expect(lit(values, "a")).toBe(true)
     expect(lit(letters, "a")).toBe(true)
     expect(lit(letters, "h")).toBe(false)
 
-    // Moving off it puts both out.
     point(term(values, "a"), "pointerout")
     expect(lit(values, "a")).toBe(false)
     expect(lit(letters, "a")).toBe(false)
 
-    // The form's h lights though the value line has no h.
     point(term(letters, "h"), "pointerover")
     expect(lit(letters, "h")).toBe(true)
     point(term(letters, "h"), "pointerout")

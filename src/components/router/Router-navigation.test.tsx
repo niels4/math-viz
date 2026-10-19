@@ -58,8 +58,6 @@ describe("Router Navigation", () => {
     })
   })
 
-  // A route is a key the routes object owns: a hash naming a member of
-  // Object.prototype is no page, so it shows the not-found page.
   describe("when the hash names a member of Object.prototype", () => {
     afterEach(async () => {
       await updateLocationHash("")
