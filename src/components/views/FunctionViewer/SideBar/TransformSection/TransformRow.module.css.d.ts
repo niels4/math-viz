@@ -4,6 +4,7 @@
 declare const styles: {
   readonly "chip": string;
   readonly "name": string;
+  readonly "reset": string;
   readonly "row": string;
 };
 export = styles;
