@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import type { PlotCurve } from "../CartesianPlane/drawCartesianPlane"
 
 import { baseFunctions, unitX } from "./baseFunctions"
-import { transformCurves, transformHandles } from "./transformCurves"
+import { shiftArrows, transformCurves, transformHandles } from "./transformCurves"
 
 const square: PlotCurve = { fn: baseFunctions.x2, alpha: 1, drawTo: 1 }
 const untouched = { a: 1, b: 1, h: 0, k: 0 }
@@ -71,5 +71,22 @@ describe("transformHandles", () => {
 
     expect(peak).toEqual({ x: Math.PI / 2, y: 1, shape: "square" })
     expect(widePeak).toEqual({ x: Math.PI, y: 1, shape: "square" })
+  })
+})
+
+describe("shiftArrows", () => {
+  const shifted = { ...untouched, h: 1, k: 3 }
+
+  it("while k is lit, an arrow rises from the x-axis to the shift handle at (1, 3)", () => {
+    expect(shiftArrows("k", shifted)).toEqual([{ from: { x: 1, y: 0 }, to: { x: 1, y: 3 } }])
+  })
+
+  it("while h is lit, an arrow runs from the y-axis to the shift handle at (1, 3)", () => {
+    expect(shiftArrows("h", shifted)).toEqual([{ from: { x: 0, y: 3 }, to: { x: 1, y: 3 } }])
+  })
+
+  it("while a is lit or nothing is, no arrow shows", () => {
+    expect(shiftArrows("a", shifted)).toEqual([])
+    expect(shiftArrows(null, shifted)).toEqual([])
   })
 })

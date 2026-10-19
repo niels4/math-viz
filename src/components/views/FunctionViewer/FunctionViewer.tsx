@@ -1,3 +1,4 @@
+import { useAtomValue } from "jotai"
 import { type ReactNode } from "react"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
@@ -9,7 +10,8 @@ import { baseFunctions, unitX } from "./baseFunctions"
 import style from "./FunctionViewer.module.css"
 import { aParam, bParam, funcParam, hParam, kParam } from "./queryParams"
 import { SideBar } from "./SideBar/SideBar"
-import { transformCurves, transformHandles } from "./transformCurves"
+import { litAtom } from "./state"
+import { shiftArrows, transformCurves, transformHandles } from "./transformCurves"
 import { useShownTransform } from "./useShownTransform"
 
 const Page = ({ children }: { children: ReactNode | ReactNode[] }) => {
@@ -24,11 +26,13 @@ const Plot = () => {
   const [k] = useQueryParam(kParam)
   const curves = usePlotCurves(baseFunctions[func])
   const shown = useShownTransform({ a, b, h, k })
+  const lit = useAtomValue(litAtom)
 
   return (
     <CartesianPlane
       curves={transformCurves(curves, shown)}
       handles={transformHandles(baseFunctions[func], unitX[func], shown)}
+      arrows={shiftArrows(lit, shown)}
     />
   )
 }

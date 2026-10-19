@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest"
 
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
-import { drawCartesianPlane, type PlotCurve, type PlotHandle } from "./drawCartesianPlane"
+import { drawCartesianPlane, type PlotArrow, type PlotCurve, type PlotHandle } from "./drawCartesianPlane"
 
-const drawnPoints = (curves: PlotCurve[], handles: PlotHandle[] = []): [number, number][] => {
+const drawnPoints = (
+  curves: PlotCurve[],
+  handles: PlotHandle[] = [],
+  arrows: PlotArrow[] = [],
+): [number, number][] => {
   const points: [number, number][] = []
   const ctx = new Proxy<Record<string | symbol, unknown>>(
     {},
@@ -27,6 +31,7 @@ const drawnPoints = (curves: PlotCurve[], handles: PlotHandle[] = []): [number, 
     null,
     curves,
     handles,
+    arrows,
   )
   return points
 }
@@ -66,5 +71,13 @@ describe("drawCartesianPlane", () => {
       [250, 110],
       [240, 100],
     ])
+  })
+
+  it("an arrow from (0, 0) to (1, 0) starts at a tick across the y-axis and points at (250, 150)", () => {
+    const points = drawnPoints([], [], [{ from: { x: 0, y: 0 }, to: { x: 1, y: 0 } }])
+
+    expect(points).toContainEqual([200, 141])
+    expect(points).toContainEqual([200, 159])
+    expect(points).toContainEqual([250, 150])
   })
 })

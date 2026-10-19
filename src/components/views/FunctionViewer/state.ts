@@ -25,7 +25,7 @@ const touch = (by: Touch) =>
 export const hoverAtom = touch("hover")
 export const focusAtom = touch("focus")
 
-const litAtom = atom((get) => {
+export const litAtom = atom((get) => {
   const { hover, focus, lead } = get(touchAtom)
   return lead === "hover" ? (hover ?? focus) : (focus ?? hover)
 })

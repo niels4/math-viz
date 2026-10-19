@@ -8,7 +8,11 @@ export type PlotFunction = (x: number) => number
 
 export type PlotCurve = { fn: PlotFunction; alpha: number; drawTo: number; dashed?: boolean }
 
-export type PlotHandle = { x: number; y: number; shape: "diamond" | "square" }
+export type PlotPoint = { x: number; y: number }
+
+export type PlotHandle = PlotPoint & { shape: "diamond" | "square" }
+
+export type PlotArrow = { from: PlotPoint; to: PlotPoint }
 
 type CurveLook = { ink: keyof ThemeVars; width: number; cap: CanvasLineCap; dash: number[]; alpha: number }
 
@@ -162,6 +166,52 @@ const drawCurve = (
   ctx.restore()
 }
 
+const toPx = (grid: GridLayout, { x, y }: PlotPoint): [number, number] => {
+  const [originX, originY] = grid.origin
+  return [originX + x * grid.pxPerUnit, originY - y * grid.pxPerUnit]
+}
+
+const arrowWidth = 2.5
+const arrowHeadLength = 9.8
+const arrowHeadHalf = 4.9
+const tailTickHalf = 9
+const tailTickWidth = 2
+
+const drawArrow = (ctx: CanvasRenderingContext2D, grid: GridLayout, arrow: PlotArrow, theme: ThemeVars) => {
+  const [x1, y1] = toPx(grid, arrow.from)
+  const [x2, y2] = toPx(grid, arrow.to)
+  const length = Math.hypot(x2 - x1, y2 - y1)
+  if (length === 0) {
+    return
+  }
+  const ux = (x2 - x1) / length
+  const uy = (y2 - y1) / length
+  const short = Math.min(length, arrowWidth)
+  ctx.save()
+  ctx.strokeStyle = theme.primary
+  ctx.fillStyle = theme.primary
+  ctx.lineCap = "butt"
+  ctx.lineWidth = arrowWidth
+  ctx.beginPath()
+  ctx.moveTo(x1, y1)
+  ctx.lineTo(x2 - ux * short, y2 - uy * short)
+  ctx.stroke()
+  ctx.lineWidth = tailTickWidth
+  ctx.beginPath()
+  ctx.moveTo(x1 + uy * tailTickHalf, y1 - ux * tailTickHalf)
+  ctx.lineTo(x1 - uy * tailTickHalf, y1 + ux * tailTickHalf)
+  ctx.stroke()
+  const baseX = x2 - ux * arrowHeadLength
+  const baseY = y2 - uy * arrowHeadLength
+  ctx.beginPath()
+  ctx.moveTo(x2, y2)
+  ctx.lineTo(baseX - uy * arrowHeadHalf, baseY + ux * arrowHeadHalf)
+  ctx.lineTo(baseX + uy * arrowHeadHalf, baseY - ux * arrowHeadHalf)
+  ctx.closePath()
+  ctx.fill()
+  ctx.restore()
+}
+
 const diamondRadius = 10
 const squareSide = 16
 const squareRadius = 3
@@ -173,9 +223,7 @@ const drawHandle = (
   handle: PlotHandle,
   theme: ThemeVars,
 ) => {
-  const [originX, originY] = grid.origin
-  const x = originX + handle.x * grid.pxPerUnit
-  const y = originY - handle.y * grid.pxPerUnit
+  const [x, y] = toPx(grid, handle)
   ctx.save()
   ctx.lineWidth = handleStroke
   ctx.lineJoin = "round"
@@ -218,10 +266,17 @@ export const drawCartesianPlane = (
   font: string | null,
   curves: readonly PlotCurve[],
   handles: readonly PlotHandle[],
+  arrows: readonly PlotArrow[],
 ) => {
   const grid = layoutGrid(width, height, center, scale, labelMargin)
   drawGrid(ctx, width, height, grid, theme, font)
-  for (const curve of curves) {
+  for (const curve of curves.filter(({ dashed }) => dashed === true)) {
+    drawCurve(ctx, width, height, grid, curve, theme)
+  }
+  for (const arrow of arrows) {
+    drawArrow(ctx, grid, arrow, theme)
+  }
+  for (const curve of curves.filter(({ dashed }) => dashed !== true)) {
     drawCurve(ctx, width, height, grid, curve, theme)
   }
   for (const handle of handles) {
