@@ -59,7 +59,8 @@
   width: 107px;
   height: 32px;
   padding: 0 var(--space-inset);
-  font-family: var(--font-mono);
+  font: 500 17px/22px var(--font-mono);
+  font-variant-numeric: tabular-nums;
   text-align: right;
   color: var(--row-ink);
   background: var(--background-muted);
@@ -73,6 +74,10 @@
   .row[data-lit] &,
   &:focus {
     --box-inset: 1px;
+  }
+
+  &:focus {
+    color: var(--foreground);
   }
 
   &:focus-visible {

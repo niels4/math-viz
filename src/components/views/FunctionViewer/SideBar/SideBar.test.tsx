@@ -91,4 +91,29 @@ describe("highlighting a parameter", () => {
     expect(lit(row)).toBe(false)
     expect(lit(term)).toBe(false)
   })
+
+  it("lights only the parameter the pointer or the focus moved to last", async () => {
+    // A fresh page shows a's box and the form's k.
+    const screen = await render(<SideBar />)
+    const box = toElement(screen.getByLabelText("Vertical scale"))
+    const row = box.closest<HTMLElement>("[data-param]")
+    const form = toElement(screen.getByTestId("function-form"))
+    const k = toElement(form.querySelector('[data-param="k"]'))
+    const lit = (el: HTMLElement | null) => el?.hasAttribute("data-lit")
+
+    // Focusing a's box lights a.
+    act(() => box.focus())
+    expect(lit(row)).toBe(true)
+    expect(lit(k)).toBe(false)
+
+    // Pointing at the form's k lights k and puts a out.
+    point(k, "pointerover")
+    expect(lit(k)).toBe(true)
+    expect(lit(row)).toBe(false)
+
+    // Moving off k gives the light back to a, which still has the focus.
+    point(k, "pointerout")
+    expect(lit(k)).toBe(false)
+    expect(lit(row)).toBe(true)
+  })
 })

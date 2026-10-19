@@ -5,7 +5,7 @@ import { useFitWidth } from "#src/components/hooks/useFitWidth.ts"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
 import { aParam, bParam, funcParam, hParam, kParam, type FunctionSlug } from "../queryParams"
-import { highlightAtoms, hoverAtoms, type TransformParam } from "../state"
+import { highlightAtoms, hoverAtom, type TransformParam } from "../state"
 import style from "./FunctionReadout.module.css"
 
 const MINUS = "−"
@@ -19,15 +19,15 @@ const signed = (v: number, positive: string, negative: string): string =>
 // everywhere it shows.
 const Term = ({ param, children }: { param: TransformParam; children: ReactNode }) => {
   const lit = useAtomValue(highlightAtoms[param])
-  const setHover = useSetAtom(hoverAtoms[param])
+  const setHover = useSetAtom(hoverAtom)
 
   return (
     <span
       className={style.term}
       data-param={param}
       data-lit={lit ? "" : undefined}
-      onPointerEnter={() => setHover(true)}
-      onPointerLeave={() => setHover(false)}
+      onPointerEnter={() => setHover(param, true)}
+      onPointerLeave={() => setHover(param, false)}
     >
       {children}
     </span>

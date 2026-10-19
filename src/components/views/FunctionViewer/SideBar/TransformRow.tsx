@@ -4,7 +4,7 @@ import { useId, useState } from "react"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
 import { transformParams } from "../queryParams"
-import { focusAtom, highlightAtoms, hoverAtoms, type TransformParam } from "../state"
+import { focusAtom, highlightAtoms, hoverAtom, type TransformParam } from "../state"
 import style from "./TransformRow.module.css"
 
 // One transform parameter: its name, and its value in a box you can type in.
@@ -14,7 +14,7 @@ export const TransformRow = ({ name, param }: { name: string; param: TransformPa
   const urlParam = transformParams[param]
   const [value, setValue] = useQueryParam(urlParam)
   const lit = useAtomValue(highlightAtoms[param])
-  const setHover = useSetAtom(hoverAtoms[param])
+  const setHover = useSetAtom(hoverAtom)
   const setFocus = useSetAtom(focusAtom)
   // The text in the box while you type. Partial numbers such as "-" or "1."
   // stay here, and Enter or leaving the box sets the value. Text the URL
@@ -38,10 +38,10 @@ export const TransformRow = ({ name, param }: { name: string; param: TransformPa
       className={style.row}
       data-param={param}
       data-lit={lit ? "" : undefined}
-      onPointerEnter={() => setHover(true)}
-      onPointerLeave={() => setHover(false)}
-      onFocus={() => setFocus(param)}
-      onBlur={() => setFocus(null)}
+      onPointerEnter={() => setHover(param, true)}
+      onPointerLeave={() => setHover(param, false)}
+      onFocus={() => setFocus(param, true)}
+      onBlur={() => setFocus(param, false)}
     >
       {/* The parameter's letter in its colour, as in the equation. Hidden
           from screen readers, which hear the name. */}
