@@ -1,9 +1,11 @@
+import { useAtom } from "jotai"
 import { useRef, type ReactNode } from "react"
 
 import { useFitWidth } from "#src/components/hooks/useFitWidth.ts"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
 import { aParam, bParam, funcParam, hParam, kParam, type FunctionSlug } from "../queryParams"
+import { highlightAtoms, type TransformParam } from "../state"
 import style from "./FunctionReadout.module.css"
 
 const MINUS = "−"
@@ -13,11 +15,23 @@ const formatValue = (v: number): string => v.toFixed(2).replace("-", MINUS)
 const signed = (v: number, positive: string, negative: string): string =>
   `${v >= 0 ? positive : negative} ${formatValue(Math.abs(v))}`
 
-const Term = ({ param, children }: { param: "a" | "b" | "h" | "k"; children: ReactNode }) => (
-  <span className={style.term} data-param={param}>
-    {children}
-  </span>
-)
+// A parameter's part of the equation. Pointing at it highlights the parameter
+// everywhere it shows.
+const Term = ({ param, children }: { param: TransformParam; children: ReactNode }) => {
+  const [lit, setLit] = useAtom(highlightAtoms[param])
+
+  return (
+    <span
+      className={style.term}
+      data-param={param}
+      data-lit={lit ? "" : undefined}
+      onPointerEnter={() => setLit(true)}
+      onPointerLeave={() => setLit(false)}
+    >
+      {children}
+    </span>
+  )
+}
 
 const EXPONENTS: Partial<Record<string, string>> = { x2: "2", x3: "3" }
 
