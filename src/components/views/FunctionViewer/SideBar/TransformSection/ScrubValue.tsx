@@ -191,6 +191,7 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
         ref={boxRef}
         className={style.box}
         data-lit={lit ? "" : undefined}
+        data-mode={mode ?? undefined}
         onPointerEnter={(e) => {
           // A finger can't rest on the box without pressing it.
           if (e.pointerType !== "touch") {
@@ -289,7 +290,7 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
         field reads the value. */}
       {mode !== null && (
         <div className={style.ruler} aria-hidden="true">
-          <div className={style.tape} />
+          <div className={style.tape} data-mode={mode} />
         </div>
       )}
     </>
