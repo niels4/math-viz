@@ -18,6 +18,22 @@
 .term {
   display: inline-block;
   padding: 0 3px 1px;
+
+  &[data-param="a"] {
+    color: var(--param-a);
+  }
+
+  &[data-param="k"] {
+    color: var(--param-k);
+  }
+
+  &[data-param="b"] {
+    color: var(--param-b);
+  }
+
+  &[data-param="h"] {
+    color: var(--param-h);
+  }
 }
 
 .frac {

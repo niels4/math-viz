@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
+import { useAppTheme } from "#src/state/useAppTheme.ts"
 
 import { funcParam, type FunctionSlug } from "../queryParams"
 import { FunctionReadout } from "./FunctionReadout"
@@ -55,8 +56,10 @@ const FunctionSelector = () => {
 }
 
 export const SideBar = () => {
+  const { themeSlug } = useAppTheme()
+
   return (
-    <div className={style.sidebar}>
+    <div className={style.sidebar} data-theme={themeSlug}>
       <FunctionSelector />
     </div>
   )
