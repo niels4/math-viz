@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import type { Transform } from "./transformCurves"
 
 import { canAnimate } from "../CartesianPlane/usePlotCurves"
-import { flipAtom, type TransformParam } from "./state"
+import { jumpsAtom, type TransformParam } from "./state"
 
 const durationMs = 1000
 const springSettleMs = 702
@@ -33,17 +33,14 @@ const shownDuring = (jump: Jump | null, transform: Transform): Transform => {
 }
 
 export const useShownTransform = (transform: Transform): Transform => {
-  const flip = useAtomValue(flipAtom)
-  const [seenFlip, setSeenFlip] = useState(flip)
+  const jumps = useAtomValue(jumpsAtom)
+  const [seenJumps, setSeenJumps] = useState(jumps)
   const [jump, setJump] = useState<Jump | null>(null)
-  if (flip !== seenFlip) {
-    setSeenFlip(flip)
-    if (flip !== null && canAnimate()) {
-      setJump({
-        from: shownDuring(jump, { ...transform, [flip.param]: flip.from }),
-        to: { ...transform, [flip.param]: flip.to },
-        elapsed: 0,
-      })
+  if (jumps !== seenJumps) {
+    setSeenJumps(jumps)
+    if (canAnimate()) {
+      const ends = (end: "from" | "to") => jumps.reduce((t, j) => ({ ...t, [j.param]: j[end] }), transform)
+      setJump({ from: shownDuring(jump, ends("from")), to: ends("to"), elapsed: 0 })
     }
   }
 

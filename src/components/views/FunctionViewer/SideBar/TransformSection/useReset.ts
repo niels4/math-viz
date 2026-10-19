@@ -10,6 +10,7 @@ export const useReset = (param: TransformParam) => {
   return {
     changed: value !== defaultValue,
     defaultValue,
+    jump: { param, from: value, to: defaultValue },
     reset: () => setValue(defaultValue, { flush: true }),
   }
 }

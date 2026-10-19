@@ -4,7 +4,7 @@ import { useId } from "react"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
 import { transformParams } from "../../queryParams"
-import { flipAtom, focusAtom, highlightAtoms, hoverAtom, type TransformParam } from "../../state"
+import { focusAtom, highlightAtoms, hoverAtom, jumpsAtom, type TransformParam } from "../../state"
 import { FlipIcon } from "./FlipIcon.tsx"
 import { ResetIcon } from "./ResetIcon.tsx"
 import { ScrubValue } from "./ScrubValue/ScrubValue.tsx"
@@ -15,9 +15,9 @@ export const TransformRow = ({ name, param }: { name: string; param: TransformPa
   const lit = useAtomValue(highlightAtoms[param])
   const setHover = useSetAtom(hoverAtom)
   const setFocus = useSetAtom(focusAtom)
-  const setFlip = useSetAtom(flipAtom)
+  const setJumps = useSetAtom(jumpsAtom)
   const id = useId()
-  const { changed, defaultValue, reset } = useReset(param)
+  const { changed, defaultValue, jump, reset } = useReset(param)
   const [value, setValue] = useQueryParam(transformParams[param])
   const isScale = param === "a" || param === "b"
 
@@ -47,7 +47,7 @@ export const TransformRow = ({ name, param }: { name: string; param: TransformPa
             if (e.detail > 0) {
               e.currentTarget.blur()
             }
-            setFlip({ param, from: value, to: -value })
+            setJumps([{ param, from: value, to: -value }])
             setValue(-value, { flush: true })
           }}
         >
@@ -63,6 +63,7 @@ export const TransformRow = ({ name, param }: { name: string; param: TransformPa
             aria-label={`Reset ${name} to ${defaultValue}`}
             onClick={(e) => {
               e.currentTarget.blur()
+              setJumps([jump])
               reset()
             }}
           >

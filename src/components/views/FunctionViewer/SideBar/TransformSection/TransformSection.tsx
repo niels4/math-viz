@@ -1,5 +1,7 @@
+import { useSetAtom } from "jotai"
 import { useId } from "react"
 
+import { jumpsAtom } from "../../state.ts"
 import sidebarStyle from "../SideBar.module.css"
 import { ResetIcon } from "./ResetIcon.tsx"
 import { TransformRow } from "./TransformRow.tsx"
@@ -9,6 +11,7 @@ import { useReset } from "./useReset.ts"
 export const TransformSection = () => {
   const titleId = useId()
   const resets = [useReset("a"), useReset("k"), useReset("b"), useReset("h")]
+  const setJumps = useSetAtom(jumpsAtom)
 
   return (
     <section className={sidebarStyle.card} aria-labelledby={titleId}>
@@ -17,7 +20,14 @@ export const TransformSection = () => {
           Transform
         </h2>
         {resets.some((r) => r.changed) && (
-          <button type="button" className={style.reset_all} onClick={() => resets.forEach((r) => r.reset())}>
+          <button
+            type="button"
+            className={style.reset_all}
+            onClick={() => {
+              setJumps(resets.map((r) => r.jump))
+              resets.forEach((r) => r.reset())
+            }}
+          >
             <ResetIcon />
             Reset all
           </button>
