@@ -8,6 +8,7 @@ import { CartesianPlane } from "./CartesianPlane"
 import { planeFont } from "./constants"
 
 const identity: PlotFunction = (x) => x
+const notHovering = { hovering: false, setHovering: () => {} }
 
 type Draw = { calls: string[]; texts: { text: string; font: string }[] }
 let draws: Draw[]
@@ -58,7 +59,14 @@ afterEach(() => {
 
 describe("CartesianPlane", () => {
   it("shows no numbers until Roboto Mono has loaded, then shows them in it", async () => {
-    await render(<CartesianPlane curves={[{ fn: identity, alpha: 1, drawTo: 1 }]} handles={[]} lines={[]} />)
+    await render(
+      <CartesianPlane
+        curves={[{ fn: identity, alpha: 1, drawTo: 1 }]}
+        handles={[]}
+        lines={[]}
+        cursorState={notHovering}
+      />,
+    )
 
     expect(fontLoad).toHaveBeenCalledWith(planeFont)
     expect(draws.length).toBeGreaterThan(0)
@@ -77,7 +85,14 @@ describe("CartesianPlane", () => {
   })
 
   it("shows the numbers anyway when Roboto Mono fails to load", async () => {
-    await render(<CartesianPlane curves={[{ fn: identity, alpha: 1, drawTo: 1 }]} handles={[]} lines={[]} />)
+    await render(
+      <CartesianPlane
+        curves={[{ fn: identity, alpha: 1, drawTo: 1 }]}
+        handles={[]}
+        lines={[]}
+        cursorState={notHovering}
+      />,
+    )
     expect(lastDraw().texts).toEqual([])
 
     failFontLoad()
@@ -87,7 +102,14 @@ describe("CartesianPlane", () => {
   })
 
   it("shows a closed hand while the plane is dragged and the crosshair again once it is let go", async () => {
-    await render(<CartesianPlane curves={[{ fn: identity, alpha: 1, drawTo: 1 }]} handles={[]} lines={[]} />)
+    await render(
+      <CartesianPlane
+        curves={[{ fn: identity, alpha: 1, drawTo: 1 }]}
+        handles={[]}
+        lines={[]}
+        cursorState={notHovering}
+      />,
+    )
     const canvas = toElement(document.querySelector("canvas"))
     const pointer = (type: string, clientX: number) =>
       act(() =>

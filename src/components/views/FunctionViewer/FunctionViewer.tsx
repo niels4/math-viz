@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai"
-import { type ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
@@ -29,20 +29,24 @@ const Plot = () => {
   const curves = usePlotCurves(baseFunctions[func])
   const shown = useShownTransform({ a, b, h, k })
   const lit = useAtomValue(litAtom)
+  const [hovering, setHovering] = useState(false)
+
+  const onHover = () => setHovering(true)
 
   const shiftHandle: PlotHandle = {
     point: { x: h, y: k },
     shape: "diamond",
     handlers: {
-      onHover: () => {
-        console.log("hovering over shift handle:")
-      },
+      onHover,
     },
   }
 
   const scaleHandle: PlotHandle = {
     point: unitPoint(baseFunctions[func], unitX[func], shown),
     shape: "square",
+    handlers: {
+      onHover,
+    },
   }
 
   const transformHandles = [shiftHandle, scaleHandle] as const
@@ -52,6 +56,7 @@ const Plot = () => {
       curves={transformCurves(curves, shown)}
       handles={transformHandles}
       lines={transformLines(lit, baseFunctions[func], unitX[func], shown)}
+      cursorState={{ hovering, setHovering }}
     />
   )
 }

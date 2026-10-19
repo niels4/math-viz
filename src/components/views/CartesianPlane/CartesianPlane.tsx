@@ -80,14 +80,21 @@ const useUpdateCanvas = (
   }, [ref, grid, dpr, theme, font, curves, handles, lines, draw])
 }
 
+type CursorState = {
+  hovering: boolean
+  setHovering: (hovering: boolean) => void
+}
+
 export const CartesianPlane = ({
   curves,
   handles,
   lines,
+  cursorState,
 }: {
   curves: readonly PlotCurve[]
   handles: readonly PlotHandle[]
   lines: readonly PlotLine[]
+  cursorState: CursorState
 }) => {
   const ref = useRef<HTMLCanvasElement | null>(null)
   const { width, height } = useResizeObserver(ref)
@@ -102,7 +109,7 @@ export const CartesianPlane = ({
   }
 
   const panning = useCamera(ref, center, scale, setCenter, setScale, flushCamera)
-  const cursor: Cursor = panning ? "grab-active" : "pan"
+  const cursor: Cursor = panning ? "grab-active" : cursorState.hovering ? "grab-hover" : "pan"
   const grid = layoutGrid(width, height, center, scale, labelMargin)
   useUpdateCanvas(ref, grid, themeVars, font, curves, handles, lines)
 
@@ -114,7 +121,7 @@ export const CartesianPlane = ({
     if (handler != null) {
       handler()
     } else {
-      // clear hover state
+      cursorState.setHovering(false)
     }
   }
 
