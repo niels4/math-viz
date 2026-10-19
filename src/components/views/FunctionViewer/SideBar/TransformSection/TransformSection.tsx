@@ -14,11 +14,11 @@ export const TransformSection = () => {
       </h2>
       {/* The parameters outside f( ), which move the curve vertically, then
           the ones inside, which move it horizontally. */}
-      <TransformRow name="Vertical scale" param="a" />
-      <TransformRow name="Vertical shift" param="k" />
+      <TransformRow name="y scale" param="a" />
+      <TransformRow name="y shift" param="k" />
       <div className={style.rule} aria-hidden="true" />
-      <TransformRow name="Horizontal scale" param="b" />
-      <TransformRow name="Horizontal shift" param="h" />
+      <TransformRow name="x scale" param="b" />
+      <TransformRow name="x shift" param="h" />
     </section>
   )
 }

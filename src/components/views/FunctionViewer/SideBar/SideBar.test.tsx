@@ -41,10 +41,10 @@ describe("the transform card", () => {
     const screen = await render(<SideBar />)
 
     // Each row's box shows its parameter's value.
-    await expect.element(screen.getByLabelText("Vertical scale")).toHaveValue("2.00")
-    await expect.element(screen.getByLabelText("Vertical shift")).toHaveValue("-1.00")
-    await expect.element(screen.getByLabelText("Horizontal scale")).toHaveValue("0.50")
-    await expect.element(screen.getByLabelText("Horizontal shift")).toHaveValue("3.00")
+    await expect.element(screen.getByLabelText("y scale")).toHaveValue("2.00")
+    await expect.element(screen.getByLabelText("y shift")).toHaveValue("-1.00")
+    await expect.element(screen.getByLabelText("x scale")).toHaveValue("0.50")
+    await expect.element(screen.getByLabelText("x shift")).toHaveValue("3.00")
   })
 })
 
@@ -55,7 +55,7 @@ describe("highlighting a parameter", () => {
   it("lights a's row and a in the form together, from either one", async () => {
     // A fresh page shows the row for a and the form with its a.
     const screen = await render(<SideBar />)
-    const row = toElement(screen.getByLabelText("Vertical scale")).closest<HTMLElement>("[data-param]")
+    const row = toElement(screen.getByLabelText("y scale")).closest<HTMLElement>("[data-param]")
     const form = toElement(screen.getByTestId("function-form"))
     const term = toElement(form.querySelector('[data-param="a"]'))
     const lit = (el: HTMLElement | null) => el?.hasAttribute("data-lit")
@@ -82,7 +82,7 @@ describe("highlighting a parameter", () => {
   it("keeps a lit while its box has the focus, after the pointer leaves", async () => {
     // A fresh page shows a's row and the form's a unlit.
     const screen = await render(<SideBar />)
-    const box = toElement(screen.getByLabelText("Vertical scale"))
+    const box = toElement(screen.getByLabelText("y scale"))
     const row = box.closest<HTMLElement>("[data-param]")
     const form = toElement(screen.getByTestId("function-form"))
     const term = toElement(form.querySelector('[data-param="a"]'))
@@ -109,7 +109,7 @@ describe("highlighting a parameter", () => {
   it("lights only the parameter the pointer or the focus moved to last", async () => {
     // A fresh page shows a's box and the form's k.
     const screen = await render(<SideBar />)
-    const box = toElement(screen.getByLabelText("Vertical scale"))
+    const box = toElement(screen.getByLabelText("y scale"))
     const row = box.closest<HTMLElement>("[data-param]")
     const form = toElement(screen.getByTestId("function-form"))
     const k = toElement(form.querySelector('[data-param="k"]'))

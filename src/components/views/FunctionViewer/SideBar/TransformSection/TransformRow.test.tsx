@@ -26,8 +26,8 @@ const urlValue = (key: string) => new URLSearchParams(window.location.hash.split
 describe("a transform row's box", () => {
   it("sets the value when Enter is pressed, not while typing", async () => {
     // A fresh page shows a at 1.00.
-    const screen = await render(<TransformRow name="Vertical scale" param="a" />)
-    const box = toElement(screen.getByLabelText("Vertical scale")) as HTMLInputElement
+    const screen = await render(<TransformRow name="y scale" param="a" />)
+    const box = toElement(screen.getByLabelText("y scale")) as HTMLInputElement
     await expect.element(box).toHaveValue("1.00")
 
     // Typing 2.5 shows the text as typed and leaves the URL alone.
@@ -45,8 +45,8 @@ describe("a transform row's box", () => {
   it("puts the old value back when a scale of 0 is typed", async () => {
     // A link with a=2 shows 2.00.
     await updateLocationHash("#?a=2")
-    const screen = await render(<TransformRow name="Vertical scale" param="a" />)
-    const box = toElement(screen.getByLabelText("Vertical scale")) as HTMLInputElement
+    const screen = await render(<TransformRow name="y scale" param="a" />)
+    const box = toElement(screen.getByLabelText("y scale")) as HTMLInputElement
     await expect.element(box).toHaveValue("2.00")
 
     // Typing 0 and leaving the box brings back 2.00, and the URL keeps a=2.
