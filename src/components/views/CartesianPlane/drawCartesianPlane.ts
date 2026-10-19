@@ -6,7 +6,12 @@ import { layoutGrid, layoutLabels, type GridLayout, type GridLine } from "./grid
 
 export type PlotFunction = (x: number) => number
 
-export type PlotCurve = { fn: PlotFunction; alpha: number; drawTo: number }
+export type PlotCurve = { fn: PlotFunction; alpha: number; drawTo: number; dashed?: boolean }
+
+type CurveLook = { ink: keyof ThemeVars; width: number; cap: CanvasLineCap; dash: number[]; alpha: number }
+
+const solidLook: CurveLook = { ink: "chartLine", width: 3, cap: "butt", dash: [], alpha: 1 }
+const dashedLook: CurveLook = { ink: "foregroundMuted", width: 2, cap: "round", dash: [6, 6], alpha: 0.75 }
 
 const tickHalf = 5
 
@@ -126,10 +131,15 @@ const drawCurve = (
   }
   const stop = curve.drawTo * at
 
-  ctx.globalAlpha = curve.alpha
-  ctx.strokeStyle = theme.chartLine
-  ctx.lineWidth = 3
+  const look = curve.dashed === true ? dashedLook : solidLook
+  ctx.save()
+  ctx.globalAlpha = curve.alpha * look.alpha
+  ctx.strokeStyle = theme[look.ink]
+  ctx.lineWidth = look.width
+  ctx.lineCap = look.cap
   ctx.lineJoin = "round"
+  ctx.setLineDash(look.dash)
+  ctx.lineDashOffset = (look.dash[0] ?? 0) / 2
   ctx.beginPath()
   let prev: { x: number; y: number; at: number } | undefined
   for (const point of points) {
@@ -142,7 +152,7 @@ const drawCurve = (
     prev = point
   }
   ctx.stroke()
-  ctx.globalAlpha = 1
+  ctx.restore()
 }
 
 export const drawCartesianPlane = (

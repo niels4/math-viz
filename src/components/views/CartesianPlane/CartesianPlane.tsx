@@ -9,11 +9,10 @@ import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 
 import style from "./CartesianPlain.module.css"
 import { planeFont } from "./constants"
-import { drawCartesianPlane, type PlotCurve, type PlotFunction } from "./drawCartesianPlane"
+import { drawCartesianPlane, type PlotCurve } from "./drawCartesianPlane"
 import { HtmlOverlay } from "./HtmlOverlay"
 import { centerParam, scaleParam } from "./queryParams"
 import { useCamera } from "./useCamera"
-import { usePlotCurves } from "./usePlotCurves"
 
 const ctxOptions: CanvasRenderingContext2DSettings = { colorSpace: "display-p3" } as const
 
@@ -73,7 +72,7 @@ const useUpdateCanvas = (
   }, [ref, width, height, dpr, center, scale, theme, font, curves, draw])
 }
 
-export const CartesianPlane = ({ plotFunction }: { plotFunction: PlotFunction }) => {
+export const CartesianPlane = ({ curves }: { curves: readonly PlotCurve[] }) => {
   const ref = useRef<HTMLCanvasElement | null>(null)
   const { width, height } = useResizeObserver(ref)
   const [center, setCenter, flushCenter] = useQueryParam(centerParam)
@@ -85,8 +84,6 @@ export const CartesianPlane = ({ plotFunction }: { plotFunction: PlotFunction })
     flushCenter()
     flushScale()
   }
-
-  const curves = usePlotCurves(plotFunction)
 
   useCamera(ref, center, scale, setCenter, setScale, flushCamera)
   useUpdateCanvas(ref, width, height, center, scale, themeVars, font, curves)

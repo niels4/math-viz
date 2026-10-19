@@ -3,24 +3,35 @@ import { type ReactNode } from "react"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
+import { usePlotCurves } from "../CartesianPlane/usePlotCurves"
 import { TopBar } from "../TopBar/TopBar"
 import { baseFunctions } from "./baseFunctions"
 import style from "./FunctionViewer.module.css"
-import { funcParam } from "./queryParams"
+import { aParam, bParam, funcParam, hParam, kParam } from "./queryParams"
 import { SideBar } from "./SideBar/SideBar"
+import { transformCurves } from "./transformCurves"
 
 const Page = ({ children }: { children: ReactNode | ReactNode[] }) => {
   return <div className={style.page}>{children}</div>
 }
 
-export const FunctionViewer = () => {
+const Plot = () => {
   const [func] = useQueryParam(funcParam)
+  const [a] = useQueryParam(aParam)
+  const [b] = useQueryParam(bParam)
+  const [h] = useQueryParam(hParam)
+  const [k] = useQueryParam(kParam)
+  const curves = usePlotCurves(baseFunctions[func])
 
+  return <CartesianPlane curves={transformCurves(curves, { a, b, h, k })} />
+}
+
+export const FunctionViewer = () => {
   return (
     <Page>
       <TopBar />
       <SideBar />
-      <CartesianPlane plotFunction={baseFunctions[func]} />
+      <Plot />
     </Page>
   )
 }
