@@ -1,12 +1,40 @@
 .row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-inset);
   height: 44px;
+
+  &[data-param="a"] {
+    --row-ink: var(--param-a);
+  }
+
+  &[data-param="k"] {
+    --row-ink: var(--param-k);
+  }
+
+  &[data-param="b"] {
+    --row-ink: var(--param-b);
+  }
+
+  &[data-param="h"] {
+    --row-ink: var(--param-h);
+  }
+}
+
+.chip {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  font: 19px/24px var(--font-serif);
+  color: var(--background);
+  background: var(--row-ink);
+  border-radius: var(--radius-card);
 }
 
 .name {
+  flex: 1;
   font-size: 15px;
   font-weight: var(--weight-strong);
   color: var(--foreground-muted);

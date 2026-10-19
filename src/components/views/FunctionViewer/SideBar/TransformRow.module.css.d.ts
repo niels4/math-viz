@@ -3,6 +3,7 @@
 // prettier-ignore
 declare const styles: {
   readonly "box": string;
+  readonly "chip": string;
   readonly "name": string;
   readonly "row": string;
 };

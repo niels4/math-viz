@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useId, useState } from "react"
 
 import { useQueryParam, type QueryParamDef } from "#src/components/router/queryParamAtom.ts"
 
@@ -11,6 +11,7 @@ export const TransformRow = ({ name, param }: { name: string; param: QueryParamD
   // stay here, and Enter or leaving the box sets the value. Text the URL
   // wouldn't accept either, such as a scale of 0, puts the old value back.
   const [draft, setDraft] = useState<string | null>(null)
+  const id = useId()
 
   const commit = () => {
     if (draft === null) {
@@ -24,9 +25,17 @@ export const TransformRow = ({ name, param }: { name: string; param: QueryParamD
   }
 
   return (
-    <label className={style.row}>
-      <span className={style.name}>{name}</span>
+    <div className={style.row} data-param={param.key}>
+      {/* The parameter's letter in its colour, as in the equation. Hidden
+          from screen readers, which hear the name. */}
+      <span className={style.chip} aria-hidden="true">
+        <var>{param.key}</var>
+      </span>
+      <label htmlFor={id} className={style.name}>
+        {name}
+      </label>
       <input
+        id={id}
         type="text"
         className={style.box}
         value={draft ?? value.toFixed(2)}
@@ -38,6 +47,6 @@ export const TransformRow = ({ name, param }: { name: string; param: QueryParamD
         }}
         onBlur={commit}
       />
-    </label>
+    </div>
   )
 }
