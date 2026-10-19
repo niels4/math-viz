@@ -104,6 +104,7 @@
 
 .tape {
   height: 32px;
+  background: var(--row-tint);
   border: 2px solid var(--row-ink);
   border-radius: var(--radius-card);
 }
