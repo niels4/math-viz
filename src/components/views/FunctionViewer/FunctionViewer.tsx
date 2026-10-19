@@ -34,8 +34,8 @@ const Plot = () => {
     point: { x: h, y: k },
     shape: "diamond",
     handlers: {
-      onHover: (hovering) => {
-        console.log("hovering over shift handle:", hovering)
+      onHover: () => {
+        console.log("hovering over shift handle:")
       },
     },
   }

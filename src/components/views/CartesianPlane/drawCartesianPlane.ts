@@ -1,8 +1,8 @@
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
-import { planeFontSize, unscaledUnitSize } from "./constants"
+import { planeFontSize } from "./constants"
 import { drawScaleLegend } from "./drawScaleLegend"
-import { layoutGrid, layoutLabels, type GridLayout, type GridLine } from "./grid"
+import { layoutLabels, type GridLayout, type GridLine } from "./grid"
 
 export type PlotFunction = (x: number) => number
 
@@ -33,15 +33,8 @@ const dashedLook: CurveLook = { ink: "foregroundMuted", width: 2, cap: "round", 
 
 const tickHalf = 5
 
-const drawAxis = (
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  grid: GridLayout,
-  theme: ThemeVars,
-  font: string | null,
-) => {
-  const { xOrigin, yOrigin } = grid
+const drawAxis = (ctx: CanvasRenderingContext2D, grid: GridLayout, theme: ThemeVars, font: string | null) => {
+  const { width, height, xOrigin, yOrigin } = grid
   ctx.strokeStyle = theme.chartAxis
   ctx.lineWidth = 2
   ctx.beginPath()
@@ -72,12 +65,10 @@ const drawAxis = (
   ctx.textAlign = "right"
   ctx.textBaseline = "top"
   const labelWidth = (text: string) => ctx.measureText(text).width
-  for (const { text, right, top } of layoutLabels(grid, width, height, planeFontSize, labelWidth)) {
+  for (const { text, right, top } of layoutLabels(grid, planeFontSize, labelWidth)) {
     ctx.fillText(text, right, top)
   }
 }
-
-const labelMargin = 64
 
 const strokeVertical = (ctx: CanvasRenderingContext2D, lines: GridLine[], height: number) => {
   ctx.beginPath()
@@ -97,23 +88,16 @@ const strokeHorizontal = (ctx: CanvasRenderingContext2D, lines: GridLine[], widt
   ctx.stroke()
 }
 
-const drawGrid = (
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  grid: GridLayout,
-  theme: ThemeVars,
-  font: string | null,
-) => {
+const drawGrid = (ctx: CanvasRenderingContext2D, grid: GridLayout, theme: ThemeVars, font: string | null) => {
   ctx.lineWidth = 1
   ctx.strokeStyle = theme.chartGrid
-  strokeVertical(ctx, grid.minorX, height)
-  strokeHorizontal(ctx, grid.minorY, width)
+  strokeVertical(ctx, grid.minorX, grid.height)
+  strokeHorizontal(ctx, grid.minorY, grid.width)
   ctx.strokeStyle = theme.chartGridMajor
-  strokeVertical(ctx, grid.majorX, height)
-  strokeHorizontal(ctx, grid.majorY, width)
+  strokeVertical(ctx, grid.majorX, grid.height)
+  strokeHorizontal(ctx, grid.majorY, grid.width)
 
-  drawAxis(ctx, width, height, grid, theme, font)
+  drawAxis(ctx, grid, theme, font)
 }
 
 const overshootPx = 10_000
@@ -130,14 +114,8 @@ const insideShare = (y0: number, y1: number, height: number) => {
   return (Math.min(hi, height) - Math.max(lo, 0)) / (hi - lo)
 }
 
-const drawCurve = (
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  grid: GridLayout,
-  curve: PlotCurve,
-  theme: ThemeVars,
-) => {
+const drawCurve = (ctx: CanvasRenderingContext2D, grid: GridLayout, curve: PlotCurve, theme: ThemeVars) => {
+  const { width, height } = grid
   const [originX, originY] = grid.origin
   const points: { x: number; y: number; at: number }[] = []
   let at = 0
@@ -293,16 +271,12 @@ const drawHandle = (
 }
 
 export const hitTest = (
+  grid: GridLayout,
   handles: readonly PlotHandle[],
   [px, py]: [number, number],
   action: PlotMouseHandlerAction,
-  width: number,
-  height: number,
-  center: [number, number],
-  scale: number,
-): number => {
-  const grid = layoutGrid(width, height, center, scale)
-  return handles.findLastIndex((handle) => {
+): number =>
+  handles.findLastIndex((handle) => {
     if (handle.handlers?.[action] === undefined) {
       return false
     }
@@ -311,35 +285,30 @@ export const hitTest = (
     const dy = Math.abs(py - y)
     return handle.shape === "diamond" ? dx + dy <= diamondRadius : Math.max(dx, dy) <= squareSide / 2
   })
-}
 
 export const drawCartesianPlane = (
   ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  center: [number, number],
-  scale: number,
+  grid: GridLayout,
   theme: ThemeVars,
   font: string | null,
   curves: readonly PlotCurve[],
   handles: readonly PlotHandle[],
   lines: readonly PlotLine[],
 ) => {
-  const grid = layoutGrid(width, height, center, scale, labelMargin)
-  drawGrid(ctx, width, height, grid, theme, font)
+  drawGrid(ctx, grid, theme, font)
   for (const curve of curves.filter(({ dashed }) => dashed === true)) {
-    drawCurve(ctx, width, height, grid, curve, theme)
+    drawCurve(ctx, grid, curve, theme)
   }
   for (const line of lines) {
     drawLine(ctx, grid, line, theme)
   }
   for (const curve of curves.filter(({ dashed }) => dashed !== true)) {
-    drawCurve(ctx, width, height, grid, curve, theme)
+    drawCurve(ctx, grid, curve, theme)
   }
   for (const handle of handles) {
     drawHandle(ctx, grid, handle, theme)
   }
   if (font !== null) {
-    drawScaleLegend(ctx, width, height, unscaledUnitSize, scale, theme, font)
+    drawScaleLegend(ctx, grid, theme, font)
   }
 }

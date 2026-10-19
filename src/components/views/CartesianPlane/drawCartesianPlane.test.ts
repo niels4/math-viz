@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest"
 
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
+import { labelMargin } from "./constants"
 import { drawCartesianPlane, type PlotCurve, type PlotHandle, type PlotLine } from "./drawCartesianPlane"
+import { layoutGrid } from "./grid"
 
 const drawnPoints = (
   curves: PlotCurve[],
@@ -23,10 +25,7 @@ const drawnPoints = (
   )
   drawCartesianPlane(
     ctx as unknown as CanvasRenderingContext2D,
-    400,
-    300,
-    [0, 0],
-    0.5,
+    layoutGrid(400, 300, [0, 0], 0.5, labelMargin),
     { chartLine: "teal" } as ThemeVars,
     null,
     curves,

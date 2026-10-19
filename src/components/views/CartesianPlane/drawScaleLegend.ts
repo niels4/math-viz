@@ -2,6 +2,10 @@ import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
 import { formatFixed } from "#src/util/format.ts"
 
+import type { GridLayout } from "./grid"
+
+import { unscaledUnitSize } from "./constants"
+
 const scaleWindowRight = 28
 const scaleWindowBottom = 22
 const scaleWindowPaddingX = 14
@@ -14,10 +18,7 @@ const scaleWindowHeight = scaleLabelLineHeight + scaleWindowPaddingY * 2
 
 export const drawScaleLegend = (
   ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  unscaledUnitSize: number,
-  scale: number,
+  { width, height, scale }: GridLayout,
   theme: ThemeVars,
   font: string,
 ) => {

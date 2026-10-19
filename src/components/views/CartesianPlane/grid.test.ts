@@ -126,16 +126,16 @@ describe("layoutGrid", () => {
 describe("xLabelLines", () => {
   it("shows every x label while they fit", () => {
     const grid = layoutGrid(800, 600, [0, 0], 0.5)
-    expect(xLabelLines(grid, 800, labelWidth)).toEqual(grid.majorX)
+    expect(xLabelLines(grid, labelWidth)).toEqual(grid.majorX)
   })
 
   it("shows every other x label where the minus sign makes negative labels crowd", () => {
     const positive = layoutGrid(800, 600, [3000, 0], 100)
-    expect(units(xLabelLines(positive, 800, labelWidth))).toEqual(units(positive.majorX))
+    expect(units(xLabelLines(positive, labelWidth))).toEqual(units(positive.majorX))
 
     const negative = layoutGrid(800, 600, [-3000, 0], 100)
     expect(units(negative.majorX)).toContain(-4200)
-    expect(units(xLabelLines(negative, 800, labelWidth))).toEqual([
+    expect(units(xLabelLines(negative, labelWidth))).toEqual([
       -4400, -4000, -3600, -3200, -2800, -2400, -2000, -1600,
     ])
   })
@@ -143,21 +143,21 @@ describe("xLabelLines", () => {
   it("keeps every x label when only a label past the edge is too wide", () => {
     const grid = layoutGrid(800, 600, [0, 0], 6.2, 64)
     expect(units(grid.majorX)).toContain(-110)
-    expect(xLabelLines(grid, 800, labelWidth)).toEqual(grid.majorX)
+    expect(xLabelLines(grid, labelWidth)).toEqual(grid.majorX)
   })
 
   it("keeps the same x labels as the plane pans", () => {
     for (const x of [-3000, -2950, -2800, -2633, -2200]) {
       const grid = layoutGrid(800, 600, [x, 0], 100)
       const multiplesOf400 = units(grid.majorX).filter((u) => u % 400 === 0)
-      expect(units(xLabelLines(grid, 800, labelWidth))).toEqual(multiplesOf400)
+      expect(units(xLabelLines(grid, labelWidth))).toEqual(multiplesOf400)
     }
   })
 })
 
 describe("layoutLabels", () => {
   const labelsAt = (center: [number, number]) =>
-    layoutLabels(layoutGrid(800, 600, center, 0.5, 64), 800, 600, 14, labelWidth)
+    layoutLabels(layoutGrid(800, 600, center, 0.5, 64), 14, labelWidth)
   const ofAxis = (labels: GridLabel[], axis: "x" | "y") => labels.filter((l) => l.axis === axis)
 
   it("puts x labels below the x-axis and y labels left of the y-axis", () => {

@@ -8,7 +8,7 @@ import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 
 import style from "./CartesianPlain.module.css"
-import { planeFont } from "./constants"
+import { labelMargin, planeFont } from "./constants"
 import {
   drawCartesianPlane,
   hitTest,
@@ -16,6 +16,7 @@ import {
   type PlotHandle,
   type PlotLine,
 } from "./drawCartesianPlane"
+import { layoutGrid, type GridLayout } from "./grid"
 import { HtmlOverlay } from "./HtmlOverlay"
 import { centerParam, scaleParam } from "./queryParams"
 import { useCamera } from "./useCamera"
@@ -46,10 +47,7 @@ const useCanvasFont = (font: string): string | null => {
 
 const useUpdateCanvas = (
   ref: RefObject<HTMLCanvasElement | null>,
-  width: number,
-  height: number,
-  center: [number, number],
-  scale: number,
+  grid: GridLayout,
   theme: ThemeVars,
   font: string | null,
   curves: readonly PlotCurve[],
@@ -65,8 +63,8 @@ const useUpdateCanvas = (
       return
     }
 
-    canvas.width = Math.max(1, Math.round(width * dpr))
-    canvas.height = Math.max(1, Math.round(height * dpr))
+    canvas.width = Math.max(1, Math.round(grid.width * dpr))
+    canvas.height = Math.max(1, Math.round(grid.height * dpr))
 
     const ctx = canvas.getContext("2d", ctxOptions)
 
@@ -76,10 +74,10 @@ const useUpdateCanvas = (
     }
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    ctx.clearRect(0, 0, width, height)
+    ctx.clearRect(0, 0, grid.width, grid.height)
 
-    draw(ctx, width, height, center, scale, theme, font, curves, handles, lines)
-  }, [ref, width, height, dpr, center, scale, theme, font, curves, handles, lines, draw])
+    draw(ctx, grid, theme, font, curves, handles, lines)
+  }, [ref, grid, dpr, theme, font, curves, handles, lines, draw])
 }
 
 export const CartesianPlane = ({
@@ -105,13 +103,19 @@ export const CartesianPlane = ({
 
   const panning = useCamera(ref, center, scale, setCenter, setScale, flushCamera)
   const cursor: Cursor = panning ? "grab-active" : "pan"
-  useUpdateCanvas(ref, width, height, center, scale, themeVars, font, curves, handles, lines)
+  const grid = layoutGrid(width, height, center, scale, labelMargin)
+  useUpdateCanvas(ref, grid, themeVars, font, curves, handles, lines)
 
   const onPointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
     const clientX = e.nativeEvent.offsetX
     const clientY = e.nativeEvent.offsetY
-    const hoveredHandle = hitTest(handles, [clientX, clientY], "onHover", width, height, center, scale)
-    console.log("got hovered hit", hoveredHandle)
+    const hoveredHandleIndex = hitTest(grid, handles, [clientX, clientY], "onHover")
+    const handler = handles[hoveredHandleIndex]?.handlers?.onHover
+    if (handler != null) {
+      handler()
+    } else {
+      // clear hover state
+    }
   }
 
   return (

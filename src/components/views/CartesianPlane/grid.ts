@@ -19,6 +19,9 @@ export type GridLine = {
 }
 
 export type GridLayout = {
+  width: number
+  height: number
+  scale: number
   steps: GridSteps
   pxPerUnit: number
   minorX: GridLine[]
@@ -107,6 +110,9 @@ export const layoutGrid = (
   const ys = split(multiples(bottom, top, steps.minor), screenY)
 
   return {
+    width,
+    height,
+    scale,
     steps,
     pxPerUnit,
     minorX: xs.minor,
@@ -119,13 +125,9 @@ export const layoutGrid = (
   }
 }
 
-export const xLabelLines = (
-  grid: GridLayout,
-  width: number,
-  labelWidth: (text: string) => number,
-): GridLine[] => {
+export const xLabelLines = (grid: GridLayout, labelWidth: (text: string) => number): GridLine[] => {
   const spacing = grid.steps.major * grid.pxPerUnit
-  const onCanvas = grid.majorX.filter((line) => line.px >= 0 && line.px <= width)
+  const onCanvas = grid.majorX.filter((line) => line.px >= 0 && line.px <= grid.width)
   const widest = Math.max(0, ...onCanvas.map((line) => labelWidth(String(line.unit))))
   if (widest + minLabelGap <= spacing) {
     return grid.majorX
@@ -135,11 +137,10 @@ export const xLabelLines = (
 
 export const layoutLabels = (
   grid: GridLayout,
-  width: number,
-  height: number,
   labelHeight: number,
   labelWidth: (text: string) => number,
 ): GridLabel[] => {
+  const { width, height } = grid
   const [originX, originY] = grid.origin
 
   const below = originY + labelGapY
@@ -149,7 +150,7 @@ export const layoutLabels = (
     labelEdgePad,
     height - labelEdgePad - labelHeight,
   )
-  const labels: GridLabel[] = xLabelLines(grid, width, labelWidth).map(({ unit, px }) => ({
+  const labels: GridLabel[] = xLabelLines(grid, labelWidth).map(({ unit, px }) => ({
     axis: "x",
     text: String(unit),
     right: px - labelGapX,
