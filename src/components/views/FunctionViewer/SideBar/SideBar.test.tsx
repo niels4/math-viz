@@ -64,4 +64,31 @@ describe("highlighting a parameter", () => {
     point(term, "pointerout")
     expect(lit(row)).toBe(false)
   })
+
+  it("keeps a lit while its box has the focus, after the pointer leaves", async () => {
+    // A fresh page shows a's row and the form's a unlit.
+    const screen = await render(<SideBar />)
+    const box = toElement(screen.getByLabelText("Vertical scale"))
+    const row = box.closest<HTMLElement>("[data-param]")
+    const form = toElement(screen.getByTestId("function-form"))
+    const term = toElement(form.querySelector('[data-param="a"]'))
+    const lit = (el: HTMLElement | null) => el?.hasAttribute("data-lit")
+    expect(lit(row)).toBe(false)
+
+    // Focusing a's box lights its row and the form's a.
+    act(() => box.focus())
+    expect(lit(row)).toBe(true)
+    expect(lit(term)).toBe(true)
+
+    // Pointing at the row and moving off leaves both lit.
+    point(toElement(row), "pointerover")
+    point(toElement(row), "pointerout")
+    expect(lit(row)).toBe(true)
+    expect(lit(term)).toBe(true)
+
+    // Leaving the box puts both out.
+    act(() => box.blur())
+    expect(lit(row)).toBe(false)
+    expect(lit(term)).toBe(false)
+  })
 })

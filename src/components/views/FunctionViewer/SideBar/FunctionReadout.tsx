@@ -1,11 +1,11 @@
-import { useAtom } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { useRef, type ReactNode } from "react"
 
 import { useFitWidth } from "#src/components/hooks/useFitWidth.ts"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
 import { aParam, bParam, funcParam, hParam, kParam, type FunctionSlug } from "../queryParams"
-import { highlightAtoms, type TransformParam } from "../state"
+import { highlightAtoms, hoverAtoms, type TransformParam } from "../state"
 import style from "./FunctionReadout.module.css"
 
 const MINUS = "−"
@@ -18,15 +18,16 @@ const signed = (v: number, positive: string, negative: string): string =>
 // A parameter's part of the equation. Pointing at it highlights the parameter
 // everywhere it shows.
 const Term = ({ param, children }: { param: TransformParam; children: ReactNode }) => {
-  const [lit, setLit] = useAtom(highlightAtoms[param])
+  const lit = useAtomValue(highlightAtoms[param])
+  const setHover = useSetAtom(hoverAtoms[param])
 
   return (
     <span
       className={style.term}
       data-param={param}
       data-lit={lit ? "" : undefined}
-      onPointerEnter={() => setLit(true)}
-      onPointerLeave={() => setLit(false)}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
     >
       {children}
     </span>

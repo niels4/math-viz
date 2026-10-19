@@ -61,7 +61,7 @@
   padding: 0 var(--space-inset);
   font-family: var(--font-mono);
   text-align: right;
-  color: var(--foreground);
+  color: var(--row-ink);
   background: var(--background-muted);
   border: 1px solid var(--row-ink);
   border-radius: var(--radius-card);
