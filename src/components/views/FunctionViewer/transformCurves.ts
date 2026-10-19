@@ -1,10 +1,4 @@
-import type {
-  PlotCurve,
-  PlotFunction,
-  PlotHandle,
-  PlotLine,
-  PlotPoint,
-} from "../CartesianPlane/drawCartesianPlane"
+import type { PlotCurve, PlotFunction, PlotLine, PlotPoint } from "../CartesianPlane/drawCartesianPlane"
 import type { TransformParam } from "./state"
 
 export type Transform = Record<TransformParam, number>
@@ -22,15 +16,10 @@ export const transformCurves = (curves: readonly PlotCurve[], transform: Transfo
     { ...curve, fn: transformed(curve.fn, transform) },
   ])
 
-const unitPoint = (g: PlotFunction, u: number, { a, b, h, k }: Transform): PlotPoint => ({
+export const unitPoint = (g: PlotFunction, u: number, { a, b, h, k }: Transform): PlotPoint => ({
   x: h + b * u,
   y: a * g(u) + k,
 })
-
-export const transformHandles = (g: PlotFunction, u: number, transform: Transform): PlotHandle[] => [
-  { point: { x: transform.h, y: transform.k }, shape: "diamond" },
-  { point: unitPoint(g, u, transform), shape: "square" },
-]
 
 const dashedBox = (from: PlotPoint, to: PlotPoint): PlotLine[] => {
   const corners = [from, { x: to.x, y: from.y }, to, { x: from.x, y: to.y }]

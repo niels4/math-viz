@@ -35,8 +35,10 @@ const pointer = (type: string, box: HTMLInputElement, clientX: number) =>
     ),
   )
 
-const point = (row: HTMLElement, type: "pointerover" | "pointerout") =>
-  act(() => row.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerType: "mouse" })))
+const unhover = async (element: HTMLElement) => {
+  const { userEvent } = await import("vitest/browser")
+  await userEvent.unhover(element)
+}
 
 describe("a transform row's box", () => {
   it("sets the value when Enter is pressed, not while typing", async () => {
@@ -111,7 +113,7 @@ describe("a transform row's reset button", () => {
     await expect.element(box).toHaveValue("1.00")
     expect(row.hasAttribute("data-lit")).toBe(true)
 
-    point(row, "pointerout")
+    await unhover(row)
     expect(row.hasAttribute("data-lit")).toBe(false)
   })
 })
@@ -147,7 +149,7 @@ describe("a transform row's flip button", () => {
     await expect.element(box).toHaveValue("-1.00")
     expect(row.hasAttribute("data-lit")).toBe(true)
 
-    point(row, "pointerout")
+    await unhover(row)
     expect(row.hasAttribute("data-lit")).toBe(false)
   })
 

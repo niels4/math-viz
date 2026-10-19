@@ -3,6 +3,8 @@ import { type ReactNode } from "react"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
+import type { PlotHandle } from "../CartesianPlane/drawCartesianPlane"
+
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
 import { usePlotCurves } from "../CartesianPlane/usePlotCurves"
 import { TopBar } from "../TopBar/TopBar"
@@ -11,7 +13,7 @@ import style from "./FunctionViewer.module.css"
 import { aParam, bParam, funcParam, hParam, kParam } from "./queryParams"
 import { SideBar } from "./SideBar/SideBar"
 import { litAtom } from "./state"
-import { transformCurves, transformHandles, transformLines } from "./transformCurves"
+import { transformCurves, transformLines, unitPoint } from "./transformCurves"
 import { useShownTransform } from "./useShownTransform"
 
 const Page = ({ children }: { children: ReactNode | ReactNode[] }) => {
@@ -28,10 +30,27 @@ const Plot = () => {
   const shown = useShownTransform({ a, b, h, k })
   const lit = useAtomValue(litAtom)
 
+  const shiftHandle: PlotHandle = {
+    point: { x: h, y: k },
+    shape: "diamond",
+    handlers: {
+      onHover: (hovering) => {
+        console.log("hovering over shift handle:", hovering)
+      },
+    },
+  }
+
+  const scaleHandle: PlotHandle = {
+    point: unitPoint(baseFunctions[func], unitX[func], shown),
+    shape: "square",
+  }
+
+  const transformHandles = [shiftHandle, scaleHandle] as const
+
   return (
     <CartesianPlane
       curves={transformCurves(curves, shown)}
-      handles={transformHandles(baseFunctions[func], unitX[func], shown)}
+      handles={transformHandles}
       lines={transformLines(lit, baseFunctions[func], unitX[func], shown)}
     />
   )
