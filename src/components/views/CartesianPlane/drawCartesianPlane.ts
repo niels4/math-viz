@@ -12,9 +12,11 @@ export type PlotPoint = { x: number; y: number }
 
 type PlotHandleShape = "diamond" | "square"
 
-type PlotHandleMouseHandlers = {
-  onHover?: (hovering: boolean) => void
-}
+export type PlotMouseHandlerAction = "onHover"
+
+type HandlerFunc = () => void
+
+type PlotHandleMouseHandlers = Partial<Record<PlotMouseHandlerAction, HandlerFunc>>
 
 export type PlotHandle = {
   point: PlotPoint
@@ -288,6 +290,27 @@ const drawHandle = (
     ctx.stroke()
   }
   ctx.restore()
+}
+
+export const hitTest = (
+  handles: readonly PlotHandle[],
+  [px, py]: [number, number],
+  action: PlotMouseHandlerAction,
+  width: number,
+  height: number,
+  center: [number, number],
+  scale: number,
+): number => {
+  const grid = layoutGrid(width, height, center, scale)
+  return handles.findLastIndex((handle) => {
+    if (handle.handlers?.[action] === undefined) {
+      return false
+    }
+    const [x, y] = toPx(grid, handle.point)
+    const dx = Math.abs(px - x)
+    const dy = Math.abs(py - y)
+    return handle.shape === "diamond" ? dx + dy <= diamondRadius : Math.max(dx, dy) <= squareSide / 2
+  })
 }
 
 export const drawCartesianPlane = (

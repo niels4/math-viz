@@ -1,4 +1,4 @@
-import { useEffect, useState, type RefObject } from "react"
+import { useEffect, useState, type PointerEvent, type RefObject } from "react"
 import { useRef } from "react"
 
 import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.ts"
@@ -9,7 +9,13 @@ import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 
 import style from "./CartesianPlain.module.css"
 import { planeFont } from "./constants"
-import { drawCartesianPlane, type PlotCurve, type PlotHandle, type PlotLine } from "./drawCartesianPlane"
+import {
+  drawCartesianPlane,
+  hitTest,
+  type PlotCurve,
+  type PlotHandle,
+  type PlotLine,
+} from "./drawCartesianPlane"
 import { HtmlOverlay } from "./HtmlOverlay"
 import { centerParam, scaleParam } from "./queryParams"
 import { useCamera } from "./useCamera"
@@ -101,9 +107,21 @@ export const CartesianPlane = ({
   const cursor: Cursor = panning ? "grab-active" : "pan"
   useUpdateCanvas(ref, width, height, center, scale, themeVars, font, curves, handles, lines)
 
+  const onPointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
+    const clientX = e.nativeEvent.offsetX
+    const clientY = e.nativeEvent.offsetY
+    const hoveredHandle = hitTest(handles, [clientX, clientY], "onHover", width, height, center, scale)
+    console.log("got hovered hit", hoveredHandle)
+  }
+
   return (
     <div className={style.wrapper}>
-      <canvas ref={ref} className={style.cartesian_plane} data-cursor={cursor} />
+      <canvas
+        ref={ref}
+        className={style.cartesian_plane}
+        data-cursor={cursor}
+        onPointerMove={onPointerMove}
+      />
       <HtmlOverlay />
     </div>
   )
