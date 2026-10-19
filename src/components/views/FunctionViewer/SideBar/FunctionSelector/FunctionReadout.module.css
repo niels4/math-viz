@@ -1,7 +1,7 @@
 .readout {
   display: flex;
   align-items: center;
-  min-height: 60px;
+  min-height: 78px;
   margin-top: var(--space-inset);
 }
 

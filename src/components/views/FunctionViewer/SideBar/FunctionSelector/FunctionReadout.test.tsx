@@ -85,6 +85,21 @@ describe("the function readout", () => {
     await expect.poll(() => line.getBoundingClientRect().right).toBeLessThanOrEqual(edge)
     expect(line.getBoundingClientRect().right).toBeGreaterThan(edge - 4)
   })
+
+  it.runIf(isBrowser())("keeps its height when a horizontal scale stacks a fraction", async () => {
+    const screen = await render(
+      <div className={style_vars}>
+        <FunctionReadout />
+      </div>,
+    )
+    const row = toElement(screen.getByTestId("function-readout"))
+    await expect.poll(() => spoken(row)).toBe("f(x) = x")
+    const height = row.getBoundingClientRect().height
+
+    await updateLocationHash("#?b=2&h=1")
+    await expect.poll(() => spoken(row)).toBe("f(x) = (x − 1.00)/2.00")
+    expect(row.getBoundingClientRect().height).toBe(height)
+  })
 })
 
 const form = async (hash: string) => {
