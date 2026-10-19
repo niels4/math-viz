@@ -3,8 +3,10 @@
 // prettier-ignore
 declare const styles: {
   readonly "bar": string;
+  readonly "form": string;
   readonly "frac": string;
   readonly "line": string;
+  readonly "minus": string;
   readonly "paren_big": string;
   readonly "readout": string;
   readonly "sup": string;

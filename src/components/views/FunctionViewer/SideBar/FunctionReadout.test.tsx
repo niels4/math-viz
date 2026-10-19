@@ -67,3 +67,20 @@ describe("the function readout", () => {
     expect(line.getBoundingClientRect().right).toBeGreaterThan(edge - 4)
   })
 })
+
+const form = async (hash: string) => {
+  await updateLocationHash(hash)
+  const screen = await render(<FunctionReadout />)
+  return screen.getByTestId("function-form")
+}
+
+describe("the function's form", () => {
+  it("shows every letter, even for values at their defaults", async () => {
+    // Only k is set, but the form under x² still shows a, h and b.
+    await expect.element(await form("#?func=x2&k=1")).toHaveTextContent("f(x) = a(x − hb)2 + k")
+  })
+
+  it("puts a before sin", async () => {
+    await expect.element(await form("#?func=sinx")).toHaveTextContent("f(x) = a sin(x − hb) + k")
+  })
+})

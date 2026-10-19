@@ -15,6 +15,15 @@
   transform-origin: left center;
 }
 
+.form {
+  margin: 4px 0 0;
+  padding: 0 4px;
+  font: 1.25rem var(--font-serif);
+  line-height: round(up, 1.25em, 1px);
+  color: var(--foreground-muted);
+  white-space: nowrap;
+}
+
 .term {
   display: inline-block;
   padding: 0 3px 1px;
@@ -34,6 +43,10 @@
   &[data-param="h"] {
     color: var(--param-h);
   }
+}
+
+.minus {
+  padding-left: 3px;
 }
 
 .frac {
