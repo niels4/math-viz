@@ -1,0 +1,25 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-inset);
+  height: 44px;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: var(--weight-strong);
+  color: var(--foreground-muted);
+}
+
+.box {
+  width: 107px;
+  height: 32px;
+  padding: 0 var(--space-inset);
+  font-family: var(--font-mono);
+  text-align: right;
+  color: var(--foreground);
+  background: var(--background-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
