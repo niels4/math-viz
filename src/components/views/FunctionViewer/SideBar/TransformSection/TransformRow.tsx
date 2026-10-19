@@ -42,7 +42,12 @@ export const TransformRow = ({ name, param }: { name: string; param: TransformPa
           className={style.flip}
           aria-label={param === "a" ? "Flip upside down" : "Mirror left to right"}
           aria-pressed={value < 0}
-          onClick={() => setValue((v) => -v, { flush: true })}
+          onClick={(e) => {
+            if (e.detail > 0) {
+              e.currentTarget.blur()
+            }
+            setValue((v) => -v, { flush: true })
+          }}
         >
           <FlipIcon axis={param === "a" ? "vertical" : "horizontal"} />
         </button>

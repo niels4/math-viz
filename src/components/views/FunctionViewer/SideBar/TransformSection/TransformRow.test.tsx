@@ -135,4 +135,19 @@ describe("a transform row's flip button", () => {
     expect(flip).toHaveAttribute("aria-pressed", "false")
     await expect.poll(() => urlValue("a")).toBe("2")
   })
+
+  it.runIf(isBrowser())("leaves the row unlit once the pointer moves off after a click", async () => {
+    const screen = await render(<TransformRow name="y scale" param="a" />)
+    const box = toElement(screen.getByLabelText("y scale", { exact: true }))
+    await expect.element(box).toHaveValue("1.00")
+    const row = toElement(box.closest("[data-param]"))
+    expect(row.hasAttribute("data-lit")).toBe(false)
+
+    await screen.getByRole("button", { name: "Flip upside down" }).click()
+    await expect.element(box).toHaveValue("-1.00")
+    expect(row.hasAttribute("data-lit")).toBe(true)
+
+    point(row, "pointerout")
+    expect(row.hasAttribute("data-lit")).toBe(false)
+  })
 })
