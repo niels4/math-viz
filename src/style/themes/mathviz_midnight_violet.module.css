@@ -10,6 +10,7 @@
   --background: oklch(0.1566 0.0759 270.51);
   --background-muted: oklch(0.1663 0.0262 269.37);
   --card: oklch(0.2489 0.0695 274.42);
+  --section: color-mix(in oklch, var(--foreground) 10%, var(--background-muted));
   --foreground: oklch(0.96 0.019 276.35);
   --foreground-muted: oklch(0.7166 0.0559 276.73);
   --primary: oklch(0.6056 0.2189 292.72);

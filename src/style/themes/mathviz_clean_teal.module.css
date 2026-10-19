@@ -10,6 +10,7 @@
   --background: oklch(0.992 0.0034 67.78);
   --background-muted: oklch(0.9478 0.008 73.74);
   --card: oklch(1 0 0);
+  --section: var(--card);
   --foreground: oklch(0.2681 0.0299 209.98);
   --foreground-muted: oklch(0.5283 0.0245 218.88);
   --primary: oklch(0.5262 0.0935 178.34);
