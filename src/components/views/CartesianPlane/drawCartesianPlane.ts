@@ -12,7 +12,7 @@ export type PlotPoint = { x: number; y: number }
 
 export type PlotHandle = PlotPoint & { shape: "diamond" | "square" }
 
-export type PlotArrow = { from: PlotPoint; to: PlotPoint }
+export type PlotLine = { from: PlotPoint; to: PlotPoint; look: "arrow" | "dashed" | "measured" }
 
 type CurveLook = { ink: keyof ThemeVars; width: number; cap: CanvasLineCap; dash: number[]; alpha: number }
 
@@ -171,44 +171,68 @@ const toPx = (grid: GridLayout, { x, y }: PlotPoint): [number, number] => {
   return [originX + x * grid.pxPerUnit, originY - y * grid.pxPerUnit]
 }
 
-const arrowWidth = 2.5
+type LineLook = {
+  width: number
+  dash: number[]
+  alpha: number
+  startTick: number
+  endTick: number
+  arrow: boolean
+}
+
+const lineLooks: Record<PlotLine["look"], LineLook> = {
+  arrow: { width: 2.5, dash: [], alpha: 1, startTick: 9, endTick: 0, arrow: true },
+  dashed: { width: 1.5, dash: [5, 4], alpha: 0.8, startTick: 0, endTick: 0, arrow: false },
+  measured: { width: 3, dash: [], alpha: 1, startTick: 7, endTick: 7, arrow: false },
+}
+
+const tickWidth = 2
 const arrowHeadLength = 9.8
 const arrowHeadHalf = 4.9
-const tailTickHalf = 9
-const tailTickWidth = 2
 
-const drawArrow = (ctx: CanvasRenderingContext2D, grid: GridLayout, arrow: PlotArrow, theme: ThemeVars) => {
-  const [x1, y1] = toPx(grid, arrow.from)
-  const [x2, y2] = toPx(grid, arrow.to)
+const drawLine = (ctx: CanvasRenderingContext2D, grid: GridLayout, line: PlotLine, theme: ThemeVars) => {
+  const look = lineLooks[line.look]
+  const [x1, y1] = toPx(grid, line.from)
+  const [x2, y2] = toPx(grid, line.to)
   const length = Math.hypot(x2 - x1, y2 - y1)
   if (length === 0) {
     return
   }
   const ux = (x2 - x1) / length
   const uy = (y2 - y1) / length
-  const short = Math.min(length, arrowWidth)
+  const short = look.arrow ? Math.min(length, look.width) : 0
+  const tick = (x: number, y: number, half: number) => {
+    ctx.moveTo(x + uy * half, y - ux * half)
+    ctx.lineTo(x - uy * half, y + ux * half)
+  }
   ctx.save()
+  ctx.globalAlpha = look.alpha
   ctx.strokeStyle = theme.primary
   ctx.fillStyle = theme.primary
   ctx.lineCap = "butt"
-  ctx.lineWidth = arrowWidth
+  ctx.lineWidth = look.width
+  ctx.setLineDash(look.dash)
+  ctx.lineDashOffset = (look.dash[0] ?? 0) / 2
   ctx.beginPath()
   ctx.moveTo(x1, y1)
   ctx.lineTo(x2 - ux * short, y2 - uy * short)
   ctx.stroke()
-  ctx.lineWidth = tailTickWidth
+  ctx.setLineDash([])
+  ctx.lineWidth = tickWidth
   ctx.beginPath()
-  ctx.moveTo(x1 + uy * tailTickHalf, y1 - ux * tailTickHalf)
-  ctx.lineTo(x1 - uy * tailTickHalf, y1 + ux * tailTickHalf)
+  tick(x1, y1, look.startTick)
+  tick(x2, y2, look.endTick)
   ctx.stroke()
-  const baseX = x2 - ux * arrowHeadLength
-  const baseY = y2 - uy * arrowHeadLength
-  ctx.beginPath()
-  ctx.moveTo(x2, y2)
-  ctx.lineTo(baseX - uy * arrowHeadHalf, baseY + ux * arrowHeadHalf)
-  ctx.lineTo(baseX + uy * arrowHeadHalf, baseY - ux * arrowHeadHalf)
-  ctx.closePath()
-  ctx.fill()
+  if (look.arrow) {
+    const baseX = x2 - ux * arrowHeadLength
+    const baseY = y2 - uy * arrowHeadLength
+    ctx.beginPath()
+    ctx.moveTo(x2, y2)
+    ctx.lineTo(baseX - uy * arrowHeadHalf, baseY + ux * arrowHeadHalf)
+    ctx.lineTo(baseX + uy * arrowHeadHalf, baseY - ux * arrowHeadHalf)
+    ctx.closePath()
+    ctx.fill()
+  }
   ctx.restore()
 }
 
@@ -266,15 +290,15 @@ export const drawCartesianPlane = (
   font: string | null,
   curves: readonly PlotCurve[],
   handles: readonly PlotHandle[],
-  arrows: readonly PlotArrow[],
+  lines: readonly PlotLine[],
 ) => {
   const grid = layoutGrid(width, height, center, scale, labelMargin)
   drawGrid(ctx, width, height, grid, theme, font)
   for (const curve of curves.filter(({ dashed }) => dashed === true)) {
     drawCurve(ctx, width, height, grid, curve, theme)
   }
-  for (const arrow of arrows) {
-    drawArrow(ctx, grid, arrow, theme)
+  for (const line of lines) {
+    drawLine(ctx, grid, line, theme)
   }
   for (const curve of curves.filter(({ dashed }) => dashed !== true)) {
     drawCurve(ctx, width, height, grid, curve, theme)

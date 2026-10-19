@@ -58,7 +58,7 @@ afterEach(() => {
 
 describe("CartesianPlane", () => {
   it("shows no numbers until Roboto Mono has loaded, then shows them in it", async () => {
-    await render(<CartesianPlane curves={[{ fn: identity, alpha: 1, drawTo: 1 }]} handles={[]} arrows={[]} />)
+    await render(<CartesianPlane curves={[{ fn: identity, alpha: 1, drawTo: 1 }]} handles={[]} lines={[]} />)
 
     expect(fontLoad).toHaveBeenCalledWith(planeFont)
     expect(draws.length).toBeGreaterThan(0)
@@ -77,7 +77,7 @@ describe("CartesianPlane", () => {
   })
 
   it("shows the numbers anyway when Roboto Mono fails to load", async () => {
-    await render(<CartesianPlane curves={[{ fn: identity, alpha: 1, drawTo: 1 }]} handles={[]} arrows={[]} />)
+    await render(<CartesianPlane curves={[{ fn: identity, alpha: 1, drawTo: 1 }]} handles={[]} lines={[]} />)
     expect(lastDraw().texts).toEqual([])
 
     failFontLoad()

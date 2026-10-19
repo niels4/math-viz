@@ -9,7 +9,7 @@ import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 
 import style from "./CartesianPlain.module.css"
 import { planeFont } from "./constants"
-import { drawCartesianPlane, type PlotArrow, type PlotCurve, type PlotHandle } from "./drawCartesianPlane"
+import { drawCartesianPlane, type PlotCurve, type PlotHandle, type PlotLine } from "./drawCartesianPlane"
 import { HtmlOverlay } from "./HtmlOverlay"
 import { centerParam, scaleParam } from "./queryParams"
 import { useCamera } from "./useCamera"
@@ -46,7 +46,7 @@ const useUpdateCanvas = (
   font: string | null,
   curves: readonly PlotCurve[],
   handles: readonly PlotHandle[],
-  arrows: readonly PlotArrow[],
+  lines: readonly PlotLine[],
 ) => {
   const draw = useHotReload(drawCartesianPlane)
   const dpr = useDevicePixelRatio()
@@ -70,18 +70,18 @@ const useUpdateCanvas = (
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, width, height)
 
-    draw(ctx, width, height, center, scale, theme, font, curves, handles, arrows)
-  }, [ref, width, height, dpr, center, scale, theme, font, curves, handles, arrows, draw])
+    draw(ctx, width, height, center, scale, theme, font, curves, handles, lines)
+  }, [ref, width, height, dpr, center, scale, theme, font, curves, handles, lines, draw])
 }
 
 export const CartesianPlane = ({
   curves,
   handles,
-  arrows,
+  lines,
 }: {
   curves: readonly PlotCurve[]
   handles: readonly PlotHandle[]
-  arrows: readonly PlotArrow[]
+  lines: readonly PlotLine[]
 }) => {
   const ref = useRef<HTMLCanvasElement | null>(null)
   const { width, height } = useResizeObserver(ref)
@@ -96,7 +96,7 @@ export const CartesianPlane = ({
   }
 
   useCamera(ref, center, scale, setCenter, setScale, flushCamera)
-  useUpdateCanvas(ref, width, height, center, scale, themeVars, font, curves, handles, arrows)
+  useUpdateCanvas(ref, width, height, center, scale, themeVars, font, curves, handles, lines)
 
   return (
     <div className={style.wrapper}>

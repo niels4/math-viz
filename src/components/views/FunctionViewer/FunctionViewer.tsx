@@ -11,7 +11,7 @@ import style from "./FunctionViewer.module.css"
 import { aParam, bParam, funcParam, hParam, kParam } from "./queryParams"
 import { SideBar } from "./SideBar/SideBar"
 import { litAtom } from "./state"
-import { shiftArrows, transformCurves, transformHandles } from "./transformCurves"
+import { transformCurves, transformHandles, transformLines } from "./transformCurves"
 import { useShownTransform } from "./useShownTransform"
 
 const Page = ({ children }: { children: ReactNode | ReactNode[] }) => {
@@ -32,7 +32,7 @@ const Plot = () => {
     <CartesianPlane
       curves={transformCurves(curves, shown)}
       handles={transformHandles(baseFunctions[func], unitX[func], shown)}
-      arrows={shiftArrows(lit, shown)}
+      lines={transformLines(lit, baseFunctions[func], unitX[func], shown)}
     />
   )
 }

@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest"
 
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
-import { drawCartesianPlane, type PlotArrow, type PlotCurve, type PlotHandle } from "./drawCartesianPlane"
+import { drawCartesianPlane, type PlotCurve, type PlotHandle, type PlotLine } from "./drawCartesianPlane"
 
 const drawnPoints = (
   curves: PlotCurve[],
   handles: PlotHandle[] = [],
-  arrows: PlotArrow[] = [],
+  lines: PlotLine[] = [],
 ): [number, number][] => {
   const points: [number, number][] = []
   const ctx = new Proxy<Record<string | symbol, unknown>>(
@@ -31,7 +31,7 @@ const drawnPoints = (
     null,
     curves,
     handles,
-    arrows,
+    lines,
   )
   return points
 }
@@ -74,10 +74,21 @@ describe("drawCartesianPlane", () => {
   })
 
   it("an arrow from (0, 0) to (1, 0) starts at a tick across the y-axis and points at (250, 150)", () => {
-    const points = drawnPoints([], [], [{ from: { x: 0, y: 0 }, to: { x: 1, y: 0 } }])
+    const points = drawnPoints([], [], [{ from: { x: 0, y: 0 }, to: { x: 1, y: 0 }, look: "arrow" }])
 
     expect(points).toContainEqual([200, 141])
     expect(points).toContainEqual([200, 159])
     expect(points).toContainEqual([250, 150])
+  })
+
+  it("a measured line from (0, 0) to (0, 1) has a tick across each end", () => {
+    const points = drawnPoints([], [], [{ from: { x: 0, y: 0 }, to: { x: 0, y: 1 }, look: "measured" }])
+
+    expect(points.slice(-4)).toEqual([
+      [193, 150],
+      [207, 150],
+      [193, 100],
+      [207, 100],
+    ])
   })
 })
