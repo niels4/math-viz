@@ -225,7 +225,7 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
             } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
               e.preventDefault()
               const from = (draft === null ? undefined : urlParam.parse(draft)) ?? value
-              const delta = (e.key === "ArrowUp" ? 1 : -1) * (e.shiftKey ? 0.1 : 0.01)
+              const delta = (e.key === "ArrowUp" ? 1 : -1) * (e.shiftKey ? 0.01 : 0.1)
               setValue(nudged(from, isScale, delta))
               setDraft(null)
             } else if (e.key === "Escape" && typingFrom !== null) {
@@ -252,7 +252,7 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
             <kbd className={style.key}>
               <Arrow dir="down" />
             </kbd>
-            <span>nudge 0.01</span>
+            <span>nudge 0.1</span>
           </div>
         ) : (
           resting && (

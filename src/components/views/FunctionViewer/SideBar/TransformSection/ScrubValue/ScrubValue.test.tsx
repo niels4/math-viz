@@ -229,14 +229,14 @@ describe("the wheel over the value box", () => {
 })
 
 describe("arrow keys in the value box", () => {
-  it("nudge a shift from the text typed so far", async () => {
+  it("nudge a shift 0.1 from the text typed so far, and 0.01 with Shift", async () => {
     const { field } = await renderBox("k")
     await expect.element(field).toHaveValue("0.00")
 
     act(() => field.focus())
     type(field, "2.5")
     press(field, "ArrowUp")
-    expect(field).toHaveValue("2.51")
+    expect(field).toHaveValue("2.60")
 
     press(field, "ArrowUp", { shiftKey: true })
     expect(field).toHaveValue("2.61")
@@ -249,13 +249,13 @@ describe("arrow keys in the value box", () => {
     await expect.element(field).toHaveValue("-0.05")
 
     act(() => field.focus())
-    press(field, "ArrowDown")
+    press(field, "ArrowDown", { shiftKey: true })
     expect(field).toHaveValue("-0.04")
 
-    press(field, "ArrowDown", { shiftKey: true })
+    press(field, "ArrowDown")
     expect(field).toHaveValue("-0.01")
 
-    press(field, "ArrowUp")
+    press(field, "ArrowUp", { shiftKey: true })
     expect(field).toHaveValue("-0.02")
   })
 })
@@ -270,8 +270,8 @@ describe("Esc in the value box", () => {
     up(box, 100)
     type(field, "5")
     press(field, "ArrowUp")
-    expect(field).toHaveValue("5.01")
-    await expect.poll(() => urlValue("k")).toBe("5.01")
+    expect(field).toHaveValue("5.10")
+    await expect.poll(() => urlValue("k")).toBe("5.1")
 
     type(field, "7")
     expect(field).toHaveValue("7")
@@ -349,7 +349,7 @@ describe("the tip on the value box", () => {
     expect(tip(box)).toBe("")
     up(box, 100)
     expect(document.activeElement).toBe(field)
-    expect(tip(box)).toBe("Enter apply · Esc cancel · nudge 0.01")
+    expect(tip(box)).toBe("Enter apply · Esc cancel · nudge 0.1")
 
     press(field, "Escape")
     expect(tip(box)).toBe("")
