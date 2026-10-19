@@ -3,10 +3,7 @@
 // prettier-ignore
 declare const styles: {
   readonly "card": string;
-  readonly "function_buttons": string;
-  readonly "function_input": string;
-  readonly "function_selector": string;
-  readonly "function_title": string;
+  readonly "card_title": string;
   readonly "sidebar": string;
 };
 export = styles;
