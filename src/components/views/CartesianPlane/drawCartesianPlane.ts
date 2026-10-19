@@ -8,6 +8,8 @@ export type PlotFunction = (x: number) => number
 
 export type PlotCurve = { fn: PlotFunction; alpha: number; drawTo: number; dashed?: boolean }
 
+export type PlotHandle = { x: number; y: number; shape: "diamond" | "square" }
+
 type CurveLook = { ink: keyof ThemeVars; width: number; cap: CanvasLineCap; dash: number[]; alpha: number }
 
 const solidLook: CurveLook = { ink: "chartLine", width: 3, cap: "butt", dash: [], alpha: 1 }
@@ -160,6 +162,52 @@ const drawCurve = (
   ctx.restore()
 }
 
+const diamondRadius = 10
+const squareSide = 16
+const squareRadius = 3
+const handleStroke = 2.5
+
+const drawHandle = (
+  ctx: CanvasRenderingContext2D,
+  grid: GridLayout,
+  handle: PlotHandle,
+  theme: ThemeVars,
+) => {
+  const [originX, originY] = grid.origin
+  const x = originX + handle.x * grid.pxPerUnit
+  const y = originY - handle.y * grid.pxPerUnit
+  ctx.save()
+  ctx.lineWidth = handleStroke
+  ctx.lineJoin = "round"
+  ctx.fillStyle = theme.background
+  ctx.strokeStyle = theme.primary
+  ctx.beginPath()
+  if (handle.shape === "diamond") {
+    ctx.moveTo(x, y - diamondRadius)
+    ctx.lineTo(x + diamondRadius, y)
+    ctx.lineTo(x, y + diamondRadius)
+    ctx.lineTo(x - diamondRadius, y)
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
+  } else {
+    const half = squareSide / 2
+    const inset = handleStroke / 2
+    ctx.roundRect(x - half, y - half, squareSide, squareSide, squareRadius)
+    ctx.fill()
+    ctx.beginPath()
+    ctx.roundRect(
+      x - half + inset,
+      y - half + inset,
+      squareSide - handleStroke,
+      squareSide - handleStroke,
+      squareRadius - inset,
+    )
+    ctx.stroke()
+  }
+  ctx.restore()
+}
+
 export const drawCartesianPlane = (
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -169,11 +217,15 @@ export const drawCartesianPlane = (
   theme: ThemeVars,
   font: string | null,
   curves: readonly PlotCurve[],
+  handles: readonly PlotHandle[],
 ) => {
   const grid = layoutGrid(width, height, center, scale, labelMargin)
   drawGrid(ctx, width, height, grid, theme, font)
   for (const curve of curves) {
     drawCurve(ctx, width, height, grid, curve, theme)
+  }
+  for (const handle of handles) {
+    drawHandle(ctx, grid, handle, theme)
   }
   if (font !== null) {
     drawScaleLegend(ctx, width, height, unscaledUnitSize, scale, theme, font)

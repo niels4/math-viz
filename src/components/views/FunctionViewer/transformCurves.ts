@@ -1,4 +1,4 @@
-import type { PlotCurve, PlotFunction } from "../CartesianPlane/drawCartesianPlane"
+import type { PlotCurve, PlotFunction, PlotHandle } from "../CartesianPlane/drawCartesianPlane"
 import type { TransformParam } from "./state"
 
 export type Transform = Record<TransformParam, number>
@@ -15,3 +15,8 @@ export const transformCurves = (curves: readonly PlotCurve[], transform: Transfo
     ...(isIdentity(transform) ? [] : [{ ...curve, dashed: true }]),
     { ...curve, fn: transformed(curve.fn, transform) },
   ])
+
+export const transformHandles = (g: PlotFunction, u: number, { a, b, h, k }: Transform): PlotHandle[] => [
+  { x: h, y: k, shape: "diamond" },
+  { x: h + b * u, y: a * g(u) + k, shape: "square" },
+]

@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 
 import type { PlotCurve } from "../CartesianPlane/drawCartesianPlane"
 
-import { baseFunctions } from "./baseFunctions"
-import { transformCurves } from "./transformCurves"
+import { baseFunctions, unitX } from "./baseFunctions"
+import { transformCurves, transformHandles } from "./transformCurves"
 
 const square: PlotCurve = { fn: baseFunctions.x2, alpha: 1, drawTo: 1 }
 const untouched = { a: 1, b: 1, h: 0, k: 0 }
@@ -47,5 +47,29 @@ describe("transformCurves", () => {
     ])
     expect(curves[1]?.fn(2)).toBe(3)
     expect(curves[3]?.fn(2)).toBe(5)
+  })
+})
+
+describe("transformHandles", () => {
+  it("with no values set, y = x² has its shift handle at (0, 0) and its scale handle at (1, 1)", () => {
+    expect(transformHandles(baseFunctions.x2, unitX.x2, untouched)).toEqual([
+      { x: 0, y: 0, shape: "diamond" },
+      { x: 1, y: 1, shape: "square" },
+    ])
+  })
+
+  it("y = 2(x − 1)² + 3 has its shift handle on the vertex and its scale handle on the curve at (2, 5)", () => {
+    expect(transformHandles(baseFunctions.x2, unitX.x2, { a: 2, b: 1, h: 1, k: 3 })).toEqual([
+      { x: 1, y: 3, shape: "diamond" },
+      { x: 2, y: 5, shape: "square" },
+    ])
+  })
+
+  it("sin x's scale handle sits on its peak, which b = 2 moves to x = π", () => {
+    const [, peak] = transformHandles(baseFunctions.sinx, unitX.sinx, untouched)
+    const [, widePeak] = transformHandles(baseFunctions.sinx, unitX.sinx, { ...untouched, b: 2 })
+
+    expect(peak).toEqual({ x: Math.PI / 2, y: 1, shape: "square" })
+    expect(widePeak).toEqual({ x: Math.PI, y: 1, shape: "square" })
   })
 })

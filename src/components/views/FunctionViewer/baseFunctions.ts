@@ -7,3 +7,10 @@ export const baseFunctions: Record<FunctionSlug, PlotFunction> = {
   x3: (x) => x * x * x,
   sinx: Math.sin,
 }
+
+export const unitX: Record<FunctionSlug, number> = {
+  x1: 1,
+  x2: 1,
+  x3: 1,
+  sinx: Math.PI / 2,
+}
