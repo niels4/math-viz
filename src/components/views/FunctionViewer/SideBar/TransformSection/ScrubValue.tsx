@@ -1,11 +1,12 @@
 import { useAtomValue } from "jotai"
-import { useRef, useState, type PointerEvent } from "react"
+import { useEffect, useEffectEvent, useRef, useState, type PointerEvent } from "react"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
 
 import { transformParams } from "../../queryParams"
 import { highlightAtoms, type TransformParam } from "../../state"
+import { nudged, scrubbed, scrubMode, shown, wheelDx, type ScrubMode } from "./scrub.ts"
 import style from "./ScrubValue.module.css"
 
 // How far in px a press moves before it drags. A press that moves less is a
@@ -13,20 +14,29 @@ import style from "./ScrubValue.module.css"
 // value.
 const DRAG_THRESHOLD = 3
 
-// The value a drag reaches dx px to the right of where it started. Shifts
-// move 0.02 per px. Scales grow 0.2 % per px, so a scale drags as evenly
-// near 0.1 as near 10 and never changes sign. Values land on 0.01, and a
-// scale stops at ±0.01 instead of 0, which would squash the curve flat.
-const scrubbed = (from: number, dx: number, isScale: boolean) => {
-  const raw = isScale ? from * 1.002 ** dx : from + 0.02 * dx
-  const next = Math.round(raw * 100) / 100
-  return isScale && next === 0 ? Math.sign(raw) * 0.01 : next
+type Press = {
+  pointerId: number
+  // Where the drag's current stretch began and the value there. Pressing or
+  // letting go of Shift, Ctrl or ⌘ mid-drag starts a new stretch where the
+  // pointer is, so the new speed applies from there and the value doesn't
+  // jump.
+  x: number
+  from: number
+  lastX: number
+  mode: ScrubMode
+  // The value the drag set last.
+  value: number
+  // Whether the press has moved far enough to drag.
+  dragging: boolean
 }
 
 // A transform parameter's value in a box between ‹ and ›. Drag the box
-// sideways to change the value, right for more; click it to type one.
-// `id` lets the row's label name the box.
+// sideways to change the value, right for more, holding Shift for fine or
+// Ctrl or ⌘ to snap; the wheel does the same. Click the box to type a
+// value, and ↑ ↓ nudge it by 0.01, or 0.1 with Shift. `id` lets the row's
+// label name the box.
 export const ScrubValue = ({ id, param }: { id: string; param: TransformParam }) => {
+  const isScale = param === "a" || param === "b"
   const urlParam = transformParams[param]
   const [value, setValue, flushValue] = useQueryParam(urlParam)
   const lit = useAtomValue(highlightAtoms[param])
@@ -34,10 +44,12 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
   // stay here, and Enter or leaving the box sets the value. Text the URL
   // wouldn't accept either, such as a scale of 0, puts the old value back.
   const [draft, setDraft] = useState<string | null>(null)
+  // The mode of the drag in progress, which sets the decimals it shows.
+  const [mode, setMode] = useState<ScrubMode | null>(null)
+  const boxRef = useRef<HTMLDivElement>(null)
   const fieldRef = useRef<HTMLInputElement>(null)
-  // The press on the box: its pointer, where it went down and the value
-  // then, and whether it has moved far enough to drag.
-  const press = useRef<{ id: number; x: number; from: number; dragging: boolean } | null>(null)
+  const press = useRef<Press | null>(null)
+  const typing = () => document.activeElement === fieldRef.current
 
   const commit = () => {
     if (draft === null) {
@@ -50,29 +62,124 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
     setDraft(null)
   }
 
+  const send = (p: Press, next: number) => {
+    if (next !== p.value) {
+      p.value = next
+      setValue(next)
+    }
+  }
+
+  // Snap takes hold at once; fine and coarse wait for the next move, so
+  // letting go of Shift leaves the value where it is.
+  const changeMode = (p: Press, next: ScrubMode) => {
+    p.x = p.lastX
+    p.from = p.value
+    p.mode = next
+    setMode(next)
+    if (next === "snap") {
+      send(p, scrubbed(p.from, 0, isScale, next))
+    }
+  }
+
   const drag = (e: PointerEvent) => {
     const p = press.current
-    if (p === null || e.pointerId !== p.id) {
+    if (p === null || e.pointerId !== p.pointerId) {
       return
     }
-    const dx = e.clientX - p.x
-    if (!p.dragging && Math.abs(dx) < DRAG_THRESHOLD) {
-      return
+    if (!p.dragging) {
+      if (Math.abs(e.clientX - p.x) < DRAG_THRESHOLD) {
+        return
+      }
+      p.dragging = true
+      p.mode = scrubMode(e)
+      setMode(p.mode)
+    } else if (scrubMode(e) !== p.mode) {
+      changeMode(p, scrubMode(e))
     }
-    p.dragging = true
-    setValue(scrubbed(p.from, dx, param === "a" || param === "b"))
+    p.lastX = e.clientX
+    send(p, scrubbed(p.from, e.clientX - p.x, isScale, p.mode))
   }
+
+  // Ends the press. The URL takes a drag's value as it ends.
+  const stop = () => {
+    const p = press.current
+    press.current = null
+    if (p?.dragging === true) {
+      setMode(null)
+      flushValue()
+    }
+    return p
+  }
+
+  // Shift, Ctrl or ⌘ pressed or let go while the pointer holds still. A
+  // release outside the box or the window losing focus ends the drag.
+  const onWindowKey = useEffectEvent((e: KeyboardEvent) => {
+    const p = press.current
+    if (p?.dragging === true && scrubMode(e) !== p.mode) {
+      changeMode(p, scrubMode(e))
+    }
+  })
+  const onWindowRelease = useEffectEvent(() => {
+    stop()
+  })
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => onWindowKey(e)
+    const release = () => onWindowRelease()
+    window.addEventListener("keydown", key)
+    window.addEventListener("keyup", key)
+    window.addEventListener("pointerup", release)
+    window.addEventListener("pointercancel", release)
+    window.addEventListener("blur", release)
+    return () => {
+      window.removeEventListener("keydown", key)
+      window.removeEventListener("keyup", key)
+      window.removeEventListener("pointerup", release)
+      window.removeEventListener("pointercancel", release)
+      window.removeEventListener("blur", release)
+    }
+  }, [])
+
+  // Each notch starts from the value the last one set, even before React
+  // renders again. While you type, the wheel scrolls the page as usual.
+  const onWheel = useEffectEvent((e: WheelEvent) => {
+    if (typing()) {
+      return
+    }
+    e.preventDefault()
+    const notchMode = scrubMode(e)
+    setValue((prev) => scrubbed(prev, wheelDx(e), isScale, notchMode))
+  })
+  // React's wheel listener is passive and can't stop the page scrolling, so
+  // the box listens itself.
+  useEffect(() => {
+    const box = boxRef.current
+    if (box === null) {
+      return
+    }
+    const wheel = (e: WheelEvent) => onWheel(e)
+    box.addEventListener("wheel", wheel, { passive: false })
+    return () => box.removeEventListener("wheel", wheel)
+  }, [])
 
   return (
     <div
+      ref={boxRef}
       className={style.box}
       data-lit={lit ? "" : undefined}
       onPointerDown={(e) => {
         // While you type, a press belongs to the text.
-        if (e.button !== 0 || document.activeElement === fieldRef.current) {
+        if (e.button !== 0 || typing()) {
           return
         }
-        press.current = { id: e.pointerId, x: e.clientX, from: value, dragging: false }
+        press.current = {
+          pointerId: e.pointerId,
+          x: e.clientX,
+          from: value,
+          lastX: e.clientX,
+          mode: "coarse",
+          value,
+          dragging: false,
+        }
         selectNothingUntilRelease(e)
         try {
           e.currentTarget.setPointerCapture(e.pointerId)
@@ -82,30 +189,28 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
           // still works without capture in that case.
         }
       }}
-      onPointerMove={drag}
+      onPointerMove={(e) => {
+        // A move with no button held means the release went missing.
+        if (e.buttons === 0) {
+          stop()
+        } else {
+          drag(e)
+        }
+      }}
       onPointerUp={(e) => {
-        // A pointer can let go somewhere it never sent a move from.
-        drag(e)
-        const p = press.current
-        if (p === null || e.pointerId !== p.id) {
+        if (press.current?.pointerId !== e.pointerId) {
           return
         }
-        press.current = null
-        // The URL takes a drag's value as it ends, and a click opens the
-        // box with its value selected, ready to type over.
-        if (p.dragging) {
-          flushValue()
-        } else {
+        // A pointer can let go somewhere it never sent a move from.
+        drag(e)
+        // A click opens the box with its value selected, ready to type over.
+        if (stop()?.dragging === false) {
           fieldRef.current?.focus()
           fieldRef.current?.select()
         }
       }}
-      onPointerCancel={() => {
-        if (press.current?.dragging === true) {
-          flushValue()
-        }
-        press.current = null
-      }}
+      onPointerCancel={stop}
+      onLostPointerCapture={stop}
     >
       <Chevron dir="left" />
       <input
@@ -113,11 +218,18 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
         id={id}
         type="text"
         className={style.field}
-        value={draft ?? value.toFixed(2)}
+        value={draft ?? shown(value, mode === "fine")}
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             commit()
+          } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+            e.preventDefault()
+            // From the text typed so far, if the URL would take it.
+            const from = (draft === null ? undefined : urlParam.parse(draft)) ?? value
+            const delta = (e.key === "ArrowUp" ? 1 : -1) * (e.shiftKey ? 0.1 : 0.01)
+            setValue(nudged(from, isScale, delta))
+            setDraft(null)
           }
         }}
         onBlur={commit}
