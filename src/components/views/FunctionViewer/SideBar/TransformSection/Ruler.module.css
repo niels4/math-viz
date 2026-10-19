@@ -41,6 +41,14 @@
   fill: var(--row-ink);
 }
 
+.chevrons {
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .label {
   font: 500 12px var(--font-mono);
   fill: currentcolor;
