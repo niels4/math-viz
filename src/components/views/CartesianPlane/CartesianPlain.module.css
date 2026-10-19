@@ -15,6 +15,18 @@
   border-radius: var(--radius-card);
   touch-action: none;
   user-select: none;
+
+  &[data-cursor="pan"] {
+    cursor: crosshair;
+  }
+
+  &[data-cursor="grab-hover"] {
+    cursor: grab;
+  }
+
+  &[data-cursor="grab-active"] {
+    cursor: grabbing;
+  }
 }
 
 .html_overlay {

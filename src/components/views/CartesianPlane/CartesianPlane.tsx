@@ -16,6 +16,8 @@ import { useCamera } from "./useCamera"
 
 const ctxOptions: CanvasRenderingContext2DSettings = { colorSpace: "display-p3" } as const
 
+type Cursor = "pan" | "grab-hover" | "grab-active"
+
 const useCanvasFont = (font: string): string | null => {
   const [loaded, setLoaded] = useState<string | null>(null)
   useEffect(() => {
@@ -89,6 +91,7 @@ export const CartesianPlane = ({
   const [scale, setScale, flushScale] = useQueryParam(scaleParam)
   const { themeVars } = useAppTheme()
   const font = useCanvasFont(planeFont)
+  const [cursor] = useState<Cursor>("pan")
 
   const flushCamera = () => {
     flushCenter()
@@ -100,7 +103,7 @@ export const CartesianPlane = ({
 
   return (
     <div className={style.wrapper}>
-      <canvas ref={ref} className={style.cartesian_plane} />
+      <canvas ref={ref} className={style.cartesian_plane} data-cursor={cursor} />
       <HtmlOverlay />
     </div>
   )
