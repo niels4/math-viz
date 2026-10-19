@@ -3,14 +3,16 @@
   align-items: center;
   min-height: 60px;
   margin-top: var(--space-inset);
-  padding: 0 4px;
 }
 
 .line {
+  padding: 0 4px;
   font: 1.75rem var(--font-serif);
   font-variant-numeric: tabular-nums;
   line-height: round(up, 1.25em, 1px);
   white-space: nowrap;
+  transform: scale(var(--fit-scale, 1));
+  transform-origin: left center;
 }
 
 .term {

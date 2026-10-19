@@ -1,6 +1,8 @@
+import "#src/style/global.css"
 import { afterEach, describe, expect, it } from "vitest"
 
-import { render, updateLocationHash } from "#test"
+import { style_vars } from "#src/style/style_vars.module.css"
+import { isBrowser, render, toElement, updateLocationHash } from "#test"
 
 import { FunctionReadout } from "./FunctionReadout"
 
@@ -45,5 +47,23 @@ describe("the function readout", () => {
     await expect
       .element(await readout("#?func=sinx&a=2&b=0.5&h=1&k=-1"))
       .toHaveTextContent("f(x) = 2.00 sin(x − 1.000.50) − 1.00")
+  })
+
+  it.runIf(isBrowser())("shrinks a long equation to fit the sidebar", async () => {
+    // Every value set, in a column as wide as the sidebar's card.
+    await updateLocationHash("#?a=20&b=30&h=10&k=12.5")
+    const screen = await render(
+      <div className={style_vars} style={{ width: 320 }}>
+        <FunctionReadout />
+      </div>,
+    )
+    const output = toElement(screen.getByRole("status"))
+    await expect.element(output).toHaveTextContent("f(x) = 20.00(x − 10.0030.00) + 12.50")
+
+    // The line ends just inside the column instead of running past it.
+    const line = toElement(output.firstElementChild)
+    const edge = output.getBoundingClientRect().right
+    await expect.poll(() => line.getBoundingClientRect().right).toBeLessThanOrEqual(edge)
+    expect(line.getBoundingClientRect().right).toBeGreaterThan(edge - 4)
   })
 })

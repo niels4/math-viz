@@ -1,5 +1,6 @@
-import type { ReactNode } from "react"
+import { useRef, type ReactNode } from "react"
 
+import { useFitWidth } from "#src/components/hooks/useFitWidth.ts"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
 import { aParam, bParam, funcParam, hParam, kParam } from "../queryParams"
@@ -26,6 +27,9 @@ export const FunctionReadout = () => {
   const [b] = useQueryParam(bParam)
   const [h] = useQueryParam(hParam)
   const [k] = useQueryParam(kParam)
+  const rowRef = useRef<HTMLOutputElement>(null)
+  const lineRef = useRef<HTMLSpanElement>(null)
+  useFitWidth(rowRef, lineRef)
 
   const x = <var>x</var>
   const stacked = b !== 1
@@ -74,8 +78,8 @@ export const FunctionReadout = () => {
   }
 
   return (
-    <output className={style.readout}>
-      <span className={style.line}>
+    <output ref={rowRef} className={style.readout}>
+      <span ref={lineRef} className={style.line}>
         <var>f</var>(<var>x</var>) = {a !== 1 && <Term param="a">{formatValue(a)}</Term>}
         {a !== 1 && func === "sinx" && " "}
         {body}

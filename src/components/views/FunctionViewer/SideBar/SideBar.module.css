@@ -1,7 +1,7 @@
 .sidebar {
   background: var(--background-muted);
   border: 1px solid var(--border);
-  padding: var(--space-card);
+  padding: var(--space-inset);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   min-width: 0;
@@ -11,7 +11,7 @@
 
 /* One section of the sidebar on its own surface, titled. */
 .card {
-  background: var(--card);
+  background: var(--section);
   border-radius: var(--radius-card);
   padding: var(--space-inset) var(--space-inset) var(--space-section);
 }
