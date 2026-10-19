@@ -51,19 +51,31 @@ export const TransformRow = ({ name, param }: { name: string; param: TransformPa
       <label htmlFor={id} className={style.name}>
         {name}
       </label>
-      <input
-        id={id}
-        type="text"
-        className={style.box}
-        value={draft ?? value.toFixed(2)}
-        onChange={(e) => setDraft(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            commit()
-          }
-        }}
-        onBlur={commit}
-      />
+      <div className={style.box}>
+        <Chevron dir="left" />
+        <input
+          id={id}
+          type="text"
+          className={style.field}
+          value={draft ?? value.toFixed(2)}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              commit()
+            }
+          }}
+          onBlur={commit}
+        />
+        <Chevron dir="right" />
+      </div>
     </div>
   )
 }
+
+// ‹ or › beside the value, in the parameter's colour. Hidden from screen
+// readers, for whom they say nothing.
+const Chevron = ({ dir }: { dir: "left" | "right" }) => (
+  <svg className={style.chevron} width="6" height="12" viewBox="0 0 6 12" aria-hidden="true">
+    <path d={dir === "left" ? "M5 2L1 6L5 10" : "M1 2L5 6L1 10"} />
+  </svg>
+)
