@@ -54,15 +54,15 @@ describe("transformCurves", () => {
 describe("transformHandles", () => {
   it("with no values set, y = x² has its shift handle at (0, 0) and its scale handle at (1, 1)", () => {
     expect(transformHandles(baseFunctions.x2, unitX.x2, untouched)).toEqual([
-      { x: 0, y: 0, shape: "diamond" },
-      { x: 1, y: 1, shape: "square" },
+      { point: { x: 0, y: 0 }, shape: "diamond" },
+      { point: { x: 1, y: 1 }, shape: "square" },
     ])
   })
 
   it("y = 2(x − 1)² + 3 has its shift handle on the vertex and its scale handle on the curve at (2, 5)", () => {
     expect(transformHandles(baseFunctions.x2, unitX.x2, { a: 2, b: 1, h: 1, k: 3 })).toEqual([
-      { x: 1, y: 3, shape: "diamond" },
-      { x: 2, y: 5, shape: "square" },
+      { point: { x: 1, y: 3 }, shape: "diamond" },
+      { point: { x: 2, y: 5 }, shape: "square" },
     ])
   })
 
@@ -70,8 +70,8 @@ describe("transformHandles", () => {
     const [, peak] = transformHandles(baseFunctions.sinx, unitX.sinx, untouched)
     const [, widePeak] = transformHandles(baseFunctions.sinx, unitX.sinx, { ...untouched, b: 2 })
 
-    expect(peak).toEqual({ x: Math.PI / 2, y: 1, shape: "square" })
-    expect(widePeak).toEqual({ x: Math.PI, y: 1, shape: "square" })
+    expect(peak).toEqual({ point: { x: Math.PI / 2, y: 1 }, shape: "square" })
+    expect(widePeak).toEqual({ point: { x: Math.PI, y: 1 }, shape: "square" })
   })
 })
 

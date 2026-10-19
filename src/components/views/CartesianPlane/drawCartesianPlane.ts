@@ -10,7 +10,17 @@ export type PlotCurve = { fn: PlotFunction; alpha: number; drawTo: number; dashe
 
 export type PlotPoint = { x: number; y: number }
 
-export type PlotHandle = PlotPoint & { shape: "diamond" | "square" }
+type PlotHandleShape = "diamond" | "square"
+
+type PlotHandleMouseHandlers = {
+  onHover?: (hovering: boolean) => void
+}
+
+export type PlotHandle = {
+  point: PlotPoint
+  shape: PlotHandleShape
+  handlers?: PlotHandleMouseHandlers
+}
 
 export type PlotLine = { from: PlotPoint; to: PlotPoint; look: "arrow" | "dashed" | "measured" }
 
@@ -247,7 +257,7 @@ const drawHandle = (
   handle: PlotHandle,
   theme: ThemeVars,
 ) => {
-  const [x, y] = toPx(grid, handle)
+  const [x, y] = toPx(grid, handle.point)
   ctx.save()
   ctx.lineWidth = handleStroke
   ctx.lineJoin = "round"

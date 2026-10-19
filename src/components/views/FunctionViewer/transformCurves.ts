@@ -28,8 +28,8 @@ const unitPoint = (g: PlotFunction, u: number, { a, b, h, k }: Transform): PlotP
 })
 
 export const transformHandles = (g: PlotFunction, u: number, transform: Transform): PlotHandle[] => [
-  { x: transform.h, y: transform.k, shape: "diamond" },
-  { ...unitPoint(g, u, transform), shape: "square" },
+  { point: { x: transform.h, y: transform.k }, shape: "diamond" },
+  { point: unitPoint(g, u, transform), shape: "square" },
 ]
 
 const dashedBox = (from: PlotPoint, to: PlotPoint): PlotLine[] => {

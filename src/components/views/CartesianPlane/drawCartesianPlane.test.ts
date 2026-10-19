@@ -63,7 +63,7 @@ describe("drawCartesianPlane", () => {
   })
 
   it("a shift handle at (1, 1) is a diamond around (250, 100)", () => {
-    const points = drawnPoints([], [{ x: 1, y: 1, shape: "diamond" }])
+    const points = drawnPoints([], [{ point: { x: 1, y: 1 }, shape: "diamond" }])
 
     expect(points.slice(-4)).toEqual([
       [250, 90],
