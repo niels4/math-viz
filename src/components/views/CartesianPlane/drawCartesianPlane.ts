@@ -98,6 +98,8 @@ const drawGrid = (
   drawAxis(ctx, width, height, grid, theme, font)
 }
 
+const overshootPx = 10_000
+
 const insideShare = (y0: number, y1: number, height: number) => {
   const lo = Math.min(y0, y1)
   const hi = Math.max(y0, y1)
@@ -122,7 +124,10 @@ const drawCurve = (
   const points: { x: number; y: number; at: number }[] = []
   let at = 0
   for (let px = 0; px <= width; px++) {
-    const y = originY - curve.fn((px - originX) / grid.pxPerUnit) * grid.pxPerUnit
+    const y = Math.min(
+      height + overshootPx,
+      Math.max(-overshootPx, originY - curve.fn((px - originX) / grid.pxPerUnit) * grid.pxPerUnit),
+    )
     const prev = points.at(-1)
     if (prev !== undefined) {
       at += Math.hypot(px - prev.x, y - prev.y) * insideShare(prev.y, y, height)

@@ -2,6 +2,8 @@ import { atom, type Atom } from "jotai"
 
 export type TransformParam = "a" | "b" | "h" | "k"
 
+export const flipAtom = atom<{ param: TransformParam; from: number; to: number } | null>(null)
+
 type Touch = "hover" | "focus"
 
 const touchAtom = atom<Record<Touch, TransformParam | null> & { lead: Touch }>({

@@ -38,6 +38,14 @@ describe("drawCartesianPlane", () => {
     expect(points).toContainEqual([250, 100])
   })
 
+  it("y = (x / 0.001)³ draws within 10,000 px of the canvas, where WebKit still strokes it", () => {
+    const points = drawnPoints({ fn: (x) => (x / 0.001) ** 3, alpha: 1, drawTo: 1 })
+
+    const ys = points.map(([, y]) => y)
+    expect(Math.min(...ys)).toBe(-10_000)
+    expect(Math.max(...ys)).toBe(10_300)
+  })
+
   it("a quarter of the way through drawing y = x³, the pen is on the canvas", () => {
     const points = drawnPoints({ fn: (x) => x * x * x, alpha: 1, drawTo: 0.25 })
 

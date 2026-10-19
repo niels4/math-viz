@@ -8,7 +8,7 @@ const firstFrameMs = 1000 / 60
 
 const easeDraw = (t: number) => (t < 0.5 ? 4 * t ** 3 : 1 - (2 - 2 * t) ** 3 / 2)
 
-const canAnimate = () =>
+export const canAnimate = () =>
   typeof requestAnimationFrame === "function" && !matchMedia("(prefers-reduced-motion: reduce)").matches
 
 type Shown = { fn: PlotFunction; old: PlotFunction | null; elapsed: number }

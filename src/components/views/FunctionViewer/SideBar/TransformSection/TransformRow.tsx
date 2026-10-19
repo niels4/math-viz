@@ -4,7 +4,7 @@ import { useId } from "react"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
 import { transformParams } from "../../queryParams"
-import { focusAtom, highlightAtoms, hoverAtom, type TransformParam } from "../../state"
+import { flipAtom, focusAtom, highlightAtoms, hoverAtom, type TransformParam } from "../../state"
 import { FlipIcon } from "./FlipIcon.tsx"
 import { ResetIcon } from "./ResetIcon.tsx"
 import { ScrubValue } from "./ScrubValue/ScrubValue.tsx"
@@ -15,6 +15,7 @@ export const TransformRow = ({ name, param }: { name: string; param: TransformPa
   const lit = useAtomValue(highlightAtoms[param])
   const setHover = useSetAtom(hoverAtom)
   const setFocus = useSetAtom(focusAtom)
+  const setFlip = useSetAtom(flipAtom)
   const id = useId()
   const { changed, defaultValue, reset } = useReset(param)
   const [value, setValue] = useQueryParam(transformParams[param])
@@ -46,7 +47,8 @@ export const TransformRow = ({ name, param }: { name: string; param: TransformPa
             if (e.detail > 0) {
               e.currentTarget.blur()
             }
-            setValue((v) => -v, { flush: true })
+            setFlip({ param, from: value, to: -value })
+            setValue(-value, { flush: true })
           }}
         >
           <FlipIcon axis={param === "a" ? "vertical" : "horizontal"} />
