@@ -23,6 +23,11 @@ import { useCamera } from "./useCamera"
 
 const ctxOptions: CanvasRenderingContext2DSettings = { colorSpace: "display-p3" } as const
 
+type CursorState = {
+  hovering: boolean
+  dragging: boolean
+}
+
 type Cursor = "pan" | "grab-hover" | "grab-active"
 
 const useCanvasFont = (font: string): string | null => {
@@ -80,10 +85,6 @@ const useUpdateCanvas = (
   }, [ref, grid, dpr, theme, font, curves, handles, lines, draw])
 }
 
-type CursorState = {
-  hovering: boolean
-}
-
 export const CartesianPlane = ({
   curves,
   handles,
@@ -95,6 +96,7 @@ export const CartesianPlane = ({
   lines: readonly PlotLine[]
   cursorState: CursorState
 }) => {
+  const { hovering, dragging } = cursorState
   const ref = useRef<HTMLCanvasElement | null>(null)
   const { width, height } = useResizeObserver(ref)
   const [center, setCenter, flushCenter] = useQueryParam(centerParam)
@@ -108,8 +110,8 @@ export const CartesianPlane = ({
     flushScale()
   }
 
-  const panning = useCamera(ref, center, scale, setCenter, setScale, flushCamera)
-  const cursor: Cursor = panning ? "grab-active" : cursorState.hovering ? "grab-hover" : "pan"
+  const panning = useCamera(ref, center, scale, setCenter, setScale, flushCamera, dragging)
+  const cursor: Cursor = dragging || panning ? "grab-active" : hovering ? "grab-hover" : "pan"
   const grid = layoutGrid(width, height, center, scale, labelMargin)
   useUpdateCanvas(ref, grid, themeVars, font, curves, handles, lines)
 

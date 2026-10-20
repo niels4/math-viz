@@ -30,9 +30,11 @@ const Plot = () => {
   const shown = useShownTransform({ a, b, h, k })
   const lit = useAtomValue(litAtom)
   const [hovering, setHovering] = useState(false)
+  const [dragging, setDragging] = useState(false)
 
   const onHover = () => setHovering(true)
   const onHoverEnd = () => setHovering(false)
+  const onPointerUp = () => setDragging(false)
 
   const shiftHandle: PlotHandle = {
     point: { x: h, y: k },
@@ -42,13 +44,12 @@ const Plot = () => {
       onHoverEnd,
       onPointerDown: () => {
         console.log("shift handle clicked")
+        setDragging(true)
       },
       onDrag: () => {
         console.log("dragging shfit handle")
       },
-      onPointerUp: () => {
-        console.log("shift drag end")
-      },
+      onPointerUp,
     },
   }
 
@@ -59,14 +60,13 @@ const Plot = () => {
       onHover,
       onHoverEnd,
       onPointerDown: () => {
+        setDragging(true)
         console.log("scale handle clicked")
       },
       onDrag: () => {
         console.log("dragging scale handle")
       },
-      onPointerUp: () => {
-        console.log("scale drag end")
-      },
+      onPointerUp,
     },
   }
 
@@ -77,7 +77,7 @@ const Plot = () => {
       curves={transformCurves(curves, shown)}
       handles={transformHandles}
       lines={transformLines(lit, baseFunctions[func], unitX[func], shown)}
-      cursorState={{ hovering }}
+      cursorState={{ hovering, dragging }}
     />
   )
 }

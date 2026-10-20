@@ -57,6 +57,7 @@ export const useCamera = (
   setCenter: (center: Center) => void,
   setScale: (scale: number) => void,
   onSettle: () => void,
+  dragging: boolean,
 ) => {
   const [panning, setPanning] = useState(false)
   const props = useRef({ center, scale, setCenter, setScale, onSettle })
@@ -182,7 +183,7 @@ export const useCamera = (
     }
 
     const onPointerMove = (e: PointerEvent) => {
-      if (pointer === null || e.pointerId !== pointer.id) {
+      if (pointer === null || e.pointerId !== pointer.id || dragging) {
         return
       }
       const at: Center = [e.clientX, e.clientY]
@@ -196,12 +197,12 @@ export const useCamera = (
     }
 
     const onPointerUp = (e: PointerEvent) => {
+      setPanning(false)
       if (pointer === null || e.pointerId !== pointer.id) {
         return
       }
       const velocity = releaseVelocity(pointer.samples, e.timeStamp)
       pointer = null
-      setPanning(false)
       if (Math.hypot(velocity[0], velocity[1]) >= minFlickSpeed) {
         glide = velocity
       }
@@ -225,7 +226,7 @@ export const useCamera = (
       glide = null
       pointer = null
     }
-  }, [ref])
+  }, [ref, dragging])
 
   return panning
 }
