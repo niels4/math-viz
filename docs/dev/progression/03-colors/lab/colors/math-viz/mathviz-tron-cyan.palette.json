@@ -1,0 +1,28 @@
+{
+  "appTypes": ["dashboard", "app-shell"],
+  "colors": {
+    "accent": "#FF8A2A",
+    "accentForeground": "#2A1402",
+    "background": "#020A0F",
+    "backgroundMuted": "#071419",
+    "border": "#1C3D47",
+    "card": "#0A1A21",
+    "destructive": "#FF6473",
+    "foreground": "#E8FBFF",
+    "foregroundMuted": "#8CA6AF",
+    "primary": "#00E5FF",
+    "primaryForeground": "#02262E",
+    "secondary": "#0F3A44",
+    "secondaryForeground": "#CFF6FF",
+    "success": "#34D399",
+    "warning": "#FFC53D"
+  },
+  "id": "mathviz-tron-cyan",
+  "modes": ["dark"],
+  "name": "MathViz Tron Cyan",
+  "notes": "Pair Tron Cyan shell with ice-blue axes text; reserve amber tangent accent for callouts only. Gradient strategy: cyan-to-ice aurora mesh on void, amber reserved for glow sweep and chart highlight.",
+  "scores": { "designerFriendly": 9, "professional": 8 },
+  "slug": "mathviz-tron-cyan",
+  "tags": ["math-viz", "tron"],
+  "vibe": "futuristic"
+}

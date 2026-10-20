@@ -1,0 +1,2615 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MathViz Arctic Ice — Sommelier Lab — MathViz Arctic Ice</title>
+    <style>
+      :root {
+        --bg: #0b0f1a;
+        --panel: #111827;
+        --line: #1e2e4a;
+        --cyan: #00e5ff;
+        --text: #d6eaff;
+        --muted: #8aa0c0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          ui-sans-system,
+          -apple-system,
+          system-ui,
+          Inter,
+          sans-serif;
+      }
+      header {
+        padding: 22px 22px 12px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, #0b1530 0%, var(--bg) 100%);
+      }
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.13em;
+        font-weight: 800;
+        color: var(--cyan);
+        text-shadow: 0 0 18px rgba(0, 229, 255, 0.5);
+      }
+      h1 span {
+        color: #fff;
+        opacity: 0.9;
+      }
+      .sub {
+        opacity: 0.75;
+        font-size: 12px;
+        margin-top: 8px;
+        line-height: 1.5;
+      }
+      .sub code {
+        color: var(--cyan);
+        background: #0f1e36;
+        padding: 1px 5px;
+        border-radius: 3px;
+      }
+      .pill {
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #0a1222;
+      }
+      .pill.good {
+        border-color: rgba(34, 197, 94, 0.4);
+        background: rgba(34, 197, 94, 0.08);
+      }
+      .pill.mid {
+        border-color: rgba(234, 179, 8, 0.35);
+        background: rgba(234, 179, 8, 0.08);
+      }
+      .pill.low {
+        border-color: rgba(239, 68, 68, 0.35);
+        background: rgba(239, 68, 68, 0.08);
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 420px 1fr;
+        gap: 18px;
+        padding: 22px;
+      }
+      @media (max-width: 1000px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+      .card {
+        border: 1px solid var(--line);
+        background: #0f172a;
+        overflow: hidden;
+      }
+      .card h2 {
+        margin: 0;
+        padding: 12px 14px;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        color: var(--cyan);
+        border-bottom: 1px solid var(--line);
+        background: #0c1a30;
+      }
+      .source-img {
+        width: 100%;
+        aspect-ratio: 1536/1024;
+        object-fit: cover;
+        display: block;
+        background: #000;
+      }
+      .meta {
+        padding: 10px 14px;
+        font-size: 11px;
+        line-height: 1.6;
+        background: #0b162c;
+        border-top: 1px solid var(--line);
+      }
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 14px;
+      }
+      .sw {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .sw-color {
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+      .sw-label {
+        padding: 6px 8px;
+        font-size: 10px;
+        background: #0f1e36;
+        color: var(--muted);
+      }
+      .sw-label code {
+        color: var(--cyan);
+        font-size: 10px;
+        word-break: break-all;
+      }
+      .sw-label strong {
+        color: var(--text);
+        display: block;
+        font-size: 11px;
+      }
+      .theme-preview {
+        padding: 16px;
+        display: grid;
+        gap: 14px;
+      }
+      /* Theme-applied demo area */
+      .demo-wrap {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .demo-head {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .demo-head h3 {
+        margin: 0;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+      }
+      .demo-body {
+        padding: 14px;
+        display: grid;
+        gap: 14px;
+      }
+      /* vars injection */
+      .vars {
+        font-family: ui-monospace, Menlo, monospace;
+        font-size: 11px;
+        line-height: 1.5;
+        background: #0a1222;
+        border: 1px solid var(--line);
+        padding: 12px;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .type-row {
+        border: 1px solid;
+        border-radius: 6px;
+        padding: 10px 12px;
+      }
+      .type-row .sz {
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        opacity: 0.6;
+      }
+      .ui-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .btn {
+        padding: 7px 14px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid transparent;
+        cursor: pointer;
+      }
+      .chart-grid {
+        border: 1px solid;
+        border-radius: 8px;
+        padding: 12px;
+        display: grid;
+        gap: 12px;
+      }
+      .chart {
+        border: 1px solid;
+        border-radius: 6px;
+        padding: 8px;
+        background: var(--card);
+      }
+      .footer {
+        padding: 12px 22px;
+        font-size: 11px;
+        opacity: 0.5;
+        border-top: 1px solid var(--line);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        ◈ MathViz Arctic Ice — Sommelier Lab — <span>MathViz Arctic Ice</span>
+        <span style="font-weight: 400; opacity: 0.7">futuristic · dark</span>
+      </h1>
+      <div class="sub">
+        Single-theme lab for <code>mathviz-arctic-ice</code>. Source:
+        <code>media/galleries/math-viz-v3/01-arctic-ice.png</code> — 01 — DARK Arctic Ice — monochrome
+        precision, mint signal · <code>workspace/colors/labs/mathviz_arctic_ice.html</code> +
+        <code>workspace/themes/mathviz_arctic_ice.module.css</code> · Served at
+        <code>http://localhost:8787/colors/labs/mathviz_arctic_ice.html</code> and
+        <code>file://…/workspace/colors/labs/mathviz_arctic_ice.html</code>
+        · Built 9/28/2026, 12:20:04 PM — WCAG bg×fg 18.06:1 AAA · primary 9.32:1 AAA · accent 13.16:1 AAA
+      </div>
+    </header>
+
+    <div
+      style="
+        padding: 10px 22px;
+        border-bottom: 1px solid var(--line);
+        background: #0c1a30;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      "
+    >
+      <span class="pill good">bg×fg 18.06:1 AAA</span>
+      <span class="pill good">primary 9.32:1 AAA</span>
+      <span class="pill good">accent 13.16:1 AAA</span>
+      <span class="pill">Professional 9/10</span>
+      <span class="pill">Designer 8/10</span>
+      <span style="font-size: 11px; opacity: 0.7"
+        >Pair Arctic Ice shell with Tron/Violet canvases for contrast: ice chrome outside, neon math inside.
+        Gradient strategy: hairline ice-mesh (pale mint -&gt; white) plus single mint glow, no competing neon
+        stops.</span
+      >
+    </div>
+
+    <div class="layout">
+      <!-- LEFT: source + swatches + vars -->
+      <div style="display: grid; gap: 18px; align-content: start">
+        <div class="card">
+          <h2>SOURCE IMAGE — 01 — DARK Arctic Ice — monochrome precision, mint signal</h2>
+          <a href="../../media/galleries/math-viz-v3/01-arctic-ice.png" target="_blank"
+            ><img
+              class="source-img"
+              src="../../media/galleries/math-viz-v3/01-arctic-ice.png"
+              alt="01 — DARK Arctic Ice — monochrome precision, mint signal"
+          /></a>
+          <div class="meta">
+            <div><code>media/galleries/math-viz-v3/01-arctic-ice.png</code></div>
+            <div style="color: #ffaa33">
+              Dark: arctic-ice monochrome lab precision, ice-white parabola, mint tangent — calm counterpoint
+              to tron + violet
+            </div>
+            <div style="opacity: 0.6; font-size: 10px">
+              Futuristic math app UI mockup, desktop screenshot, DARK arctic-ice monochrome laboratory style,
+              faithful to the 05 reference skeleton. LEFT SIDEBAR on graphite card #161C26: MATHVIZ / CALCULUS
+              MODULE in ice-grey lettersp
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>PALETTE — 15 ROLES · MathViz Arctic Ice · oklch</h2>
+          <div class="swatches">
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.155 0.0147 242.71); color: #ffffff">
+                oklch(0.155 0.0147 242.71)
+              </div>
+              <div class="sw-label">
+                <strong>background</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.155 0.0147 242.71)</code
+                ><code style="opacity: 0.5; font-size: 9px">#070D12</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.2086 0.0208 245.84); color: #ffffff">
+                oklch(0.2086 0.0208 245.84)
+              </div>
+              <div class="sw-label">
+                <strong>backgroundMuted</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.2086 0.0208 245.84)</code
+                ><code style="opacity: 0.5; font-size: 9px">#101921</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.2301 0.0203 245.67); color: #ffffff">
+                oklch(0.2301 0.0203 245.67)
+              </div>
+              <div class="sw-label">
+                <strong>card</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.2301 0.0203 245.67)</code
+                ><code style="opacity: 0.5; font-size: 9px">#151E26</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.9724 0.0053 197.07); color: #111827">
+                oklch(0.9724 0.0053 197.07)
+              </div>
+              <div class="sw-label">
+                <strong>foreground</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.9724 0.0053 197.07)</code
+                ><code style="opacity: 0.5; font-size: 9px">#F2F7F7</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.717 0.0246 213.67); color: #111827">
+                oklch(0.717 0.0246 213.67)
+              </div>
+              <div class="sw-label">
+                <strong>foregroundMuted</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.717 0.0246 213.67)</code
+                ><code style="opacity: 0.5; font-size: 9px">#93A8AD</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.7472 0.0924 166.32); color: #111827">
+                oklch(0.7472 0.0924 166.32)
+              </div>
+              <div class="sw-label">
+                <strong>primary</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.7472 0.0924 166.32)</code
+                ><code style="opacity: 0.5; font-size: 9px">#70C0A0</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.1307 0.0129 241.44); color: #ffffff">
+                oklch(0.1307 0.0129 241.44)
+              </div>
+              <div class="sw-label">
+                <strong>primaryForeground</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.1307 0.0129 241.44)</code
+                ><code style="opacity: 0.5; font-size: 9px">#04080C</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.2885 0.0208 248.55); color: #ffffff">
+                oklch(0.2885 0.0208 248.55)
+              </div>
+              <div class="sw-label">
+                <strong>secondary</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.2885 0.0208 248.55)</code
+                ><code style="opacity: 0.5; font-size: 9px">#232C35</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.9514 0.0096 197); color: #111827">
+                oklch(0.9514 0.0096 197)
+              </div>
+              <div class="sw-label">
+                <strong>secondaryForeground</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.9514 0.0096 197)</code
+                ><code style="opacity: 0.5; font-size: 9px">#E8F1F1</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.2885 0.0208 248.55); color: #ffffff">
+                oklch(0.2885 0.0208 248.55)
+              </div>
+              <div class="sw-label">
+                <strong>border</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.2885 0.0208 248.55)</code
+                ><code style="opacity: 0.5; font-size: 9px">#232C35</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.8532 0.0589 177.1); color: #111827">
+                oklch(0.8532 0.0589 177.1)
+              </div>
+              <div class="sw-label">
+                <strong>accent</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.8532 0.0589 177.1)</code
+                ><code style="opacity: 0.5; font-size: 9px">#A6DCCE</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.1307 0.0129 241.44); color: #ffffff">
+                oklch(0.1307 0.0129 241.44)
+              </div>
+              <div class="sw-label">
+                <strong>accentForeground</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.1307 0.0129 241.44)</code
+                ><code style="opacity: 0.5; font-size: 9px">#04080C</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.7729 0.1535 163.22); color: #ffffff">
+                oklch(0.7729 0.1535 163.22)
+              </div>
+              <div class="sw-label">
+                <strong>success</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.7729 0.1535 163.22)</code
+                ><code style="opacity: 0.5; font-size: 9px">#34D399</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.8369 0.1644 84.43); color: #111827">
+                oklch(0.8369 0.1644 84.43)
+              </div>
+              <div class="sw-label">
+                <strong>warning</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.8369 0.1644 84.43)</code
+                ><code style="opacity: 0.5; font-size: 9px">#FBBF24</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.7106 0.1661 22.22); color: #ffffff">
+                oklch(0.7106 0.1661 22.22)
+              </div>
+              <div class="sw-label">
+                <strong>destructive</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.7106 0.1661 22.22)</code
+                ><code style="opacity: 0.5; font-size: 9px">#F87171</code>
+              </div>
+            </div>
+          </div>
+          <div class="meta" style="display: flex; gap: 6px; flex-wrap: wrap">
+            <span class="pill" style="font-size: 10px">math-viz</span
+            ><span class="pill" style="font-size: 10px">arctic</span
+            ><span class="pill" style="font-size: 10px">ice-mint</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>CSS MODULE — copy to viz project (per-page, no global)</h2>
+          <div class="vars">
+            /* Theme: MathViz Arctic Ice — futuristic · dark · dashboard, app-shell * Palette
+            mathviz-arctic-ice · generated 2026-09-28T18:20:04.081Z * Source: workspace/colors/catalog.json →
+            workspace/themes/mathviz_arctic_ice.module.css * Contrast: bg×fg 18.06:1 · primary 9.32:1 · accent
+            13.16:1 * Colors: oklch — perceptually uniform, better for coherent palettes * Usage: CSS Module,
+            per-page. Import as `import styles from
+            &quot;#src/style/themes/mathviz_arctic_ice.module.css&quot;` then wrap page with
+            `className={styles.theme}` and use `styles.bg_background`, `styles.text_foreground`, etc. No
+            global pollution. */ .theme { --background: oklch(0.155 0.0147 242.71); --background-muted:
+            oklch(0.2086 0.0208 245.84); --card: oklch(0.2301 0.0203 245.67); --foreground: oklch(0.9724
+            0.0053 197.07); --foreground-muted: oklch(0.717 0.0246 213.67); --primary: oklch(0.7472 0.0924
+            166.32); --primary-foreground: oklch(0.1307 0.0129 241.44); --secondary: oklch(0.2885 0.0208
+            248.55); --secondary-foreground: oklch(0.9514 0.0096 197); --border: oklch(0.2885 0.0208 248.55);
+            --accent: oklch(0.8532 0.0589 177.1); --accent-foreground: oklch(0.1307 0.0129 241.44); --success:
+            oklch(0.7729 0.1535 163.22); --warning: oklch(0.8369 0.1644 84.43); --destructive: oklch(0.7106
+            0.1661 22.22); --radius: 0.6rem; --chart-grid: oklch(0.2885 0.0208 248.55); --chart-line:
+            oklch(0.7472 0.0924 166.32); --chart-accent: oklch(0.8532 0.0589 177.1); --chart-glow:
+            oklch(0.7472 0.0924 166.32 / 0.4); --gradient-primary: linear-gradient(135deg, oklch(0.7472 0.0924
+            166.32) 0%, oklch(0.8532 0.0589 177.1) 100%); --gradient-accent: linear-gradient(90deg,
+            oklch(0.8532 0.0589 177.1) 0%, oklch(0.7472 0.0924 166.32) 100%); --gradient-muted:
+            linear-gradient(180deg, oklch(0.155 0.0147 242.71) 0%, oklch(0.2086 0.0208 245.84) 100%);
+            --gradient-glow: radial-gradient(600px 300px at 50% 0%, oklch(0.7472 0.0924 166.32 / 0.2) 0%,
+            transparent 60%); --gradient-text: linear-gradient(90deg, oklch(0.7472 0.0924 166.32) 0%,
+            oklch(0.8532 0.0589 177.1) 100%); --gradient-mesh: radial-gradient(800px 400px at 20% 0%,
+            oklch(0.7472 0.0924 166.32 / 0.149) 0%, transparent 55%), radial-gradient(600px 300px at 90% 30%,
+            oklch(0.8532 0.0589 177.1 / 0.133) 0%, transparent 60%), linear-gradient(180deg, oklch(0.155
+            0.0147 242.71) 0%, oklch(0.2086 0.0208 245.84) 100%); .bg_background { background:
+            var(--background); } .bg_muted { background: var(--background-muted); } .bg_card { background:
+            var(--card); } .bg_primary { background: var(--primary); color: var(--primary-foreground); }
+            .bg_secondary { background: var(--secondary); color: var(--secondary-foreground); } .bg_accent {
+            background: var(--accent); color: var(--accent-foreground); } .text_foreground { color:
+            var(--foreground); } .text_muted { color: var(--foreground-muted); } .text_primary { color:
+            var(--primary); } .text_accent { color: var(--accent); } .border { border-color: var(--border); }
+            .border_border { border-color: var(--border); } .btn_primary { background: var(--primary); color:
+            var(--primary-foreground); border: 1px solid var(--primary); border-radius: var(--radius);
+            padding: 0.45rem 0.9rem; font-weight: 600; } .btn_secondary { background: var(--secondary); color:
+            var(--secondary-foreground); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 0.45rem 0.9rem; font-weight: 600; } .card { background: var(--card); color:
+            var(--foreground); border: 1px solid var(--border); border-radius: var(--radius); } .input {
+            background: var(--card); color: var(--foreground); border: 1px solid var(--border); border-radius:
+            var(--radius); padding: 0.45rem 0.7rem; } .badge_accent { background: var(--accent); color:
+            var(--accent-foreground); border-radius: 999px; padding: 0.15rem 0.5rem; font-weight: 700;
+            font-size: 0.78rem; } .badge_success { background: var(--success); color: oklch(1 0 0);
+            border-radius: 999px; padding: 0.15rem 0.5rem; } .badge_warning { background: var(--warning);
+            color: oklch(0.21 0.03 264.66); border-radius: 999px; padding: 0.15rem 0.5rem; }
+            .badge_destructive { background: var(--destructive); color: oklch(1 0 0); border-radius: 999px;
+            padding: 0.15rem 0.5rem; } .chart_grid line, .chart_grid path { stroke: var(--chart-grid); }
+            .chart_line { stroke: var(--chart-line); } .chart_accent { stroke: var(--chart-accent); fill:
+            var(--chart-accent); } .gradient_primary { background: var(--gradient-primary); color:
+            var(--primary-foreground); border-radius: var(--radius); } .gradient_accent { background:
+            var(--gradient-accent); color: var(--accent-foreground); border-radius: var(--radius); }
+            .gradient_muted { background: var(--gradient-muted); } .gradient_glow { background:
+            var(--gradient-glow); } .gradient_text { background: var(--gradient-text);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color:
+            transparent; } .gradient_mesh { background: var(--gradient-mesh); } .gradient_border { border: 1px
+            solid transparent; background: linear-gradient(var(--card), var(--card)) padding-box,
+            var(--gradient-primary) border-box; border-radius: var(--radius); } .chart_area { fill:
+            url(#area-grad); } }
+          </div>
+          <div class="meta" style="font-size: 10px; opacity: 0.7">
+            CSS Module: <code>src/style/themes/mathviz_arctic_ice.module.css</code> with wrapper
+            <code>.theme</code> — import as
+            <code>import styles from "#src/style/themes/mathviz_arctic_ice.module.css"</code> then
+            <code>&lt;div className={styles.theme}&gt;</code>. All utilities use <code>_</code> (<code
+              >.bg_background</code
+            >
+            <code>.text_foreground</code> <code>.btn_primary</code> <code>.chart_grid</code>). Colors in
+            <code>oklch()</code>. No <code>html</code>/<code>body</code>/<code>:root</code>. See
+            <code>src/style/themes/README.md</code>.
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: live theme demo -->
+      <div class="theme-preview">
+        <div
+          class="demo-wrap"
+          style="
+            background: oklch(0.155 0.0147 242.71);
+            color: oklch(0.9724 0.0053 197.07);
+            border-color: oklch(0.2885 0.0208 248.55);
+          "
+        >
+          <div
+            class="demo-head"
+            style="border-color: oklch(0.2885 0.0208 248.55); background: oklch(0.2086 0.0208 245.84)"
+          >
+            <h3 style="color: oklch(0.9724 0.0053 197.07)">THEME PREVIEW — MathViz Arctic Ice</h3>
+            <span
+              class="pill"
+              style="
+                background: oklch(0.2301 0.0203 245.67);
+                border-color: oklch(0.2885 0.0208 248.55);
+                color: oklch(0.717 0.0246 213.67);
+              "
+              >futuristic</span
+            >
+            <span
+              class="pill"
+              style="
+                background: oklch(0.7472 0.0924 166.32);
+                color: oklch(0.1307 0.0129 241.44);
+                border-color: oklch(0.7472 0.0924 166.32);
+              "
+              >Primary</span
+            >
+            <span
+              class="pill"
+              style="
+                background: oklch(0.8532 0.0589 177.1);
+                color: oklch(0.1307 0.0129 241.44);
+                border-color: oklch(0.8532 0.0589 177.1);
+              "
+              >Accent</span
+            >
+          </div>
+          <div class="demo-body">
+            <!-- Type -->
+            <div
+              class="type-row"
+              style="
+                background: oklch(0.155 0.0147 242.71);
+                border-color: oklch(0.2885 0.0208 248.55);
+                color: oklch(0.9724 0.0053 197.07);
+              "
+            >
+              <div class="sz">36px — foreground on background</div>
+              <div style="font-size: 36px; line-height: 1.2; font-weight: 800">
+                f(x) = x² — Aa Bb Cc 0123456789
+              </div>
+              <div style="font-size: 12px; color: oklch(0.717 0.0246 213.67)">
+                Muted metadata — The quick brown fox · 0123456789 · futuristic
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+              <div
+                class="type-row"
+                style="
+                  background: oklch(0.2301 0.0203 245.67);
+                  border-color: oklch(0.2885 0.0208 248.55);
+                  color: oklch(0.9724 0.0053 197.07);
+                "
+              >
+                <div class="sz">Card — foreground on card</div>
+                <div style="font-size: 14px">
+                  Card surface holds data tables and charts. Border <code>oklch(0.2885 0.0208 248.55)</code>
+                </div>
+              </div>
+              <div
+                class="type-row"
+                style="
+                  background: oklch(0.2086 0.0208 245.84);
+                  border-color: oklch(0.2885 0.0208 248.55);
+                  color: oklch(0.717 0.0246 213.67);
+                "
+              >
+                <div class="sz">Muted — foregroundMuted on backgroundMuted</div>
+                <div style="font-size: 13px">Secondary info, timestamps, axis labels.</div>
+              </div>
+            </div>
+
+            <!-- UI elements -->
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div style="font-size: 10px; letter-spacing: 0.12em; opacity: 0.6; text-transform: uppercase">
+                UI elements — buttons, inputs, badges, card
+              </div>
+              <div class="ui-row">
+                <button
+                  class="btn"
+                  style="
+                    background: oklch(0.7472 0.0924 166.32);
+                    color: oklch(0.1307 0.0129 241.44);
+                    border-color: oklch(0.7472 0.0924 166.32);
+                  "
+                >
+                  Primary CTA
+                </button>
+                <button
+                  class="btn"
+                  style="
+                    background: oklch(0.2885 0.0208 248.55);
+                    color: oklch(0.9514 0.0096 197);
+                    border-color: oklch(0.2885 0.0208 248.55);
+                  "
+                >
+                  Secondary
+                </button>
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.8532 0.0589 177.1);
+                    color: oklch(0.1307 0.0129 241.44);
+                    border-color: oklch(0.8532 0.0589 177.1);
+                  "
+                  >Accent badge</span
+                >
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.7729 0.1535 163.22);
+                    color: oklch(1 0 0);
+                    border-color: oklch(0.7729 0.1535 163.22);
+                  "
+                  >Success</span
+                >
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.8369 0.1644 84.43);
+                    color: oklch(0.21 0.03 264.66);
+                    border-color: oklch(0.8369 0.1644 84.43);
+                  "
+                  >Warning</span
+                >
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.7106 0.1661 22.22);
+                    color: oklch(1 0 0);
+                    border-color: oklch(0.7106 0.1661 22.22);
+                  "
+                  >Error</span
+                >
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+                <div
+                  style="
+                    border: 1px solid oklch(0.2885 0.0208 248.55);
+                    background: oklch(0.2301 0.0203 245.67);
+                    color: oklch(0.9724 0.0053 197.07);
+                    border-radius: 8px;
+                    padding: 12px;
+                  "
+                >
+                  <div style="font-weight: 700; font-size: 13px">Revenue — $42,391</div>
+                  <div style="font-size: 11px; color: oklch(0.717 0.0246 213.67)">
+                    +12.4% vs last month · futuristic
+                  </div>
+                  <div
+                    style="
+                      height: 4px;
+                      background: oklch(0.7472 0.0924 166.32);
+                      border-radius: 999px;
+                      margin-top: 8px;
+                      box-shadow: 0 0 12px oklch(0.7472 0.0924 166.32 / 0.4);
+                    "
+                  ></div>
+                </div>
+                <div
+                  style="
+                    border: 1px solid oklch(0.2885 0.0208 248.55);
+                    background: oklch(0.2301 0.0203 245.67);
+                    border-radius: 8px;
+                    padding: 12px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                  "
+                >
+                  <input
+                    placeholder="Search…"
+                    value="f(x) = x² — Aa Bb "
+                    style="
+                      width: 100%;
+                      padding: 7px 10px;
+                      border-radius: 6px;
+                      border: 1px solid oklch(0.2885 0.0208 248.55);
+                      background: oklch(0.155 0.0147 242.71);
+                      color: oklch(0.9724 0.0053 197.07);
+                    "
+                  />
+                  <div style="font-size: 10px; color: oklch(0.717 0.0246 213.67)">
+                    Input on oklch(0.155 0.0147 242.71) with border oklch(0.2885 0.0208 248.55)
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Data viz elements -->
+            <div
+              class="chart-grid"
+              style="background: oklch(0.2086 0.0208 245.84); border-color: oklch(0.2885 0.0208 248.55)"
+            >
+              <div style="font-size: 10px; letter-spacing: 0.12em; opacity: 0.6; text-transform: uppercase">
+                Data viz — line · area · bars · gauge · donut (SVG, themed)
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+                <!-- Line chart -->
+                <div
+                  class="chart"
+                  style="border-color: oklch(0.2885 0.0208 248.55); background: oklch(0.2301 0.0203 245.67)"
+                >
+                  <div
+                    style="
+                      font-size: 10px;
+                      letter-spacing: 0.08em;
+                      color: oklch(0.717 0.0246 213.67);
+                      margin-bottom: 6px;
+                    "
+                  >
+                    LINE — smooth neon (sparse ticks)
+                  </div>
+                  <svg viewBox="0 0 320 120" width="100%" height="120" style="display: block">
+                    <rect x="0" y="0" width="320" height="120" fill="oklch(0.2301 0.0203 245.67)" rx="6" />
+                    <!-- grid -->
+                    <g stroke="oklch(0.2885 0.0208 248.55)" stroke-width="0.7" opacity="0.9">
+                      <line x1="32" y1="18" x2="32" y2="98" />
+                      <line x1="32" y1="98" x2="300" y2="98" />
+                      <line x1="32" y1="58" x2="300" y2="58" stroke-dasharray="3 4" opacity="0.5" />
+                      <line x1="32" y1="38" x2="300" y2="38" stroke-dasharray="3 4" opacity="0.5" />
+                      <line x1="120" y1="18" x2="120" y2="98" stroke-dasharray="2 6" opacity="0.35" />
+                      <line x1="210" y1="18" x2="210" y2="98" stroke-dasharray="2 6" opacity="0.35" />
+                    </g>
+                    <!-- glow -->
+                    <path
+                      d="M32 78 C 90 62, 140 88, 180 54 S 250 72, 300 34"
+                      fill="none"
+                      stroke="oklch(0.7472 0.0924 166.32)"
+                      stroke-width="7"
+                      opacity="0.18"
+                    />
+                    <path
+                      d="M32 78 C 90 62, 140 88, 180 54 S 250 72, 300 34"
+                      fill="none"
+                      stroke="oklch(0.7472 0.0924 166.32)"
+                      stroke-width="2.2"
+                    />
+                    <circle
+                      cx="300"
+                      cy="34"
+                      r="5"
+                      fill="oklch(0.8532 0.0589 177.1)"
+                      stroke="oklch(0.2301 0.0203 245.67)"
+                      stroke-width="2"
+                    />
+                    <circle cx="300" cy="34" r="9" fill="oklch(0.8532 0.0589 177.1)" opacity="0.18" />
+                    <text x="32" y="114" font-size="7" fill="oklch(0.717 0.0246 213.67)">Jan</text>
+                    <text x="118" y="114" font-size="7" fill="oklch(0.717 0.0246 213.67)">Jun</text>
+                    <text x="256" y="114" font-size="7" fill="oklch(0.717 0.0246 213.67)">Dec</text>
+                  </svg>
+                </div>
+                <!-- Area -->
+                <div
+                  class="chart"
+                  style="border-color: oklch(0.2885 0.0208 248.55); background: oklch(0.2301 0.0203 245.67)"
+                >
+                  <div
+                    style="
+                      font-size: 10px;
+                      letter-spacing: 0.08em;
+                      color: oklch(0.717 0.0246 213.67);
+                      margin-bottom: 6px;
+                    "
+                  >
+                    AREA — gradient fill (dual tone)
+                  </div>
+                  <svg viewBox="0 0 320 120" width="100%" height="120" style="display: block">
+                    <defs>
+                      <linearGradient id="g-mathviz-arctic-ice" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="oklch(0.7472 0.0924 166.32)" stop-opacity="0.42" />
+                        <stop offset="100%" stop-color="oklch(0.7472 0.0924 166.32)" stop-opacity="0.02" />
+                      </linearGradient>
+                    </defs>
+                    <rect x="0" y="0" width="320" height="120" fill="oklch(0.2301 0.0203 245.67)" rx="6" />
+                    <g stroke="oklch(0.2885 0.0208 248.55)" stroke-width="0.7" opacity="0.9">
+                      <line x1="32" y1="18" x2="32" y2="98" />
+                      <line x1="32" y1="98" x2="300" y2="98" />
+                    </g>
+                    <path
+                      d="M32 78 C 90 62, 140 88, 180 54 S 250 72, 300 34 L 300 98 L 32 98 Z"
+                      fill="url(#g-mathviz-arctic-ice)"
+                      stroke="none"
+                    />
+                    <path
+                      d="M32 78 C 90 62, 140 88, 180 54 S 250 72, 300 34"
+                      fill="none"
+                      stroke="oklch(0.7472 0.0924 166.32)"
+                      stroke-width="2.2"
+                    />
+                    <circle
+                      cx="180"
+                      cy="54"
+                      r="3.5"
+                      fill="oklch(0.2301 0.0203 245.67)"
+                      stroke="oklch(0.7472 0.0924 166.32)"
+                      stroke-width="1.6"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px">
+                <!-- Bars -->
+                <div
+                  class="chart"
+                  style="border-color: oklch(0.2885 0.0208 248.55); background: oklch(0.2301 0.0203 245.67)"
+                >
+                  <div
+                    style="
+                      font-size: 10px;
+                      letter-spacing: 0.08em;
+                      color: oklch(0.717 0.0246 213.67);
+                      margin-bottom: 6px;
+                    "
+                  >
+                    BARS — categorical
+                  </div>
+                  <svg viewBox="0 0 160 120" width="100%" height="120" style="display: block">
+                    <rect x="0" y="0" width="160" height="120" fill="oklch(0.2301 0.0203 245.67)" rx="6" />
+                    <g opacity="0.95">
+                      <rect x="18" y="72" width="18" height="26" rx="3" fill="oklch(0.7472 0.0924 166.32)" />
+                      <rect x="42" y="58" width="18" height="40" rx="3" fill="oklch(0.7472 0.0924 166.32)" />
+                      <rect x="66" y="40" width="18" height="58" rx="3" fill="oklch(0.8532 0.0589 177.1)" />
+                      <rect x="90" y="62" width="18" height="36" rx="3" fill="oklch(0.7472 0.0924 166.32)" />
+                      <rect
+                        x="114"
+                        y="50"
+                        width="18"
+                        height="48"
+                        rx="3"
+                        fill="oklch(0.7472 0.0924 166.32)"
+                        opacity="0.85"
+                      />
+                    </g>
+                    <line
+                      x1="12"
+                      y1="98"
+                      x2="144"
+                      y2="98"
+                      stroke="oklch(0.2885 0.0208 248.55)"
+                      stroke-width="0.8"
+                    />
+                  </svg>
+                </div>
+                <!-- Gauge -->
+                <div
+                  class="chart"
+                  style="
+                    border-color: oklch(0.2885 0.0208 248.55);
+                    background: oklch(0.2301 0.0203 245.67);
+                    display: grid;
+                    place-items: center;
+                  "
+                >
+                  <div
+                    style="
+                      font-size: 10px;
+                      letter-spacing: 0.08em;
+                      color: oklch(0.717 0.0246 213.67);
+                      margin-bottom: 6px;
+                      justify-self: stretch;
+                    "
+                  >
+                    GAUGE — wedge meter
+                  </div>
+                  <svg viewBox="0 0 120 78" width="120" height="78" style="display: block">
+                    <path
+                      d="M12 72 A 48 48 0 0 1 108 72"
+                      fill="none"
+                      stroke="oklch(0.2885 0.0208 248.55)"
+                      stroke-width="10"
+                      stroke-linecap="round"
+                    />
+                    <path
+                      d="M12 72 A 48 48 0 0 1 78 20"
+                      fill="none"
+                      stroke="oklch(0.7472 0.0924 166.32)"
+                      stroke-width="10"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="60" cy="72" r="4" fill="oklch(0.9724 0.0053 197.07)" />
+                    <line
+                      x1="60"
+                      y1="72"
+                      x2="88"
+                      y2="38"
+                      stroke="oklch(0.8532 0.0589 177.1)"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
+                    />
+                    <text
+                      x="60"
+                      y="62"
+                      text-anchor="middle"
+                      font-size="9"
+                      font-weight="700"
+                      fill="oklch(0.9724 0.0053 197.07)"
+                    >
+                      72%
+                    </text>
+                  </svg>
+                </div>
+                <!-- Donut -->
+                <div
+                  class="chart"
+                  style="
+                    border-color: oklch(0.2885 0.0208 248.55);
+                    background: oklch(0.2301 0.0203 245.67);
+                    display: grid;
+                    place-items: center;
+                  "
+                >
+                  <div
+                    style="
+                      font-size: 10px;
+                      letter-spacing: 0.08em;
+                      color: oklch(0.717 0.0246 213.67);
+                      margin-bottom: 6px;
+                      justify-self: stretch;
+                    "
+                  >
+                    DONUT — 3 slices
+                  </div>
+                  <svg viewBox="0 0 100 100" width="100" height="100" style="display: block">
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="30"
+                      fill="none"
+                      stroke="oklch(0.2885 0.0208 248.55)"
+                      stroke-width="12"
+                    />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="30"
+                      fill="none"
+                      stroke="oklch(0.7472 0.0924 166.32)"
+                      stroke-width="12"
+                      stroke-dasharray="58 126"
+                      transform="rotate(-90 50 50)"
+                    />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="30"
+                      fill="none"
+                      stroke="oklch(0.8532 0.0589 177.1)"
+                      stroke-width="12"
+                      stroke-dasharray="36 126"
+                      stroke-dashoffset="-58"
+                      transform="rotate(-90 50 50)"
+                    />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="30"
+                      fill="none"
+                      stroke="oklch(0.7729 0.1535 163.22)"
+                      stroke-width="12"
+                      stroke-dasharray="32 126"
+                      stroke-dashoffset="-94"
+                      transform="rotate(-90 50 50)"
+                    />
+                    <text
+                      x="50"
+                      y="54"
+                      text-anchor="middle"
+                      font-size="9"
+                      font-weight="700"
+                      fill="oklch(0.9724 0.0053 197.07)"
+                    >
+                      3
+                    </text>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- ORDINAL-12-START -->
+            <div
+              style="
+                border: 1px solid rgba(0, 229, 255, 0.35);
+                border-radius: 8px;
+                overflow: hidden;
+                background: #070d12;
+              "
+            >
+              <div
+                style="
+                  padding: 10px 14px;
+                  border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  flex-wrap: wrap;
+                "
+              >
+                <div style="font-size: 11px; letter-spacing: 0.12em; font-weight: 800">
+                  ORDINAL 12 &mdash; MULTI-SERIES LINES + LEGEND
+                </div>
+                <span style="font-size: 10px; opacity: 0.65"
+                  >sommelier-picked for Arctic Ice &mdash; solid/dashed/dotted cycle aids colorblind
+                  separation</span
+                >
+                <a
+                  href="../galleries/math-viz-ordinals.html"
+                  style="font-size: 10px; font-weight: 700; margin-left: auto"
+                  >compare all 6 &rarr;</a
+                >
+              </div>
+              <div style="padding: 14px; display: grid; gap: 14px">
+                <div style="font-size: 10px; opacity: 0.65; line-height: 1.6">
+                  Energy: surgical ice-white precision, monochrome calm, frosted glass, hairline borders —
+                  frosted pastel ordinals, low-chroma icy tints, no competing neon. Copy-paste:
+                  <code style="font-family: ui-monospace, monospace"
+                    >["#70C0A0", "#A6DCCE", "#7DD3FC", "#C4B5FD", "#F9A8D4", "#FCA5A5", "#FCD34D", "#86EFAC",
+                    "#5EEAD4", "#93C5FD", "#F0ABFC", "#F8FAFC"]</code
+                  >
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px">
+                  <div
+                    style="
+                      border: 1px solid rgba(128, 128, 128, 0.35);
+                      border-radius: 6px;
+                      overflow: hidden;
+                      background: #ffffff10;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 40px;
+                        background: #70c0a0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: 800;
+                        color:;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+                      "
+                    >
+                      O01
+                    </div>
+                    <div
+                      style="
+                        padding: 5px 7px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.85;
+                      "
+                    >
+                      #70C0A0
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid rgba(128, 128, 128, 0.35);
+                      border-radius: 6px;
+                      overflow: hidden;
+                      background: #ffffff10;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 40px;
+                        background: #a6dcce;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: 800;
+                        color:;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+                      "
+                    >
+                      O02
+                    </div>
+                    <div
+                      style="
+                        padding: 5px 7px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.85;
+                      "
+                    >
+                      #A6DCCE
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid rgba(128, 128, 128, 0.35);
+                      border-radius: 6px;
+                      overflow: hidden;
+                      background: #ffffff10;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 40px;
+                        background: #7dd3fc;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: 800;
+                        color:;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+                      "
+                    >
+                      O03
+                    </div>
+                    <div
+                      style="
+                        padding: 5px 7px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.85;
+                      "
+                    >
+                      #7DD3FC
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid rgba(128, 128, 128, 0.35);
+                      border-radius: 6px;
+                      overflow: hidden;
+                      background: #ffffff10;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 40px;
+                        background: #c4b5fd;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: 800;
+                        color:;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+                      "
+                    >
+                      O04
+                    </div>
+                    <div
+                      style="
+                        padding: 5px 7px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.85;
+                      "
+                    >
+                      #C4B5FD
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid rgba(128, 128, 128, 0.35);
+                      border-radius: 6px;
+                      overflow: hidden;
+                      background: #ffffff10;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 40px;
+                        background: #f9a8d4;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: 800;
+                        color:;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+                      "
+                    >
+                      O05
+                    </div>
+                    <div
+                      style="
+                        padding: 5px 7px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.85;
+                      "
+                    >
+                      #F9A8D4
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid rgba(128, 128, 128, 0.35);
+                      border-radius: 6px;
+                      overflow: hidden;
+                      background: #ffffff10;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 40px;
+                        background: #fca5a5;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: 800;
+                        color:;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+                      "
+                    >
+                      O06
+                    </div>
+                    <div
+                      style="
+                        padding: 5px 7px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.85;
+                      "
+                    >
+                      #FCA5A5
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid rgba(128, 128, 128, 0.35);
+                      border-radius: 6px;
+                      overflow: hidden;
+                      background: #ffffff10;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 40px;
+                        background: #fcd34d;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: 800;
+                        color:;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+                      "
+                    >
+                      O07
+                    </div>
+                    <div
+                      style="
+                        padding: 5px 7px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.85;
+                      "
+                    >
+                      #FCD34D
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid rgba(128, 128, 128, 0.35);
+                      border-radius: 6px;
+                      overflow: hidden;
+                      background: #ffffff10;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 40px;
+                        background: #86efac;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: 800;
+                        color:;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+                      "
+                    >
+                      O08
+                    </div>
+                    <div
+                      style="
+                        padding: 5px 7px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.85;
+                      "
+                    >
+                      #86EFAC
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid rgba(128, 128, 128, 0.35);
+                      border-radius: 6px;
+                      overflow: hidden;
+                      background: #ffffff10;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 40px;
+                        background: #5eead4;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: 800;
+                        color:;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+                      "
+                    >
+                      O09
+                    </div>
+                    <div
+                      style="
+                        padding: 5px 7px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.85;
+                      "
+                    >
+                      #5EEAD4
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid rgba(128, 128, 128, 0.35);
+                      border-radius: 6px;
+                      overflow: hidden;
+                      background: #ffffff10;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 40px;
+                        background: #93c5fd;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: 800;
+                        color:;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+                      "
+                    >
+                      O10
+                    </div>
+                    <div
+                      style="
+                        padding: 5px 7px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.85;
+                      "
+                    >
+                      #93C5FD
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid rgba(128, 128, 128, 0.35);
+                      border-radius: 6px;
+                      overflow: hidden;
+                      background: #ffffff10;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 40px;
+                        background: #f0abfc;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: 800;
+                        color:;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+                      "
+                    >
+                      O11
+                    </div>
+                    <div
+                      style="
+                        padding: 5px 7px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.85;
+                      "
+                    >
+                      #F0ABFC
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid rgba(128, 128, 128, 0.35);
+                      border-radius: 6px;
+                      overflow: hidden;
+                      background: #ffffff10;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 40px;
+                        background: #f8fafc;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: 800;
+                        color:;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+                      "
+                    >
+                      O12
+                    </div>
+                    <div
+                      style="
+                        padding: 5px 7px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.85;
+                      "
+                    >
+                      #F8FAFC
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    border: 1px solid rgba(128, 128, 128, 0.3);
+                    border-radius: 8px;
+                    padding: 10px;
+                    background: #070d12;
+                  "
+                >
+                  <div style="font-size: 10px; letter-spacing: 0.08em; opacity: 0.6; margin-bottom: 6px">
+                    12 LINES ON THEME CANVAS &mdash; #070D12
+                  </div>
+                  <svg
+                    viewBox="0 0 660 240"
+                    width="100%"
+                    height="220"
+                    style="display: block; background: #070d12; border-radius: 6px"
+                  >
+                    <g stroke="#ffffff22" stroke-width="1">
+                      <line x1="40" y1="28" x2="624" y2="28" />
+                      <line x1="40" y1="43" x2="624" y2="43" />
+                      <line x1="40" y1="58" x2="624" y2="58" />
+                      <line x1="40" y1="73" x2="624" y2="73" />
+                      <line x1="40" y1="88" x2="624" y2="88" />
+                      <line x1="40" y1="103" x2="624" y2="103" />
+                      <line x1="40" y1="118" x2="624" y2="118" />
+                      <line x1="40" y1="133" x2="624" y2="133" />
+                      <line x1="40" y1="148" x2="624" y2="148" />
+                      <line x1="40" y1="163" x2="624" y2="163" />
+                      <line x1="40" y1="178" x2="624" y2="178" />
+                      <line x1="40" y1="193" x2="624" y2="193" />
+                    </g>
+                    <line x1="40" y1="12" x2="40" y2="228" stroke="#ffffff55" stroke-width="1" />
+                    <line x1="40" y1="228" x2="624" y2="228" stroke="#ffffff55" stroke-width="1" />
+                    <path
+                      d="M40 28 C 160 7, 280 49, 400 11 S 560 43, 624 15"
+                      fill="none"
+                      stroke="#70C0A0"
+                      stroke-width="2.4"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="624" cy="15" r="3.6" fill="#70C0A0" />
+                    <path
+                      d="M40 43 C 160 29, 280 57, 400 33 S 560 51, 624 37"
+                      fill="none"
+                      stroke="#A6DCCE"
+                      stroke-width="2.4"
+                      stroke-dasharray="7 4"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="624" cy="37" r="3.6" fill="#A6DCCE" />
+                    <path
+                      d="M40 58 C 160 51, 280 65, 400 55 S 560 59, 624 59"
+                      fill="none"
+                      stroke="#7DD3FC"
+                      stroke-width="2.4"
+                      stroke-dasharray="2 4"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="624" cy="59" r="3.6" fill="#7DD3FC" />
+                    <path
+                      d="M40 73 C 160 52, 280 94, 400 56 S 560 88, 624 60"
+                      fill="none"
+                      stroke="#C4B5FD"
+                      stroke-width="2.4"
+                      stroke-dasharray="10 4 2 4"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="624" cy="60" r="3.6" fill="#C4B5FD" />
+                    <path
+                      d="M40 88 C 160 74, 280 102, 400 78 S 560 96, 624 82"
+                      fill="none"
+                      stroke="#F9A8D4"
+                      stroke-width="2.4"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="624" cy="82" r="3.6" fill="#F9A8D4" />
+                    <path
+                      d="M40 103 C 160 96, 280 110, 400 100 S 560 104, 624 104"
+                      fill="none"
+                      stroke="#FCA5A5"
+                      stroke-width="2.4"
+                      stroke-dasharray="7 4"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="624" cy="104" r="3.6" fill="#FCA5A5" />
+                    <path
+                      d="M40 118 C 160 97, 280 139, 400 101 S 560 133, 624 105"
+                      fill="none"
+                      stroke="#FCD34D"
+                      stroke-width="2.4"
+                      stroke-dasharray="2 4"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="624" cy="105" r="3.6" fill="#FCD34D" />
+                    <path
+                      d="M40 133 C 160 119, 280 147, 400 123 S 560 141, 624 127"
+                      fill="none"
+                      stroke="#86EFAC"
+                      stroke-width="2.4"
+                      stroke-dasharray="10 4 2 4"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="624" cy="127" r="3.6" fill="#86EFAC" />
+                    <path
+                      d="M40 148 C 160 141, 280 155, 400 145 S 560 149, 624 149"
+                      fill="none"
+                      stroke="#5EEAD4"
+                      stroke-width="2.4"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="624" cy="149" r="3.6" fill="#5EEAD4" />
+                    <path
+                      d="M40 163 C 160 142, 280 184, 400 146 S 560 178, 624 150"
+                      fill="none"
+                      stroke="#93C5FD"
+                      stroke-width="2.4"
+                      stroke-dasharray="7 4"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="624" cy="150" r="3.6" fill="#93C5FD" />
+                    <path
+                      d="M40 178 C 160 164, 280 192, 400 168 S 560 186, 624 172"
+                      fill="none"
+                      stroke="#F0ABFC"
+                      stroke-width="2.4"
+                      stroke-dasharray="2 4"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="624" cy="172" r="3.6" fill="#F0ABFC" />
+                    <path
+                      d="M40 193 C 160 186, 280 200, 400 190 S 560 194, 624 194"
+                      fill="none"
+                      stroke="#F8FAFC"
+                      stroke-width="2.4"
+                      stroke-dasharray="10 4 2 4"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="624" cy="194" r="3.6" fill="#F8FAFC" />
+                  </svg>
+                </div>
+                <div>
+                  <div style="font-size: 10px; letter-spacing: 0.08em; opacity: 0.6; margin-bottom: 6px">
+                    LEGEND &mdash; 12 SERIES
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px">
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 11px;
+                        padding: 4px 8px;
+                        border: 1px solid rgba(128, 128, 128, 0.25);
+                        border-radius: 6px;
+                        background: #ffffff10;
+                      "
+                    >
+                      <span style="display: inline-block; width: 26px; border-top: 3px solid #70c0a0"></span
+                      ><b>O01</b
+                      ><span style="font-family: ui-monospace, monospace; opacity: 0.75">#70C0A0</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 11px;
+                        padding: 4px 8px;
+                        border: 1px solid rgba(128, 128, 128, 0.25);
+                        border-radius: 6px;
+                        background: #ffffff10;
+                      "
+                    >
+                      <span style="display: inline-block; width: 26px; border-top: 3px dashed #a6dcce"></span
+                      ><b>O02</b
+                      ><span style="font-family: ui-monospace, monospace; opacity: 0.75">#A6DCCE</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 11px;
+                        padding: 4px 8px;
+                        border: 1px solid rgba(128, 128, 128, 0.25);
+                        border-radius: 6px;
+                        background: #ffffff10;
+                      "
+                    >
+                      <span style="display: inline-block; width: 26px; border-top: 3px dotted #7dd3fc"></span
+                      ><b>O03</b
+                      ><span style="font-family: ui-monospace, monospace; opacity: 0.75">#7DD3FC</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 11px;
+                        padding: 4px 8px;
+                        border: 1px solid rgba(128, 128, 128, 0.25);
+                        border-radius: 6px;
+                        background: #ffffff10;
+                      "
+                    >
+                      <span style="display: inline-block; width: 26px; border-top: 3px dashed #c4b5fd"></span
+                      ><b>O04</b
+                      ><span style="font-family: ui-monospace, monospace; opacity: 0.75">#C4B5FD</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 11px;
+                        padding: 4px 8px;
+                        border: 1px solid rgba(128, 128, 128, 0.25);
+                        border-radius: 6px;
+                        background: #ffffff10;
+                      "
+                    >
+                      <span style="display: inline-block; width: 26px; border-top: 3px solid #f9a8d4"></span
+                      ><b>O05</b
+                      ><span style="font-family: ui-monospace, monospace; opacity: 0.75">#F9A8D4</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 11px;
+                        padding: 4px 8px;
+                        border: 1px solid rgba(128, 128, 128, 0.25);
+                        border-radius: 6px;
+                        background: #ffffff10;
+                      "
+                    >
+                      <span style="display: inline-block; width: 26px; border-top: 3px dashed #fca5a5"></span
+                      ><b>O06</b
+                      ><span style="font-family: ui-monospace, monospace; opacity: 0.75">#FCA5A5</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 11px;
+                        padding: 4px 8px;
+                        border: 1px solid rgba(128, 128, 128, 0.25);
+                        border-radius: 6px;
+                        background: #ffffff10;
+                      "
+                    >
+                      <span style="display: inline-block; width: 26px; border-top: 3px dotted #fcd34d"></span
+                      ><b>O07</b
+                      ><span style="font-family: ui-monospace, monospace; opacity: 0.75">#FCD34D</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 11px;
+                        padding: 4px 8px;
+                        border: 1px solid rgba(128, 128, 128, 0.25);
+                        border-radius: 6px;
+                        background: #ffffff10;
+                      "
+                    >
+                      <span style="display: inline-block; width: 26px; border-top: 3px dashed #86efac"></span
+                      ><b>O08</b
+                      ><span style="font-family: ui-monospace, monospace; opacity: 0.75">#86EFAC</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 11px;
+                        padding: 4px 8px;
+                        border: 1px solid rgba(128, 128, 128, 0.25);
+                        border-radius: 6px;
+                        background: #ffffff10;
+                      "
+                    >
+                      <span style="display: inline-block; width: 26px; border-top: 3px solid #5eead4"></span
+                      ><b>O09</b
+                      ><span style="font-family: ui-monospace, monospace; opacity: 0.75">#5EEAD4</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 11px;
+                        padding: 4px 8px;
+                        border: 1px solid rgba(128, 128, 128, 0.25);
+                        border-radius: 6px;
+                        background: #ffffff10;
+                      "
+                    >
+                      <span style="display: inline-block; width: 26px; border-top: 3px dashed #93c5fd"></span
+                      ><b>O10</b
+                      ><span style="font-family: ui-monospace, monospace; opacity: 0.75">#93C5FD</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 11px;
+                        padding: 4px 8px;
+                        border: 1px solid rgba(128, 128, 128, 0.25);
+                        border-radius: 6px;
+                        background: #ffffff10;
+                      "
+                    >
+                      <span style="display: inline-block; width: 26px; border-top: 3px dotted #f0abfc"></span
+                      ><b>O11</b
+                      ><span style="font-family: ui-monospace, monospace; opacity: 0.75">#F0ABFC</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 11px;
+                        padding: 4px 8px;
+                        border: 1px solid rgba(128, 128, 128, 0.25);
+                        border-radius: 6px;
+                        background: #ffffff10;
+                      "
+                    >
+                      <span style="display: inline-block; width: 26px; border-top: 3px dashed #f8fafc"></span
+                      ><b>O12</b
+                      ><span style="font-family: ui-monospace, monospace; opacity: 0.75">#F8FAFC</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size: 10px; letter-spacing: 0.08em; opacity: 0.6; margin-bottom: 6px">
+                    CATEGORIES &mdash; 12 PILLS
+                  </div>
+                  <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                    <span
+                      style="
+                        font-size: 11px;
+                        font-weight: 700;
+                        padding: 4px 12px;
+                        border-radius: 999px;
+                        background: #70c0a0;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+                      "
+                      >Cat 01</span
+                    ><span
+                      style="
+                        font-size: 11px;
+                        font-weight: 700;
+                        padding: 4px 12px;
+                        border-radius: 999px;
+                        background: #a6dcce;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+                      "
+                      >Cat 02</span
+                    ><span
+                      style="
+                        font-size: 11px;
+                        font-weight: 700;
+                        padding: 4px 12px;
+                        border-radius: 999px;
+                        background: #7dd3fc;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+                      "
+                      >Cat 03</span
+                    ><span
+                      style="
+                        font-size: 11px;
+                        font-weight: 700;
+                        padding: 4px 12px;
+                        border-radius: 999px;
+                        background: #c4b5fd;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+                      "
+                      >Cat 04</span
+                    ><span
+                      style="
+                        font-size: 11px;
+                        font-weight: 700;
+                        padding: 4px 12px;
+                        border-radius: 999px;
+                        background: #f9a8d4;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+                      "
+                      >Cat 05</span
+                    ><span
+                      style="
+                        font-size: 11px;
+                        font-weight: 700;
+                        padding: 4px 12px;
+                        border-radius: 999px;
+                        background: #fca5a5;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+                      "
+                      >Cat 06</span
+                    ><span
+                      style="
+                        font-size: 11px;
+                        font-weight: 700;
+                        padding: 4px 12px;
+                        border-radius: 999px;
+                        background: #fcd34d;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+                      "
+                      >Cat 07</span
+                    ><span
+                      style="
+                        font-size: 11px;
+                        font-weight: 700;
+                        padding: 4px 12px;
+                        border-radius: 999px;
+                        background: #86efac;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+                      "
+                      >Cat 08</span
+                    ><span
+                      style="
+                        font-size: 11px;
+                        font-weight: 700;
+                        padding: 4px 12px;
+                        border-radius: 999px;
+                        background: #5eead4;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+                      "
+                      >Cat 09</span
+                    ><span
+                      style="
+                        font-size: 11px;
+                        font-weight: 700;
+                        padding: 4px 12px;
+                        border-radius: 999px;
+                        background: #93c5fd;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+                      "
+                      >Cat 10</span
+                    ><span
+                      style="
+                        font-size: 11px;
+                        font-weight: 700;
+                        padding: 4px 12px;
+                        border-radius: 999px;
+                        background: #f0abfc;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+                      "
+                      >Cat 11</span
+                    ><span
+                      style="
+                        font-size: 11px;
+                        font-weight: 700;
+                        padding: 4px 12px;
+                        border-radius: 999px;
+                        background: #f8fafc;
+                        color: #fff;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+                      "
+                      >Cat 12</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- ORDINAL-12-END -->
+            <!-- Gradient Atelier — 10 effects: Vesper high-contrast vibrant + beautiful gradients -->
+            <div
+              style="
+                border: 1px solid oklch(0.2885 0.0208 248.55);
+                border-radius: 8px;
+                overflow: hidden;
+                background: oklch(0.2301 0.0203 245.67);
+              "
+            >
+              <div
+                style="
+                  padding: 10px 14px;
+                  border-bottom: 1px solid oklch(0.2885 0.0208 248.55);
+                  background: linear-gradient(
+                    90deg,
+                    oklch(0.7472 0.0924 166.32 / 0.078),
+                    oklch(0.8532 0.0589 177.1 / 0.078)
+                  );
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  flex-wrap: wrap;
+                "
+              >
+                <div
+                  style="
+                    font-size: 11px;
+                    letter-spacing: 0.12em;
+                    font-weight: 800;
+                    color: oklch(0.7472 0.0924 166.32);
+                  "
+                >
+                  GRADIENT ATELIER — 10 EFFECTS
+                </div>
+                <span style="font-size: 10px; opacity: 0.6"
+                  >Vesper: high-contrast vibrant per-screen color + beautiful gradients — duotone, aurora,
+                  glow, text, border, mesh</span
+                >
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.7472 0.0924 166.32);
+                    color: oklch(0.1307 0.0129 241.44);
+                    border-color: oklch(0.7472 0.0924 166.32);
+                    font-size: 10px;
+                  "
+                  >linear</span
+                >
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.8532 0.0589 177.1);
+                    color: oklch(0.1307 0.0129 241.44);
+                    border-color: oklch(0.8532 0.0589 177.1);
+                    font-size: 10px;
+                  "
+                  >radial</span
+                >
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.2086 0.0208 245.84);
+                    border-color: oklch(0.2885 0.0208 248.55);
+                    color: oklch(0.717 0.0246 213.67);
+                    font-size: 10px;
+                  "
+                  >conic</span
+                >
+              </div>
+              <div style="padding: 14px; display: grid; gap: 14px">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+                  <div
+                    style="
+                      border: 1px solid oklch(0.2885 0.0208 248.55);
+                      border-radius: 8px;
+                      overflow: hidden;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 88px;
+                        background: linear-gradient(
+                          90deg,
+                          oklch(0.7472 0.0924 166.32) 0%,
+                          oklch(0.8532 0.0589 177.1) 100%
+                        );
+                        display: grid;
+                        place-items: center;
+                      "
+                    >
+                      <span
+                        style="
+                          font-weight: 800;
+                          font-size: 12px;
+                          letter-spacing: 0.08em;
+                          color: oklch(0.1307 0.0129 241.44);
+                          text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+                        "
+                        >LINEAR 90deg — primary->accent</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        padding: 8px 10px;
+                        font-size: 10px;
+                        background: oklch(0.2086 0.0208 245.84);
+                        border-top: 1px solid oklch(0.2885 0.0208 248.55);
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.7;
+                      "
+                    >
+                      background: linear-gradient(90deg, var(--primary), var(--accent))
+                    </div>
+                    <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                      Hero banners, CTA. Vesper red->purple on black.
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid oklch(0.2885 0.0208 248.55);
+                      border-radius: 8px;
+                      overflow: hidden;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 88px;
+                        background: linear-gradient(
+                          135deg,
+                          oklch(0.7472 0.0924 166.32) 0%,
+                          oklch(0.8532 0.0589 177.1) 50%,
+                          oklch(0.8369 0.1644 84.43) 100%
+                        );
+                        display: grid;
+                        place-items: center;
+                      "
+                    >
+                      <span
+                        style="
+                          font-weight: 800;
+                          font-size: 11px;
+                          color: #fff;
+                          text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+                        "
+                        >3-STOP VIBRANT — primary->accent->warning</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        padding: 8px 10px;
+                        font-size: 10px;
+                        background: oklch(0.2086 0.0208 245.84);
+                        border-top: 1px solid oklch(0.2885 0.0208 248.55);
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.7;
+                      "
+                    >
+                      135deg, 3 stops — high contrast
+                    </div>
+                    <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                      Charts, multi-series. Vesper per-screen pop.
+                    </div>
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+                  <div
+                    style="
+                      border: 1px solid oklch(0.2885 0.0208 248.55);
+                      border-radius: 8px;
+                      overflow: hidden;
+                      background: oklch(0.155 0.0147 242.71);
+                    "
+                  >
+                    <div
+                      style="
+                        height: 88px;
+                        background:
+                          radial-gradient(
+                            600px 300px at 50% 0%,
+                            oklch(0.7472 0.0924 166.32 / 0.2) 0%,
+                            transparent 60%
+                          ),
+                          linear-gradient(
+                            180deg,
+                            oklch(0.155 0.0147 242.71) 0%,
+                            oklch(0.2086 0.0208 245.84) 100%
+                          );
+                        display: grid;
+                        place-items: center;
+                        border-bottom: 1px solid oklch(0.2885 0.0208 248.55);
+                      "
+                    >
+                      <span
+                        class="pill"
+                        style="
+                          background: oklch(0.7472 0.0924 166.32);
+                          color: oklch(0.1307 0.0129 241.44);
+                          border-color: oklch(0.7472 0.0924 166.32);
+                          backdrop-filter: blur(4px);
+                        "
+                        >RADIAL GLOW — primary at top</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        padding: 8px 10px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.7;
+                        background: oklch(0.2086 0.0208 245.84);
+                      "
+                    >
+                      radial-gradient(600px 300px at 50% 0%, var(--primary) 33%, transparent)
+                    </div>
+                    <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                      Atmosphere, vignette. Drive Gun light spill.
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid oklch(0.2885 0.0208 248.55);
+                      border-radius: 8px;
+                      overflow: hidden;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 88px;
+                        background: conic-gradient(
+                          from 0deg at 50% 50%,
+                          oklch(0.7472 0.0924 166.32) 0deg,
+                          oklch(0.8532 0.0589 177.1) 120deg,
+                          oklch(0.8369 0.1644 84.43) 240deg,
+                          oklch(0.7472 0.0924 166.32) 360deg
+                        );
+                        display: grid;
+                        place-items: center;
+                      "
+                    >
+                      <span
+                        style="
+                          background: oklch(0.2301 0.0203 245.67);
+                          color: oklch(0.9724 0.0053 197.07);
+                          padding: 6px 10px;
+                          border-radius: 999px;
+                          font-size: 11px;
+                          font-weight: 700;
+                          border: 1px solid oklch(0.2885 0.0208 248.55);
+                        "
+                        >CONIC SWEEP 360deg</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        padding: 8px 10px;
+                        font-size: 10px;
+                        background: oklch(0.2086 0.0208 245.84);
+                        border-top: 1px solid oklch(0.2885 0.0208 248.55);
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.7;
+                      "
+                    >
+                      conic-gradient(from 0deg, primary, accent, warning)
+                    </div>
+                    <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                      Loaders, hue wheel, playful accent.
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="border: 1px solid oklch(0.2885 0.0208 248.55); border-radius: 8px; overflow: hidden"
+                >
+                  <div
+                    style="
+                      height: 96px;
+                      background:
+                        radial-gradient(
+                          800px 400px at 20% 0%,
+                          oklch(0.7472 0.0924 166.32 / 0.149) 0%,
+                          transparent 55%
+                        ),
+                        radial-gradient(
+                          600px 300px at 90% 30%,
+                          oklch(0.8532 0.0589 177.1 / 0.133) 0%,
+                          transparent 60%
+                        ),
+                        linear-gradient(
+                          180deg,
+                          oklch(0.155 0.0147 242.71) 0%,
+                          oklch(0.2086 0.0208 245.84) 100%
+                        );
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      gap: 10px;
+                      padding: 12px;
+                    "
+                  >
+                    <span
+                      style="
+                        font-size: 12px;
+                        font-weight: 800;
+                        letter-spacing: 0.08em;
+                        color: oklch(0.9724 0.0053 197.07);
+                      "
+                      >AURORA MESH — dual radial + base</span
+                    >
+                    <span style="font-size: 10px; opacity: 0.6; color: oklch(0.717 0.0246 213.67)"
+                      >silhouette-friendly, depth</span
+                    >
+                  </div>
+                  <div
+                    style="
+                      padding: 8px 10px;
+                      font-size: 10px;
+                      font-family: ui-monospace, monospace;
+                      opacity: 0.7;
+                      background: oklch(0.2086 0.0208 245.84);
+                    "
+                  >
+                    mesh: radial @20% + radial @90% + linear 180deg
+                  </div>
+                  <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                    Page backgrounds, empty states. Vesper void + neon fog.
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px">
+                  <div
+                    style="
+                      border: 1px solid oklch(0.2885 0.0208 248.55);
+                      border-radius: 8px;
+                      padding: 12px;
+                      background: oklch(0.2301 0.0203 245.67);
+                      display: grid;
+                      place-items: center;
+                      gap: 8px;
+                    "
+                  >
+                    <div style="font-size: 10px; letter-spacing: 0.08em; opacity: 0.6">GRADIENT TEXT</div>
+                    <div
+                      style="
+                        font-size: 20px;
+                        font-weight: 900;
+                        letter-spacing: -0.02em;
+                        background: linear-gradient(
+                          90deg,
+                          oklch(0.7472 0.0924 166.32) 0%,
+                          oklch(0.8532 0.0589 177.1) 100%
+                        );
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                      "
+                    >
+                      Vesper Light
+                    </div>
+                    <div style="font-size: 10px; font-family: ui-monospace, monospace; opacity: 0.6">
+                      background-clip: text
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid transparent;
+                      background:
+                        linear-gradient(oklch(0.2301 0.0203 245.67), oklch(0.2301 0.0203 245.67)) padding-box,
+                        linear-gradient(135deg, oklch(0.7472 0.0924 166.32), oklch(0.8532 0.0589 177.1))
+                          border-box;
+                      border-radius: 8px;
+                      padding: 12px;
+                      display: grid;
+                      place-items: center;
+                      gap: 8px;
+                    "
+                  >
+                    <div style="font-size: 10px; letter-spacing: 0.08em; opacity: 0.6">GRADIENT BORDER</div>
+                    <div style="font-size: 12px; font-weight: 700; color: oklch(0.9724 0.0053 197.07)">
+                      Card with border-image
+                    </div>
+                    <div style="font-size: 10px; font-family: ui-monospace, monospace; opacity: 0.6">
+                      padding-box + border-box
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid oklch(0.2885 0.0208 248.55);
+                      border-radius: 8px;
+                      overflow: hidden;
+                      position: relative;
+                      background: oklch(0.155 0.0147 242.71);
+                    "
+                  >
+                    <div
+                      style="
+                        position: absolute;
+                        inset: 0;
+                        background: linear-gradient(
+                          180deg,
+                          transparent 0%,
+                          oklch(0.7472 0.0924 166.32 / 0.059) 100%
+                        );
+                      "
+                    ></div>
+                    <div
+                      style="
+                        position: absolute;
+                        inset: 0;
+                        background: linear-gradient(
+                          90deg,
+                          oklch(0.8532 0.0589 177.1 / 0.071) 0%,
+                          transparent 50%
+                        );
+                      "
+                    ></div>
+                    <div style="padding: 14px; position: relative">
+                      <div style="font-size: 10px; letter-spacing: 0.08em; opacity: 0.6">GLASS OVERLAY</div>
+                      <div style="font-size: 12px; font-weight: 700; color: oklch(0.9724 0.0053 197.07)">
+                        Subtle gradient lift
+                      </div>
+                      <div style="font-size: 10px; opacity: 0.6">for cards over mesh</div>
+                    </div>
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+                  <div
+                    style="
+                      border: 1px solid oklch(0.2885 0.0208 248.55);
+                      border-radius: 8px;
+                      padding: 10px;
+                      background: oklch(0.2301 0.0203 245.67);
+                    "
+                  >
+                    <div style="font-size: 10px; letter-spacing: 0.08em; opacity: 0.6; margin-bottom: 6px">
+                      CHART — area with gradient fill + line
+                    </div>
+                    <svg viewBox="0 0 320 90" width="100%" height="90" style="display: block">
+                      <defs>
+                        <linearGradient id="area-grad-mathviz-arctic-ice" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="oklch(0.7472 0.0924 166.32)" stop-opacity="0.42" />
+                          <stop offset="100%" stop-color="oklch(0.7472 0.0924 166.32)" stop-opacity="0.02" />
+                        </linearGradient>
+                        <linearGradient id="bar-grad-mathviz-arctic-ice" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="oklch(0.7472 0.0924 166.32)" />
+                          <stop offset="100%" stop-color="oklch(0.8532 0.0589 177.1)" />
+                        </linearGradient>
+                      </defs>
+                      <rect x="0" y="0" width="320" height="90" fill="oklch(0.2301 0.0203 245.67)" rx="6" />
+                      <path
+                        d="M20 60 C 70 44, 120 68, 160 38 S 230 52, 300 18 L 300 72 L 20 72 Z"
+                        fill="url(#area-grad-mathviz-arctic-ice)"
+                      />
+                      <path
+                        d="M20 60 C 70 44, 120 68, 160 38 S 230 52, 300 18"
+                        fill="none"
+                        stroke="oklch(0.7472 0.0924 166.32)"
+                        stroke-width="2"
+                      />
+                      <circle
+                        cx="300"
+                        cy="18"
+                        r="4"
+                        fill="oklch(0.8532 0.0589 177.1)"
+                        stroke="oklch(0.2301 0.0203 245.67)"
+                        stroke-width="1.5"
+                      />
+                    </svg>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.6;
+                        margin-top: 4px;
+                      "
+                    >
+                      area: primary 42%->2% + line primary + dot accent
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid oklch(0.2885 0.0208 248.55);
+                      border-radius: 8px;
+                      padding: 10px;
+                      background: oklch(0.2301 0.0203 245.67);
+                    "
+                  >
+                    <div style="font-size: 10px; letter-spacing: 0.08em; opacity: 0.6; margin-bottom: 6px">
+                      BARS — vertical gradient fill (primary->accent)
+                    </div>
+                    <svg viewBox="0 0 200 90" width="100%" height="90" style="display: block">
+                      <defs>
+                        <linearGradient id="bar2-mathviz-arctic-ice" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="oklch(0.7472 0.0924 166.32)" />
+                          <stop offset="100%" stop-color="oklch(0.8532 0.0589 177.1)" />
+                        </linearGradient>
+                      </defs>
+                      <rect x="0" y="0" width="200" height="90" fill="oklch(0.2301 0.0203 245.67)" rx="6" />
+                      <rect
+                        x="14"
+                        y="42"
+                        width="22"
+                        height="28"
+                        rx="3"
+                        fill="url(#bar2-mathviz-arctic-ice)"
+                      />
+                      <rect
+                        x="42"
+                        y="32"
+                        width="22"
+                        height="38"
+                        rx="3"
+                        fill="url(#bar2-mathviz-arctic-ice)"
+                      />
+                      <rect
+                        x="70"
+                        y="18"
+                        width="22"
+                        height="52"
+                        rx="3"
+                        fill="url(#bar2-mathviz-arctic-ice)"
+                      />
+                      <rect x="98" y="28" width="22" height="42" rx="3" fill="oklch(0.8532 0.0589 177.1)" />
+                      <rect
+                        x="126"
+                        y="36"
+                        width="22"
+                        height="34"
+                        rx="3"
+                        fill="url(#bar2-mathviz-arctic-ice)"
+                        opacity="0.85"
+                      />
+                    </svg>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.6;
+                        margin-top: 4px;
+                      "
+                    >
+                      bar: linear-gradient(primary, accent)
+                    </div>
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+                  <div
+                    style="
+                      border: 1px solid oklch(0.2885 0.0208 248.55);
+                      border-radius: 8px;
+                      overflow: hidden;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 56px;
+                        background: linear-gradient(
+                          90deg,
+                          oklch(0.155 0.0147 242.71) 0%,
+                          oklch(0.2086 0.0208 245.84) 100%
+                        );
+                        border-bottom: 1px solid oklch(0.2885 0.0208 248.55);
+                        display: grid;
+                        place-items: center;
+                      "
+                    >
+                      <span style="font-size: 11px; font-weight: 600; color: oklch(0.717 0.0246 213.67)"
+                        >SUBTLE — background->muted (180/90deg)</span
+                      >
+                    </div>
+                    <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                      Page shells, muted cards — Vesper darkness depth
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid oklch(0.2885 0.0208 248.55);
+                      border-radius: 8px;
+                      overflow: hidden;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 56px;
+                        background: linear-gradient(
+                          135deg,
+                          oklch(0.7729 0.1535 163.22) 0%,
+                          oklch(0.7472 0.0924 166.32) 50%,
+                          oklch(0.8532 0.0589 177.1) 100%
+                        );
+                        display: grid;
+                        place-items: center;
+                      "
+                    >
+                      <span
+                        style="
+                          font-size: 11px;
+                          font-weight: 700;
+                          color: #fff;
+                          text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+                        "
+                        >ELECTRIC — 3-stop data pop</span
+                      >
+                    </div>
+                    <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                      Success->primary->accent for hero metrics
+                    </div>
+                  </div>
+                </div>
+                <div style="font-size: 10px; opacity: 0.5; font-family: ui-monospace, monospace">
+                  Vars: --gradient-primary: linear-gradient(135deg, var(--primary), var(--accent));
+                  --gradient-accent: linear-gradient(90deg, var(--accent), var(--primary)); --gradient-muted:
+                  linear-gradient(180deg, var(--background), var(--background-muted)); --gradient-glow:
+                  radial(...); --gradient-text + --gradient-mesh (aurora dual radial). Utilities:
+                  .gradient_primary .gradient_text .gradient_border .gradient_mesh .gradient_muted — all
+                  inside .theme. Colors oklch. Ask to tune: lean more purple, softer aurora, high-contrast
+                  electric.
+                </div>
+              </div>
+            </div>
+
+            <!-- Theme vars again + export hint -->
+            <div style="font-size: 10px; opacity: 0.6">
+              Theme is scoped — see left panel for full <code>.theme</code> module (oklch). Export with
+              theme-export tool to <code>workspace/themes/mathviz_arctic_ice.module.css</code> +
+              <code>src/style/themes/</code>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Lab for one theme — refine via dialogue (“make accent softer”, “darken border”, “add chart-grid token”).
+      After tuning, run theme-export to emit CSS variables + utility classes for the viz project. Source image
+      at <code>media/galleries/math-viz-v3/01-arctic-ice.png</code>.
+    </div>
+  </body>
+</html>

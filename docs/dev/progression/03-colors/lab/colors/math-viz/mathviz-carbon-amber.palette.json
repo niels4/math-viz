@@ -1,0 +1,28 @@
+{
+  "appTypes": ["dashboard", "app-shell"],
+  "colors": {
+    "accent": "#4ADE80",
+    "accentForeground": "#04120A",
+    "background": "#0C0A08",
+    "backgroundMuted": "#14110B",
+    "border": "#2E2718",
+    "card": "#1A160E",
+    "destructive": "#F87171",
+    "foreground": "#F7EEDC",
+    "foregroundMuted": "#A89C83",
+    "primary": "#E0B844",
+    "primaryForeground": "#1A1200",
+    "secondary": "#2A2415",
+    "secondaryForeground": "#F5EBD5",
+    "success": "#2FD671",
+    "warning": "#F59E0B"
+  },
+  "id": "mathviz-carbon-amber",
+  "modes": ["dark"],
+  "name": "MathViz Carbon Amber",
+  "notes": "Pair Carbon Amber shell with mono terminal type; amber function lines over green grid on carbon canvas. Gradient strategy: amber 135deg primary->#F59E0B glow with green mesh accent for grid energy.",
+  "scores": { "designerFriendly": 8, "professional": 8 },
+  "slug": "mathviz-carbon-amber",
+  "tags": ["math-viz", "terminal", "phosphor"],
+  "vibe": "futuristic"
+}

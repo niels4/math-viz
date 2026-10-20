@@ -1,0 +1,28 @@
+{
+  "appTypes": ["dashboard", "app-shell"],
+  "colors": {
+    "accent": "#E845C3",
+    "accentForeground": "#1E0716",
+    "background": "#04062C",
+    "backgroundMuted": "#0A0E1A",
+    "border": "#2A3160",
+    "card": "#181D42",
+    "destructive": "#FB7185",
+    "foreground": "#EEF1FF",
+    "foregroundMuted": "#9AA1C7",
+    "primary": "#8B5CF6",
+    "primaryForeground": "#100A2E",
+    "secondary": "#241B5B",
+    "secondaryForeground": "#E6E9FF",
+    "success": "#34D399",
+    "warning": "#FBBF24"
+  },
+  "id": "mathviz-midnight-violet",
+  "modes": ["dark"],
+  "name": "MathViz Midnight Violet",
+  "notes": "Pair Midnight Violet shell with ice labels on near-black canvas; keep parabola violet for primary actions, magenta tangent sparingly for highlights. Gradient strategy: 135deg violet #8B5CF6 -> magenta #E845C3 aurora over midnight navy, radial glow behind curve apex.",
+  "scores": { "designerFriendly": 8, "professional": 8 },
+  "slug": "mathviz-midnight-violet",
+  "tags": ["math-viz", "observatory", "neon-curves"],
+  "vibe": "futuristic"
+}

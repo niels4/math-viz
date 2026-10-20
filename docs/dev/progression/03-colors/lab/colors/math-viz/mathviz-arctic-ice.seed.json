@@ -1,0 +1,115 @@
+{
+  "slug": "mathviz-arctic-ice",
+  "mode": "dark",
+  "desc": "arctic ice monochrome + mint signal",
+  "still": "media/galleries/math-viz-v3/01-arctic-ice.png",
+  "size": [1536, 1024],
+  "measured": {
+    "corners_bg": {
+      "hex": "#04080C",
+      "oklch": "oklch(0.1307 0.0129 241.44)"
+    },
+    "sidebar_mid": {
+      "hex": "#101921",
+      "oklch": "oklch(0.2086 0.0208 245.84)"
+    },
+    "canvas_mid": {
+      "hex": "#070D12",
+      "oklch": "oklch(0.1550 0.0147 242.71)"
+    },
+    "dominant": [
+      {
+        "share": 0.1305,
+        "hex": "#070C11",
+        "oklch": "oklch(0.1512 0.0138 247.19)"
+      },
+      {
+        "share": 0.0034,
+        "hex": "#151E26",
+        "oklch": "oklch(0.2301 0.0203 245.67)"
+      },
+      {
+        "share": 0.001,
+        "hex": "#232C35",
+        "oklch": "oklch(0.2885 0.0208 248.55)"
+      },
+      {
+        "share": 0.0005,
+        "hex": "#333D47",
+        "oklch": "oklch(0.3550 0.0219 248.45)"
+      },
+      {
+        "share": 0.0003,
+        "hex": "#73BFA6",
+        "oklch": "oklch(0.7479 0.0846 170.89)"
+      },
+      {
+        "share": 0.0003,
+        "hex": "#517C72",
+        "oklch": "oklch(0.5517 0.0503 178.09)"
+      },
+      {
+        "share": 0.0003,
+        "hex": "#416A62",
+        "oklch": "oklch(0.4915 0.0480 180.47)"
+      },
+      {
+        "share": 0.0002,
+        "hex": "#A6DCCE",
+        "oklch": "oklch(0.8532 0.0589 177.10)"
+      },
+      {
+        "share": 0.0002,
+        "hex": "#629C8D",
+        "oklch": "oklch(0.6483 0.0652 175.94)"
+      }
+    ],
+    "vivid": [
+      {
+        "share": 0.0023,
+        "hex": "#70C0A0",
+        "oklch": "oklch(0.7472 0.0924 166.32)"
+      },
+      {
+        "share": 0.0007,
+        "hex": "#70B0A0",
+        "oklch": "oklch(0.7092 0.0702 176.59)"
+      },
+      {
+        "share": 0.0004,
+        "hex": "#70C0B0",
+        "oklch": "oklch(0.7518 0.0827 179.62)"
+      },
+      {
+        "share": 0.0004,
+        "hex": "#70D0B0",
+        "oklch": "oklch(0.7896 0.1032 169.78)"
+      },
+      {
+        "share": 0.0004,
+        "hex": "#80D0B0",
+        "oklch": "oklch(0.7969 0.0918 166.69)"
+      },
+      {
+        "share": 0.0001,
+        "hex": "#90E0C0",
+        "oklch": "oklch(0.8461 0.0912 167.01)"
+      },
+      {
+        "share": 0.0001,
+        "hex": "#80E0C0",
+        "oklch": "oklch(0.8384 0.1029 170.18)"
+      },
+      {
+        "share": 0.0001,
+        "hex": "#80C0B0",
+        "oklch": "oklch(0.7599 0.0697 176.88)"
+      }
+    ]
+  },
+  "python_tools": {
+    "oklch": "agents/viz3d-factory/template/tools/color-compare/src/oklch.py",
+    "sampler_pattern": "agents/viz3d-factory/template/tools/color-compare/src/compare.py",
+    "note": "measured with PIL sampling + oklch.py, same pass as v2 seeds"
+  }
+}

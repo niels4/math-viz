@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "count": 12,
+    "note": "Sommelier-picked ordinal sets: 12 distinct line/category colors per math-viz theme, tuned to each theme's tone and energy. ordinal[0]=theme primary, ordinal[1]=theme accent where possible. Light themes use deeper saturated hues for contrast on paper; dark themes use bright luminous hues for glow on void. Order maximizes neighbor distinctness.",
+    "purpose": "multi-series lines + legend + categories"
+  },
+  "themes": {
+    "mathviz-arctic-ice": {
+      "bg": "#070D12",
+      "energy": "surgical ice-white precision, monochrome calm, frosted glass, hairline borders — frosted pastel ordinals, low-chroma icy tints, no competing neon",
+      "mode": "dark",
+      "ordinals": [
+        "#70C0A0",
+        "#A6DCCE",
+        "#7DD3FC",
+        "#C4B5FD",
+        "#F9A8D4",
+        "#FCA5A5",
+        "#FCD34D",
+        "#86EFAC",
+        "#5EEAD4",
+        "#93C5FD",
+        "#F0ABFC",
+        "#F8FAFC"
+      ]
+    },
+    "mathviz-clean-teal": {
+      "bg": "#FEFCFA",
+      "energy": "clean light geometry, clinical paper-and-teal, 03-lineage chips and toggles — teal-led balanced clinical hues, deeper saturation for contrast on white",
+      "mode": "light",
+      "ordinals": [
+        "#0E7C6B",
+        "#DA8A0B",
+        "#4F46E5",
+        "#DC2626",
+        "#0284C7",
+        "#9333EA",
+        "#15803D",
+        "#DB2777",
+        "#1D4ED8",
+        "#65A30D",
+        "#EA580C",
+        "#A21CAF"
+      ]
+    },
+    "mathviz-educational-warm": {
+      "bg": "#FFFDF9",
+      "energy": "friendly warm-paper education, approachable indigo parabola + coral tangent — warm-friendly distinct hues, readable on cream paper",
+      "mode": "light",
+      "ordinals": [
+        "#4F46E5",
+        "#F97316",
+        "#0D9488",
+        "#DC2626",
+        "#A16207",
+        "#7C3AED",
+        "#15803D",
+        "#2563EB",
+        "#DB2777",
+        "#4D7C0F",
+        "#0E7490",
+        "#A21CAF"
+      ]
+    },
+    "mathviz-midnight-violet": {
+      "bg": "#04062C",
+      "energy": "observatory cosmic depth, neon violet curves on midnight navy, magenta highlights — cosmic brights anchored violet/magenta, ice labels",
+      "mode": "dark",
+      "ordinals": [
+        "#8B5CF6",
+        "#E845C3",
+        "#00E5FF",
+        "#FFB020",
+        "#34D399",
+        "#FF6B6B",
+        "#60A5FA",
+        "#A3E635",
+        "#FF8A2A",
+        "#2DD4BF",
+        "#F1F5F9",
+        "#FFE135"
+      ]
+    },
+    "mathviz-sage-editorial": {
+      "bg": "#F9F9F6",
+      "energy": "calm print editorial, serif display, paper whites with sage mids — muted ink-like earthy ordinals plus one slate neutral for other/total",
+      "mode": "light",
+      "ordinals": [
+        "#2F5D3A",
+        "#B9541F",
+        "#1E40AF",
+        "#A16207",
+        "#0F766E",
+        "#6D28D9",
+        "#4D7C0F",
+        "#BE123C",
+        "#155E75",
+        "#86198F",
+        "#92400E",
+        "#475569"
+      ]
+    },
+    "mathviz-tron-cyan": {
+      "bg": "#020A0F",
+      "energy": "tron arcade void, neon cyan bloom with amber tangent glow, direct 05 lineage — high-saturation luminous neons that glow on black void",
+      "mode": "dark",
+      "ordinals": [
+        "#00E5FF",
+        "#FF8A2A",
+        "#FF3EA5",
+        "#A3E635",
+        "#8B5CF6",
+        "#34D399",
+        "#FFD23D",
+        "#5B8CFF",
+        "#FF6B6B",
+        "#2DD4BF",
+        "#E879F9",
+        "#F1F5F9"
+      ]
+    }
+  }
+}

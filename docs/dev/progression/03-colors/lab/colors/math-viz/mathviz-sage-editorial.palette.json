@@ -1,0 +1,28 @@
+{
+  "appTypes": ["dashboard", "app-shell"],
+  "colors": {
+    "accent": "#B9541F",
+    "accentForeground": "#FEFDFB",
+    "background": "#F9F9F6",
+    "backgroundMuted": "#EEEFEB",
+    "border": "#D3D4D1",
+    "card": "#FEFDFB",
+    "destructive": "#B3261E",
+    "foreground": "#1C211C",
+    "foregroundMuted": "#5D665D",
+    "primary": "#2F5D3A",
+    "primaryForeground": "#F9F9F6",
+    "secondary": "#DDE4D8",
+    "secondaryForeground": "#1C211C",
+    "success": "#2F7D44",
+    "warning": "#9A6206"
+  },
+  "id": "mathviz-sage-editorial",
+  "modes": ["light"],
+  "name": "MathViz Sage Editorial",
+  "notes": "Pair Sage Editorial paper shell with deep-green parabola primary for axes/curves and burnt-orange tangent accent for callouts. Gradient strategy: soft sage mesh (paper -> pale sage) with deep-green to burnt-orange duotone for serif display function headers.",
+  "scores": { "designerFriendly": 9, "professional": 9 },
+  "slug": "mathviz-sage-editorial",
+  "tags": ["math-viz", "editorial", "print"],
+  "vibe": "editorial"
+}

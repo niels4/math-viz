@@ -1,0 +1,64 @@
+{
+  "slug": "mathviz-sage-editorial",
+  "mode": "light",
+  "desc": "sag editorial print",
+  "still": "media/galleries/math-viz-v2/03-light-sage-editorial.png",
+  "size": [1536, 1024],
+  "measured": {
+    "corners_bg": {
+      "hex": "#F9F9F6",
+      "oklch": "oklch(0.9813 0.0040 106.47)"
+    },
+    "sidebar_mid": {
+      "hex": "#F7F7F3",
+      "oklch": "oklch(0.9750 0.0053 106.50)"
+    },
+    "canvas_mid": {
+      "hex": "#FEFDFB",
+      "oklch": "oklch(0.9943 0.0028 84.56)"
+    },
+    "dominant": [
+      {
+        "share": 0.3088,
+        "hex": "#FEFDFC",
+        "oklch": "oklch(0.9945 0.0017 67.80)"
+      },
+      {
+        "share": 0.0034,
+        "hex": "#EEEFEB",
+        "oklch": "oklch(0.9502 0.0054 117.93)"
+      },
+      {
+        "share": 0.0008,
+        "hex": "#D3D4D1",
+        "oklch": "oklch(0.8683 0.0042 121.57)"
+      },
+      {
+        "share": 0.0003,
+        "hex": "#8F9C85",
+        "oklch": "oklch(0.6758 0.0362 131.52)"
+      },
+      {
+        "share": 0.0003,
+        "hex": "#76876C",
+        "oklch": "oklch(0.6019 0.0446 133.97)"
+      },
+      {
+        "share": 0.0003,
+        "hex": "#BBC6B3",
+        "oklch": "oklch(0.8127 0.0288 131.86)"
+      },
+      {
+        "share": 0.0002,
+        "hex": "#A2AE9A",
+        "oklch": "oklch(0.7357 0.0313 132.68)"
+      }
+    ],
+    "vivid": []
+  },
+  "python_tools": {
+    "oklch": "agents/viz3d-factory/template/tools/color-compare/src/oklch.py",
+    "sampler_pattern": "agents/viz3d-factory/template/tools/color-compare/src/compare.py",
+    "note": "sRGB<->OKLCH (Ottosson, no deps): python src/oklch.py '#FF26B6'. Sampling pattern: PIL getpixel at relative coords + median-cut dominant via resize+getcolors."
+  }
+}

@@ -1,0 +1,2383 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ORDINAL 12 // math-viz multi-series colors</title>
+    <style>
+      :root {
+        --bg: #0b0f1a;
+        --panel: #111827;
+        --line: #1e2e4a;
+        --cyan: #00e5ff;
+        --text: #d6eaff;
+        --muted: #8aa0c0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          ui-sans-system,
+          -apple-system,
+          Inter,
+          system-ui,
+          sans-serif;
+      }
+      header {
+        padding: 22px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, #0b1530 0%, var(--bg) 100%);
+      }
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.13em;
+        font-weight: 800;
+        color: var(--cyan);
+      }
+      h1 span {
+        color: #fff;
+        opacity: 0.85;
+      }
+      .sub {
+        opacity: 0.75;
+        font-size: 12px;
+        margin-top: 8px;
+        line-height: 1.6;
+        max-width: 1100px;
+      }
+      .sub code {
+        color: var(--cyan);
+        background: #0f1e36;
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 11px;
+      }
+      main {
+        padding: 22px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(430px, 1fr));
+        gap: 18px;
+        max-width: 1500px;
+        margin: 0 auto;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .card h2 {
+        margin: 0;
+        padding: 12px 14px;
+        font-size: 13px;
+        letter-spacing: 0.06em;
+        border-bottom: 1px solid var(--line);
+        background: #0c1a30;
+      }
+      .card h2 .mode {
+        float: right;
+        font-size: 10px;
+        opacity: 0.6;
+        letter-spacing: 0.1em;
+      }
+      .strip {
+        display: flex;
+        height: 44px;
+      }
+      .strip div {
+        flex: 1;
+      }
+      .sw12 {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 8px;
+        padding: 12px 14px;
+      }
+      .meta {
+        padding: 12px 14px;
+        font-size: 11px;
+        line-height: 1.7;
+        flex: 1;
+      }
+      .meta .row {
+        color: var(--muted);
+      }
+      .links {
+        display: flex;
+        gap: 8px;
+        padding: 0 14px 14px;
+        flex-wrap: wrap;
+      }
+      .links a {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 7px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--cyan);
+        color: var(--cyan);
+        text-decoration: none;
+      }
+      .links a.solid {
+        background: var(--cyan);
+        color: #06121f;
+      }
+      .links a.dim {
+        border-color: var(--line);
+        color: var(--muted);
+      }
+      footer {
+        padding: 14px 22px;
+        font-size: 11px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>◈ ORDINAL 12 <span>// math-viz multi-series colors — 6 themes × 12 distinct</span></h1>
+      <div class="sub">
+        Sommelier-picked ordinal sets for multi-line graphs, legends, and categories.
+        <code>ordinal[0]=primary · ordinal[1]=accent</code> per theme. Light themes use deeper hues for
+        contrast on paper; dark themes use luminous neons for glow on void. Lines cycle solid/dashed/dotted
+        for colorblind separation. Source of truth: <code>workspace/colors/ordinals.json</code> · detail +
+        copy-paste arrays in each lab below.
+      </div>
+    </header>
+    <main>
+      <div class="card">
+        <h2>01 — Educational Warm <span class="mode">LIGHT · mathviz-educational-warm</span></h2>
+        <div class="strip">
+          <div style="flex: 1; background: #4f46e5" title="#4F46E5"></div>
+          <div style="flex: 1; background: #f97316" title="#F97316"></div>
+          <div style="flex: 1; background: #0d9488" title="#0D9488"></div>
+          <div style="flex: 1; background: #dc2626" title="#DC2626"></div>
+          <div style="flex: 1; background: #a16207" title="#A16207"></div>
+          <div style="flex: 1; background: #7c3aed" title="#7C3AED"></div>
+          <div style="flex: 1; background: #15803d" title="#15803D"></div>
+          <div style="flex: 1; background: #2563eb" title="#2563EB"></div>
+          <div style="flex: 1; background: #db2777" title="#DB2777"></div>
+          <div style="flex: 1; background: #4d7c0f" title="#4D7C0F"></div>
+          <div style="flex: 1; background: #0e7490" title="#0E7490"></div>
+          <div style="flex: 1; background: #a21caf" title="#A21CAF"></div>
+        </div>
+        <div
+          style="
+            background: #fffdf9;
+            padding: 10px 12px;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+          "
+        >
+          <svg viewBox="0 0 310 150" width="100%" height="130" style="display: block; background: #fffdf9">
+            <path d="M8 10 C 90 4, 170 16, 300 7" fill="none" stroke="#4F46E5" stroke-width="2" />
+            <path
+              d="M8 21 C 90 15, 170 27, 300 18"
+              fill="none"
+              stroke="#F97316"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 32 C 90 26, 170 38, 300 29"
+              fill="none"
+              stroke="#0D9488"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 43 C 90 37, 170 49, 300 40"
+              fill="none"
+              stroke="#DC2626"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+            <path d="M8 54 C 90 48, 170 60, 300 51" fill="none" stroke="#A16207" stroke-width="2" />
+            <path
+              d="M8 65 C 90 59, 170 71, 300 62"
+              fill="none"
+              stroke="#7C3AED"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 76 C 90 70, 170 82, 300 73"
+              fill="none"
+              stroke="#15803D"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 87 C 90 81, 170 93, 300 84"
+              fill="none"
+              stroke="#2563EB"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+            <path d="M8 98 C 90 92, 170 104, 300 95" fill="none" stroke="#DB2777" stroke-width="2" />
+            <path
+              d="M8 109 C 90 103, 170 115, 300 106"
+              fill="none"
+              stroke="#4D7C0F"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 120 C 90 114, 170 126, 300 117"
+              fill="none"
+              stroke="#0E7490"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 131 C 90 125, 170 137, 300 128"
+              fill="none"
+              stroke="#A21CAF"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+          </svg>
+        </div>
+        <div class="sw12">
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #4f46e5;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O01
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #4F46E5
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #f97316;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O02
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #F97316
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #0d9488;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O03
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #0D9488
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #dc2626;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O04
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #DC2626
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #a16207;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O05
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #A16207
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #7c3aed;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O06
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #7C3AED
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #15803d;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O07
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #15803D
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #2563eb;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O08
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #2563EB
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #db2777;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O09
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #DB2777
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #4d7c0f;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O10
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #4D7C0F
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #0e7490;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O11
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #0E7490
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #a21caf;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O12
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #A21CAF
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="row">
+            friendly warm-paper education, approachable indigo parabola + coral tangent — warm-friendly
+            distinct hues, readable on cream paper
+          </div>
+        </div>
+        <div class="links">
+          <a class="solid" href="../labs/mathviz-educational-warm.html">Open lab →</a
+          ><a class="dim" href="../ordinals.json">ordinals.json</a>
+        </div>
+      </div>
+      <div class="card">
+        <h2>02 — Clean Teal <span class="mode">LIGHT · mathviz-clean-teal</span></h2>
+        <div class="strip">
+          <div style="flex: 1; background: #0e7c6b" title="#0E7C6B"></div>
+          <div style="flex: 1; background: #da8a0b" title="#DA8A0B"></div>
+          <div style="flex: 1; background: #4f46e5" title="#4F46E5"></div>
+          <div style="flex: 1; background: #dc2626" title="#DC2626"></div>
+          <div style="flex: 1; background: #0284c7" title="#0284C7"></div>
+          <div style="flex: 1; background: #9333ea" title="#9333EA"></div>
+          <div style="flex: 1; background: #15803d" title="#15803D"></div>
+          <div style="flex: 1; background: #db2777" title="#DB2777"></div>
+          <div style="flex: 1; background: #1d4ed8" title="#1D4ED8"></div>
+          <div style="flex: 1; background: #65a30d" title="#65A30D"></div>
+          <div style="flex: 1; background: #ea580c" title="#EA580C"></div>
+          <div style="flex: 1; background: #a21caf" title="#A21CAF"></div>
+        </div>
+        <div
+          style="
+            background: #fefcfa;
+            padding: 10px 12px;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+          "
+        >
+          <svg viewBox="0 0 310 150" width="100%" height="130" style="display: block; background: #fefcfa">
+            <path d="M8 10 C 90 4, 170 16, 300 7" fill="none" stroke="#0E7C6B" stroke-width="2" />
+            <path
+              d="M8 21 C 90 15, 170 27, 300 18"
+              fill="none"
+              stroke="#DA8A0B"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 32 C 90 26, 170 38, 300 29"
+              fill="none"
+              stroke="#4F46E5"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 43 C 90 37, 170 49, 300 40"
+              fill="none"
+              stroke="#DC2626"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+            <path d="M8 54 C 90 48, 170 60, 300 51" fill="none" stroke="#0284C7" stroke-width="2" />
+            <path
+              d="M8 65 C 90 59, 170 71, 300 62"
+              fill="none"
+              stroke="#9333EA"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 76 C 90 70, 170 82, 300 73"
+              fill="none"
+              stroke="#15803D"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 87 C 90 81, 170 93, 300 84"
+              fill="none"
+              stroke="#DB2777"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+            <path d="M8 98 C 90 92, 170 104, 300 95" fill="none" stroke="#1D4ED8" stroke-width="2" />
+            <path
+              d="M8 109 C 90 103, 170 115, 300 106"
+              fill="none"
+              stroke="#65A30D"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 120 C 90 114, 170 126, 300 117"
+              fill="none"
+              stroke="#EA580C"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 131 C 90 125, 170 137, 300 128"
+              fill="none"
+              stroke="#A21CAF"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+          </svg>
+        </div>
+        <div class="sw12">
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #0e7c6b;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O01
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #0E7C6B
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #da8a0b;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O02
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #DA8A0B
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #4f46e5;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O03
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #4F46E5
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #dc2626;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O04
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #DC2626
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #0284c7;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O05
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #0284C7
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #9333ea;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O06
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #9333EA
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #15803d;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O07
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #15803D
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #db2777;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O08
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #DB2777
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #1d4ed8;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O09
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #1D4ED8
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #65a30d;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O10
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #65A30D
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #ea580c;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O11
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #EA580C
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #a21caf;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O12
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #A21CAF
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="row">
+            clean light geometry, clinical paper-and-teal, 03-lineage chips and toggles — teal-led balanced
+            clinical hues, deeper saturation for contrast on white
+          </div>
+        </div>
+        <div class="links">
+          <a class="solid" href="../labs/mathviz-clean-teal.html">Open lab →</a
+          ><a class="dim" href="../ordinals.json">ordinals.json</a>
+        </div>
+      </div>
+      <div class="card">
+        <h2>03 — Sage Editorial <span class="mode">LIGHT · mathviz-sage-editorial</span></h2>
+        <div class="strip">
+          <div style="flex: 1; background: #2f5d3a" title="#2F5D3A"></div>
+          <div style="flex: 1; background: #b9541f" title="#B9541F"></div>
+          <div style="flex: 1; background: #1e40af" title="#1E40AF"></div>
+          <div style="flex: 1; background: #a16207" title="#A16207"></div>
+          <div style="flex: 1; background: #0f766e" title="#0F766E"></div>
+          <div style="flex: 1; background: #6d28d9" title="#6D28D9"></div>
+          <div style="flex: 1; background: #4d7c0f" title="#4D7C0F"></div>
+          <div style="flex: 1; background: #be123c" title="#BE123C"></div>
+          <div style="flex: 1; background: #155e75" title="#155E75"></div>
+          <div style="flex: 1; background: #86198f" title="#86198F"></div>
+          <div style="flex: 1; background: #92400e" title="#92400E"></div>
+          <div style="flex: 1; background: #475569" title="#475569"></div>
+        </div>
+        <div
+          style="
+            background: #f9f9f6;
+            padding: 10px 12px;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+          "
+        >
+          <svg viewBox="0 0 310 150" width="100%" height="130" style="display: block; background: #f9f9f6">
+            <path d="M8 10 C 90 4, 170 16, 300 7" fill="none" stroke="#2F5D3A" stroke-width="2" />
+            <path
+              d="M8 21 C 90 15, 170 27, 300 18"
+              fill="none"
+              stroke="#B9541F"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 32 C 90 26, 170 38, 300 29"
+              fill="none"
+              stroke="#1E40AF"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 43 C 90 37, 170 49, 300 40"
+              fill="none"
+              stroke="#A16207"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+            <path d="M8 54 C 90 48, 170 60, 300 51" fill="none" stroke="#0F766E" stroke-width="2" />
+            <path
+              d="M8 65 C 90 59, 170 71, 300 62"
+              fill="none"
+              stroke="#6D28D9"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 76 C 90 70, 170 82, 300 73"
+              fill="none"
+              stroke="#4D7C0F"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 87 C 90 81, 170 93, 300 84"
+              fill="none"
+              stroke="#BE123C"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+            <path d="M8 98 C 90 92, 170 104, 300 95" fill="none" stroke="#155E75" stroke-width="2" />
+            <path
+              d="M8 109 C 90 103, 170 115, 300 106"
+              fill="none"
+              stroke="#86198F"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 120 C 90 114, 170 126, 300 117"
+              fill="none"
+              stroke="#92400E"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 131 C 90 125, 170 137, 300 128"
+              fill="none"
+              stroke="#475569"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+          </svg>
+        </div>
+        <div class="sw12">
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #2f5d3a;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O01
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #2F5D3A
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #b9541f;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O02
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #B9541F
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #1e40af;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O03
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #1E40AF
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #a16207;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O04
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #A16207
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #0f766e;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O05
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #0F766E
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #6d28d9;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O06
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #6D28D9
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #4d7c0f;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O07
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #4D7C0F
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #be123c;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O08
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #BE123C
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #155e75;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O09
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #155E75
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #86198f;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O10
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #86198F
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #92400e;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O11
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #92400E
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #475569;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O12
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #475569
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="row">
+            calm print editorial, serif display, paper whites with sage mids — muted ink-like earthy ordinals
+            plus one slate neutral for other/total
+          </div>
+        </div>
+        <div class="links">
+          <a class="solid" href="../labs/mathviz-sage-editorial.html">Open lab →</a
+          ><a class="dim" href="../ordinals.json">ordinals.json</a>
+        </div>
+      </div>
+      <div class="card">
+        <h2>04 — Tron Cyan <span class="mode">DARK · mathviz-tron-cyan</span></h2>
+        <div class="strip">
+          <div style="flex: 1; background: #00e5ff" title="#00E5FF"></div>
+          <div style="flex: 1; background: #ff8a2a" title="#FF8A2A"></div>
+          <div style="flex: 1; background: #ff3ea5" title="#FF3EA5"></div>
+          <div style="flex: 1; background: #a3e635" title="#A3E635"></div>
+          <div style="flex: 1; background: #8b5cf6" title="#8B5CF6"></div>
+          <div style="flex: 1; background: #34d399" title="#34D399"></div>
+          <div style="flex: 1; background: #ffd23d" title="#FFD23D"></div>
+          <div style="flex: 1; background: #5b8cff" title="#5B8CFF"></div>
+          <div style="flex: 1; background: #ff6b6b" title="#FF6B6B"></div>
+          <div style="flex: 1; background: #2dd4bf" title="#2DD4BF"></div>
+          <div style="flex: 1; background: #e879f9" title="#E879F9"></div>
+          <div style="flex: 1; background: #f1f5f9" title="#F1F5F9"></div>
+        </div>
+        <div
+          style="
+            background: #020a0f;
+            padding: 10px 12px;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+          "
+        >
+          <svg viewBox="0 0 310 150" width="100%" height="130" style="display: block; background: #020a0f">
+            <path d="M8 10 C 90 4, 170 16, 300 7" fill="none" stroke="#00E5FF" stroke-width="2" />
+            <path
+              d="M8 21 C 90 15, 170 27, 300 18"
+              fill="none"
+              stroke="#FF8A2A"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 32 C 90 26, 170 38, 300 29"
+              fill="none"
+              stroke="#FF3EA5"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 43 C 90 37, 170 49, 300 40"
+              fill="none"
+              stroke="#A3E635"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+            <path d="M8 54 C 90 48, 170 60, 300 51" fill="none" stroke="#8B5CF6" stroke-width="2" />
+            <path
+              d="M8 65 C 90 59, 170 71, 300 62"
+              fill="none"
+              stroke="#34D399"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 76 C 90 70, 170 82, 300 73"
+              fill="none"
+              stroke="#FFD23D"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 87 C 90 81, 170 93, 300 84"
+              fill="none"
+              stroke="#5B8CFF"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+            <path d="M8 98 C 90 92, 170 104, 300 95" fill="none" stroke="#FF6B6B" stroke-width="2" />
+            <path
+              d="M8 109 C 90 103, 170 115, 300 106"
+              fill="none"
+              stroke="#2DD4BF"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 120 C 90 114, 170 126, 300 117"
+              fill="none"
+              stroke="#E879F9"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 131 C 90 125, 170 137, 300 128"
+              fill="none"
+              stroke="#F1F5F9"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+          </svg>
+        </div>
+        <div class="sw12">
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #00e5ff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O01
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #00E5FF
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #ff8a2a;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O02
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #FF8A2A
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #ff3ea5;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O03
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #FF3EA5
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #a3e635;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O04
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #A3E635
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #8b5cf6;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O05
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #8B5CF6
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #34d399;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O06
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #34D399
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #ffd23d;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O07
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #FFD23D
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #5b8cff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O08
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #5B8CFF
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #ff6b6b;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O09
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #FF6B6B
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #2dd4bf;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O10
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #2DD4BF
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #e879f9;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O11
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #E879F9
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #f1f5f9;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O12
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #F1F5F9
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="row">
+            tron arcade void, neon cyan bloom with amber tangent glow, direct 05 lineage — high-saturation
+            luminous neons that glow on black void
+          </div>
+        </div>
+        <div class="links">
+          <a class="solid" href="../labs/mathviz-tron-cyan.html">Open lab →</a
+          ><a class="dim" href="../ordinals.json">ordinals.json</a>
+        </div>
+      </div>
+      <div class="card">
+        <h2>05 — Midnight Violet <span class="mode">DARK · mathviz-midnight-violet</span></h2>
+        <div class="strip">
+          <div style="flex: 1; background: #8b5cf6" title="#8B5CF6"></div>
+          <div style="flex: 1; background: #e845c3" title="#E845C3"></div>
+          <div style="flex: 1; background: #00e5ff" title="#00E5FF"></div>
+          <div style="flex: 1; background: #ffb020" title="#FFB020"></div>
+          <div style="flex: 1; background: #34d399" title="#34D399"></div>
+          <div style="flex: 1; background: #ff6b6b" title="#FF6B6B"></div>
+          <div style="flex: 1; background: #60a5fa" title="#60A5FA"></div>
+          <div style="flex: 1; background: #a3e635" title="#A3E635"></div>
+          <div style="flex: 1; background: #ff8a2a" title="#FF8A2A"></div>
+          <div style="flex: 1; background: #2dd4bf" title="#2DD4BF"></div>
+          <div style="flex: 1; background: #f1f5f9" title="#F1F5F9"></div>
+          <div style="flex: 1; background: #ffe135" title="#FFE135"></div>
+        </div>
+        <div
+          style="
+            background: #04062c;
+            padding: 10px 12px;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+          "
+        >
+          <svg viewBox="0 0 310 150" width="100%" height="130" style="display: block; background: #04062c">
+            <path d="M8 10 C 90 4, 170 16, 300 7" fill="none" stroke="#8B5CF6" stroke-width="2" />
+            <path
+              d="M8 21 C 90 15, 170 27, 300 18"
+              fill="none"
+              stroke="#E845C3"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 32 C 90 26, 170 38, 300 29"
+              fill="none"
+              stroke="#00E5FF"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 43 C 90 37, 170 49, 300 40"
+              fill="none"
+              stroke="#FFB020"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+            <path d="M8 54 C 90 48, 170 60, 300 51" fill="none" stroke="#34D399" stroke-width="2" />
+            <path
+              d="M8 65 C 90 59, 170 71, 300 62"
+              fill="none"
+              stroke="#FF6B6B"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 76 C 90 70, 170 82, 300 73"
+              fill="none"
+              stroke="#60A5FA"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 87 C 90 81, 170 93, 300 84"
+              fill="none"
+              stroke="#A3E635"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+            <path d="M8 98 C 90 92, 170 104, 300 95" fill="none" stroke="#FF8A2A" stroke-width="2" />
+            <path
+              d="M8 109 C 90 103, 170 115, 300 106"
+              fill="none"
+              stroke="#2DD4BF"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 120 C 90 114, 170 126, 300 117"
+              fill="none"
+              stroke="#F1F5F9"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 131 C 90 125, 170 137, 300 128"
+              fill="none"
+              stroke="#FFE135"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+          </svg>
+        </div>
+        <div class="sw12">
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #8b5cf6;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O01
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #8B5CF6
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #e845c3;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O02
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #E845C3
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #00e5ff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O03
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #00E5FF
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #ffb020;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O04
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #FFB020
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #34d399;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O05
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #34D399
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #ff6b6b;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O06
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #FF6B6B
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #60a5fa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O07
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #60A5FA
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #a3e635;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O08
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #A3E635
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #ff8a2a;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O09
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #FF8A2A
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #2dd4bf;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O10
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #2DD4BF
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #f1f5f9;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O11
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #F1F5F9
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #ffe135;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O12
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #FFE135
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="row">
+            observatory cosmic depth, neon violet curves on midnight navy, magenta highlights — cosmic brights
+            anchored violet/magenta, ice labels
+          </div>
+        </div>
+        <div class="links">
+          <a class="solid" href="../labs/mathviz-midnight-violet.html">Open lab →</a
+          ><a class="dim" href="../ordinals.json">ordinals.json</a>
+        </div>
+      </div>
+      <div class="card">
+        <h2>06 — Arctic Ice <span class="mode">DARK · mathviz-arctic-ice</span></h2>
+        <div class="strip">
+          <div style="flex: 1; background: #70c0a0" title="#70C0A0"></div>
+          <div style="flex: 1; background: #a6dcce" title="#A6DCCE"></div>
+          <div style="flex: 1; background: #7dd3fc" title="#7DD3FC"></div>
+          <div style="flex: 1; background: #c4b5fd" title="#C4B5FD"></div>
+          <div style="flex: 1; background: #f9a8d4" title="#F9A8D4"></div>
+          <div style="flex: 1; background: #fca5a5" title="#FCA5A5"></div>
+          <div style="flex: 1; background: #fcd34d" title="#FCD34D"></div>
+          <div style="flex: 1; background: #86efac" title="#86EFAC"></div>
+          <div style="flex: 1; background: #5eead4" title="#5EEAD4"></div>
+          <div style="flex: 1; background: #93c5fd" title="#93C5FD"></div>
+          <div style="flex: 1; background: #f0abfc" title="#F0ABFC"></div>
+          <div style="flex: 1; background: #f8fafc" title="#F8FAFC"></div>
+        </div>
+        <div
+          style="
+            background: #070d12;
+            padding: 10px 12px;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+          "
+        >
+          <svg viewBox="0 0 310 150" width="100%" height="130" style="display: block; background: #070d12">
+            <path d="M8 10 C 90 4, 170 16, 300 7" fill="none" stroke="#70C0A0" stroke-width="2" />
+            <path
+              d="M8 21 C 90 15, 170 27, 300 18"
+              fill="none"
+              stroke="#A6DCCE"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 32 C 90 26, 170 38, 300 29"
+              fill="none"
+              stroke="#7DD3FC"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 43 C 90 37, 170 49, 300 40"
+              fill="none"
+              stroke="#C4B5FD"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+            <path d="M8 54 C 90 48, 170 60, 300 51" fill="none" stroke="#F9A8D4" stroke-width="2" />
+            <path
+              d="M8 65 C 90 59, 170 71, 300 62"
+              fill="none"
+              stroke="#FCA5A5"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 76 C 90 70, 170 82, 300 73"
+              fill="none"
+              stroke="#FCD34D"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 87 C 90 81, 170 93, 300 84"
+              fill="none"
+              stroke="#86EFAC"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+            <path d="M8 98 C 90 92, 170 104, 300 95" fill="none" stroke="#5EEAD4" stroke-width="2" />
+            <path
+              d="M8 109 C 90 103, 170 115, 300 106"
+              fill="none"
+              stroke="#93C5FD"
+              stroke-width="2"
+              stroke-dasharray="7 4"
+            />
+            <path
+              d="M8 120 C 90 114, 170 126, 300 117"
+              fill="none"
+              stroke="#F0ABFC"
+              stroke-width="2"
+              stroke-dasharray="2 4"
+            />
+            <path
+              d="M8 131 C 90 125, 170 137, 300 128"
+              fill="none"
+              stroke="#F8FAFC"
+              stroke-width="2"
+              stroke-dasharray="10 4 2 4"
+            />
+          </svg>
+        </div>
+        <div class="sw12">
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #70c0a0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O01
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #70C0A0
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #a6dcce;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O02
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #A6DCCE
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #7dd3fc;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O03
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #7DD3FC
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #c4b5fd;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O04
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #C4B5FD
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #f9a8d4;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O05
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #F9A8D4
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #fca5a5;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O06
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #FCA5A5
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #fcd34d;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O07
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #FCD34D
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #86efac;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O08
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #86EFAC
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #5eead4;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O09
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #5EEAD4
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #93c5fd;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O10
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #93C5FD
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #f0abfc;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O11
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #F0ABFC
+            </div>
+          </div>
+          <div style="border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; overflow: hidden">
+            <div
+              style="
+                height: 34px;
+                background: #f8fafc;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 800;
+                color: #fff;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+              "
+            >
+              O12
+            </div>
+            <div
+              style="padding: 4px 6px; font-size: 10px; font-family: ui-monospace, monospace; color: #8aa0c0"
+            >
+              #F8FAFC
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="row">
+            surgical ice-white precision, monochrome calm, frosted glass, hairline borders — frosted pastel
+            ordinals, low-chroma icy tints, no competing neon
+          </div>
+        </div>
+        <div class="links">
+          <a class="solid" href="../labs/mathviz-arctic-ice.html">Open lab →</a
+          ><a class="dim" href="../ordinals.json">ordinals.json</a>
+        </div>
+      </div>
+    </main>
+    <footer>
+      Ordinal 12 · 6 math-viz themes · solid/dashed/dotted cycle ·
+      <code>workspace/colors/ordinals.json</code> · per-theme detail in
+      <code>workspace/colors/labs/&lt;slug&gt;.html</code>
+    </footer>
+  </body>
+</html>

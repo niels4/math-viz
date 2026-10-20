@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MathViz — Numerals &amp; Math Legibility</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/intel-one-mono@latest/index.css" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,200..800;1,200..800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0e19;
+        --panel: #121a2e;
+        --panel-2: #0f172a;
+        --line: #1e2e4a;
+        --cyan: #00e5ff;
+        --cyan-dim: #6ee7ff;
+        --text: #d6eaff;
+        --muted: #8aa0c0;
+        --accent: #38bdf8;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          ui-sans-system,
+          -apple-system,
+          system-ui,
+          "Inter",
+          sans-serif;
+      }
+      header {
+        padding: 22px 22px 12px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, #0b1530 0%, var(--bg) 100%);
+      }
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.14em;
+        font-weight: 800;
+        color: var(--cyan);
+        text-shadow: 0 0 18px rgba(0, 229, 255, 0.5);
+      }
+      .sub {
+        opacity: 0.75;
+        font-size: 12px;
+        margin-top: 8px;
+        letter-spacing: 0.04em;
+        line-height: 1.5;
+      }
+      .sub code {
+        color: var(--cyan);
+        background: #0f1e36;
+        padding: 1px 5px;
+        border-radius: 3px;
+      }
+      .controls {
+        padding: 14px 22px;
+        border-bottom: 1px solid var(--line);
+        background: #0c1a30;
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .controls label {
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        color: var(--cyan);
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .controls input[type="text"],
+      .controls select,
+      .controls input[type="color"] {
+        background: #0a1222;
+        color: var(--text);
+        border: 1px solid var(--line);
+        padding: 6px 8px;
+        font-family: inherit;
+        font-size: 12px;
+        border-radius: 4px;
+      }
+      .controls input[type="text"] {
+        min-width: 280px;
+      }
+      .controls input[type="range"] {
+        accent-color: var(--cyan);
+      }
+      .bar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 10px 22px;
+        border-bottom: 1px solid var(--line);
+        background: #0a1222;
+      }
+      .bar span {
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        opacity: 0.9;
+        border: 1px solid #1e3550;
+        padding: 5px 8px;
+        background: #0f1e36;
+        border-radius: 4px;
+      }
+      main {
+        padding: 22px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+        gap: 18px;
+      }
+      @media (max-width: 700px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        border: 1px solid rgba(0, 229, 255, 0.05);
+        box-shadow: inset 0 0 40px rgba(0, 229, 255, 0.04);
+      }
+      .card-head {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        background: #0c1a30;
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+      .card-head h2 {
+        margin: 0;
+        font-size: 15px;
+        letter-spacing: 0.06em;
+        color: var(--cyan);
+        font-weight: 800;
+      }
+      .card-head .foundry {
+        font-size: 11px;
+        opacity: 0.6;
+      }
+      .card-head .cat {
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        border: 1px solid var(--cyan);
+        color: var(--cyan);
+        padding: 2px 6px;
+        border-radius: 3px;
+      }
+      .scores {
+        display: flex;
+        gap: 8px;
+        padding: 8px 14px;
+        background: #0e1a33;
+        border-bottom: 1px solid var(--line);
+        flex-wrap: wrap;
+      }
+      .pill {
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #0a1222;
+      }
+      .pill strong {
+        color: var(--cyan);
+      }
+      .pill.good {
+        border-color: rgba(34, 197, 94, 0.4);
+        background: rgba(34, 197, 94, 0.08);
+      }
+      .pill.mid {
+        border-color: rgba(234, 179, 8, 0.35);
+        background: rgba(234, 179, 8, 0.08);
+      }
+      .pill.low {
+        border-color: rgba(239, 68, 68, 0.35);
+        background: rgba(239, 68, 68, 0.08);
+      }
+      .meta {
+        padding: 10px 14px;
+        font-size: 11px;
+        line-height: 1.6;
+        opacity: 0.9;
+        border-bottom: 1px solid var(--line);
+        background: #0b162c;
+      }
+      .meta code {
+        color: var(--cyan);
+        word-break: break-all;
+      }
+      .meta a {
+        color: var(--cyan);
+      }
+      .preview-wrap {
+        padding: 16px 14px;
+        background: var(--panel-2);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        flex: 1;
+      }
+      .preview-label {
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .preview-text {
+        outline: none;
+        border: 1px dashed transparent;
+        padding: 8px 6px;
+        border-radius: 4px;
+        transition: 0.15s;
+        word-break: break-word;
+      }
+      .preview-text:focus {
+        border-color: var(--cyan);
+        background: rgba(0, 229, 255, 0.04);
+      }
+      .sizes {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .size-row {
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.02);
+        padding: 8px 10px;
+        border-radius: 6px;
+      }
+      .size-row .sz {
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      .weights {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 6px 0;
+      }
+      .weight {
+        padding: 2px 0;
+        font-size: 13px;
+        color: var(--text);
+      }
+      .colors {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 6px 0;
+      }
+      .color-dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        display: inline-block;
+        vertical-align: middle;
+        cursor: pointer;
+      }
+      .footer {
+        padding: 12px 22px;
+        font-size: 11px;
+        opacity: 0.5;
+        border-top: 1px solid var(--line);
+      }
+      .empty {
+        grid-column: 1/-1;
+        padding: 32px;
+        border: 1px dashed var(--line);
+        background: rgba(0, 229, 255, 0.04);
+        border-radius: 8px;
+      }
+      .kill {
+        margin-left: auto;
+        font-size: 11px;
+        opacity: 0.6;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>◈ MathViz — Numerals &amp; Math Legibility — 15 FONTS</h1>
+      <div class="sub">
+        Workspace <code>workspace/fonts/catalog.json</code> →
+        <code>workspace/fonts/galleries/gallery.html</code>. Served at
+        <code>http://localhost:8787/fonts/galleries/gallery.html</code> and
+        <code>file://…/workspace/fonts/galleries/gallery.html</code>. Edit the sample text in any card
+        (contenteditable) — it re-renders at that card's font. Use the top bar to change the global preview
+        text, size, and color for all cards at once. <br />Catalog was 15 fonts when this file was generated —
+        <span id="genTime">9/28/2026, 7:43:10 PM</span>. Gallery file is rebuilt on demand by the font
+        sommelier agent (font-gallery tool). Studio chat cannot reliably render custom
+        <code>@font-face</code> inline — it sanitizes HTML <code>style</code> — so this gallery is the true
+        display surface.
+      </div>
+    </header>
+    <div class="controls">
+      <label
+        >Global text
+        <input
+          id="globalText"
+          type="text"
+          value="0O 1lI — 0123456789 — $42,391 — P(2,4) m=4 — y=x² f'(x)=2x ∫x² dx"
+          placeholder="Type to preview…"
+      /></label>
+      <label
+        >Global size <input id="globalSize" type="range" min="10" max="96" value="28" />
+        <span id="sizeVal">28px</span></label
+      >
+      <label
+        >Global color <input id="globalColor" type="color" value="#d6eaff" />
+        <span id="colorVal">#d6eaff</span></label
+      >
+      <label
+        >Background
+        <select id="bgSelect">
+          <option value="#121a2e">Dark card (#121a2e)</option>
+          <option value="#ffffff">White</option>
+          <option value="#0a0e19">Deep navy</option>
+          <option value="#1a1a1a">Charcoal</option>
+          <option value="#faf6f1">Warm paper</option>
+        </select></label
+      >
+      <span id="count" style="font-size: 11px; opacity: 0.7"></span>
+    </div>
+    <div class="bar">
+      <span
+        >Google Fonts via <code>&lt;link href="https://fonts.googleapis.com/css2…"&gt;</code> +
+        <code>font-family</code></span
+      >
+      <span>SIZES: 12 · 16 · 24 · 36 · 48 · 72 px</span>
+      <span>COLORS: #0f172a #64748b #4F46E5 #0E7C6B #00E5FF #ffffff</span>
+      <span id="live"></span>
+    </div>
+    <main id="gallery"></main>
+    <div class="footer">
+      Tip: ask the sommelier “Compare Inter vs JetBrains Mono for a dashboard” or “Add Fraunces, show it at
+      24/48px in #111 and white-on-dark”. The agent will update <code>fonts/catalog.json</code> and rebuild
+      this file. Manifest at <code>workspace/fonts/catalog.json</code> · gallery at
+      <code>workspace/fonts/galleries/gallery.html</code> · static at <code>http://localhost:8787/</code>.
+    </div>
+    <script>
+      const FONTS = [
+        {
+          id: "inter",
+          name: "Inter",
+          family: "Inter",
+          foundry: "Rasmus Andersson",
+          category: "sans-serif",
+          googleFontsUrl: "https://fonts.google.com/specimen/Inter",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap",
+          weights: [100, 200, 300, 400, 500, 600, 700, 800, 900],
+          styles: ["normal", "italic"],
+          variable: true,
+          professionalism: 9,
+          designerFriendly: 9,
+          licensing: "OFL (Open Font License) — free for commercial use, no attribution required",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/Inter",
+          tags: ["ui", "workhorse", "neutral", "variable"],
+          notes:
+            "The modern UI workhorse. Excellent x-height, great at small sizes, huge weight range. Safe for any professional product. Pair with a character serif like Fraunces for display.",
+          specimen: "0O 1lI — 0123456789 — $42,391 — P(2,4) m=4 — y=x² f'(x)=2x ∫x² dx",
+        },
+        {
+          id: "ibm-plex-sans",
+          name: "IBM Plex Sans",
+          family: "IBM Plex Sans",
+          foundry: "IBM / Mike Abbink",
+          category: "sans-serif",
+          googleFontsUrl: "https://fonts.google.com/specimen/IBM+Plex+Sans",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap",
+          weights: [100, 200, 300, 400, 500, 600, 700],
+          styles: ["normal", "italic"],
+          variable: false,
+          professionalism: 9,
+          designerFriendly: 8,
+          licensing: "OFL — free",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/IBM+Plex+Sans",
+          tags: ["sans", "humanist", "corporate", "workhorse"],
+          notes:
+            "Humanist corporate sans with IBM heritage. 7 weights + italics, excellent language coverage. More character than Inter, still very professional.",
+          specimen: "0O 1lI — 0123456789 — $42,391 — P(2,4) m=4 — y=x² f'(x)=2x ∫x² dx",
+        },
+        {
+          id: "source-sans-3",
+          name: "Source Sans 3",
+          family: "Source Sans 3",
+          foundry: "Paul D. Hunt / Adobe",
+          category: "sans-serif",
+          googleFontsUrl: "https://fonts.google.com/specimen/Source+Sans+3",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap",
+          weights: [200, 300, 400, 500, 600, 700, 800, 900],
+          styles: ["normal", "italic"],
+          variable: true,
+          professionalism: 9,
+          designerFriendly: 9,
+          licensing: "OFL — free for commercial use",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/Source+Sans+3",
+          tags: ["sans", "workhorse", "variable", "numerals", "tabular", "slashed-zero"],
+          notes:
+            "Adobe workhorse for data UI — slashed-zero via font-variant-numeric, tabular lining + oldstyle + proportional. Default zero has slight rectangular tension vs round O; enable slashed-zero to make 0↦Ø instantly distinct from O. 1 with foot + angled top vs straight l vs capped I. Best for financial dashboards when combined with tabular-nums.",
+          specimen: "0O 1lI — 0123456789 — $42,391 — P(2,4) m=4 — y=x² f'(x)=2x ∫x² dx",
+        },
+        {
+          id: "atkinson-hyperlegible",
+          name: "Atkinson Hyperlegible",
+          family: "Atkinson Hyperlegible",
+          foundry: "Braille Institute / Applied Design Works",
+          category: "sans-serif",
+          googleFontsUrl: "https://fonts.google.com/specimen/Atkinson+Hyperlegible",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap",
+          weights: [400, 700],
+          styles: ["normal", "italic"],
+          variable: false,
+          professionalism: 9,
+          designerFriendly: 6,
+          licensing: "OFL (Open Font License) — free for commercial use",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/Atkinson+Hyperlegible",
+          tags: ["sans", "legible", "accessibility", "braille-institute", "distinct-numerals"],
+          notes:
+            "Designed for low vision — maximally distinct glyphs. 0 is more oval-narrow vs round O, 1 has pronounced foot + angled stem vs lowercase l (curl tail) vs I (crossbars). Not variable but 400/700 + italics, superb for data-heavy UI where misreading $42,391 matters.",
+          specimen: "0O 1lI — 0123456789 — $42,391 — P(2,4) m=4 — y=x² f'(x)=2x ∫x² dx",
+        },
+        {
+          id: "ibm-plex-mono",
+          name: "IBM Plex Mono",
+          family: "IBM Plex Mono",
+          foundry: "IBM / Mike Abbink & Bold Monday",
+          category: "monospace",
+          googleFontsUrl: "https://fonts.google.com/specimen/IBM+Plex+Mono",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap",
+          weights: [100, 200, 300, 400, 500, 600, 700],
+          styles: ["normal", "italic"],
+          variable: false,
+          professionalism: 9,
+          designerFriendly: 8,
+          licensing: "OFL (Open Font License) — free for commercial use",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/IBM+Plex+Mono",
+          tags: ["mono", "legible", "code", "corporate", "tabular"],
+          notes:
+            "Monospaced champion for 0/O distinction: dotted zero (via stylistic set) clearly separates from O — dotted avoids Ø confusion that slashed zero can cause. 1 has a strong foot and angled serif vs l/I. IBM design, 7 weights + italics, excellent hinting. Pro feel, zero-risk for tables/invoices/IDs.",
+          specimen: "0O 1lI — 0123456789 — $42,391 — P(2,4) m=4 — y=x² f'(x)=2x ∫x² dx",
+        },
+        {
+          id: "jetbrains-mono",
+          name: "JetBrains Mono",
+          family: "JetBrains Mono",
+          foundry: "JetBrains",
+          category: "monospace",
+          googleFontsUrl: "https://fonts.google.com/specimen/JetBrains+Mono",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&display=swap",
+          weights: [100, 200, 300, 400, 500, 600, 700, 800],
+          styles: ["normal", "italic"],
+          variable: false,
+          professionalism: 8,
+          designerFriendly: 8,
+          licensing: "OFL — free for commercial use",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/JetBrains+Mono",
+          tags: ["mono", "code", "developer", "geometric"],
+          notes:
+            "Designer mono with ligatures. Warm, slightly wider than classic mono — great for code blocks inside a product, not just editor. 8 weights + italics.",
+          specimen: "0O 1lI — 0123456789 — $42,391 — P(2,4) m=4 — y=x² f'(x)=2x ∫x² dx",
+        },
+        {
+          id: "roboto",
+          name: "Roboto",
+          family: "Roboto",
+          foundry: "Christian Robertson / Google",
+          category: "sans-serif",
+          googleFontsUrl: "https://fonts.google.com/specimen/Roboto",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap",
+          weights: [100, 200, 300, 400, 500, 600, 700, 800, 900],
+          styles: ["normal", "italic"],
+          variable: true,
+          professionalism: 9,
+          designerFriendly: 9,
+          licensing: "OFL (Open Font License) — free for commercial use",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/Roboto",
+          tags: ["sans", "workhorse", "tabular", "neutral", "math-viz-ui"],
+          notes:
+            "Dashboard workhorse (Datawrapper default). Tall x-height, open apertures, tabular lining figures via tnum. Neutral chrome for sidebar/top-bar/ticks on both warm paper and dark void. Pair with Roboto Mono for hero metrics.",
+          specimen: "0O 1lI — 0123456789 — $42,391 — P(2,4) m=4 — y=x² f'(x)=2x ∫x² dx",
+        },
+        {
+          id: "roboto-mono",
+          name: "Roboto Mono",
+          family: "Roboto Mono",
+          foundry: "Christian Robertson / Google",
+          category: "monospace",
+          googleFontsUrl: "https://fonts.google.com/specimen/Roboto+Mono",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap",
+          weights: [100, 200, 300, 400, 500, 600, 700],
+          styles: ["normal", "italic"],
+          variable: true,
+          professionalism: 9,
+          designerFriendly: 8,
+          licensing: "OFL (Open Font License) — free for commercial use",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/Roboto+Mono",
+          tags: ["mono", "tabular", "metrics", "hud", "math-viz-numerals"],
+          notes:
+            "Hero-metric mono: fixed-width digits hold position on live counters (X: 2.00 Y: 4.00, CURSOR: (2,4)). Dotted/slashed-zero heritage, distinct 1 foot vs l/I. Companion to Roboto UI.",
+          specimen: "0O 1lI — 0123456789 — $42,391 — X: 2.00 Y: 4.00 — P(2,4) m=4",
+        },
+        {
+          id: "barlow",
+          name: "Barlow",
+          family: "Barlow",
+          foundry: "Jeremy Tribby",
+          category: "sans-serif",
+          googleFontsUrl: "https://fonts.google.com/specimen/Barlow",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap",
+          weights: [100, 200, 300, 400, 500, 600, 700, 800, 900],
+          styles: ["normal", "italic"],
+          variable: false,
+          professionalism: 8,
+          designerFriendly: 8,
+          licensing: "OFL (Open Font License) — free for commercial use",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/Barlow",
+          tags: ["sans", "industrial", "technical", "tabular", "hud-headers"],
+          notes:
+            "Industrial/technical grotesk (California public grotesque). Tabular lining figures, sturdy at 11-12px axis labels. Tron-cyan HUD header voice without condensed-display cramp. 9 weights + italics.",
+          specimen: "0O 1lI — 0123456789 — $42,391 — P(2,4) m=4 — ANIMATE DERIVATIVE",
+        },
+        {
+          id: "work-sans",
+          name: "Work Sans",
+          family: "Work Sans",
+          foundry: "Wei Huang",
+          category: "sans-serif",
+          googleFontsUrl: "https://fonts.google.com/specimen/Work+Sans",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap",
+          weights: [100, 200, 300, 400, 500, 600, 700, 800, 900],
+          styles: ["normal", "italic"],
+          variable: true,
+          professionalism: 8,
+          designerFriendly: 9,
+          licensing: "OFL (Open Font License) — free for commercial use",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/Work+Sans",
+          tags: ["sans", "editorial", "on-screen", "workhorse", "sage-pair"],
+          notes:
+            "Optimized for on-screen body at card/table sizes; clean low-contrast editorial numerals. Sage-editorial light pairing: friendly without Lato warmth overload. Variable 100-900 + italics.",
+          specimen: "0O 1lI — 0123456789 — $42,391 — P(2,4) m=4 — y=x² f'(x)=2x",
+        },
+        {
+          id: "recursive",
+          name: "Recursive",
+          family: "Recursive",
+          foundry: "ArrowType / Stephen Hutchings",
+          category: "sans-serif",
+          googleFontsUrl: "https://fonts.google.com/specimen/Recursive",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&display=swap",
+          weights: [300, 400, 500, 600, 700, 800, 900, 1000],
+          styles: ["normal", "italic"],
+          variable: true,
+          professionalism: 8,
+          designerFriendly: 9,
+          licensing: "OFL (Open Font License) — free for commercial use",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/Recursive",
+          tags: ["sans", "mono", "variable", "multiplexed", "duplexed", "live-counters"],
+          notes:
+            "Multiplexed (uni-width): bold doesn't reflow width — 199 -> 200 counters and light/dark weight bumps (regular->medium on void) hold alignment. Sans+Mono axes in one family (MONO 0..1). Theme-switcher safety pick.",
+          specimen: "0O 1lI — 0123456789 — $42,391 — 199 -> 200 — P(2,4) m=4",
+        },
+        {
+          id: "stix-two-text",
+          name: "STIX Two Text",
+          family: "STIX Two Text",
+          foundry: "Tiro Typeworks / STIX",
+          category: "serif",
+          googleFontsUrl: "https://fonts.google.com/specimen/STIX+Two+Text",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&display=swap",
+          weights: [400, 500, 600, 700],
+          styles: ["normal", "italic"],
+          variable: false,
+          professionalism: 9,
+          designerFriendly: 7,
+          licensing: "OFL (Open Font License) — free for commercial use",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/STIX+Two+Text",
+          tags: ["serif", "math", "equations", "stix", "symbols"],
+          notes:
+            "Equations face: proper ∫ √ ² ¹ ³ glyphs drawn by type designers (not scaled-down 2). Use ONLY for y=x², f'(x)=2x, ∫x² dx panel — never axis ticks. Pairs with any UI sans. Math companion STIX Two Math on Google Fonts.",
+          specimen: "y=x² f'(x)=2x ∫x² dx √2 ¹²³ — 0123456789 — P(2,4)",
+        },
+        {
+          id: "intel-one-mono",
+          name: "Intel One Mono",
+          family: "Intel One Mono",
+          foundry: "Intel / Frere-Jones Type",
+          category: "monospace",
+          importUrl: "https://cdn.jsdelivr.net/npm/@fontsource/intel-one-mono@latest/index.css",
+          weights: [300, 400, 500, 600, 700],
+          styles: ["normal", "italic"],
+          variable: false,
+          professionalism: 8,
+          designerFriendly: 9,
+          licensing: "OFL (Open Font License) — free for commercial use",
+          cost: "Free",
+          freeAlternative: "JetBrains Mono or IBM Plex Mono (Google Fonts hosted)",
+          url: "https://github.com/intel/intel-one-mono",
+          tags: ["mono", "code", "developer", "legible", "hud"],
+          notes:
+            "Modern dev mono (2023, open source). Highly distinct 0/O 1/l/I, generous x-height for 12px HUD readouts (a = 1.0, NODES: 4). Not on Google Fonts — Fontsource CDN link here; self-host woff2 on export. Developer-friendly pick for cursor/param readouts.",
+          specimen: "0O 1lI — 0123456789 — a = 1.0 — X: 2.00 Y: 4.00 — P(2,4)",
+        },
+        {
+          id: "atkinson-hyperlegible-next",
+          name: "Atkinson Hyperlegible Next",
+          family: "Atkinson Hyperlegible Next",
+          foundry: "Braille Institute / Applied Design Works / Letters From Sweden",
+          category: "sans-serif",
+          googleFontsUrl: "https://fonts.google.com/specimen/Atkinson+Hyperlegible+Next",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap",
+          weights: [200, 300, 400, 500, 600, 700, 800],
+          styles: ["normal", "italic"],
+          variable: true,
+          professionalism: 9,
+          designerFriendly: 9,
+          licensing: "OFL (Open Font License) — free for commercial use",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/Atkinson+Hyperlegible+Next",
+          tags: ["sans", "legible", "accessibility", "braille-institute", "variable", "education"],
+          notes:
+            "2025 successor to the 2019 original (Braille Institute current recommendation): refined curves, better kerning, 7 weights 200-800 + italics with variable axis, 383 languages vs 27. Same maximal glyph distinction (B8 O0 1Iil EF pq). Education and UI default for math-viz light themes; bump to medium on dark void.",
+          specimen: "0O 1lI — 0123456789 — $42,391 — P(2,4) m=4 — y=x² f'(x)=2x ∫x² dx",
+        },
+        {
+          id: "atkinson-hyperlegible-next-mono",
+          name: "Atkinson Hyperlegible Mono",
+          family: "Atkinson Hyperlegible Mono",
+          foundry: "Braille Institute / Applied Design Works",
+          category: "monospace",
+          googleFontsUrl: "https://fonts.google.com/specimen/Atkinson+Hyperlegible+Mono",
+          importUrl:
+            "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,200..800;1,200..800&display=swap",
+          weights: [200, 300, 400, 500, 600, 700, 800],
+          styles: ["normal", "italic"],
+          variable: true,
+          professionalism: 9,
+          designerFriendly: 9,
+          licensing: "OFL (Open Font License) — free for commercial use",
+          cost: "Free",
+          freeAlternative: null,
+          url: "https://fonts.google.com/specimen/Atkinson+Hyperlegible+Mono",
+          tags: ["mono", "legible", "accessibility", "tabular", "variable", "hud"],
+          notes:
+            "Monospaced companion to Next (variable 200-800 + italics) for tables, HUD readouts (X: 2.00 Y: 4.00, CURSOR: (2,4)), and code. Same Braille Institute glyph-distinction DNA with fixed-width scanning. Strongest 1/l/I split in the mono set.",
+          specimen: "0O 1lI — 0123456789 — a = 1.0 — X: 2.00 Y: 4.00 — P(2,4) m=4",
+        },
+      ]
+      const SIZES = [12, 16, 24, 36, 48, 72]
+      const COLORS = ["#0f172a", "#64748b", "#4F46E5", "#0E7C6B", "#00E5FF", "#ffffff"]
+      let globalText = "0O 1lI — 0123456789 — $42,391 — P(2,4) m=4 — y=x² f'(x)=2x ∫x² dx"
+      let globalSize = 28
+      let globalColor = "#d6eaff"
+
+      function scoreClass(n) {
+        if (n >= 8) return "good"
+        if (n >= 5) return "mid"
+        return "low"
+      }
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+      }
+
+      function card(f) {
+        const profCls = scoreClass(f.professionalism)
+        const desCls = scoreClass(f.designerFriendly)
+        const weights = (f.weights || []).join(" · ") || "—"
+        const styles = (f.styles || []).join(", ") || "normal"
+        const specimen =
+          f.specimen || globalText || "The quick brown fox jumps over the lazy dog 0123456789 — Aa Bb Cc"
+        const foundry = f.foundry ? ` — ${esc(f.foundry)}` : ""
+        const cat = f.category || "sans"
+        const licensing = esc(f.licensing || "Unknown")
+        const cost = esc(f.cost || "Unknown")
+        const freeAlt = f.freeAlternative ? `Free alt: ${esc(f.freeAlternative)}` : "No free alt listed"
+        const google = f.googleFontsUrl
+          ? `<a href="${esc(f.googleFontsUrl)}" target="_blank">Google Fonts</a>`
+          : ""
+        const src = f.url ? `<a href="${esc(f.url)}" target="_blank">${esc(f.url)}</a>` : ""
+        const importUrl = f.importUrl
+          ? `<code>${esc(f.importUrl)}</code>`
+          : "<em>no importUrl — self-host or find Google Fonts</em>"
+        const tags = (f.tags || [])
+          .map((t) => `<span class="pill" style="font-size:10px">${esc(t)}</span>`)
+          .join(" ")
+        // preview rows at each size
+        const sizeRows = SIZES.map(
+          (sz) => `
+    <div class="size-row">
+      <div class="sz">${sz}px — <span style="font-family:'${esc(f.family)}', system-ui, sans-serif">${esc(f.family)}</span> <span style="opacity:0.5">${weights}</span></div>
+      <div class="preview-text" contenteditable="true" data-family="${esc(f.family)}" style="font-family:'${esc(f.family)}', system-ui, sans-serif; font-size:${sz}px; line-height:1.25">${esc(specimen)}</div>
+    </div>`,
+        ).join("")
+        const weightSwatches = (f.weights || [400])
+          .map(
+            (w) =>
+              `<span class="weight" style="font-family:'${esc(f.family)}', sans-serif; font-weight:${w}">${w} — The quick brown fox</span>`,
+          )
+          .join(" · ")
+        const colorSwatches = COLORS.map(
+          (c) =>
+            `<span class="color-dot" title="${esc(c)}" style="background:${esc(c)}" data-color="${esc(c)}"></span>`,
+        ).join(" ")
+
+        return `
+  <div class="card" data-id="${esc(f.id)}">
+    <div class="card-head">
+      <h2 style="font-family:'${esc(f.family)}', sans-serif">${esc(f.name)}</h2>
+      <span class="foundry">${esc(f.family)}${foundry}</span>
+      <span class="cat">${esc(cat)}</span>
+      <span class="kill" style="font-size:10px;opacity:0.5">${f.variable ? "● variable" : "○ static"}</span>
+    </div>
+    <div class="scores">
+      <span class="pill ${profCls}">Professional <strong>${f.professionalism}/10</strong></span>
+      <span class="pill ${desCls}">Designer <strong>${f.designerFriendly}/10</strong></span>
+      <span class="pill">Weights <strong>${weights}</strong></span>
+      <span class="pill">Styles <strong>${esc(styles)}</strong></span>
+      ${tags}
+    </div>
+    <div class="meta">
+      <div><strong>Licensing:</strong> ${licensing} · <strong>Cost:</strong> ${cost} · ${esc(freeAlt)}</div>
+      <div>${google} ${google && src ? " · " : ""} ${src}</div>
+      <div style="margin-top:6px"><strong>Import:</strong> ${importUrl}</div>
+      ${f.notes ? `<div style="margin-top:6px;opacity:0.8"><strong>Notes:</strong> ${esc(f.notes)}</div>` : ""}
+    </div>
+    <div class="preview-wrap">
+      <div class="preview-label"><span>Editable specimen — click to type, Tab to next size</span><span class="color-dots">${colorSwatches}</span></div>
+      <div class="sizes">${sizeRows}</div>
+      <div class="preview-label">Weights present</div>
+      <div class="weights" style="font-family:'${esc(f.family)}', sans-serif">${weightSwatches}</div>
+    </div>
+  </div>`
+      }
+
+      function render() {
+        const g = document.getElementById("gallery")
+        const count = document.getElementById("count")
+        const live = document.getElementById("live")
+        if (!FONTS.length) {
+          g.innerHTML = `<div class="empty"><h3 style="margin:0;color:var(--cyan)">No fonts in catalog yet</h3><p style="opacity:0.8">Ask the sommelier to add some: “Add Inter, JetBrains Mono, and Fraunces to my catalog and rebuild the gallery” or use the font-catalog tool directly. Then rebuild with “Show me all catalog fonts at 24px in #111827 and white-on-dark”.</p></div>`
+          count.textContent = "0 fonts"
+          live.textContent = "EMPTY — add fonts via agent"
+          return
+        }
+        g.innerHTML = FONTS.map(card).join("")
+        count.textContent = `${FONTS.length} fonts · ${SIZES.length} sizes · ${COLORS.length} colors`
+        live.textContent = `family stacks: ${FONTS.map((f) => f.family).join(", ")}`
+        // wire global text sync
+        g.querySelectorAll(".preview-text").forEach((el) => {
+          el.addEventListener("input", () => {
+            /* per-card edit, do not sync global back */
+          })
+        })
+        g.querySelectorAll(".color-dot").forEach((dot) => {
+          dot.addEventListener("click", () => {
+            const c = dot.getAttribute("data-color")
+            const cardEl = dot.closest(".card")
+            if (cardEl) cardEl.querySelectorAll(".preview-text").forEach((p) => (p.style.color = c))
+          })
+        })
+      }
+
+      document.getElementById("globalText")?.addEventListener("input", (e) => {
+        globalText = e.target.value
+        document.querySelectorAll(".preview-text").forEach((el) => (el.textContent = globalText))
+      })
+      document.getElementById("globalSize")?.addEventListener("input", (e) => {
+        globalSize = parseInt(e.target.value, 10)
+        document.getElementById("sizeVal").textContent = globalSize + "px"
+        document.querySelectorAll(".preview-text").forEach((el) => {
+          // only affect the focused pattern? For now set all to globalSize for global preview row mimic — but keep per-size rows distinguishable by leaving them as is.
+          // Instead apply to first row per card as hero
+          const card = el.closest(".card")
+          const first = card?.querySelector(".preview-text")
+          if (first === el) el.style.fontSize = globalSize + "px"
+        })
+      })
+      document.getElementById("globalColor")?.addEventListener("input", (e) => {
+        globalColor = e.target.value
+        document.getElementById("colorVal").textContent = globalColor
+        document.querySelectorAll(".preview-text").forEach((el) => (el.style.color = globalColor))
+      })
+      document.getElementById("bgSelect")?.addEventListener("change", (e) => {
+        document.querySelectorAll(".card").forEach((c) => (c.style.background = e.target.value))
+      })
+
+      render()
+    </script>
+  </body>
+</html>

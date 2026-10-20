@@ -1,0 +1,95 @@
+{
+  "slug": "mathviz-carbon-amber",
+  "mode": "dark",
+  "desc": "carbon phosphor terminal",
+  "still": "media/galleries/math-viz-v2/06-dark-carbon-amber.png",
+  "size": [1536, 1024],
+  "measured": {
+    "corners_bg": {
+      "hex": "#000000",
+      "oklch": "oklch(0.0000 0.0000 0.00)"
+    },
+    "sidebar_mid": {
+      "hex": "#040501",
+      "oklch": "oklch(0.1099 0.0182 118.05)"
+    },
+    "canvas_mid": {
+      "hex": "#020803",
+      "oklch": "oklch(0.1221 0.0221 149.76)"
+    },
+    "dominant": [
+      {
+        "share": 0.0988,
+        "hex": "#020804",
+        "oklch": "oklch(0.1227 0.0193 156.90)"
+      },
+      {
+        "share": 0.0003,
+        "hex": "#533F13",
+        "oklch": "oklch(0.3802 0.0657 83.72)"
+      },
+      {
+        "share": 0.0002,
+        "hex": "#AE7F21",
+        "oklch": "oklch(0.6275 0.1190 79.71)"
+      },
+      {
+        "share": 0.0002,
+        "hex": "#E0B844",
+        "oklch": "oklch(0.7976 0.1381 89.50)"
+      },
+      {
+        "share": 0.0002,
+        "hex": "#C1972F",
+        "oklch": "oklch(0.6978 0.1266 85.62)"
+      }
+    ],
+    "vivid": [
+      {
+        "share": 0.0027,
+        "hex": "#503000",
+        "oklch": "oklch(0.3407 0.0739 69.86)"
+      },
+      {
+        "share": 0.0023,
+        "hex": "#604000",
+        "oklch": "oklch(0.3980 0.0833 76.78)"
+      },
+      {
+        "share": 0.0022,
+        "hex": "#705010",
+        "oklch": "oklch(0.4545 0.0871 79.42)"
+      },
+      {
+        "share": 0.0015,
+        "hex": "#705000",
+        "oklch": "oklch(0.4537 0.0935 81.90)"
+      },
+      {
+        "share": 0.0015,
+        "hex": "#806010",
+        "oklch": "oklch(0.5085 0.0986 84.20)"
+      },
+      {
+        "share": 0.0013,
+        "hex": "#504000",
+        "oklch": "oklch(0.3775 0.0773 92.78)"
+      },
+      {
+        "share": 0.0011,
+        "hex": "#906000",
+        "oklch": "oklch(0.5276 0.1113 74.98)"
+      },
+      {
+        "share": 0.0009,
+        "hex": "#604010",
+        "oklch": "oklch(0.3990 0.0756 72.59)"
+      }
+    ]
+  },
+  "python_tools": {
+    "oklch": "agents/viz3d-factory/template/tools/color-compare/src/oklch.py",
+    "sampler_pattern": "agents/viz3d-factory/template/tools/color-compare/src/compare.py",
+    "note": "sRGB<->OKLCH (Ottosson, no deps): python src/oklch.py '#FF26B6'. Sampling pattern: PIL getpixel at relative coords + median-cut dominant via resize+getcolors."
+  }
+}

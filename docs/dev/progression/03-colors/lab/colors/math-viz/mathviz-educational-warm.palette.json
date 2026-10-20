@@ -1,0 +1,28 @@
+{
+  "appTypes": ["dashboard", "app-shell"],
+  "colors": {
+    "accent": "#F97316",
+    "accentForeground": "#FFFFFF",
+    "background": "#FFFDF9",
+    "backgroundMuted": "#FEF3E6",
+    "border": "#E9E0D0",
+    "card": "#FFFFFF",
+    "destructive": "#DC2626",
+    "foreground": "#27283F",
+    "foregroundMuted": "#5C5F70",
+    "primary": "#4F46E5",
+    "primaryForeground": "#FFFFFF",
+    "secondary": "#E8EAF6",
+    "secondaryForeground": "#27283F",
+    "success": "#0D9488",
+    "warning": "#D97706"
+  },
+  "id": "mathviz-educational-warm",
+  "modes": ["light"],
+  "name": "MathViz Educational Warm",
+  "notes": "Pair indigo primary (parabola) over warm paper; coral accent (tangent) sparingly for highlights. Gradient strategy: indigo->coral duotone for headers and chart area fills, soft warm mesh for hero bands.",
+  "scores": { "designerFriendly": 9, "professional": 8 },
+  "slug": "mathviz-educational-warm",
+  "tags": ["math-viz", "warm-paper", "education"],
+  "vibe": "education"
+}
