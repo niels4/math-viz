@@ -2,13 +2,13 @@ import type { PointerEvent as ReactPointerEvent, RefObject } from "react"
 
 import { useRef, useState } from "react"
 
-import { fromPx, hitTest, type PlotHandle, type PlotPoint } from "../draw/drawCartesianPlane"
+import { fromPx, hitTest, type PlotHandle, type PlotMarker, type PlotPoint } from "../draw/drawCartesianPlane"
 import { type GridLayout } from "../draw/grid"
 
 export const useMouseHandles = (
   ref: RefObject<HTMLCanvasElement | null>,
   grid: GridLayout,
-  handles: readonly PlotHandle[],
+  handles: readonly (PlotHandle | PlotMarker)[],
   onHoverPlane: (point: PlotPoint | null) => void,
 ) => {
   const lastHoveredIndex = useRef(-1)
@@ -20,7 +20,7 @@ export const useMouseHandles = (
   const onPointerMove = (e: ReactPointerEvent<HTMLCanvasElement>) => {
     const clientX = e.nativeEvent.offsetX
     const clientY = e.nativeEvent.offsetY
-    const hoveredHandleIndex = hitTest(grid, handles, [clientX, clientY], "onHover")
+    const hoveredHandleIndex = hitTest(grid, handles, [clientX, clientY])
     const onHoverHandler = handles[hoveredHandleIndex]?.handlers?.onHover
     if (onHoverHandler != null) {
       onHoverHandler(e.nativeEvent, plotPoint(e.nativeEvent))
@@ -46,7 +46,7 @@ export const useMouseHandles = (
 
     const clientX = e.nativeEvent.offsetX
     const clientY = e.nativeEvent.offsetY
-    const pressedHandleIndex = hitTest(grid, handles, [clientX, clientY], "onPointerDown")
+    const pressedHandleIndex = hitTest(grid, handles, [clientX, clientY])
     const handle = handles[pressedHandleIndex]
     const pointerDownHandler = handle?.handlers?.onPointerDown
     if (pointerDownHandler == null) {

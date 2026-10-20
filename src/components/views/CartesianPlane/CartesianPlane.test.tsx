@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vite
 
 import { act, render, toElement } from "#test"
 
-import type { PlotFunction, PlotHandle, PlotPoint } from "./draw/drawCartesianPlane"
+import type { PlotFunction, PlotHandle, PlotMarker, PlotPoint } from "./draw/drawCartesianPlane"
 
 import { CartesianPlane } from "./CartesianPlane"
 import { planeFont } from "./constants"
@@ -216,5 +216,61 @@ describe("CartesianPlane", () => {
     )
     move()
     expect(onHoverPoint.mock.lastCall?.[0]).toBeNull()
+  })
+
+  it("drags a point instead of the plane, with an open hand over it and a closed one while held", async () => {
+    const onHoverPoint = vi.fn<(point: PlotPoint | null) => void>()
+    const onDrag = vi.fn<(e: PointerEvent, point: PlotPoint) => void>()
+    const markersAtom = atom<PlotMarker[]>([])
+    const Plane = () => (
+      <CartesianPlane
+        curves={[]}
+        handles={[]}
+        lines={[]}
+        markers={useAtomValue(markersAtom)}
+        onHoverPoint={onHoverPoint}
+      />
+    )
+    await render(<Plane />)
+    const canvas = toElement(document.querySelector("canvas"))
+    const pointer = (type: string, clientX: number, buttons: number) =>
+      act(() =>
+        canvas.dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            pointerId: 1,
+            pointerType: "mouse",
+            button: 0,
+            buttons,
+            clientX,
+            clientY: 150,
+          }),
+        ),
+      )
+
+    pointer("pointermove", 200, 0)
+    const under = onHoverPoint.mock.lastCall?.[0]
+    if (under == null) {
+      throw new Error("the plane reported no point under the pointer")
+    }
+    act(() =>
+      getDefaultStore().set(markersAtom, [
+        { point: under, ink: "primary", handlers: { onPointerDown: () => {}, onDrag } },
+      ]),
+    )
+
+    pointer("pointermove", 201, 0)
+    expect(canvas.dataset["cursor"]).toBe("grab-hover")
+    expect(onHoverPoint.mock.lastCall?.[0]).toBeNull()
+
+    pointer("pointerdown", 201, 1)
+    expect(canvas.dataset["cursor"]).toBe("grab-active")
+
+    pointer("pointermove", 241, 1)
+    expect(onDrag.mock.lastCall?.[1].x).toBeCloseTo(under.x + 0.82)
+    expect(onHoverPoint.mock.lastCall?.[0]).toBeNull()
+
+    pointer("pointerup", 241, 0)
+    expect(canvas.dataset["cursor"]).toBe("pan")
   })
 })

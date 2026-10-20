@@ -17,6 +17,7 @@ import { formatNumber, quantize } from "./SideBar/PointsSection/format"
 import { SideBar } from "./SideBar/SideBar"
 import { litAtom, pDraggingAtom, qXAtom } from "./state"
 import { transformCurves, transformed, transformLines } from "./transformCurves"
+import { usePointHandle } from "./usePointHandle"
 import { useShownTransform } from "./useShownTransform"
 import { useTransformHandles } from "./useTransformHandles"
 
@@ -55,6 +56,7 @@ const Plot = () => {
   const pDragging = useAtomValue(pDraggingAtom)
   const [qX, setQX] = useAtom(qXAtom)
   const handles = useTransformHandles(func, shown)
+  const pHandlers = usePointHandle()
   const f = transformed(baseFunctions[func], shown)
   const pPoint = { x: p, y: f(p) }
   const qPoint = qX === null ? null : { x: qX, y: f(qX) }
@@ -70,6 +72,7 @@ const Plot = () => {
           ink: pointPInk(themeSlug),
           label: pointLabel("P", pPoint),
           dropLines: pDragging,
+          handlers: pHandlers,
         },
         ...(qPoint === null
           ? []

@@ -15,7 +15,7 @@ export type PlotMouseHandlerAction = "onHover" | "onHoverEnd" | "onPointerDown" 
 
 type HandlerFunc = (e: PointerEvent, point: PlotPoint) => void
 
-type PlotHandleMouseHandlers = Partial<Record<PlotMouseHandlerAction, HandlerFunc>>
+export type PlotHandleMouseHandlers = Partial<Record<PlotMouseHandlerAction, HandlerFunc>>
 
 export type PlotHandle = {
   point: PlotPoint
@@ -34,6 +34,7 @@ export type PlotMarker = {
   label?: PlotLabel
   dropLines?: boolean
   guide?: boolean
+  handlers?: PlotHandleMouseHandlers
 }
 
 type CurveLook = { ink: keyof ThemeVars; width: number; cap: CanvasLineCap; dash: number[]; alpha: number }
@@ -477,20 +478,24 @@ const drawLabel = (
   ctx.restore()
 }
 
+const markerHitBox = 48
+
 export const hitTest = (
   grid: GridLayout,
-  handles: readonly PlotHandle[],
+  handles: readonly (PlotHandle | PlotMarker)[],
   [px, py]: [number, number],
-  action: PlotMouseHandlerAction,
 ): number =>
   handles.findLastIndex((handle) => {
-    if (handle.handlers?.[action] === undefined) {
+    if (handle.handlers === undefined) {
       return false
     }
     const [x, y] = toPx(grid, handle.point)
     const dx = Math.abs(px - x)
     const dy = Math.abs(py - y)
-    return handle.shape === "diamond" ? dx + dy <= diamondRadius : Math.max(dx, dy) <= squareSide / 2
+    if (handle.shape === "diamond") {
+      return dx + dy <= diamondRadius
+    }
+    return Math.max(dx, dy) <= (handle.shape === "square" ? squareSide : markerHitBox) / 2
   })
 
 export const drawCartesianPlane = (

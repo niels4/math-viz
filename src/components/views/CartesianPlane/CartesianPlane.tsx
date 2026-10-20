@@ -69,7 +69,7 @@ export const CartesianPlane = ({
   const { hovering, dragging, onPointerMove, onPointerDown, onPointerLeave } = useMouseHandles(
     ref,
     grid,
-    handles,
+    [...handles, ...markers],
     (point) => onHoverPoint?.(panning ? null : point),
   )
   const panning = useCamera(ref, center, scale, setCenter, setScale, flushCamera, dragging)
