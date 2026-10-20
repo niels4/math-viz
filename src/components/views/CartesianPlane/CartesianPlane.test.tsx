@@ -8,7 +8,7 @@ import { CartesianPlane } from "./CartesianPlane"
 import { planeFont } from "./constants"
 
 const identity: PlotFunction = (x) => x
-const notHovering = { hovering: false, setHovering: () => {} }
+const notHovering = { hovering: false, dragging: false }
 
 type Draw = { calls: string[]; texts: { text: string; font: string }[] }
 let draws: Draw[]

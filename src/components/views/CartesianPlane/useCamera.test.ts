@@ -77,7 +77,8 @@ const renderCamera = async (start: Camera) => {
   const setScale = vi.fn<(scale: number) => void>()
   const onSettle = vi.fn<() => void>()
   const hook = await renderHook(
-    (props: Camera = start) => useCamera(ref, props.center, props.scale, setCenter, setScale, onSettle),
+    (props: Camera = start) =>
+      useCamera(ref, props.center, props.scale, setCenter, setScale, onSettle, false),
     { initialProps: start },
   )
   const latest = (): Camera => ({

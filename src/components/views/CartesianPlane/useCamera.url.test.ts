@@ -12,10 +12,18 @@ import { useCamera } from "./useCamera"
 const usePlaneCamera = (ref: RefObject<HTMLCanvasElement | null>) => {
   const [center, setCenter, flushCenter] = useQueryParam(centerParam)
   const [scale, setScale, flushScale] = useQueryParam(scaleParam)
-  useCamera(ref, center, scale, setCenter, setScale, () => {
-    flushCenter()
-    flushScale()
-  })
+  useCamera(
+    ref,
+    center,
+    scale,
+    setCenter,
+    setScale,
+    () => {
+      flushCenter()
+      flushScale()
+    },
+    false,
+  )
   return { center, scale }
 }
 

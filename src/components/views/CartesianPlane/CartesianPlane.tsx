@@ -1,4 +1,4 @@
-import React, { useEffect, useState, type RefObject } from "react"
+import { useEffect, useState, type RefObject } from "react"
 import { useRef } from "react"
 
 import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.ts"
@@ -9,18 +9,12 @@ import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 
 import style from "./CartesianPlain.module.css"
 import { labelMargin, planeFont } from "./constants"
-import {
-  drawCartesianPlane,
-  fromPx,
-  hitTest,
-  type PlotCurve,
-  type PlotHandle,
-  type PlotLine,
-} from "./drawCartesianPlane"
+import { drawCartesianPlane, type PlotCurve, type PlotHandle, type PlotLine } from "./drawCartesianPlane"
 import { layoutGrid, type GridLayout } from "./grid"
 import { HtmlOverlay } from "./HtmlOverlay"
 import { centerParam, scaleParam } from "./queryParams"
 import { useCamera } from "./useCamera"
+import { useMouseHandles } from "./useMouseHandles"
 
 const ctxOptions: CanvasRenderingContext2DSettings = { colorSpace: "display-p3" } as const
 
@@ -104,7 +98,6 @@ export const CartesianPlane = ({
   const [scale, setScale, flushScale] = useQueryParam(scaleParam)
   const { themeVars } = useAppTheme()
   const font = useCanvasFont(planeFont)
-  const lastHoveredIndex = useRef(-1)
 
   const flushCamera = () => {
     flushCenter()
@@ -116,59 +109,7 @@ export const CartesianPlane = ({
   const grid = layoutGrid(width, height, center, scale, labelMargin)
   useUpdateCanvas(ref, grid, themeVars, font, curves, handles, lines)
 
-  const plotPoint = (e: PointerEvent) => fromPx(grid, [e.offsetX, e.offsetY])
-
-  const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    const clientX = e.nativeEvent.offsetX
-    const clientY = e.nativeEvent.offsetY
-    const hoveredHandleIndex = hitTest(grid, handles, [clientX, clientY], "onHover")
-    const onHoverHandler = handles[hoveredHandleIndex]?.handlers?.onHover
-    if (onHoverHandler != null) {
-      onHoverHandler(e.nativeEvent, plotPoint(e.nativeEvent))
-    }
-
-    const onHoverEndHandler = handles[lastHoveredIndex.current]?.handlers?.onHoverEnd
-    if (onHoverEndHandler && lastHoveredIndex.current !== hoveredHandleIndex) {
-      onHoverEndHandler(e.nativeEvent, plotPoint(e.nativeEvent))
-    }
-    lastHoveredIndex.current = hoveredHandleIndex
-  }
-
-  const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!ref.current) {
-      return
-    }
-
-    const clientX = e.nativeEvent.offsetX
-    const clientY = e.nativeEvent.offsetY
-    const pressedHandleIndex = hitTest(grid, handles, [clientX, clientY], "onPointerDown")
-    const handle = handles[pressedHandleIndex]
-    const pointerDownHandler = handle?.handlers?.onPointerDown
-    if (pointerDownHandler == null) {
-      return
-    }
-    pointerDownHandler(e.nativeEvent, plotPoint(e.nativeEvent))
-    const onDragHandler = handle?.handlers?.onDrag
-    if (onDragHandler == null) {
-      return
-    }
-
-    const onDrag = (e: PointerEvent) => {
-      onDragHandler(e, plotPoint(e))
-    }
-
-    const onDragEnd = (e: PointerEvent) => {
-      ref.current?.removeEventListener("pointermove", onDrag)
-      window.removeEventListener("pointerup", onDragEnd)
-      const pointerUpHandler = handle?.handlers?.onPointerUp
-      if (pointerUpHandler) {
-        pointerUpHandler(e, plotPoint(e))
-      }
-    }
-
-    ref.current.addEventListener("pointermove", onDrag)
-    window.addEventListener("pointerup", onDragEnd)
-  }
+  const { onPointerMove, onPointerDown } = useMouseHandles(ref, grid, handles)
 
   return (
     <div className={style.wrapper}>
