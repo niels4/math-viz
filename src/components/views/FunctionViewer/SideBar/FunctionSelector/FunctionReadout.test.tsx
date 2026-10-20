@@ -31,7 +31,7 @@ const readout = async (hash: string) => {
 describe("the function readout", () => {
   it("shows the bare function when every value is at its default", async () => {
     const line = await readout("")
-    await expect.poll(() => spoken(line)).toBe("f(x) = x")
+    await expect.poll(() => spoken(line)).toBe("f(x) = x²")
   })
 
   it("prints a link's values with two decimals and true minus signs", async () => {
@@ -45,17 +45,17 @@ describe("the function readout", () => {
   })
 
   it("scales a bare x without parentheses", async () => {
-    const line = await readout("#?a=3")
+    const line = await readout("#?func=x1&a=3")
     await expect.poll(() => spoken(line)).toBe("f(x) = 3.00x")
   })
 
   it("puts a scaled x in parentheses when it is shifted", async () => {
-    const line = await readout("#?a=3&h=1")
+    const line = await readout("#?func=x1&a=3&h=1")
     await expect.poll(() => spoken(line)).toBe("f(x) = 3.00(x − 1.00)")
   })
 
   it("reads x over b without parentheses", async () => {
-    const line = await readout("#?b=2")
+    const line = await readout("#?func=x1&b=2")
     await expect.poll(() => spoken(line)).toBe("f(x) = x/2.00")
   })
 
@@ -65,13 +65,13 @@ describe("the function readout", () => {
   })
 
   it("leaves announcing changes to the transform controls", async () => {
-    const line = await readout("#?a=2")
+    const line = await readout("#?func=x1&a=2")
     await expect.poll(() => spoken(line)).toBe("f(x) = 2.00x")
     expect(line.closest("output, [role='status'], [aria-live]")).toBeNull()
   })
 
   it.runIf(isBrowser())("shrinks a long equation to fit the sidebar", async () => {
-    await updateLocationHash("#?a=20&b=30&h=10&k=12.5")
+    await updateLocationHash("#?func=x1&a=20&b=30&h=10&k=12.5")
     const screen = await render(
       <div className={style_vars} style={{ width: 320 }}>
         <FunctionReadout />
@@ -87,6 +87,7 @@ describe("the function readout", () => {
   })
 
   it.runIf(isBrowser())("keeps its height when a horizontal scale stacks a fraction", async () => {
+    await updateLocationHash("#?func=x1")
     const screen = await render(
       <div className={style_vars}>
         <FunctionReadout />
@@ -96,7 +97,7 @@ describe("the function readout", () => {
     await expect.poll(() => spoken(row)).toBe("f(x) = x")
     const height = row.getBoundingClientRect().height
 
-    await updateLocationHash("#?b=2&h=1")
+    await updateLocationHash("#?func=x1&b=2&h=1")
     await expect.poll(() => spoken(row)).toBe("f(x) = (x − 1.00)/2.00")
     expect(row.getBoundingClientRect().height).toBe(height)
   })

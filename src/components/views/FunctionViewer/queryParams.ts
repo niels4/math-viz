@@ -11,7 +11,7 @@ const isFunctionSlug = (raw: string): raw is FunctionSlug =>
 export const funcParam = queryParamAtom<FunctionSlug>("func", {
   parse: (raw) => (raw != null && isFunctionSlug(raw) ? raw : undefined),
   serialize: (v) => v,
-  defaultValue: "x1",
+  defaultValue: "x2",
 })
 
 const numberParam = (key: string, defaultValue: number, isScale: boolean) =>

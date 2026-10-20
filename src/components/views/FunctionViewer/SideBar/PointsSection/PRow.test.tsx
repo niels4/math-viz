@@ -76,26 +76,26 @@ describe("P's head row", () => {
   })
 
   it("says when f(P) lies below the view, with a true minus", async () => {
-    const { field, row } = await renderRow("#?p=-5")
+    const { field, row } = await renderRow("#?func=x1&p=-5")
     expect(row.textContent).toContain("below the view")
     expect(field).toHaveValue("−5.00")
     expect(row.textContent).toContain("= −5.00")
   })
 
   it("says when P lies left of the view", async () => {
-    const { row } = await renderRow("#?p=-6&k=6")
+    const { row } = await renderRow("#?func=x1&p=-6&k=6")
     expect(row.textContent).toContain("left of the view")
     expect(row.textContent).not.toContain("pinned")
   })
 
   it("says when P lies right of the view", async () => {
-    const { row } = await renderRow("#?p=6&k=-6")
+    const { row } = await renderRow("#?func=x1&p=6&k=-6")
     expect(row.textContent).toContain("right of the view")
     expect(row.textContent).not.toContain("pinned")
   })
 
   it("past a corner, names the side P lies furthest past", async () => {
-    const { row } = await renderRow("#?p=9&k=-4")
+    const { row } = await renderRow("#?func=x1&p=9&k=-4")
     expect(row.textContent).toContain("right of the view")
     expect(row.textContent).not.toContain("above the view")
   })
@@ -208,7 +208,7 @@ describe("the moved badge", () => {
   })
 
   it("goes at once when something other than a drag changes the curve", async () => {
-    const { row } = await renderRow()
+    const { row } = await renderRow("#?func=x1")
     set((store) => {
       store.set(scrubModeAtoms.h, "coarse")
       store.set(hParam.atom, 1)

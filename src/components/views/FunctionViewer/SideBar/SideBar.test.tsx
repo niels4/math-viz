@@ -11,16 +11,16 @@ afterEach(async () => {
 })
 
 describe("the function selector", () => {
-  it("puts the picked function in the URL, and leaves x out of it", async () => {
+  it("puts the picked function in the URL, and leaves x² out of it", async () => {
     const screen = await render(<SideBar />)
-    await expect.element(screen.getByLabelText("x", { exact: true })).toBeChecked()
-
-    await screen.getByLabelText("x²").click()
     await expect.element(screen.getByLabelText("x²")).toBeChecked()
-    expect(window.location.hash).toContain("func=x2")
 
     await screen.getByLabelText("x", { exact: true }).click()
     await expect.element(screen.getByLabelText("x", { exact: true })).toBeChecked()
+    expect(window.location.hash).toContain("func=x1")
+
+    await screen.getByLabelText("x²").click()
+    await expect.element(screen.getByLabelText("x²")).toBeChecked()
     expect(window.location.hash).not.toContain("func")
   })
 
