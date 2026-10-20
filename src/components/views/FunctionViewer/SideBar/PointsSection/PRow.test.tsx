@@ -63,6 +63,12 @@ describe("P's head row", () => {
     expect(row.textContent).toContain("≈ 0.84")
   })
 
+  it("prints a huge f(P) in scientific notation", async () => {
+    const { row } = await renderRow("#?func=x3&p=-123.4")
+    expect(row.textContent).toContain("≈ −1.88×106")
+    expect(row.querySelector("sup")).toHaveTextContent("6")
+  })
+
   it("says when f(P) lies above the view", async () => {
     const { row } = await renderRow("#?func=x2&p=3")
     expect(row.textContent).toContain("above the view")

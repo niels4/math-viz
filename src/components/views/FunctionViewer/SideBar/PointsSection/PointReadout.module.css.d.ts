@@ -3,6 +3,7 @@
 // prettier-ignore
 declare const styles: {
   readonly "close": string;
+  readonly "exponent": string;
   readonly "lead": string;
   readonly "math": string;
   readonly "number": string;

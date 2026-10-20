@@ -44,3 +44,9 @@
     min-width: 0;
   }
 }
+
+.exponent {
+  font-size: 11px;
+  line-height: 0;
+  vertical-align: 8px;
+}

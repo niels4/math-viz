@@ -21,7 +21,30 @@ export const parseNumber = (text: string): number | null => {
   return Number.isFinite(n) ? n : null
 }
 
-export const relation = (v: number): "=" | "≈" => (Math.abs(Number(v.toFixed(2)) - v) < 1e-9 ? "=" : "≈")
+const SCIENTIFIC_FROM = 1e5
+
+const round2 = (v: number) => Number(v.toFixed(2))
+
+export type NumberParts =
+  | { kind: "fixed"; text: string; exact: boolean }
+  | { kind: "sci"; mantissa: string; exponent: string; exact: boolean }
+
+export const numberParts = (v: number): NumberParts => {
+  if (!Number.isFinite(v) || Math.abs(round2(v)) < SCIENTIFIC_FROM) {
+    return { kind: "fixed", text: formatNumber(v), exact: Math.abs(round2(v) - v) < 1e-9 }
+  }
+  let exponent = Math.floor(Math.log10(Math.abs(v)))
+  if (Math.abs(round2(v / 10 ** exponent)) >= 10) {
+    exponent += 1
+  }
+  const mantissa = round2(v / 10 ** exponent)
+  return {
+    kind: "sci",
+    mantissa: formatNumber(mantissa),
+    exponent: String(exponent),
+    exact: Math.abs(mantissa * 10 ** exponent - v) <= 1e-9 * Math.abs(v),
+  }
+}
 
 export type ReadoutSlots = { x: number; y: number }
 

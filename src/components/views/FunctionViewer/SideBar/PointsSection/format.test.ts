@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { formatChange, formatNumber, parseNumber, readoutSlots, relation } from "./format"
+import { formatChange, formatNumber, numberParts, parseNumber, readoutSlots } from "./format"
 
 describe("formatNumber", () => {
   it("prints two decimals with a true minus, and never −0", () => {
@@ -33,11 +33,31 @@ describe("parseNumber", () => {
   })
 })
 
-describe("relation", () => {
-  it("is = when two decimals show the value exactly, ≈ when they round it", () => {
-    expect(relation(2.25)).toBe("=")
-    expect(relation(0.1 + 0.2)).toBe("=")
-    expect(relation(Math.sin(1))).toBe("≈")
+describe("numberParts", () => {
+  it("prints fixed digits below 100000", () => {
+    expect(numberParts(99999.99)).toEqual({ kind: "fixed", text: "99999.99", exact: true })
+    expect(numberParts(-12.345)).toEqual({ kind: "fixed", text: "−12.35", exact: false })
+  })
+
+  it("goes scientific from 100000, with two decimals in the mantissa", () => {
+    expect(numberParts(123456)).toEqual({ kind: "sci", mantissa: "1.23", exponent: "5", exact: false })
+    expect(numberParts(-1e6)).toEqual({ kind: "sci", mantissa: "−1.00", exponent: "6", exact: true })
+  })
+
+  it("carries a mantissa that rounds up to 10 into the exponent", () => {
+    expect(numberParts(99999.996)).toEqual({ kind: "sci", mantissa: "1.00", exponent: "5", exact: false })
+    expect(numberParts(9.999e7)).toEqual({ kind: "sci", mantissa: "1.00", exponent: "8", exact: false })
+  })
+})
+
+describe("an exact readout", () => {
+  it("is one that shows the value exactly, not a rounding of it", () => {
+    const exact = (v: number) => numberParts(v).exact
+    expect(exact(2.25)).toBe(true)
+    expect(exact(0.1 + 0.2)).toBe(true)
+    expect(exact(Math.sin(1))).toBe(false)
+    expect(exact(2.5e6)).toBe(true)
+    expect(exact(2.505e6)).toBe(false)
   })
 })
 
