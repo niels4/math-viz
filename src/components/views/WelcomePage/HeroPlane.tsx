@@ -11,7 +11,7 @@ import { useCanvasFont, useUpdateCanvas } from "../CartesianPlane/hooks/useUpdat
 import { centerParam, scaleParam } from "../CartesianPlane/queryParams"
 import { baseFunctions } from "../FunctionViewer/baseFunctions"
 import { transformCurves } from "../FunctionViewer/transformCurves"
-import { welcomeStill } from "./welcomeLoop"
+import { useWelcomeLoop } from "./useWelcomeLoop"
 import style from "./WelcomePage.module.css"
 
 export const HeroPlane = () => {
@@ -19,7 +19,7 @@ export const HeroPlane = () => {
   const { width, height } = useResizeObserver(ref)
   const { themeVars } = useAppTheme()
   const font = useCanvasFont(planeFont)
-  const { func, ...transform } = welcomeStill
+  const { func, ...transform } = useWelcomeLoop()
   const curves = usePlotCurves(baseFunctions[func])
   const grid = layoutGrid(width, height, centerParam.defaultValue, scaleParam.defaultValue, labelMargin)
   useUpdateCanvas(
