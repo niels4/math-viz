@@ -20,18 +20,32 @@
   height: 40px;
 }
 
-.theme_switcher_button {
-  margin-left: auto;
-  display: inline-flex;
+.top_actions {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
+  gap: 14px;
+  margin-left: auto;
+}
+
+.theme_chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: var(--text-control);
+  font-weight: var(--weight-strong);
+  line-height: 16px;
   color: var(--foreground);
-  background: var(--secondary);
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 100%;
-  cursor: pointer;
+  border-radius: var(--radius-pill);
+}
+
+.theme_dot {
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: var(--radius-circle);
 }
 
 .content {

@@ -1,13 +1,18 @@
+import { getDefaultStore } from "jotai"
+import { RESET } from "jotai/utils"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import routes from "#generated/routes.ts"
 import { Router } from "#src/components/router/Router.tsx"
+import { selectedLightDarkAtom, selectedLightThemeAtom } from "#src/state/useAppTheme.ts"
 import { isBrowser, render, updateLocationHash } from "#test"
 
 import { WelcomePage } from "./WelcomePage"
 
 afterEach(async () => {
   vi.restoreAllMocks()
+  getDefaultStore().set(selectedLightDarkAtom, RESET)
+  getDefaultStore().set(selectedLightThemeAtom, RESET)
   await updateLocationHash("")
 })
 
@@ -35,5 +40,18 @@ describe("WelcomePage", () => {
     await button.click()
     await expect.element(screen.getByRole("heading", { name: "Function Viewer" })).toBeVisible()
     expect(window.location.hash).toBe("#function-viewer")
+  })
+
+  it("names the theme picked in the settings menu", async () => {
+    getDefaultStore().set(selectedLightDarkAtom, "light")
+    getDefaultStore().set(selectedLightThemeAtom, "clean-teal")
+    const screen = await render(<WelcomePage />)
+
+    const chip = screen.getByTestId("theme-chip")
+    await expect.element(chip).toHaveTextContent("Clean Teal")
+
+    await screen.getByRole("button").click()
+    await screen.getByText("Sage Editorial").click()
+    await expect.element(chip).toHaveTextContent("Sage Editorial")
   })
 })

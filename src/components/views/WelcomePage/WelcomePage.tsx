@@ -1,21 +1,15 @@
 import cn from "classnames"
 
-import { ArrowRightIcon, GearIcon, Logo } from "#src/components/icons/icons.tsx"
+import { ArrowRightIcon, Logo } from "#src/components/icons/icons.tsx"
 import { useAppTheme } from "#src/state/useAppTheme.ts"
 import { param_colours } from "#src/style/param_colours.module.css"
+import { slugToLabel } from "#src/util/format.ts"
 
+import { SettingsMenu } from "../TopBar/SettingsMenu"
 import { HeroPlane } from "./HeroPlane"
 import style from "./WelcomePage.module.css"
 
 const hintParams = ["a", "k", "b", "h"] as const
-
-const ThemeSwitcher = () => {
-  return (
-    <button className={style.theme_switcher_button}>
-      <GearIcon />
-    </button>
-  )
-}
 
 export const WelcomePage = () => {
   const { themeSlug } = useAppTheme()
@@ -24,7 +18,13 @@ export const WelcomePage = () => {
     <div className={cn(style.page, param_colours)} data-theme={themeSlug} data-testid="root-view">
       <div className={style.top_bar}>
         <Logo />
-        <ThemeSwitcher />
+        <div className={style.top_actions}>
+          <div className={style.theme_chip} data-testid="theme-chip">
+            <span className={style.theme_dot} />
+            {slugToLabel(themeSlug)}
+          </div>
+          <SettingsMenu />
+        </div>
       </div>
       <main className={style.content}>
         <div className={style.intro}>

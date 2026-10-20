@@ -12,8 +12,10 @@ declare const styles: {
   readonly "hint": string;
   readonly "intro": string;
   readonly "page": string;
-  readonly "theme_switcher_button": string;
+  readonly "theme_chip": string;
+  readonly "theme_dot": string;
   readonly "title": string;
+  readonly "top_actions": string;
   readonly "top_bar": string;
 };
 export = styles;
