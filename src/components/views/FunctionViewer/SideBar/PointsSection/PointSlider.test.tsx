@@ -41,7 +41,7 @@ const press = (track: HTMLElement, key: string, shiftKey = false) =>
 const urlValue = (key: string) => new URLSearchParams(window.location.hash.split("?")[1]).get(key)
 
 const renderSlider = async () => {
-  const screen = await render(<PointSlider />)
+  const screen = await render(<PointSlider onEditRequest={() => {}} />)
   const track = toElement(screen.getByRole("slider", { name: "x of P" }))
   vi.spyOn(track, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 218, 20))
   return track

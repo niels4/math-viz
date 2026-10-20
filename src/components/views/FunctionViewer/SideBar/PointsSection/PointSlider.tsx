@@ -2,11 +2,13 @@ import { useAtomValue } from "jotai"
 import {
   useEffect,
   useEffectEvent,
+  useImperativeHandle,
   useRef,
   useState,
   type CSSProperties,
   type KeyboardEvent,
   type PointerEvent,
+  type Ref,
 } from "react"
 
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
@@ -35,7 +37,15 @@ const inward = (v: number, side: "low" | "high") =>
 
 const px = (v: number) => Math.round(v * 100) / 100
 
-export const PointSlider = () => {
+export type PointSliderHandle = { focus: () => void }
+
+export const PointSlider = ({
+  ref,
+  onEditRequest,
+}: {
+  ref?: Ref<PointSliderHandle>
+  onEditRequest: () => void
+}) => {
   const [value, setValue, flushValue] = useQueryParam(pParam)
   const range = useAtomValue(visibleRangeAtom)
   const minX = range?.minX ?? 0
@@ -44,6 +54,7 @@ export const PointSlider = () => {
   const { width } = useResizeObserver(trackRef)
   const [dragging, setDragging] = useState(false)
   const pointerId = useRef<number | null>(null)
+  useImperativeHandle(ref, () => ({ focus: () => trackRef.current?.focus() }), [])
 
   const span = maxX - minX
   const valid = Number.isFinite(span) && span > 0
@@ -98,6 +109,9 @@ export const PointSlider = () => {
     } else if ((e.key === "Home" || e.key === "End") && valid) {
       e.preventDefault()
       send(e.key === "Home" ? low : high)
+    } else if (e.key === "Enter") {
+      e.preventDefault()
+      onEditRequest()
     }
   }
 

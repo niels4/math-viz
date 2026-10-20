@@ -2,6 +2,7 @@ import { useAtom, useAtomValue } from "jotai"
 import { useEffect, useEffectEvent, useRef, useState, type PointerEvent } from "react"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
+import { ArrowKey, Key, Tip } from "#src/components/ui/Tip.tsx"
 import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
 
 import { transformParams } from "../../../queryParams.ts"
@@ -241,26 +242,22 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
         />
         <Chevron dir="right" />
         {typingFrom !== null ? (
-          <div className={style.tip} aria-hidden="true">
-            <kbd className={style.key}>Enter</kbd>
+          <Tip className={style.tip}>
+            <Key>Enter</Key>
             <span>apply ·</span>
-            <kbd className={style.key}>Esc</kbd>
+            <Key>Esc</Key>
             <span>cancel ·</span>
-            <kbd className={style.key}>
-              <Arrow dir="up" />
-            </kbd>
-            <kbd className={style.key}>
-              <Arrow dir="down" />
-            </kbd>
+            <ArrowKey dir="up" />
+            <ArrowKey dir="down" />
             <span>nudge 0.1</span>
-          </div>
+          </Tip>
         ) : (
           resting && (
-            <div className={style.tip} aria-hidden="true">
+            <Tip className={style.tip}>
               {tipWords(urlParam.defaultValue).map((word, i) => (
                 <span key={i}>{word}</span>
               ))}
-            </div>
+            </Tip>
           )
         )}
       </div>
@@ -272,11 +269,5 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
 const Chevron = ({ dir }: { dir: "left" | "right" }) => (
   <svg className={style.chevron} width="6" height="12" viewBox="0 0 6 12" aria-hidden="true">
     <path d={dir === "left" ? "M5 2L1 6L5 10" : "M1 2L5 6L1 10"} />
-  </svg>
-)
-
-const Arrow = ({ dir }: { dir: "up" | "down" }) => (
-  <svg className={style.arrow} width="18" height="14" viewBox="0 0 18 14" aria-hidden="true">
-    <path d={dir === "up" ? "M4 8L9 2L14 8M9 2V14" : "M4 8L9 14L14 8M9 14V2"} />
   </svg>
 )

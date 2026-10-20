@@ -8,5 +8,6 @@ declare const styles: {
   readonly "point": string;
   readonly "role": string;
   readonly "role_slot": string;
+  readonly "tip": string;
 };
 export = styles;

@@ -7,6 +7,15 @@ export const formatNumber = (v: number): string => {
   return v < 0 && digits !== "0.00" ? MINUS + digits : digits
 }
 
+export const parseNumber = (text: string): number | null => {
+  const s = text.trim().replaceAll(MINUS, "-")
+  if (!/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s)) {
+    return null
+  }
+  const n = Number(s)
+  return Number.isFinite(n) ? n : null
+}
+
 export const relation = (v: number): "=" | "≈" => (Math.abs(Number(v.toFixed(2)) - v) < 1e-9 ? "=" : "≈")
 
 export type ReadoutSlots = { x: number; y: number }
