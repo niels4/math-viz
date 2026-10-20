@@ -1,9 +1,9 @@
 import { useAtomValue } from "jotai"
-import { useState, type ReactNode } from "react"
+import { useRef, useState, type ReactNode } from "react"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
-import type { PlotHandle } from "../CartesianPlane/drawCartesianPlane"
+import type { PlotHandle, PlotPoint } from "../CartesianPlane/drawCartesianPlane"
 
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
 import { usePlotCurves } from "../CartesianPlane/usePlotCurves"
@@ -24,13 +24,14 @@ const Plot = () => {
   const [func] = useQueryParam(funcParam)
   const [a] = useQueryParam(aParam)
   const [b] = useQueryParam(bParam)
-  const [h] = useQueryParam(hParam)
-  const [k] = useQueryParam(kParam)
+  const [h, setH, flushH] = useQueryParam(hParam)
+  const [k, setK, flushK] = useQueryParam(kParam)
   const curves = usePlotCurves(baseFunctions[func])
   const shown = useShownTransform({ a, b, h, k })
   const lit = useAtomValue(litAtom)
   const [hovering, setHovering] = useState(false)
   const [dragging, setDragging] = useState(false)
+  const grab = useRef<PlotPoint>({ x: 0, y: 0 })
 
   const onHover = () => setHovering(true)
   const onHoverEnd = () => setHovering(false)
@@ -42,14 +43,19 @@ const Plot = () => {
     handlers: {
       onHover,
       onHoverEnd,
-      onPointerDown: () => {
-        console.log("shift handle clicked")
+      onPointerDown: (_e, point) => {
+        grab.current = { x: h - point.x, y: k - point.y }
         setDragging(true)
       },
-      onDrag: () => {
-        console.log("dragging shfit handle")
+      onDrag: (_e, point) => {
+        setH(point.x + grab.current.x)
+        setK(point.y + grab.current.y)
       },
-      onPointerUp,
+      onPointerUp: () => {
+        setDragging(false)
+        flushH()
+        flushK()
+      },
     },
   }
 

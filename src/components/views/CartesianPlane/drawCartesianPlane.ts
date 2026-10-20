@@ -14,7 +14,7 @@ type PlotHandleShape = "diamond" | "square"
 
 export type PlotMouseHandlerAction = "onHover" | "onHoverEnd" | "onPointerDown" | "onDrag" | "onPointerUp"
 
-type HandlerFunc = (e: PointerEvent) => void
+type HandlerFunc = (e: PointerEvent, point: PlotPoint) => void
 
 type PlotHandleMouseHandlers = Partial<Record<PlotMouseHandlerAction, HandlerFunc>>
 
@@ -159,6 +159,11 @@ const drawCurve = (ctx: CanvasRenderingContext2D, grid: GridLayout, curve: PlotC
 const toPx = (grid: GridLayout, { x, y }: PlotPoint): [number, number] => {
   const [originX, originY] = grid.origin
   return [originX + x * grid.pxPerUnit, originY - y * grid.pxPerUnit]
+}
+
+export const fromPx = (grid: GridLayout, [px, py]: [number, number]): PlotPoint => {
+  const [originX, originY] = grid.origin
+  return { x: (px - originX) / grid.pxPerUnit, y: (originY - py) / grid.pxPerUnit }
 }
 
 type LineLook = {
