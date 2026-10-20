@@ -14,7 +14,7 @@ export const funcParam = queryParamAtom<FunctionSlug>("func", {
   defaultValue: "x1",
 })
 
-const transformParam = (key: string, defaultValue: number, isScale: boolean) =>
+const numberParam = (key: string, defaultValue: number, isScale: boolean) =>
   queryParamAtom<number>(key, {
     parse: (raw) => {
       if (raw == null) {
@@ -27,10 +27,12 @@ const transformParam = (key: string, defaultValue: number, isScale: boolean) =>
     defaultValue,
   })
 
-export const aParam = transformParam("a", 1, true)
-export const bParam = transformParam("b", 1, true)
-export const hParam = transformParam("h", 0, false)
-export const kParam = transformParam("k", 0, false)
+export const aParam = numberParam("a", 1, true)
+export const bParam = numberParam("b", 1, true)
+export const hParam = numberParam("h", 0, false)
+export const kParam = numberParam("k", 0, false)
+
+export const pParam = numberParam("p", 2, false)
 
 export const transformParams: Record<TransformParam, QueryParamDef<number>> = {
   a: aParam,
