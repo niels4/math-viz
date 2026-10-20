@@ -107,6 +107,18 @@ describe("WelcomePage", () => {
     expect(window.location.hash).toBe("#function-viewer")
   })
 
+  it.runIf(isBrowser())("opens the Function Viewer from the animated graph", async () => {
+    const { page } = await import("vitest/browser")
+    await updateLocationHash("")
+    const screen = await render(<Router routes={routes} />)
+
+    await expect.element(screen.getByRole("heading", { name: "MathViz" })).toBeVisible()
+
+    await page.elementLocator(screen.container.querySelector("canvas")!).click()
+    await expect.element(screen.getByRole("heading", { name: "Function Viewer" })).toBeVisible()
+    expect(window.location.hash).toBe("#function-viewer")
+  })
+
   it("opens the developer pages from the link at its foot", async () => {
     await updateLocationHash("")
     const screen = await render(<Router routes={routes} />)

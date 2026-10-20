@@ -63,7 +63,9 @@ export const WelcomePage = () => {
             <div className={style.paper_y} />
             <div className={style.light_top} />
             <div className={style.light_body} />
-            <HeroPlane />
+            <a href="#function-viewer" tabIndex={-1} aria-hidden>
+              <HeroPlane />
+            </a>
           </div>
         </main>
         <a href="#dev" className={style.dev_link}>
