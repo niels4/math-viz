@@ -38,6 +38,9 @@ const Plot = () => {
     shape: "diamond",
     handlers: {
       onHover,
+      onPointerDown: () => {
+        console.log("shift handle clicked")
+      },
     },
   }
 
@@ -46,6 +49,9 @@ const Plot = () => {
     shape: "square",
     handlers: {
       onHover,
+      onPointerDown: () => {
+        console.log("scale handle clicked")
+      },
     },
   }
 

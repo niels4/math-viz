@@ -125,6 +125,16 @@ export const CartesianPlane = ({
     }
   }
 
+  const onPointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
+    const clientX = e.nativeEvent.offsetX
+    const clientY = e.nativeEvent.offsetY
+    const pressedHandleIndex = hitTest(grid, handles, [clientX, clientY], "onPointerDown")
+    const handler = handles[pressedHandleIndex]?.handlers?.onPointerDown
+    if (handler != null) {
+      handler()
+    }
+  }
+
   return (
     <div className={style.wrapper}>
       <canvas
@@ -132,6 +142,7 @@ export const CartesianPlane = ({
         className={style.cartesian_plane}
         data-cursor={cursor}
         onPointerMove={onPointerMove}
+        onPointerDown={onPointerDown}
       />
       <HtmlOverlay />
     </div>
