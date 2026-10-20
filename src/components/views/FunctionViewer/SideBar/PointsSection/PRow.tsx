@@ -8,11 +8,12 @@ import { visibleRangeAtom } from "../../../CartesianPlane/state.ts"
 import { baseFunctions } from "../../baseFunctions.ts"
 import { aParam, bParam, funcParam, hParam, kParam, pParam } from "../../queryParams.ts"
 import { transformed } from "../../transformCurves.ts"
-import { formatNumber, readoutSlots } from "./format.ts"
+import { formatChange, formatNumber, readoutSlots } from "./format.ts"
 import { PointMark } from "./PointMark.tsx"
 import { PointReadout } from "./PointReadout.tsx"
 import { PointSlider, type PointSliderHandle } from "./PointSlider.tsx"
 import style from "./PRow.module.css"
+import { useMovedBy } from "./useMovedBy.ts"
 import { XField, type FieldEdit } from "./XField.tsx"
 
 const roles = { above: "above the view", below: "below the view" } as const
@@ -27,6 +28,7 @@ export const PRow = () => {
   const range = useAtomValue(visibleRangeAtom)
   const y = transformed(baseFunctions[func], { a, b, h, k })(x)
   const off = range === null ? null : y > range.maxY ? "above" : y < range.minY ? "below" : null
+  const moved = useMovedBy(x, y)
   const fieldRef = useRef<HTMLInputElement>(null)
   const sliderRef = useRef<PointSliderHandle>(null)
   const [edit, setEdit] = useState<FieldEdit | null>(null)
@@ -42,6 +44,12 @@ export const PRow = () => {
           </span>
         )}
         <span className={style.role_slot}>
+          {moved !== null && (
+            <span className={style.moved}>
+              <span className={style.moved_label}>moved</span>
+              <span className={style.moved_value}>{formatChange(moved)}</span>
+            </span>
+          )}
           <span className={style.role} data-off={off ?? undefined}>
             {off === null ? "pinned" : roles[off]}
           </span>

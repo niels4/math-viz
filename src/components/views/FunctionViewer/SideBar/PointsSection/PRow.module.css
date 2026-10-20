@@ -18,7 +18,7 @@
   color: var(--foreground);
 }
 
-/* A role too wide for the room left wraps to a clipped second line, so it shows whole or not at all. */
+/* The badge and the role each wrap to a clipped second line when the room left is too narrow, so each shows whole or not at all. */
 .role_slot {
   display: flex;
   flex: 1 1 0;
@@ -51,6 +51,32 @@
   display: grid;
   flex: none;
   color: var(--warning);
+}
+
+.moved {
+  display: flex;
+  flex: none;
+  gap: 6px;
+  align-items: center;
+  height: 24px;
+  margin-inline-end: 8px;
+  padding: 2px 8px;
+  color: var(--foreground);
+  white-space: nowrap;
+  background: color-mix(in oklch, var(--primary) 26%, transparent);
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+}
+
+.moved_label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 15px;
+}
+
+.moved_value {
+  font: 500 14px/18px var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .tip {

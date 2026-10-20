@@ -1,9 +1,11 @@
 import { getDefaultStore } from "jotai"
-import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { act, render, toElement, updateLocationHash } from "#test"
 
 import { planeSizeAtom } from "../../../CartesianPlane/state"
+import { hParam, kParam } from "../../queryParams"
+import { scrubModeAtoms } from "../../state"
 import { PRow } from "./PRow"
 
 // A 500 × 400 px plane at the default camera shows y from -4 to 4.
@@ -12,7 +14,12 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
-  getDefaultStore().set(planeSizeAtom, { width: 0, height: 0 })
+  vi.useRealTimers()
+  const store = getDefaultStore()
+  store.set(planeSizeAtom, { width: 0, height: 0 })
+  for (const atom of Object.values(scrubModeAtoms)) {
+    store.set(atom, null)
+  }
   await updateLocationHash("")
 })
 
@@ -142,5 +149,50 @@ describe("typing P's x", () => {
     act(() => field.blur())
     expect(slider).toHaveAttribute("aria-valuenow", "3.256")
     expect(document.activeElement).not.toBe(slider)
+  })
+})
+
+const set = (update: (store: ReturnType<typeof getDefaultStore>) => void) =>
+  act(() => update(getDefaultStore()))
+
+describe("the moved badge", () => {
+  it("says how far a transform's drag moves f(P), until 600 ms after letting go", async () => {
+    const { row } = await renderRow("#?func=x2")
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
+    expect(row.textContent).not.toContain("moved")
+
+    set((store) => {
+      store.set(scrubModeAtoms.k, "coarse")
+      store.set(kParam.atom, 1)
+    })
+    expect(row.textContent).toContain("moved+1.00")
+
+    set((store) => store.set(kParam.atom, -0.5))
+    expect(row.textContent).toContain("moved−0.50")
+
+    set((store) => store.set(scrubModeAtoms.k, null))
+    act(() => vi.advanceTimersByTime(599))
+    expect(row.textContent).toContain("moved−0.50")
+    act(() => vi.advanceTimersByTime(1))
+    expect(row.textContent).not.toContain("moved")
+  })
+
+  it("stays away while a drag leaves f(P) where it was", async () => {
+    const { row } = await renderRow()
+    set((store) => store.set(scrubModeAtoms.h, "coarse"))
+    expect(row.textContent).not.toContain("moved")
+  })
+
+  it("goes at once when something other than a drag changes the curve", async () => {
+    const { row } = await renderRow()
+    set((store) => {
+      store.set(scrubModeAtoms.h, "coarse")
+      store.set(hParam.atom, 1)
+    })
+    set((store) => store.set(scrubModeAtoms.h, null))
+    expect(row.textContent).toContain("moved−1.00")
+
+    set((store) => store.set(kParam.atom, 2))
+    expect(row.textContent).not.toContain("moved")
   })
 })

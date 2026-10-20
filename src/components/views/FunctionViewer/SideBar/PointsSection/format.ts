@@ -7,6 +7,11 @@ export const formatNumber = (v: number): string => {
   return v < 0 && digits !== "0.00" ? MINUS + digits : digits
 }
 
+export const formatChange = (v: number): string => {
+  const text = formatNumber(v)
+  return v > 0 && text !== "0.00" ? `+${text}` : text
+}
+
 export const parseNumber = (text: string): number | null => {
   const s = text.trim().replaceAll(MINUS, "-")
   if (!/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s)) {

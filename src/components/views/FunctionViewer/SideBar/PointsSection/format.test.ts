@@ -1,12 +1,20 @@
 import { describe, expect, it } from "vitest"
 
-import { formatNumber, parseNumber, readoutSlots, relation } from "./format"
+import { formatChange, formatNumber, parseNumber, readoutSlots, relation } from "./format"
 
 describe("formatNumber", () => {
   it("prints two decimals with a true minus, and never −0", () => {
     expect(formatNumber(2)).toBe("2.00")
     expect(formatNumber(-1.5)).toBe("−1.50")
     expect(formatNumber(-0.001)).toBe("0.00")
+  })
+})
+
+describe("formatChange", () => {
+  it("signs a change either way, and leaves one that rounds to 0 unsigned", () => {
+    expect(formatChange(1.25)).toBe("+1.25")
+    expect(formatChange(-0.5)).toBe("−0.50")
+    expect(formatChange(0.001)).toBe("0.00")
   })
 })
 

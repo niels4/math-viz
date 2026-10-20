@@ -39,6 +39,8 @@ export const scrubModeAtoms: Record<TransformParam, PrimitiveAtom<ScrubMode | nu
 
 const params = ["a", "b", "h", "k"] as const
 
+export const transformDragAtom = atom((get) => params.some((param) => get(scrubModeAtoms[param]) !== null))
+
 export const litAtom = atom((get): readonly TransformParam[] => {
   const scrubbed = params.filter((param) => get(scrubModeAtoms[param]) !== null)
   if (scrubbed.length > 0) {
