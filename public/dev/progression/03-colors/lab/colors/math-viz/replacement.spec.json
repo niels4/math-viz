@@ -1,0 +1,24 @@
+{
+  "draftColors": {
+    "accent": "#6EE7B7",
+    "accentForeground": "#05281C",
+    "background": "#0B0E13",
+    "backgroundMuted": "#12161D",
+    "border": "#2A3446",
+    "card": "#161C26",
+    "destructive": "#F87171",
+    "foreground": "#F2F6FA",
+    "foregroundMuted": "#9AA7B8",
+    "primary": "#EAF2FA",
+    "primaryForeground": "#0B0E13",
+    "secondary": "#232D3D",
+    "secondaryForeground": "#DCE6F2",
+    "success": "#34D399",
+    "warning": "#FBBF24"
+  },
+  "name": "MathViz Arctic Ice",
+  "rationale": "Surgical ice-white precision against tron's arcade energy and violet's cosmic depth — achromatic clarity with a single mint signal instead of a third competing neon.",
+  "slug": "mathviz-arctic-ice",
+  "stillPrompt": "Futuristic math app UI mockup, desktop screenshot, DARK arctic-ice monochrome laboratory style, faithful to the 05 reference skeleton. LEFT SIDEBAR on graphite card #161C26: MATHVIZ / CALCULUS MODULE in ice-grey letterspaced caps #9AA7B8, FUNCTION f(x) = x^2 huge ice-white #EAF2FA prominent, DERIVATIVE dy/dx = 2x frost-white, EVALUATION x = 2 dy/dx = 4 mint #6EE7B7, TOOLS TANGENT active mint-glow #6EE7B7 plus NORMAL SECANT CURVATURE ghost outline #2A3446, HISTORY y=sin(x) y=ln(x) y=e^x y=cos(x) dim grey #9AA7B8. TOP STATUS STRIP: SYS.ONLINE GRID 10x10 SNAP OFF ZOOM 150 percent COORD X:2.00 Y:4.00 in ice mono #F2F6FA on #0B0E13. CENTER graphite-black #0B0E13: faint slate grid #232D3D with brighter thicker majors every 10 #2A3446, bone-white axes with arrows, ice-white parabola y=x^2 3px #EAF2FA with soft bloom vertex at origin, frost-mint glowing tangent #6EE7B7 through halo node P(2,4) with pill badge m = 4, dashed rise/run helper in grey. BOTTOM-RIGHT MINIMAP: whole parabola with glowing viewport rectangle in mint. Clinical surgical precision, frosted glass, hairline borders, 4K.",
+  "vibe": "futuristic"
+}

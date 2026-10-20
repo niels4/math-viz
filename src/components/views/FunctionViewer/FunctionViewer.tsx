@@ -93,7 +93,7 @@ const Plot = () => {
 export const FunctionViewer = () => {
   return (
     <Page>
-      <TopBar />
+      <TopBar title="Function Viewer" subtitle="Functions · Transformations" />
       <SideBar />
       <Plot />
     </Page>

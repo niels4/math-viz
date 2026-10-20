@@ -1,0 +1,1645 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MathViz Carbon Amber — Sommelier Lab — MathViz Carbon Amber</title>
+    <style>
+      :root {
+        --bg: #0b0f1a;
+        --panel: #111827;
+        --line: #1e2e4a;
+        --cyan: #00e5ff;
+        --text: #d6eaff;
+        --muted: #8aa0c0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          ui-sans-system,
+          -apple-system,
+          system-ui,
+          Inter,
+          sans-serif;
+      }
+      header {
+        padding: 22px 22px 12px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, #0b1530 0%, var(--bg) 100%);
+      }
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.13em;
+        font-weight: 800;
+        color: var(--cyan);
+        text-shadow: 0 0 18px rgba(0, 229, 255, 0.5);
+      }
+      h1 span {
+        color: #fff;
+        opacity: 0.9;
+      }
+      .sub {
+        opacity: 0.75;
+        font-size: 12px;
+        margin-top: 8px;
+        line-height: 1.5;
+      }
+      .sub code {
+        color: var(--cyan);
+        background: #0f1e36;
+        padding: 1px 5px;
+        border-radius: 3px;
+      }
+      .pill {
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #0a1222;
+      }
+      .pill.good {
+        border-color: rgba(34, 197, 94, 0.4);
+        background: rgba(34, 197, 94, 0.08);
+      }
+      .pill.mid {
+        border-color: rgba(234, 179, 8, 0.35);
+        background: rgba(234, 179, 8, 0.08);
+      }
+      .pill.low {
+        border-color: rgba(239, 68, 68, 0.35);
+        background: rgba(239, 68, 68, 0.08);
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 420px 1fr;
+        gap: 18px;
+        padding: 22px;
+      }
+      @media (max-width: 1000px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+      .card {
+        border: 1px solid var(--line);
+        background: #0f172a;
+        overflow: hidden;
+      }
+      .card h2 {
+        margin: 0;
+        padding: 12px 14px;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        color: var(--cyan);
+        border-bottom: 1px solid var(--line);
+        background: #0c1a30;
+      }
+      .source-img {
+        width: 100%;
+        aspect-ratio: 1536/1024;
+        object-fit: cover;
+        display: block;
+        background: #000;
+      }
+      .meta {
+        padding: 10px 14px;
+        font-size: 11px;
+        line-height: 1.6;
+        background: #0b162c;
+        border-top: 1px solid var(--line);
+      }
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 14px;
+      }
+      .sw {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .sw-color {
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+      .sw-label {
+        padding: 6px 8px;
+        font-size: 10px;
+        background: #0f1e36;
+        color: var(--muted);
+      }
+      .sw-label code {
+        color: var(--cyan);
+        font-size: 10px;
+        word-break: break-all;
+      }
+      .sw-label strong {
+        color: var(--text);
+        display: block;
+        font-size: 11px;
+      }
+      .theme-preview {
+        padding: 16px;
+        display: grid;
+        gap: 14px;
+      }
+      /* Theme-applied demo area */
+      .demo-wrap {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .demo-head {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .demo-head h3 {
+        margin: 0;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+      }
+      .demo-body {
+        padding: 14px;
+        display: grid;
+        gap: 14px;
+      }
+      /* vars injection */
+      .vars {
+        font-family: ui-monospace, Menlo, monospace;
+        font-size: 11px;
+        line-height: 1.5;
+        background: #0a1222;
+        border: 1px solid var(--line);
+        padding: 12px;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .type-row {
+        border: 1px solid;
+        border-radius: 6px;
+        padding: 10px 12px;
+      }
+      .type-row .sz {
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        opacity: 0.6;
+      }
+      .ui-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .btn {
+        padding: 7px 14px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid transparent;
+        cursor: pointer;
+      }
+      .chart-grid {
+        border: 1px solid;
+        border-radius: 8px;
+        padding: 12px;
+        display: grid;
+        gap: 12px;
+      }
+      .chart {
+        border: 1px solid;
+        border-radius: 6px;
+        padding: 8px;
+        background: var(--card);
+      }
+      .footer {
+        padding: 12px 22px;
+        font-size: 11px;
+        opacity: 0.5;
+        border-top: 1px solid var(--line);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        ◈ MathViz Carbon Amber — Sommelier Lab — <span>MathViz Carbon Amber</span>
+        <span style="font-weight: 400; opacity: 0.7">futuristic · dark</span>
+      </h1>
+      <div class="sub">
+        Single-theme lab for <code>mathviz-carbon-amber</code>. Source:
+        <code>media/galleries/math-viz-v2/06-dark-carbon-amber.png</code> — 06 — DARK Carbon amber — phosphor
+        terminal · <code>workspace/colors/labs/mathviz_carbon_amber.html</code> +
+        <code>workspace/themes/mathviz_carbon_amber.module.css</code> · Served at
+        <code>http://localhost:8787/colors/labs/mathviz_carbon_amber.html</code> and
+        <code>file://…/workspace/colors/labs/mathviz_carbon_amber.html</code>
+        · Built 9/28/2026, 11:54:58 AM — WCAG bg×fg 17.15:1 AAA · primary 9.83:1 AAA · accent 11:1 AAA
+      </div>
+    </header>
+
+    <div
+      style="
+        padding: 10px 22px;
+        border-bottom: 1px solid var(--line);
+        background: #0c1a30;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      "
+    >
+      <span class="pill good">bg×fg 17.15:1 AAA</span>
+      <span class="pill good">primary 9.83:1 AAA</span>
+      <span class="pill good">accent 11:1 AAA</span>
+      <span class="pill">Professional 8/10</span>
+      <span class="pill">Designer 8/10</span>
+      <span style="font-size: 11px; opacity: 0.7"
+        >Pair Carbon Amber shell with mono terminal type; amber function lines over green grid on carbon
+        canvas. Gradient strategy: amber 135deg primary-&gt;#F59E0B glow with green mesh accent for grid
+        energy.</span
+      >
+    </div>
+
+    <div class="layout">
+      <!-- LEFT: source + swatches + vars -->
+      <div style="display: grid; gap: 18px; align-content: start">
+        <div class="card">
+          <h2>SOURCE IMAGE — 06 — DARK Carbon amber — phosphor terminal</h2>
+          <a href="../../media/galleries/math-viz-v2/06-dark-carbon-amber.png" target="_blank"
+            ><img
+              class="source-img"
+              src="../../media/galleries/math-viz-v2/06-dark-carbon-amber.png"
+              alt="06 — DARK Carbon amber — phosphor terminal"
+          /></a>
+          <div class="meta">
+            <div><code>media/galleries/math-viz-v2/06-dark-carbon-amber.png</code></div>
+            <div style="color: #ffaa33">
+              Dark 3: carbon terminal, amber phosphor + green accents, full mono
+            </div>
+            <div style="opacity: 0.6; font-size: 10px">
+              Retro-terminal math app UI mockup, desktop screenshot, DARK carbon style with amber phosphor and
+              green accents, on the locked 05 skeleton. LEFT SIDEBAR: MATHVIZ / CALCULUS MODULE in amber mono,
+              FUNCTION f(x) = x^2 huge a
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>PALETTE — 15 ROLES · MathViz Carbon Amber · oklch</h2>
+          <div class="swatches">
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.1465 0.0057 69.2); color: #ffffff">
+                oklch(0.1465 0.0057 69.2)
+              </div>
+              <div class="sw-label">
+                <strong>background</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.1465 0.0057 69.2)</code
+                ><code style="opacity: 0.5; font-size: 9px">#0C0A08</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.1791 0.0127 84.46); color: #ffffff">
+                oklch(0.1791 0.0127 84.46)
+              </div>
+              <div class="sw-label">
+                <strong>backgroundMuted</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.1791 0.0127 84.46)</code
+                ><code style="opacity: 0.5; font-size: 9px">#14110B</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.2022 0.0163 84.38); color: #ffffff">
+                oklch(0.2022 0.0163 84.38)
+              </div>
+              <div class="sw-label">
+                <strong>card</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.2022 0.0163 84.38)</code
+                ><code style="opacity: 0.5; font-size: 9px">#1A160E</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.9514 0.0257 84.59); color: #111827">
+                oklch(0.9514 0.0257 84.59)
+              </div>
+              <div class="sw-label">
+                <strong>foreground</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.9514 0.0257 84.59)</code
+                ><code style="opacity: 0.5; font-size: 9px">#F7EEDC</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.6963 0.0379 85.38); color: #ffffff">
+                oklch(0.6963 0.0379 85.38)
+              </div>
+              <div class="sw-label">
+                <strong>foregroundMuted</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.6963 0.0379 85.38)</code
+                ><code style="opacity: 0.5; font-size: 9px">#A89C83</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.7976 0.1381 89.5); color: #111827">
+                oklch(0.7976 0.1381 89.5)
+              </div>
+              <div class="sw-label">
+                <strong>primary</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.7976 0.1381 89.5)</code
+                ><code style="opacity: 0.5; font-size: 9px">#E0B844</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.1873 0.0383 89.07); color: #ffffff">
+                oklch(0.1873 0.0383 89.07)
+              </div>
+              <div class="sw-label">
+                <strong>primaryForeground</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.1873 0.0383 89.07)</code
+                ><code style="opacity: 0.5; font-size: 9px">#1A1200</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.2625 0.0273 88.61); color: #ffffff">
+                oklch(0.2625 0.0273 88.61)
+              </div>
+              <div class="sw-label">
+                <strong>secondary</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.2625 0.0273 88.61)</code
+                ><code style="opacity: 0.5; font-size: 9px">#2A2415</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.9421 0.031 86.46); color: #111827">
+                oklch(0.9421 0.031 86.46)
+              </div>
+              <div class="sw-label">
+                <strong>secondaryForeground</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.9421 0.031 86.46)</code
+                ><code style="opacity: 0.5; font-size: 9px">#F5EBD5</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.276 0.0276 85.63); color: #ffffff">
+                oklch(0.276 0.0276 85.63)
+              </div>
+              <div class="sw-label">
+                <strong>border</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.276 0.0276 85.63)</code
+                ><code style="opacity: 0.5; font-size: 9px">#2E2718</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.8003 0.1821 151.71); color: #111827">
+                oklch(0.8003 0.1821 151.71)
+              </div>
+              <div class="sw-label">
+                <strong>accent</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.8003 0.1821 151.71)</code
+                ><code style="opacity: 0.5; font-size: 9px">#4ADE80</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.1654 0.0274 158.94); color: #ffffff">
+                oklch(0.1654 0.0274 158.94)
+              </div>
+              <div class="sw-label">
+                <strong>accentForeground</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.1654 0.0274 158.94)</code
+                ><code style="opacity: 0.5; font-size: 9px">#04120A</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.7719 0.1934 151.14); color: #ffffff">
+                oklch(0.7719 0.1934 151.14)
+              </div>
+              <div class="sw-label">
+                <strong>success</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.7719 0.1934 151.14)</code
+                ><code style="opacity: 0.5; font-size: 9px">#2FD671</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.7686 0.1647 70.08); color: #111827">
+                oklch(0.7686 0.1647 70.08)
+              </div>
+              <div class="sw-label">
+                <strong>warning</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.7686 0.1647 70.08)</code
+                ><code style="opacity: 0.5; font-size: 9px">#F59E0B</code>
+              </div>
+            </div>
+            <div class="sw">
+              <div class="sw-color" style="background: oklch(0.7106 0.1661 22.22); color: #ffffff">
+                oklch(0.7106 0.1661 22.22)
+              </div>
+              <div class="sw-label">
+                <strong>destructive</strong
+                ><code style="font-size: 9px; word-break: break-all">oklch(0.7106 0.1661 22.22)</code
+                ><code style="opacity: 0.5; font-size: 9px">#F87171</code>
+              </div>
+            </div>
+          </div>
+          <div class="meta" style="display: flex; gap: 6px; flex-wrap: wrap">
+            <span class="pill" style="font-size: 10px">math-viz</span
+            ><span class="pill" style="font-size: 10px">terminal</span
+            ><span class="pill" style="font-size: 10px">phosphor</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>CSS MODULE — copy to viz project (per-page, no global)</h2>
+          <div class="vars">
+            /* Theme: MathViz Carbon Amber — futuristic · dark · dashboard, app-shell * Palette
+            mathviz-carbon-amber · generated 2026-09-28T17:54:58.147Z * Source: workspace/colors/catalog.json
+            → workspace/themes/mathviz_carbon_amber.module.css * Contrast: bg×fg 17.15:1 · primary 9.83:1 ·
+            accent 11:1 * Colors: oklch — perceptually uniform, better for coherent palettes * Usage: CSS
+            Module, per-page. Import as `import styles from
+            &quot;#src/style/themes/mathviz_carbon_amber.module.css&quot;` then wrap page with
+            `className={styles.theme}` and use `styles.bg_background`, `styles.text_foreground`, etc. No
+            global pollution. */ .theme { --background: oklch(0.1465 0.0057 69.2); --background-muted:
+            oklch(0.1791 0.0127 84.46); --card: oklch(0.2022 0.0163 84.38); --foreground: oklch(0.9514 0.0257
+            84.59); --foreground-muted: oklch(0.6963 0.0379 85.38); --primary: oklch(0.7976 0.1381 89.5);
+            --primary-foreground: oklch(0.1873 0.0383 89.07); --secondary: oklch(0.2625 0.0273 88.61);
+            --secondary-foreground: oklch(0.9421 0.031 86.46); --border: oklch(0.276 0.0276 85.63); --accent:
+            oklch(0.8003 0.1821 151.71); --accent-foreground: oklch(0.1654 0.0274 158.94); --success:
+            oklch(0.7719 0.1934 151.14); --warning: oklch(0.7686 0.1647 70.08); --destructive: oklch(0.7106
+            0.1661 22.22); --radius: 0.6rem; --chart-grid: oklch(0.276 0.0276 85.63); --chart-line:
+            oklch(0.7976 0.1381 89.5); --chart-accent: oklch(0.8003 0.1821 151.71); --chart-glow: oklch(0.7976
+            0.1381 89.5 / 0.4); --gradient-primary: linear-gradient(135deg, oklch(0.7976 0.1381 89.5) 0%,
+            oklch(0.8003 0.1821 151.71) 100%); --gradient-accent: linear-gradient(90deg, oklch(0.8003 0.1821
+            151.71) 0%, oklch(0.7976 0.1381 89.5) 100%); --gradient-muted: linear-gradient(180deg,
+            oklch(0.1465 0.0057 69.2) 0%, oklch(0.1791 0.0127 84.46) 100%); --gradient-glow:
+            radial-gradient(600px 300px at 50% 0%, oklch(0.7976 0.1381 89.5 / 0.2) 0%, transparent 60%);
+            --gradient-text: linear-gradient(90deg, oklch(0.7976 0.1381 89.5) 0%, oklch(0.8003 0.1821 151.71)
+            100%); --gradient-mesh: radial-gradient(800px 400px at 20% 0%, oklch(0.7976 0.1381 89.5 / 0.149)
+            0%, transparent 55%), radial-gradient(600px 300px at 90% 30%, oklch(0.8003 0.1821 151.71 / 0.133)
+            0%, transparent 60%), linear-gradient(180deg, oklch(0.1465 0.0057 69.2) 0%, oklch(0.1791 0.0127
+            84.46) 100%); .bg_background { background: var(--background); } .bg_muted { background:
+            var(--background-muted); } .bg_card { background: var(--card); } .bg_primary { background:
+            var(--primary); color: var(--primary-foreground); } .bg_secondary { background: var(--secondary);
+            color: var(--secondary-foreground); } .bg_accent { background: var(--accent); color:
+            var(--accent-foreground); } .text_foreground { color: var(--foreground); } .text_muted { color:
+            var(--foreground-muted); } .text_primary { color: var(--primary); } .text_accent { color:
+            var(--accent); } .border { border-color: var(--border); } .border_border { border-color:
+            var(--border); } .btn_primary { background: var(--primary); color: var(--primary-foreground);
+            border: 1px solid var(--primary); border-radius: var(--radius); padding: 0.45rem 0.9rem;
+            font-weight: 600; } .btn_secondary { background: var(--secondary); color:
+            var(--secondary-foreground); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 0.45rem 0.9rem; font-weight: 600; } .card { background: var(--card); color:
+            var(--foreground); border: 1px solid var(--border); border-radius: var(--radius); } .input {
+            background: var(--card); color: var(--foreground); border: 1px solid var(--border); border-radius:
+            var(--radius); padding: 0.45rem 0.7rem; } .badge_accent { background: var(--accent); color:
+            var(--accent-foreground); border-radius: 999px; padding: 0.15rem 0.5rem; font-weight: 700;
+            font-size: 0.78rem; } .badge_success { background: var(--success); color: oklch(1 0 0);
+            border-radius: 999px; padding: 0.15rem 0.5rem; } .badge_warning { background: var(--warning);
+            color: oklch(0.21 0.03 264.66); border-radius: 999px; padding: 0.15rem 0.5rem; }
+            .badge_destructive { background: var(--destructive); color: oklch(1 0 0); border-radius: 999px;
+            padding: 0.15rem 0.5rem; } .chart_grid line, .chart_grid path { stroke: var(--chart-grid); }
+            .chart_line { stroke: var(--chart-line); } .chart_accent { stroke: var(--chart-accent); fill:
+            var(--chart-accent); } .gradient_primary { background: var(--gradient-primary); color:
+            var(--primary-foreground); border-radius: var(--radius); } .gradient_accent { background:
+            var(--gradient-accent); color: var(--accent-foreground); border-radius: var(--radius); }
+            .gradient_muted { background: var(--gradient-muted); } .gradient_glow { background:
+            var(--gradient-glow); } .gradient_text { background: var(--gradient-text);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color:
+            transparent; } .gradient_mesh { background: var(--gradient-mesh); } .gradient_border { border: 1px
+            solid transparent; background: linear-gradient(var(--card), var(--card)) padding-box,
+            var(--gradient-primary) border-box; border-radius: var(--radius); } .chart_area { fill:
+            url(#area-grad); } }
+          </div>
+          <div class="meta" style="font-size: 10px; opacity: 0.7">
+            CSS Module: <code>src/style/themes/mathviz_carbon_amber.module.css</code> with wrapper
+            <code>.theme</code> — import as
+            <code>import styles from "#src/style/themes/mathviz_carbon_amber.module.css"</code> then
+            <code>&lt;div className={styles.theme}&gt;</code>. All utilities use <code>_</code> (<code
+              >.bg_background</code
+            >
+            <code>.text_foreground</code> <code>.btn_primary</code> <code>.chart_grid</code>). Colors in
+            <code>oklch()</code>. No <code>html</code>/<code>body</code>/<code>:root</code>. See
+            <code>src/style/themes/README.md</code>.
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: live theme demo -->
+      <div class="theme-preview">
+        <div
+          class="demo-wrap"
+          style="
+            background: oklch(0.1465 0.0057 69.2);
+            color: oklch(0.9514 0.0257 84.59);
+            border-color: oklch(0.276 0.0276 85.63);
+          "
+        >
+          <div
+            class="demo-head"
+            style="border-color: oklch(0.276 0.0276 85.63); background: oklch(0.1791 0.0127 84.46)"
+          >
+            <h3 style="color: oklch(0.9514 0.0257 84.59)">THEME PREVIEW — MathViz Carbon Amber</h3>
+            <span
+              class="pill"
+              style="
+                background: oklch(0.2022 0.0163 84.38);
+                border-color: oklch(0.276 0.0276 85.63);
+                color: oklch(0.6963 0.0379 85.38);
+              "
+              >futuristic</span
+            >
+            <span
+              class="pill"
+              style="
+                background: oklch(0.7976 0.1381 89.5);
+                color: oklch(0.1873 0.0383 89.07);
+                border-color: oklch(0.7976 0.1381 89.5);
+              "
+              >Primary</span
+            >
+            <span
+              class="pill"
+              style="
+                background: oklch(0.8003 0.1821 151.71);
+                color: oklch(0.1654 0.0274 158.94);
+                border-color: oklch(0.8003 0.1821 151.71);
+              "
+              >Accent</span
+            >
+          </div>
+          <div class="demo-body">
+            <!-- Type -->
+            <div
+              class="type-row"
+              style="
+                background: oklch(0.1465 0.0057 69.2);
+                border-color: oklch(0.276 0.0276 85.63);
+                color: oklch(0.9514 0.0257 84.59);
+              "
+            >
+              <div class="sz">36px — foreground on background</div>
+              <div style="font-size: 36px; line-height: 1.2; font-weight: 800">
+                f(x) = x² — Aa Bb Cc 0123456789
+              </div>
+              <div style="font-size: 12px; color: oklch(0.6963 0.0379 85.38)">
+                Muted metadata — The quick brown fox · 0123456789 · futuristic
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+              <div
+                class="type-row"
+                style="
+                  background: oklch(0.2022 0.0163 84.38);
+                  border-color: oklch(0.276 0.0276 85.63);
+                  color: oklch(0.9514 0.0257 84.59);
+                "
+              >
+                <div class="sz">Card — foreground on card</div>
+                <div style="font-size: 14px">
+                  Card surface holds data tables and charts. Border <code>oklch(0.276 0.0276 85.63)</code>
+                </div>
+              </div>
+              <div
+                class="type-row"
+                style="
+                  background: oklch(0.1791 0.0127 84.46);
+                  border-color: oklch(0.276 0.0276 85.63);
+                  color: oklch(0.6963 0.0379 85.38);
+                "
+              >
+                <div class="sz">Muted — foregroundMuted on backgroundMuted</div>
+                <div style="font-size: 13px">Secondary info, timestamps, axis labels.</div>
+              </div>
+            </div>
+
+            <!-- UI elements -->
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div style="font-size: 10px; letter-spacing: 0.12em; opacity: 0.6; text-transform: uppercase">
+                UI elements — buttons, inputs, badges, card
+              </div>
+              <div class="ui-row">
+                <button
+                  class="btn"
+                  style="
+                    background: oklch(0.7976 0.1381 89.5);
+                    color: oklch(0.1873 0.0383 89.07);
+                    border-color: oklch(0.7976 0.1381 89.5);
+                  "
+                >
+                  Primary CTA
+                </button>
+                <button
+                  class="btn"
+                  style="
+                    background: oklch(0.2625 0.0273 88.61);
+                    color: oklch(0.9421 0.031 86.46);
+                    border-color: oklch(0.276 0.0276 85.63);
+                  "
+                >
+                  Secondary
+                </button>
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.8003 0.1821 151.71);
+                    color: oklch(0.1654 0.0274 158.94);
+                    border-color: oklch(0.8003 0.1821 151.71);
+                  "
+                  >Accent badge</span
+                >
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.7719 0.1934 151.14);
+                    color: oklch(1 0 0);
+                    border-color: oklch(0.7719 0.1934 151.14);
+                  "
+                  >Success</span
+                >
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.7686 0.1647 70.08);
+                    color: oklch(0.21 0.03 264.66);
+                    border-color: oklch(0.7686 0.1647 70.08);
+                  "
+                  >Warning</span
+                >
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.7106 0.1661 22.22);
+                    color: oklch(1 0 0);
+                    border-color: oklch(0.7106 0.1661 22.22);
+                  "
+                  >Error</span
+                >
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+                <div
+                  style="
+                    border: 1px solid oklch(0.276 0.0276 85.63);
+                    background: oklch(0.2022 0.0163 84.38);
+                    color: oklch(0.9514 0.0257 84.59);
+                    border-radius: 8px;
+                    padding: 12px;
+                  "
+                >
+                  <div style="font-weight: 700; font-size: 13px">Revenue — $42,391</div>
+                  <div style="font-size: 11px; color: oklch(0.6963 0.0379 85.38)">
+                    +12.4% vs last month · futuristic
+                  </div>
+                  <div
+                    style="
+                      height: 4px;
+                      background: oklch(0.7976 0.1381 89.5);
+                      border-radius: 999px;
+                      margin-top: 8px;
+                      box-shadow: 0 0 12px oklch(0.7976 0.1381 89.5 / 0.4);
+                    "
+                  ></div>
+                </div>
+                <div
+                  style="
+                    border: 1px solid oklch(0.276 0.0276 85.63);
+                    background: oklch(0.2022 0.0163 84.38);
+                    border-radius: 8px;
+                    padding: 12px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                  "
+                >
+                  <input
+                    placeholder="Search…"
+                    value="f(x) = x² — Aa Bb "
+                    style="
+                      width: 100%;
+                      padding: 7px 10px;
+                      border-radius: 6px;
+                      border: 1px solid oklch(0.276 0.0276 85.63);
+                      background: oklch(0.1465 0.0057 69.2);
+                      color: oklch(0.9514 0.0257 84.59);
+                    "
+                  />
+                  <div style="font-size: 10px; color: oklch(0.6963 0.0379 85.38)">
+                    Input on oklch(0.1465 0.0057 69.2) with border oklch(0.276 0.0276 85.63)
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Data viz elements -->
+            <div
+              class="chart-grid"
+              style="background: oklch(0.1791 0.0127 84.46); border-color: oklch(0.276 0.0276 85.63)"
+            >
+              <div style="font-size: 10px; letter-spacing: 0.12em; opacity: 0.6; text-transform: uppercase">
+                Data viz — line · area · bars · gauge · donut (SVG, themed)
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+                <!-- Line chart -->
+                <div
+                  class="chart"
+                  style="border-color: oklch(0.276 0.0276 85.63); background: oklch(0.2022 0.0163 84.38)"
+                >
+                  <div
+                    style="
+                      font-size: 10px;
+                      letter-spacing: 0.08em;
+                      color: oklch(0.6963 0.0379 85.38);
+                      margin-bottom: 6px;
+                    "
+                  >
+                    LINE — smooth neon (sparse ticks)
+                  </div>
+                  <svg viewBox="0 0 320 120" width="100%" height="120" style="display: block">
+                    <rect x="0" y="0" width="320" height="120" fill="oklch(0.2022 0.0163 84.38)" rx="6" />
+                    <!-- grid -->
+                    <g stroke="oklch(0.276 0.0276 85.63)" stroke-width="0.7" opacity="0.9">
+                      <line x1="32" y1="18" x2="32" y2="98" />
+                      <line x1="32" y1="98" x2="300" y2="98" />
+                      <line x1="32" y1="58" x2="300" y2="58" stroke-dasharray="3 4" opacity="0.5" />
+                      <line x1="32" y1="38" x2="300" y2="38" stroke-dasharray="3 4" opacity="0.5" />
+                      <line x1="120" y1="18" x2="120" y2="98" stroke-dasharray="2 6" opacity="0.35" />
+                      <line x1="210" y1="18" x2="210" y2="98" stroke-dasharray="2 6" opacity="0.35" />
+                    </g>
+                    <!-- glow -->
+                    <path
+                      d="M32 78 C 90 62, 140 88, 180 54 S 250 72, 300 34"
+                      fill="none"
+                      stroke="oklch(0.7976 0.1381 89.5)"
+                      stroke-width="7"
+                      opacity="0.18"
+                    />
+                    <path
+                      d="M32 78 C 90 62, 140 88, 180 54 S 250 72, 300 34"
+                      fill="none"
+                      stroke="oklch(0.7976 0.1381 89.5)"
+                      stroke-width="2.2"
+                    />
+                    <circle
+                      cx="300"
+                      cy="34"
+                      r="5"
+                      fill="oklch(0.8003 0.1821 151.71)"
+                      stroke="oklch(0.2022 0.0163 84.38)"
+                      stroke-width="2"
+                    />
+                    <circle cx="300" cy="34" r="9" fill="oklch(0.8003 0.1821 151.71)" opacity="0.18" />
+                    <text x="32" y="114" font-size="7" fill="oklch(0.6963 0.0379 85.38)">Jan</text>
+                    <text x="118" y="114" font-size="7" fill="oklch(0.6963 0.0379 85.38)">Jun</text>
+                    <text x="256" y="114" font-size="7" fill="oklch(0.6963 0.0379 85.38)">Dec</text>
+                  </svg>
+                </div>
+                <!-- Area -->
+                <div
+                  class="chart"
+                  style="border-color: oklch(0.276 0.0276 85.63); background: oklch(0.2022 0.0163 84.38)"
+                >
+                  <div
+                    style="
+                      font-size: 10px;
+                      letter-spacing: 0.08em;
+                      color: oklch(0.6963 0.0379 85.38);
+                      margin-bottom: 6px;
+                    "
+                  >
+                    AREA — gradient fill (dual tone)
+                  </div>
+                  <svg viewBox="0 0 320 120" width="100%" height="120" style="display: block">
+                    <defs>
+                      <linearGradient id="g-mathviz-carbon-amber" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="oklch(0.7976 0.1381 89.5)" stop-opacity="0.42" />
+                        <stop offset="100%" stop-color="oklch(0.7976 0.1381 89.5)" stop-opacity="0.02" />
+                      </linearGradient>
+                    </defs>
+                    <rect x="0" y="0" width="320" height="120" fill="oklch(0.2022 0.0163 84.38)" rx="6" />
+                    <g stroke="oklch(0.276 0.0276 85.63)" stroke-width="0.7" opacity="0.9">
+                      <line x1="32" y1="18" x2="32" y2="98" />
+                      <line x1="32" y1="98" x2="300" y2="98" />
+                    </g>
+                    <path
+                      d="M32 78 C 90 62, 140 88, 180 54 S 250 72, 300 34 L 300 98 L 32 98 Z"
+                      fill="url(#g-mathviz-carbon-amber)"
+                      stroke="none"
+                    />
+                    <path
+                      d="M32 78 C 90 62, 140 88, 180 54 S 250 72, 300 34"
+                      fill="none"
+                      stroke="oklch(0.7976 0.1381 89.5)"
+                      stroke-width="2.2"
+                    />
+                    <circle
+                      cx="180"
+                      cy="54"
+                      r="3.5"
+                      fill="oklch(0.2022 0.0163 84.38)"
+                      stroke="oklch(0.7976 0.1381 89.5)"
+                      stroke-width="1.6"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px">
+                <!-- Bars -->
+                <div
+                  class="chart"
+                  style="border-color: oklch(0.276 0.0276 85.63); background: oklch(0.2022 0.0163 84.38)"
+                >
+                  <div
+                    style="
+                      font-size: 10px;
+                      letter-spacing: 0.08em;
+                      color: oklch(0.6963 0.0379 85.38);
+                      margin-bottom: 6px;
+                    "
+                  >
+                    BARS — categorical
+                  </div>
+                  <svg viewBox="0 0 160 120" width="100%" height="120" style="display: block">
+                    <rect x="0" y="0" width="160" height="120" fill="oklch(0.2022 0.0163 84.38)" rx="6" />
+                    <g opacity="0.95">
+                      <rect x="18" y="72" width="18" height="26" rx="3" fill="oklch(0.7976 0.1381 89.5)" />
+                      <rect x="42" y="58" width="18" height="40" rx="3" fill="oklch(0.7976 0.1381 89.5)" />
+                      <rect x="66" y="40" width="18" height="58" rx="3" fill="oklch(0.8003 0.1821 151.71)" />
+                      <rect x="90" y="62" width="18" height="36" rx="3" fill="oklch(0.7976 0.1381 89.5)" />
+                      <rect
+                        x="114"
+                        y="50"
+                        width="18"
+                        height="48"
+                        rx="3"
+                        fill="oklch(0.7976 0.1381 89.5)"
+                        opacity="0.85"
+                      />
+                    </g>
+                    <line
+                      x1="12"
+                      y1="98"
+                      x2="144"
+                      y2="98"
+                      stroke="oklch(0.276 0.0276 85.63)"
+                      stroke-width="0.8"
+                    />
+                  </svg>
+                </div>
+                <!-- Gauge -->
+                <div
+                  class="chart"
+                  style="
+                    border-color: oklch(0.276 0.0276 85.63);
+                    background: oklch(0.2022 0.0163 84.38);
+                    display: grid;
+                    place-items: center;
+                  "
+                >
+                  <div
+                    style="
+                      font-size: 10px;
+                      letter-spacing: 0.08em;
+                      color: oklch(0.6963 0.0379 85.38);
+                      margin-bottom: 6px;
+                      justify-self: stretch;
+                    "
+                  >
+                    GAUGE — wedge meter
+                  </div>
+                  <svg viewBox="0 0 120 78" width="120" height="78" style="display: block">
+                    <path
+                      d="M12 72 A 48 48 0 0 1 108 72"
+                      fill="none"
+                      stroke="oklch(0.276 0.0276 85.63)"
+                      stroke-width="10"
+                      stroke-linecap="round"
+                    />
+                    <path
+                      d="M12 72 A 48 48 0 0 1 78 20"
+                      fill="none"
+                      stroke="oklch(0.7976 0.1381 89.5)"
+                      stroke-width="10"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="60" cy="72" r="4" fill="oklch(0.9514 0.0257 84.59)" />
+                    <line
+                      x1="60"
+                      y1="72"
+                      x2="88"
+                      y2="38"
+                      stroke="oklch(0.8003 0.1821 151.71)"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
+                    />
+                    <text
+                      x="60"
+                      y="62"
+                      text-anchor="middle"
+                      font-size="9"
+                      font-weight="700"
+                      fill="oklch(0.9514 0.0257 84.59)"
+                    >
+                      72%
+                    </text>
+                  </svg>
+                </div>
+                <!-- Donut -->
+                <div
+                  class="chart"
+                  style="
+                    border-color: oklch(0.276 0.0276 85.63);
+                    background: oklch(0.2022 0.0163 84.38);
+                    display: grid;
+                    place-items: center;
+                  "
+                >
+                  <div
+                    style="
+                      font-size: 10px;
+                      letter-spacing: 0.08em;
+                      color: oklch(0.6963 0.0379 85.38);
+                      margin-bottom: 6px;
+                      justify-self: stretch;
+                    "
+                  >
+                    DONUT — 3 slices
+                  </div>
+                  <svg viewBox="0 0 100 100" width="100" height="100" style="display: block">
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="30"
+                      fill="none"
+                      stroke="oklch(0.276 0.0276 85.63)"
+                      stroke-width="12"
+                    />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="30"
+                      fill="none"
+                      stroke="oklch(0.7976 0.1381 89.5)"
+                      stroke-width="12"
+                      stroke-dasharray="58 126"
+                      transform="rotate(-90 50 50)"
+                    />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="30"
+                      fill="none"
+                      stroke="oklch(0.8003 0.1821 151.71)"
+                      stroke-width="12"
+                      stroke-dasharray="36 126"
+                      stroke-dashoffset="-58"
+                      transform="rotate(-90 50 50)"
+                    />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="30"
+                      fill="none"
+                      stroke="oklch(0.7719 0.1934 151.14)"
+                      stroke-width="12"
+                      stroke-dasharray="32 126"
+                      stroke-dashoffset="-94"
+                      transform="rotate(-90 50 50)"
+                    />
+                    <text
+                      x="50"
+                      y="54"
+                      text-anchor="middle"
+                      font-size="9"
+                      font-weight="700"
+                      fill="oklch(0.9514 0.0257 84.59)"
+                    >
+                      3
+                    </text>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gradient Atelier — 10 effects: Vesper high-contrast vibrant + beautiful gradients -->
+            <div
+              style="
+                border: 1px solid oklch(0.276 0.0276 85.63);
+                border-radius: 8px;
+                overflow: hidden;
+                background: oklch(0.2022 0.0163 84.38);
+              "
+            >
+              <div
+                style="
+                  padding: 10px 14px;
+                  border-bottom: 1px solid oklch(0.276 0.0276 85.63);
+                  background: linear-gradient(
+                    90deg,
+                    oklch(0.7976 0.1381 89.5 / 0.078),
+                    oklch(0.8003 0.1821 151.71 / 0.078)
+                  );
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  flex-wrap: wrap;
+                "
+              >
+                <div
+                  style="
+                    font-size: 11px;
+                    letter-spacing: 0.12em;
+                    font-weight: 800;
+                    color: oklch(0.7976 0.1381 89.5);
+                  "
+                >
+                  GRADIENT ATELIER — 10 EFFECTS
+                </div>
+                <span style="font-size: 10px; opacity: 0.6"
+                  >Vesper: high-contrast vibrant per-screen color + beautiful gradients — duotone, aurora,
+                  glow, text, border, mesh</span
+                >
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.7976 0.1381 89.5);
+                    color: oklch(0.1873 0.0383 89.07);
+                    border-color: oklch(0.7976 0.1381 89.5);
+                    font-size: 10px;
+                  "
+                  >linear</span
+                >
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.8003 0.1821 151.71);
+                    color: oklch(0.1654 0.0274 158.94);
+                    border-color: oklch(0.8003 0.1821 151.71);
+                    font-size: 10px;
+                  "
+                  >radial</span
+                >
+                <span
+                  class="pill"
+                  style="
+                    background: oklch(0.1791 0.0127 84.46);
+                    border-color: oklch(0.276 0.0276 85.63);
+                    color: oklch(0.6963 0.0379 85.38);
+                    font-size: 10px;
+                  "
+                  >conic</span
+                >
+              </div>
+              <div style="padding: 14px; display: grid; gap: 14px">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+                  <div
+                    style="border: 1px solid oklch(0.276 0.0276 85.63); border-radius: 8px; overflow: hidden"
+                  >
+                    <div
+                      style="
+                        height: 88px;
+                        background: linear-gradient(
+                          90deg,
+                          oklch(0.7976 0.1381 89.5) 0%,
+                          oklch(0.8003 0.1821 151.71) 100%
+                        );
+                        display: grid;
+                        place-items: center;
+                      "
+                    >
+                      <span
+                        style="
+                          font-weight: 800;
+                          font-size: 12px;
+                          letter-spacing: 0.08em;
+                          color: oklch(0.1873 0.0383 89.07);
+                          text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+                        "
+                        >LINEAR 90deg — primary->accent</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        padding: 8px 10px;
+                        font-size: 10px;
+                        background: oklch(0.1791 0.0127 84.46);
+                        border-top: 1px solid oklch(0.276 0.0276 85.63);
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.7;
+                      "
+                    >
+                      background: linear-gradient(90deg, var(--primary), var(--accent))
+                    </div>
+                    <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                      Hero banners, CTA. Vesper red->purple on black.
+                    </div>
+                  </div>
+                  <div
+                    style="border: 1px solid oklch(0.276 0.0276 85.63); border-radius: 8px; overflow: hidden"
+                  >
+                    <div
+                      style="
+                        height: 88px;
+                        background: linear-gradient(
+                          135deg,
+                          oklch(0.7976 0.1381 89.5) 0%,
+                          oklch(0.8003 0.1821 151.71) 50%,
+                          oklch(0.7686 0.1647 70.08) 100%
+                        );
+                        display: grid;
+                        place-items: center;
+                      "
+                    >
+                      <span
+                        style="
+                          font-weight: 800;
+                          font-size: 11px;
+                          color: #fff;
+                          text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+                        "
+                        >3-STOP VIBRANT — primary->accent->warning</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        padding: 8px 10px;
+                        font-size: 10px;
+                        background: oklch(0.1791 0.0127 84.46);
+                        border-top: 1px solid oklch(0.276 0.0276 85.63);
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.7;
+                      "
+                    >
+                      135deg, 3 stops — high contrast
+                    </div>
+                    <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                      Charts, multi-series. Vesper per-screen pop.
+                    </div>
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+                  <div
+                    style="
+                      border: 1px solid oklch(0.276 0.0276 85.63);
+                      border-radius: 8px;
+                      overflow: hidden;
+                      background: oklch(0.1465 0.0057 69.2);
+                    "
+                  >
+                    <div
+                      style="
+                        height: 88px;
+                        background:
+                          radial-gradient(
+                            600px 300px at 50% 0%,
+                            oklch(0.7976 0.1381 89.5 / 0.2) 0%,
+                            transparent 60%
+                          ),
+                          linear-gradient(
+                            180deg,
+                            oklch(0.1465 0.0057 69.2) 0%,
+                            oklch(0.1791 0.0127 84.46) 100%
+                          );
+                        display: grid;
+                        place-items: center;
+                        border-bottom: 1px solid oklch(0.276 0.0276 85.63);
+                      "
+                    >
+                      <span
+                        class="pill"
+                        style="
+                          background: oklch(0.7976 0.1381 89.5);
+                          color: oklch(0.1873 0.0383 89.07);
+                          border-color: oklch(0.7976 0.1381 89.5);
+                          backdrop-filter: blur(4px);
+                        "
+                        >RADIAL GLOW — primary at top</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        padding: 8px 10px;
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.7;
+                        background: oklch(0.1791 0.0127 84.46);
+                      "
+                    >
+                      radial-gradient(600px 300px at 50% 0%, var(--primary) 33%, transparent)
+                    </div>
+                    <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                      Atmosphere, vignette. Drive Gun light spill.
+                    </div>
+                  </div>
+                  <div
+                    style="border: 1px solid oklch(0.276 0.0276 85.63); border-radius: 8px; overflow: hidden"
+                  >
+                    <div
+                      style="
+                        height: 88px;
+                        background: conic-gradient(
+                          from 0deg at 50% 50%,
+                          oklch(0.7976 0.1381 89.5) 0deg,
+                          oklch(0.8003 0.1821 151.71) 120deg,
+                          oklch(0.7686 0.1647 70.08) 240deg,
+                          oklch(0.7976 0.1381 89.5) 360deg
+                        );
+                        display: grid;
+                        place-items: center;
+                      "
+                    >
+                      <span
+                        style="
+                          background: oklch(0.2022 0.0163 84.38);
+                          color: oklch(0.9514 0.0257 84.59);
+                          padding: 6px 10px;
+                          border-radius: 999px;
+                          font-size: 11px;
+                          font-weight: 700;
+                          border: 1px solid oklch(0.276 0.0276 85.63);
+                        "
+                        >CONIC SWEEP 360deg</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        padding: 8px 10px;
+                        font-size: 10px;
+                        background: oklch(0.1791 0.0127 84.46);
+                        border-top: 1px solid oklch(0.276 0.0276 85.63);
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.7;
+                      "
+                    >
+                      conic-gradient(from 0deg, primary, accent, warning)
+                    </div>
+                    <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                      Loaders, hue wheel, playful accent.
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="border: 1px solid oklch(0.276 0.0276 85.63); border-radius: 8px; overflow: hidden"
+                >
+                  <div
+                    style="
+                      height: 96px;
+                      background:
+                        radial-gradient(
+                          800px 400px at 20% 0%,
+                          oklch(0.7976 0.1381 89.5 / 0.149) 0%,
+                          transparent 55%
+                        ),
+                        radial-gradient(
+                          600px 300px at 90% 30%,
+                          oklch(0.8003 0.1821 151.71 / 0.133) 0%,
+                          transparent 60%
+                        ),
+                        linear-gradient(180deg, oklch(0.1465 0.0057 69.2) 0%, oklch(0.1791 0.0127 84.46) 100%);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      gap: 10px;
+                      padding: 12px;
+                    "
+                  >
+                    <span
+                      style="
+                        font-size: 12px;
+                        font-weight: 800;
+                        letter-spacing: 0.08em;
+                        color: oklch(0.9514 0.0257 84.59);
+                      "
+                      >AURORA MESH — dual radial + base</span
+                    >
+                    <span style="font-size: 10px; opacity: 0.6; color: oklch(0.6963 0.0379 85.38)"
+                      >silhouette-friendly, depth</span
+                    >
+                  </div>
+                  <div
+                    style="
+                      padding: 8px 10px;
+                      font-size: 10px;
+                      font-family: ui-monospace, monospace;
+                      opacity: 0.7;
+                      background: oklch(0.1791 0.0127 84.46);
+                    "
+                  >
+                    mesh: radial @20% + radial @90% + linear 180deg
+                  </div>
+                  <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                    Page backgrounds, empty states. Vesper void + neon fog.
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px">
+                  <div
+                    style="
+                      border: 1px solid oklch(0.276 0.0276 85.63);
+                      border-radius: 8px;
+                      padding: 12px;
+                      background: oklch(0.2022 0.0163 84.38);
+                      display: grid;
+                      place-items: center;
+                      gap: 8px;
+                    "
+                  >
+                    <div style="font-size: 10px; letter-spacing: 0.08em; opacity: 0.6">GRADIENT TEXT</div>
+                    <div
+                      style="
+                        font-size: 20px;
+                        font-weight: 900;
+                        letter-spacing: -0.02em;
+                        background: linear-gradient(
+                          90deg,
+                          oklch(0.7976 0.1381 89.5) 0%,
+                          oklch(0.8003 0.1821 151.71) 100%
+                        );
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                      "
+                    >
+                      Vesper Light
+                    </div>
+                    <div style="font-size: 10px; font-family: ui-monospace, monospace; opacity: 0.6">
+                      background-clip: text
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid transparent;
+                      background:
+                        linear-gradient(oklch(0.2022 0.0163 84.38), oklch(0.2022 0.0163 84.38)) padding-box,
+                        linear-gradient(135deg, oklch(0.7976 0.1381 89.5), oklch(0.8003 0.1821 151.71))
+                          border-box;
+                      border-radius: 8px;
+                      padding: 12px;
+                      display: grid;
+                      place-items: center;
+                      gap: 8px;
+                    "
+                  >
+                    <div style="font-size: 10px; letter-spacing: 0.08em; opacity: 0.6">GRADIENT BORDER</div>
+                    <div style="font-size: 12px; font-weight: 700; color: oklch(0.9514 0.0257 84.59)">
+                      Card with border-image
+                    </div>
+                    <div style="font-size: 10px; font-family: ui-monospace, monospace; opacity: 0.6">
+                      padding-box + border-box
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid oklch(0.276 0.0276 85.63);
+                      border-radius: 8px;
+                      overflow: hidden;
+                      position: relative;
+                      background: oklch(0.1465 0.0057 69.2);
+                    "
+                  >
+                    <div
+                      style="
+                        position: absolute;
+                        inset: 0;
+                        background: linear-gradient(
+                          180deg,
+                          transparent 0%,
+                          oklch(0.7976 0.1381 89.5 / 0.059) 100%
+                        );
+                      "
+                    ></div>
+                    <div
+                      style="
+                        position: absolute;
+                        inset: 0;
+                        background: linear-gradient(
+                          90deg,
+                          oklch(0.8003 0.1821 151.71 / 0.071) 0%,
+                          transparent 50%
+                        );
+                      "
+                    ></div>
+                    <div style="padding: 14px; position: relative">
+                      <div style="font-size: 10px; letter-spacing: 0.08em; opacity: 0.6">GLASS OVERLAY</div>
+                      <div style="font-size: 12px; font-weight: 700; color: oklch(0.9514 0.0257 84.59)">
+                        Subtle gradient lift
+                      </div>
+                      <div style="font-size: 10px; opacity: 0.6">for cards over mesh</div>
+                    </div>
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+                  <div
+                    style="
+                      border: 1px solid oklch(0.276 0.0276 85.63);
+                      border-radius: 8px;
+                      padding: 10px;
+                      background: oklch(0.2022 0.0163 84.38);
+                    "
+                  >
+                    <div style="font-size: 10px; letter-spacing: 0.08em; opacity: 0.6; margin-bottom: 6px">
+                      CHART — area with gradient fill + line
+                    </div>
+                    <svg viewBox="0 0 320 90" width="100%" height="90" style="display: block">
+                      <defs>
+                        <linearGradient id="area-grad-mathviz-carbon-amber" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="oklch(0.7976 0.1381 89.5)" stop-opacity="0.42" />
+                          <stop offset="100%" stop-color="oklch(0.7976 0.1381 89.5)" stop-opacity="0.02" />
+                        </linearGradient>
+                        <linearGradient id="bar-grad-mathviz-carbon-amber" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="oklch(0.7976 0.1381 89.5)" />
+                          <stop offset="100%" stop-color="oklch(0.8003 0.1821 151.71)" />
+                        </linearGradient>
+                      </defs>
+                      <rect x="0" y="0" width="320" height="90" fill="oklch(0.2022 0.0163 84.38)" rx="6" />
+                      <path
+                        d="M20 60 C 70 44, 120 68, 160 38 S 230 52, 300 18 L 300 72 L 20 72 Z"
+                        fill="url(#area-grad-mathviz-carbon-amber)"
+                      />
+                      <path
+                        d="M20 60 C 70 44, 120 68, 160 38 S 230 52, 300 18"
+                        fill="none"
+                        stroke="oklch(0.7976 0.1381 89.5)"
+                        stroke-width="2"
+                      />
+                      <circle
+                        cx="300"
+                        cy="18"
+                        r="4"
+                        fill="oklch(0.8003 0.1821 151.71)"
+                        stroke="oklch(0.2022 0.0163 84.38)"
+                        stroke-width="1.5"
+                      />
+                    </svg>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.6;
+                        margin-top: 4px;
+                      "
+                    >
+                      area: primary 42%->2% + line primary + dot accent
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      border: 1px solid oklch(0.276 0.0276 85.63);
+                      border-radius: 8px;
+                      padding: 10px;
+                      background: oklch(0.2022 0.0163 84.38);
+                    "
+                  >
+                    <div style="font-size: 10px; letter-spacing: 0.08em; opacity: 0.6; margin-bottom: 6px">
+                      BARS — vertical gradient fill (primary->accent)
+                    </div>
+                    <svg viewBox="0 0 200 90" width="100%" height="90" style="display: block">
+                      <defs>
+                        <linearGradient id="bar2-mathviz-carbon-amber" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="oklch(0.7976 0.1381 89.5)" />
+                          <stop offset="100%" stop-color="oklch(0.8003 0.1821 151.71)" />
+                        </linearGradient>
+                      </defs>
+                      <rect x="0" y="0" width="200" height="90" fill="oklch(0.2022 0.0163 84.38)" rx="6" />
+                      <rect
+                        x="14"
+                        y="42"
+                        width="22"
+                        height="28"
+                        rx="3"
+                        fill="url(#bar2-mathviz-carbon-amber)"
+                      />
+                      <rect
+                        x="42"
+                        y="32"
+                        width="22"
+                        height="38"
+                        rx="3"
+                        fill="url(#bar2-mathviz-carbon-amber)"
+                      />
+                      <rect
+                        x="70"
+                        y="18"
+                        width="22"
+                        height="52"
+                        rx="3"
+                        fill="url(#bar2-mathviz-carbon-amber)"
+                      />
+                      <rect x="98" y="28" width="22" height="42" rx="3" fill="oklch(0.8003 0.1821 151.71)" />
+                      <rect
+                        x="126"
+                        y="36"
+                        width="22"
+                        height="34"
+                        rx="3"
+                        fill="url(#bar2-mathviz-carbon-amber)"
+                        opacity="0.85"
+                      />
+                    </svg>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.6;
+                        margin-top: 4px;
+                      "
+                    >
+                      bar: linear-gradient(primary, accent)
+                    </div>
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+                  <div
+                    style="border: 1px solid oklch(0.276 0.0276 85.63); border-radius: 8px; overflow: hidden"
+                  >
+                    <div
+                      style="
+                        height: 56px;
+                        background: linear-gradient(
+                          90deg,
+                          oklch(0.1465 0.0057 69.2) 0%,
+                          oklch(0.1791 0.0127 84.46) 100%
+                        );
+                        border-bottom: 1px solid oklch(0.276 0.0276 85.63);
+                        display: grid;
+                        place-items: center;
+                      "
+                    >
+                      <span style="font-size: 11px; font-weight: 600; color: oklch(0.6963 0.0379 85.38)"
+                        >SUBTLE — background->muted (180/90deg)</span
+                      >
+                    </div>
+                    <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                      Page shells, muted cards — Vesper darkness depth
+                    </div>
+                  </div>
+                  <div
+                    style="border: 1px solid oklch(0.276 0.0276 85.63); border-radius: 8px; overflow: hidden"
+                  >
+                    <div
+                      style="
+                        height: 56px;
+                        background: linear-gradient(
+                          135deg,
+                          oklch(0.7719 0.1934 151.14) 0%,
+                          oklch(0.7976 0.1381 89.5) 50%,
+                          oklch(0.8003 0.1821 151.71) 100%
+                        );
+                        display: grid;
+                        place-items: center;
+                      "
+                    >
+                      <span
+                        style="
+                          font-size: 11px;
+                          font-weight: 700;
+                          color: #fff;
+                          text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+                        "
+                        >ELECTRIC — 3-stop data pop</span
+                      >
+                    </div>
+                    <div style="padding: 6px 10px; font-size: 10px; opacity: 0.6">
+                      Success->primary->accent for hero metrics
+                    </div>
+                  </div>
+                </div>
+                <div style="font-size: 10px; opacity: 0.5; font-family: ui-monospace, monospace">
+                  Vars: --gradient-primary: linear-gradient(135deg, var(--primary), var(--accent));
+                  --gradient-accent: linear-gradient(90deg, var(--accent), var(--primary)); --gradient-muted:
+                  linear-gradient(180deg, var(--background), var(--background-muted)); --gradient-glow:
+                  radial(...); --gradient-text + --gradient-mesh (aurora dual radial). Utilities:
+                  .gradient_primary .gradient_text .gradient_border .gradient_mesh .gradient_muted — all
+                  inside .theme. Colors oklch. Ask to tune: lean more purple, softer aurora, high-contrast
+                  electric.
+                </div>
+              </div>
+            </div>
+
+            <!-- Theme vars again + export hint -->
+            <div style="font-size: 10px; opacity: 0.6">
+              Theme is scoped — see left panel for full <code>.theme</code> module (oklch). Export with
+              theme-export tool to <code>workspace/themes/mathviz_carbon_amber.module.css</code> +
+              <code>src/style/themes/</code>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Lab for one theme — refine via dialogue (“make accent softer”, “darken border”, “add chart-grid token”).
+      After tuning, run theme-export to emit CSS variables + utility classes for the viz project. Source image
+      at <code>media/galleries/math-viz-v2/06-dark-carbon-amber.png</code>.
+    </div>
+  </body>
+</html>

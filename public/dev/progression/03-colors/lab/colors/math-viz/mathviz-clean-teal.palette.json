@@ -1,0 +1,28 @@
+{
+  "appTypes": ["dashboard", "app-shell"],
+  "colors": {
+    "accent": "#DA8A0B",
+    "accentForeground": "#221A08",
+    "background": "#FEFCFA",
+    "backgroundMuted": "#F1EDE8",
+    "border": "#E4DDD5",
+    "card": "#FFFFFF",
+    "destructive": "#DC2626",
+    "foreground": "#132A2E",
+    "foregroundMuted": "#5C6F75",
+    "primary": "#0E7C6B",
+    "primaryForeground": "#FFFFFF",
+    "secondary": "#E2EFEA",
+    "secondaryForeground": "#134E46",
+    "success": "#15803D",
+    "warning": "#B45309"
+  },
+  "id": "mathviz-clean-teal",
+  "modes": ["light"],
+  "name": "MathViz Clean Teal",
+  "notes": "Pair with a dark teal shell for controls; keep canvas pure white. Gradient strategy: soft paper-to-mint mesh, teal->amber duotone for function vs tangent lines.",
+  "scores": { "designerFriendly": 9, "professional": 9 },
+  "slug": "mathviz-clean-teal",
+  "tags": ["math-viz", "clean", "light-geometry"],
+  "vibe": "education"
+}

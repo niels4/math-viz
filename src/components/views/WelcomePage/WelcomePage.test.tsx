@@ -52,6 +52,7 @@ describe("WelcomePage", () => {
       button: screen.getByRole("link", { name: "Open the Function Viewer" }).element(),
       hint: screen.getByText(/^Pick a function, then drag/).element(),
       plane: screen.container.querySelector("canvas"),
+      devLink: screen.getByRole("link", { name: "Developer pages" }).element(),
     }
     for (const [name, part] of Object.entries(parts)) {
       const { left, top, right, bottom } = boxOf(part)
@@ -104,6 +105,17 @@ describe("WelcomePage", () => {
     await button.click()
     await expect.element(screen.getByRole("heading", { name: "Function Viewer" })).toBeVisible()
     expect(window.location.hash).toBe("#function-viewer")
+  })
+
+  it("opens the developer pages from the link at its foot", async () => {
+    await updateLocationHash("")
+    const screen = await render(<Router routes={routes} />)
+
+    await expect.element(screen.getByRole("heading", { name: "MathViz" })).toBeVisible()
+
+    await screen.getByRole("link", { name: "Developer pages" }).click()
+    await expect.element(screen.getByRole("heading", { name: "How MathViz is designed" })).toBeVisible()
+    expect(window.location.hash).toBe("#dev")
   })
 
   it("recolours the page in the theme picked in the settings menu", async () => {

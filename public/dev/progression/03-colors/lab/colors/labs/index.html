@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Colors — Labs Index</title>
+    <style>
+      :root {
+        --bg: #0b0f1a;
+        --panel: #111827;
+        --line: #1e2e4a;
+        --cyan: #00e5ff;
+        --text: #d6eaff;
+        --muted: #8aa0c0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          ui-sans-system,
+          -apple-system,
+          Inter,
+          sans-serif;
+      }
+      header {
+        padding: 22px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, #0b1530 0%, var(--bg) 100%);
+      }
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.14em;
+        color: var(--cyan);
+      }
+      a {
+        color: var(--cyan);
+      }
+      main {
+        padding: 22px;
+        display: grid;
+        gap: 14px;
+        max-width: 900px;
+      }
+      .card {
+        border: 1px solid var(--line);
+        background: #0f172a;
+        padding: 14px;
+      }
+      .card h2 {
+        margin: 0 0 8px;
+        color: var(--cyan);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>◈ COLORS — Labs Index</h1>
+      <div style="opacity: 0.7; font-size: 12px; margin-top: 6px">
+        <code>workspace/colors/labs/</code> · per-palette labs without overwriting ·
+        <code>http://localhost:8787/colors/labs/&lt;slug&gt;.html</code>
+      </div>
+    </header>
+    <main>
+      <div class="card">
+        <h2>Galleries</h2>
+        <ul>
+          <li>
+            <a href="../galleries/gallery.html">galleries/gallery.html</a> — main gallery (9 palettes,
+            filterable)
+          </li>
+          <li><a href="../gallery.html">gallery.html</a> — short alias</li>
+          <li><a href="../../color-gallery.html">../../color-gallery.html</a> — legacy alias (mirrored)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Labs — one per palette (new, no overwrite)</h2>
+        <div class="grid">
+          <a class="card" href="./corporate-light.html"
+            ><h2>Corporate Light</h2>
+            <div style="font-size: 11px; opacity: 0.7">light · corporate · dashboard, app-shell</div></a
+          >
+          <a class="card" href="./midnight-dashboard-dark.html"
+            ><h2>Midnight Dashboard Dark</h2>
+            <div style="font-size: 11px; opacity: 0.7">dark · corporate · dashboard</div></a
+          >
+          <a class="card" href="./editorial-warm-light.html"
+            ><h2>Editorial Warm Light</h2>
+            <div style="font-size: 11px; opacity: 0.7">light · editorial · editorial, marketing</div></a
+          >
+          <a class="card" href="./playful-saas.html"
+            ><h2>Playful SaaS</h2>
+            <div style="font-size: 11px; opacity: 0.7">light · playful · marketing, app-shell</div></a
+          >
+          <a class="card" href="./minimal-monochrome.html"
+            ><h2>Minimal Monochrome</h2>
+            <div style="font-size: 11px; opacity: 0.7">light/dark · minimal</div></a
+          >
+          <a class="card" href="./high-contrast-accessible.html"
+            ><h2>High-Contrast Accessible</h2>
+            <div style="font-size: 11px; opacity: 0.7">light · minimal · AAA</div></a
+          >
+          <a class="card" href="./obsidian-pro-dark.html"
+            ><h2>Obsidian Pro Dark</h2>
+            <div style="font-size: 11px; opacity: 0.7">dark · minimal · dashboard</div></a
+          >
+          <a
+            class="card"
+            href="./neon-noir.html"
+            style="border-color: #00e5ff; box-shadow: 0 0 18px rgba(0, 229, 255, 0.2)"
+            ><h2>◈ Neon Noir — DARK NEON</h2>
+            <div style="font-size: 11px; opacity: 0.7">
+              dark · futuristic · #0A0F1C bg, cyan #00E5FF, rose #ff6b9d — derived from 03-dark-smooth-neon
+            </div></a
+          >
+          <a class="card" href="./fintech-dashes.html"
+            ><h2>Fintech Dashes</h2>
+            <div style="font-size: 11px; opacity: 0.7">light · corporate · derived 10-multi-series</div></a
+          >
+        </div>
+      </div>
+      <div class="card">
+        <h2>Catalog</h2>
+        <ul>
+          <li><a href="../catalog.json">catalog.json</a> — new canonical (9 palettes)</li>
+          <li>
+            <a href="../../color-catalog.json">../../color-catalog.json</a> — legacy mirror (auto-synced)
+          </li>
+        </ul>
+      </div>
+      <div class="card" style="opacity: 0.7; font-size: 11px">
+        All labs generated via <code>color-lab</code> tool with
+        <code>filename=colors/labs/&lt;slug&gt;.html</code>. Gallery via
+        <code>color-gallery filename=colors/galleries/gallery.html</code>. Theme exports still at
+        <code>workspace/themes/&lt;slug&gt;.module.css</code> + <code>alpha/viz1/src/style/themes/</code>.
+      </div>
+    </main>
+  </body>
+</html>

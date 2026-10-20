@@ -7,6 +7,7 @@ declare const styles: {
   readonly "content": string;
   readonly "cta": string;
   readonly "description": string;
+  readonly "dev_link": string;
   readonly "frame": string;
   readonly "hero": string;
   readonly "hero_plane": string;

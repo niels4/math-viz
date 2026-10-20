@@ -3,6 +3,7 @@
 // prettier-ignore
 declare const styles: {
   readonly "divider": string;
+  readonly "heading": string;
   readonly "subtitle": string;
   readonly "title": string;
   readonly "top_bar": string;

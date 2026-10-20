@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MATH-VIZ THEME LABS // 6 sommelier labs</title>
+    <style>
+      :root {
+        --bg: #0b0f1a;
+        --panel: #111827;
+        --line: #1e2e4a;
+        --cyan: #00e5ff;
+        --text: #d6eaff;
+        --muted: #8aa0c0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          ui-sans-system,
+          -apple-system,
+          Inter,
+          system-ui,
+          sans-serif;
+      }
+      header {
+        padding: 22px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, #0b1530 0%, var(--bg) 100%);
+      }
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.13em;
+        font-weight: 800;
+        color: var(--cyan);
+        text-shadow: 0 0 18px rgba(0, 229, 255, 0.5);
+      }
+      h1 span {
+        color: #fff;
+        opacity: 0.85;
+      }
+      .sub {
+        opacity: 0.75;
+        font-size: 12px;
+        margin-top: 8px;
+        line-height: 1.6;
+        max-width: 1100px;
+      }
+      .sub code {
+        color: var(--cyan);
+        background: #0f1e36;
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 11px;
+      }
+      main {
+        padding: 22px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 18px;
+        max-width: 1500px;
+        margin: 0 auto;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .card h2 {
+        margin: 0;
+        padding: 12px 14px;
+        font-size: 13px;
+        letter-spacing: 0.06em;
+        border-bottom: 1px solid var(--line);
+        background: #0c1a30;
+      }
+      .card h2 .mode {
+        float: right;
+        font-size: 10px;
+        opacity: 0.6;
+        letter-spacing: 0.1em;
+      }
+      .strip {
+        display: flex;
+        height: 44px;
+      }
+      .strip div {
+        flex: 1;
+      }
+      .thumb {
+        width: 100%;
+        display: block;
+        aspect-ratio: 1536/1024;
+        object-fit: cover;
+        background: #000;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .meta {
+        padding: 12px 14px;
+        font-size: 11px;
+        line-height: 1.7;
+        flex: 1;
+      }
+      .meta .row {
+        color: var(--muted);
+      }
+      .meta b {
+        color: var(--text);
+      }
+      .links {
+        display: flex;
+        gap: 8px;
+        padding: 0 14px 14px;
+        flex-wrap: wrap;
+      }
+      .links a {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 7px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--cyan);
+        color: var(--cyan);
+        text-decoration: none;
+      }
+      .links a.solid {
+        background: var(--cyan);
+        color: #06121f;
+      }
+      .links a.dim {
+        border-color: var(--line);
+        color: var(--muted);
+      }
+      footer {
+        padding: 14px 22px;
+        font-size: 11px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>◈ MATH-VIZ THEME LABS <span>// 6 parallel sommelier runs</span></h1>
+      <div class="sub">
+        One lab per math-viz-v2 still — same 05 skeleton (sidebar function stack, status strip, minimap,
+        tangent + m badge), six theme palettes. Each run measured its still with our Python color tools (PIL
+        sampling + <code>oklch.py</code>), derived 15 roles, built its own lab. Click through to a lab for
+        swatches, live UI + viz previews, Gradient Atelier, and the copy-paste CSS Module. Catalog:
+        <code>workspace/colors/catalog.json</code> (16 palettes) · CSS:
+        <code>workspace/themes/mathviz_*.module.css</code> · Seeds:
+        <code>workspace/colors/math-viz/*.seed.json</code>
+      </div>
+    </header>
+    <!-- ORDINAL-BANNER-START -->
+    <div
+      style="
+        padding: 12px 22px;
+        background: #0c1a30;
+        border-bottom: 1px solid #1e2e4a;
+        text-align: center;
+        font-size: 12px;
+      "
+    >
+      <a href="./math-viz-ordinals.html" style="color: #00e5ff; font-weight: 800; letter-spacing: 0.06em"
+        >◈ NEW — ORDINAL 12: 12 distinct multi-series colors per theme → compare all 6</a
+      >
+    </div>
+    <!-- ORDINAL-BANNER-END -->
+
+    <main>
+      <div class="card">
+        <h2>01 — Educational Warm <span class="mode">LIGHT · EDUCATION</span></h2>
+        <div class="strip">
+          <div style="background: #fffdf9"></div>
+          <div style="background: #ffffff"></div>
+          <div style="background: #4f46e5"></div>
+          <div style="background: #f97316"></div>
+          <div style="background: #27283f"></div>
+        </div>
+        <a href="../../media/galleries/math-viz-v2/01-light-educational-warm.png" target="_blank"
+          ><img
+            class="thumb"
+            src="../../media/galleries/math-viz-v2/01-light-educational-warm.png"
+            alt="Educational Warm still"
+        /></a>
+        <div class="meta">
+          <div class="row">
+            <b>bg×fg 14.1 · primary 6.3 · accent 2.8</b> — accent is coral for large badge/glow use, not body
+            text.
+          </div>
+          <div class="row">
+            Warm paper #FFFDF9, indigo parabola #4F46E5, coral tangent #F97316. Friendly educational feel.
+          </div>
+        </div>
+        <div class="links">
+          <a class="solid" href="../labs/mathviz-educational-warm.html">Open lab →</a
+          ><a href="../../themes/mathviz_educational_warm.module.css">CSS module</a
+          ><a class="dim" href="../../media/galleries/math-viz-v2/01-light-educational-warm.png">still raw</a>
+        </div>
+      </div>
+      <div class="card">
+        <h2>02 — Clean Teal <span class="mode">LIGHT · EDUCATION</span></h2>
+        <div class="strip">
+          <div style="background: #fefcfa"></div>
+          <div style="background: #ffffff"></div>
+          <div style="background: #0e7c6b"></div>
+          <div style="background: #da8a0b"></div>
+          <div style="background: #132a2e"></div>
+        </div>
+        <a href="../../media/galleries/math-viz-v2/02-light-clean-teal.png" target="_blank"
+          ><img
+            class="thumb"
+            src="../../media/galleries/math-viz-v2/02-light-clean-teal.png"
+            alt="Clean Teal still"
+        /></a>
+        <div class="meta">
+          <div class="row"><b>bg×fg 14.7 · primary 5.1 · accent 6.3</b> — all pairs pass AA.</div>
+          <div class="row">
+            Clean white #FEFCFA, teal #0E7C6B, amber tangent. 03 lineage: chips, toggles, pill labels.
+          </div>
+        </div>
+        <div class="links">
+          <a class="solid" href="../labs/mathviz-clean-teal.html">Open lab →</a
+          ><a href="../../themes/mathviz_clean_teal.module.css">CSS module</a
+          ><a class="dim" href="../../media/galleries/math-viz-v2/02-light-clean-teal.png">still raw</a>
+        </div>
+      </div>
+      <div class="card">
+        <h2>03 — Sage Editorial <span class="mode">LIGHT · EDITORIAL</span></h2>
+        <div class="strip">
+          <div style="background: #f9f9f6"></div>
+          <div style="background: #fefdfb"></div>
+          <div style="background: #2f5d3a"></div>
+          <div style="background: #b9541f"></div>
+          <div style="background: #1c211c"></div>
+        </div>
+        <a href="../../media/galleries/math-viz-v2/03-light-sage-editorial.png" target="_blank"
+          ><img
+            class="thumb"
+            src="../../media/galleries/math-viz-v2/03-light-sage-editorial.png"
+            alt="Sage Editorial still"
+        /></a>
+        <div class="meta">
+          <div class="row">
+            <b>bg×fg 15.5 · primary 7.3 · accent 4.8</b> — calm print contrast throughout.
+          </div>
+          <div class="row">
+            Paper #F9F9F6, deep-green parabola #2F5D3A, burnt-orange tangent #B9541F, serif display.
+          </div>
+        </div>
+        <div class="links">
+          <a class="solid" href="../labs/mathviz-sage-editorial.html">Open lab →</a
+          ><a href="../../themes/mathviz_sage_editorial.module.css">CSS module</a
+          ><a class="dim" href="../../media/galleries/math-viz-v2/03-light-sage-editorial.png">still raw</a>
+        </div>
+      </div>
+      <div class="card">
+        <h2>04 — Tron Cyan <span class="mode">DARK · FUTURISTIC</span></h2>
+        <div class="strip">
+          <div style="background: #020a0f"></div>
+          <div style="background: #0a1a21"></div>
+          <div style="background: #00e5ff"></div>
+          <div style="background: #ff8a2a"></div>
+          <div style="background: #e8fbff"></div>
+        </div>
+        <a href="../../media/galleries/math-viz-v2/04-dark-tron-cyan.png" target="_blank"
+          ><img
+            class="thumb"
+            src="../../media/galleries/math-viz-v2/04-dark-tron-cyan.png"
+            alt="Tron Cyan still"
+        /></a>
+        <div class="meta">
+          <div class="row">
+            <b>bg×fg 18.7 · primary 10.4 · accent 7.4</b> — strongest contrast of the six.
+          </div>
+          <div class="row">Void #020A0F, neon cyan #00E5FF bloom, amber #FF8A2A. Direct 05 lineage.</div>
+        </div>
+        <div class="links">
+          <a class="solid" href="../labs/mathviz-tron-cyan.html">Open lab →</a
+          ><a href="../../themes/mathviz_tron_cyan.module.css">CSS module</a
+          ><a class="dim" href="../../media/galleries/math-viz-v2/04-dark-tron-cyan.png">still raw</a>
+        </div>
+      </div>
+      <div class="card">
+        <h2>05 — Midnight Violet <span class="mode">DARK · FUTURISTIC</span></h2>
+        <div class="strip">
+          <div style="background: #04062c"></div>
+          <div style="background: #181d42"></div>
+          <div style="background: #8b5cf6"></div>
+          <div style="background: #e845c3"></div>
+          <div style="background: #eef1ff"></div>
+        </div>
+        <a href="../../media/galleries/math-viz-v2/05-dark-midnight-violet.png" target="_blank"
+          ><img
+            class="thumb"
+            src="../../media/galleries/math-viz-v2/05-dark-midnight-violet.png"
+            alt="Midnight Violet still"
+        /></a>
+        <div class="meta">
+          <div class="row">
+            <b>bg×fg 17.5 · primary 4.5 · accent 5.5</b> — violet primary is for large/bold use (just under
+            4.5).
+          </div>
+          <div class="row">Midnight navy #04062C, violet #8B5CF6, magenta #E845C3, ice labels.</div>
+        </div>
+        <div class="links">
+          <a class="solid" href="../labs/mathviz-midnight-violet.html">Open lab →</a
+          ><a href="../../themes/mathviz_midnight_violet.module.css">CSS module</a
+          ><a class="dim" href="../../media/galleries/math-viz-v2/05-dark-midnight-violet.png">still raw</a>
+        </div>
+      </div>
+      <div class="card">
+        <h2>06 — Arctic Ice <span class="mode">DARK · FUTURISTIC</span></h2>
+        <div class="strip">
+          <div style="background: #070d12"></div>
+          <div style="background: #151e26"></div>
+          <div style="background: #70c0a0"></div>
+          <div style="background: #a6dcce"></div>
+          <div style="background: #f2f7f7"></div>
+        </div>
+        <a href="../../media/galleries/math-viz-v3/01-arctic-ice.png" target="_blank"
+          ><img
+            class="thumb"
+            src="../../media/galleries/math-viz-v3/01-arctic-ice.png"
+            alt="Arctic Ice still"
+        /></a>
+        <div class="meta">
+          <div class="row">
+            <b>bg×fg 18.1 · primary 9.3 · accent 13.2</b> — all three AAA. Designers replacement for Carbon
+            Amber.
+          </div>
+          <div class="row">
+            Graphite-black #070D12, mint #70C0A0, pale ice #A6DCCE. Monochrome calm beside tron energy +
+            violet depth.
+          </div>
+        </div>
+        <div class="links">
+          <a class="solid" href="../labs/mathviz-arctic-ice.html">Open lab →</a
+          ><a href="../../themes/mathviz_arctic_ice.module.css">CSS module</a
+          ><a class="dim" href="../../media/galleries/math-viz-v3/01-arctic-ice.png">still raw</a>
+        </div>
+      </div>
+    </main>
+    <footer>
+      Built by 6 parallel color sommeliers (73s fan-out) + Arctic Ice replacement round · 06 Carbon Amber
+      retired by designer choice · seeds + palettes in workspace/colors/math-viz/ · catalog 16 palettes ·
+      regenerate labs: node scripts/run-mathviz-labs.ts then node scripts/run-mathviz-merge.ts
+    </footer>
+  </body>
+</html>

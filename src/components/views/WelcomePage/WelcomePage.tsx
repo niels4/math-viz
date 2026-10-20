@@ -66,6 +66,10 @@ export const WelcomePage = () => {
             <HeroPlane />
           </div>
         </main>
+        <a href="#dev" className={style.dev_link}>
+          Developer pages
+          <ArrowRightIcon />
+        </a>
       </div>
     </div>
   )

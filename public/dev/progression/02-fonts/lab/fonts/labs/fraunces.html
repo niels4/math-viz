@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Font Lab · Fraunces — Fraunces</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,100..900,0..100,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0b0f1a;
+        --panel: #111827;
+        --line: #1e2e4a;
+        --cyan: #00e5ff;
+        --text: #d6eaff;
+        --muted: #8aa0c0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          ui-sans-system,
+          -apple-system,
+          system-ui,
+          Inter,
+          sans-serif;
+      }
+      header {
+        padding: 22px 22px 12px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, #0b1530 0%, var(--bg) 100%);
+      }
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.13em;
+        font-weight: 800;
+        color: var(--cyan);
+        text-shadow: 0 0 18px rgba(0, 229, 255, 0.5);
+      }
+      h1 span {
+        color: #fff;
+        opacity: 0.9;
+      }
+      .sub {
+        opacity: 0.75;
+        font-size: 12px;
+        margin-top: 8px;
+        line-height: 1.5;
+      }
+      .sub code {
+        color: var(--cyan);
+        background: #0f1e36;
+        padding: 1px 5px;
+        border-radius: 3px;
+      }
+      .pill {
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #0a1222;
+      }
+      .pill.good {
+        border-color: rgba(34, 197, 94, 0.4);
+        background: rgba(34, 197, 94, 0.08);
+      }
+      .pill.mid {
+        border-color: rgba(234, 179, 8, 0.35);
+        background: rgba(234, 179, 8, 0.08);
+      }
+      .pill.low {
+        border-color: rgba(239, 68, 68, 0.35);
+        background: rgba(239, 68, 68, 0.08);
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 420px 1fr;
+        gap: 18px;
+        padding: 22px;
+      }
+      @media (max-width: 1000px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+      .card {
+        border: 1px solid var(--line);
+        background: #0f172a;
+        overflow: hidden;
+      }
+      .card h2 {
+        margin: 0;
+        padding: 12px 14px;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        color: var(--cyan);
+        border-bottom: 1px solid var(--line);
+        background: #0c1a30;
+      }
+      .source-img {
+        width: 100%;
+        aspect-ratio: 1536/1024;
+        object-fit: cover;
+        display: block;
+        background: #000;
+      }
+      .meta {
+        padding: 10px 14px;
+        font-size: 11px;
+        line-height: 1.6;
+        background: #0b162c;
+        border-top: 1px solid var(--line);
+      }
+      .vars {
+        font-family: ui-monospace, Menlo, monospace;
+        font-size: 11px;
+        line-height: 1.5;
+        background: #0a1222;
+        border: 1px solid var(--line);
+        padding: 12px;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .specimen-grid {
+        display: grid;
+        gap: 10px;
+        padding: 14px;
+      }
+      .size-row {
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.02);
+        padding: 8px 10px;
+        border-radius: 6px;
+      }
+      .size-row .sz {
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      .preview-text {
+        outline: none;
+        border: 1px dashed transparent;
+        padding: 8px 6px;
+        border-radius: 4px;
+        transition: 0.15s;
+        word-break: break-word;
+      }
+      .preview-text:focus {
+        border-color: var(--cyan);
+        background: rgba(0, 229, 255, 0.04);
+      }
+      .weights-grid {
+        display: grid;
+        gap: 8px;
+        padding: 14px;
+      }
+      .w-row {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: #0a1222;
+        padding: 8px 10px;
+        border-radius: 6px;
+      }
+      .w-label {
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+      .ui-wrap {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #0a1222;
+      }
+      .ui-head {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        background: #0c1a30;
+      }
+      .ui-body {
+        padding: 14px;
+        display: grid;
+        gap: 14px;
+      }
+      .btn {
+        padding: 7px 14px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid transparent;
+        cursor: pointer;
+      }
+      .footer {
+        padding: 12px 22px;
+        font-size: 11px;
+        opacity: 0.5;
+        border-top: 1px solid var(--line);
+      }
+      .controls {
+        padding: 10px 22px;
+        border-bottom: 1px solid var(--line);
+        background: #0c1a30;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .controls label {
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--cyan);
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .controls input[type="text"] {
+        background: #0a1222;
+        color: var(--text);
+        border: 1px solid var(--line);
+        padding: 6px 8px;
+        font-family: inherit;
+        font-size: 12px;
+        border-radius: 4px;
+        min-width: 280px;
+      }
+      .controls input[type="color"] {
+        background: #0a1222;
+        border: 1px solid var(--line);
+        padding: 2px;
+        width: 36px;
+        height: 28px;
+        border-radius: 4px;
+      }
+      .alphabet {
+        font-size: 18px;
+        line-height: 1.5;
+        letter-spacing: 0.02em;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        ◈ Font Lab · Fraunces — <span style="font-family: &quot;Fraunces&quot;, sans-serif">Fraunces</span>
+        <span style="font-weight: 400; opacity: 0.7">serif · Pangram Pangram / Underware</span>
+      </h1>
+      <div class="sub">
+        Single-font lab for <code>fraunces</code> —
+        <span style="font-family: &quot;Fraunces&quot;, sans-serif">Fraunces</span> · Source: <code>—</code> —
+        No source · <code>workspace/fonts/labs/fraunces.html</code> · Served at
+        <code>http://localhost:8787/fonts/labs/fraunces.html</code> and
+        <code>file://…/workspace/fonts/labs/fraunces.html</code>
+        · Built 9/1/2026, 4:35:35 PM — weights 100, 200, 300, 400, 500, 600, 700, 800, 900 · styles normal,
+        italic · variable
+      </div>
+    </header>
+
+    <div class="controls">
+      <label
+        >Preview text
+        <input
+          id="globalText"
+          type="text"
+          value="Aa Bb Cc — Fraunces — $42,391"
+          placeholder="Type to preview…"
+      /></label>
+      <label
+        >Color <input id="globalColor" type="color" value="#d6eaff" />
+        <span id="colorVal" style="font-size: 11px; opacity: 0.7">#d6eaff</span></label
+      >
+      <label
+        >Background
+        <select id="bgSelect">
+          <option value="#0f172a">Card #0f172a</option>
+          <option value="#ffffff">White</option>
+          <option value="#0b0f1a">Void #0b0f1a</option>
+          <option value="#faf6f1">Warm paper</option>
+          <option value="#121a2e">Panel #121a2e</option>
+        </select></label
+      >
+      <span class="pill good">Professional <strong>9/10</strong></span>
+      <span class="pill good">Designer <strong>9/10</strong></span>
+      <span class="pill">9 weights</span>
+      <span class="pill">normal, italic</span>
+    </div>
+
+    <div
+      style="
+        padding: 10px 22px;
+        border-bottom: 1px solid var(--line);
+        background: #0a1222;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      "
+    >
+      <span style="font-size: 11px; opacity: 0.7"
+        >Soft, wonky serif with optical-size (opsz), weight, SOFT and WONK axes. Huge range — perfect display
+        partner for Inter. Feels editorial and proudly designer-approved.</span
+      >
+      <a
+        href="https://fonts.google.com/specimen/Fraunces"
+        target="_blank"
+        style="font-size: 11px; color: var(--cyan)"
+        >Google Fonts</a
+      >
+
+      <span style="font-size: 10px; opacity: 0.5"
+        >Licensing: OFL — free for commercial use (Google Fonts) · Cost: Free</span
+      >
+    </div>
+
+    <div class="layout">
+      <!-- LEFT: source + meta + CSS snippet + alphabet -->
+      <div style="display: grid; gap: 18px; align-content: start">
+        <div class="card">
+          <h2>SOURCE IMAGE — No source</h2>
+          <div style="padding: 32px; text-align: center; opacity: 0.6">
+            No source image — provide sourceFile
+          </div>
+          <div class="meta">
+            <div><code></code></div>
+
+            <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap">
+              <span class="pill" style="font-size: 10px">serif</span
+              ><span class="pill" style="font-size: 10px">display</span
+              ><span class="pill" style="font-size: 10px">variable</span
+              ><span class="pill" style="font-size: 10px">soft</span
+              ><span class="pill" style="font-size: 10px">wonky</span
+              ><span class="pill" style="font-size: 10px">editorial</span>
+              <span class="pill" style="font-size: 10px">serif</span>
+              <span class="pill" style="font-size: 10px">variable</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>FONT SPEC — Fraunces · Fraunces</h2>
+          <div style="padding: 12px 14px; font-size: 11px; line-height: 1.7; background: #0b162c">
+            <div>
+              <strong>Family:</strong> <code>Fraunces</code> · <strong>Category:</strong> serif · Pangram
+              Pangram / Underware
+            </div>
+            <div>
+              <strong>Weights:</strong> 100 · 200 · 300 · 400 · 500 · 600 · 700 · 800 · 900 &nbsp;
+              <strong>Styles:</strong> normal, italic &nbsp; ● variable axis
+            </div>
+            <div>
+              <strong>Import:</strong>
+              <code style="word-break: break-all"
+                >https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,100..900,0..100,0..1&amp;display=swap</code
+              >
+            </div>
+            <div>
+              <strong>Google:</strong>
+              <a href="https://fonts.google.com/specimen/Fraunces" target="_blank"
+                >https://fonts.google.com/specimen/Fraunces</a
+              >
+            </div>
+            <div><strong>Professionalism:</strong> 9/10 &nbsp; <strong>Designer:</strong> 9/10</div>
+            <div style="opacity: 0.8">
+              <strong>Licensing:</strong> OFL — free for commercial use (Google Fonts) ·
+              <strong>Cost:</strong> Free
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>CSS MODULE — copy to viz project (per-page, no global)</h2>
+          <div class="vars">
+            @import
+            url(&quot;https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,100..900,0..100,0..1&amp;display=swap&quot;);
+            /* Font: Fraunces — serif · Pangram Pangram / Underware · 100, 200, 300, 400, 500, 600, 700, 800,
+            900 · normal, italic * Source: workspace/fonts/catalog.json →
+            workspace/themes/fonts/fraunces/fraunces.module.css * Usage: CSS Module, per-page. Import as
+            `import fontStyles from &quot;#src/style/fonts/fraunces/fraunces.module.css&quot;` * then wrap
+            page with `className={fontStyles.fraunces}` (or {fontStyles.fraunces_theme}) — font-family applied
+            to all children. * No global pollution — @font-face/@import only loads when the page imports this
+            module. */ .fraunces { font-family: &quot;Fraunces&quot;, system-ui, -apple-system,
+            BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif; } .fraunces_theme { font-family:
+            &quot;Fraunces&quot;, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;,
+            sans-serif; }
+          </div>
+          <div class="meta" style="font-size: 10px; opacity: 0.7">
+            CSS Module: <code>src/style/fonts/fraunces/fraunces.module.css</code> with wrapper
+            <code>.fraunces</code> / <code>.fraunces_theme</code> — import as
+            <code>import fontStyles from "#src/style/fonts/fraunces/fraunces.module.css"</code> then
+            <code>&lt;div className={fontStyles.fraunces}&gt;</code>. All font classes use
+            <code>_</code> (like themes). No <code>html</code>/<code>body</code>/<code>:root</code>. See
+            <code>src/style/fonts/README.md</code>.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>ALPHABET + NUMERALS — Fraunces</h2>
+          <div style="padding: 14px; display: grid; gap: 12px">
+            <div style="font-family: &quot;Fraunces&quot;, sans-serif" class="alphabet">
+              ABCDEFGHIJKLMNOPQRSTUVWXYZ<br />abcdefghijklmnopqrstuvwxyz
+            </div>
+            <div style="font-family: &quot;Fraunces&quot;, sans-serif; font-size: 14px">
+              0123456789 · $42,391 · 1,234.56 · +12.4% · Jan Feb Mar
+            </div>
+            <div style="font-family: &quot;Fraunces&quot;, sans-serif; font-size: 11px; opacity: 0.7">
+              The quick brown fox jumps over the lazy dog — 0123456789 — Aa Bb Cc Dd Ee Ff Gg
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: specimen at sizes + weights + UI + viz -->
+      <div style="display: grid; gap: 18px; align-content: start">
+        <div class="card">
+          <h2>SPECIMEN — editable, 12 · 16 · 24 · 36 · 48 · 72px — Fraunces</h2>
+          <div class="specimen-grid" id="specimenGrid">
+            <div class="size-row">
+              <div class="sz">
+                12px — <span style="font-family: &quot;Fraunces&quot;, sans-serif">Fraunces</span>
+              </div>
+              <div
+                class="preview-text"
+                contenteditable="true"
+                data-size="12"
+                style="font-family: &quot;Fraunces&quot;, sans-serif; font-size: 12px; line-height: 1.25"
+              >
+                Fraunces — Elegant display serif, soft &amp; wonky axes — 0123456789
+              </div>
+            </div>
+            <div class="size-row">
+              <div class="sz">
+                16px — <span style="font-family: &quot;Fraunces&quot;, sans-serif">Fraunces</span>
+              </div>
+              <div
+                class="preview-text"
+                contenteditable="true"
+                data-size="16"
+                style="font-family: &quot;Fraunces&quot;, sans-serif; font-size: 16px; line-height: 1.25"
+              >
+                Fraunces — Elegant display serif, soft &amp; wonky axes — 0123456789
+              </div>
+            </div>
+            <div class="size-row">
+              <div class="sz">
+                24px — <span style="font-family: &quot;Fraunces&quot;, sans-serif">Fraunces</span>
+              </div>
+              <div
+                class="preview-text"
+                contenteditable="true"
+                data-size="24"
+                style="font-family: &quot;Fraunces&quot;, sans-serif; font-size: 24px; line-height: 1.25"
+              >
+                Fraunces — Elegant display serif, soft &amp; wonky axes — 0123456789
+              </div>
+            </div>
+            <div class="size-row">
+              <div class="sz">
+                36px — <span style="font-family: &quot;Fraunces&quot;, sans-serif">Fraunces</span>
+              </div>
+              <div
+                class="preview-text"
+                contenteditable="true"
+                data-size="36"
+                style="font-family: &quot;Fraunces&quot;, sans-serif; font-size: 36px; line-height: 1.25"
+              >
+                Fraunces — Elegant display serif, soft &amp; wonky axes — 0123456789
+              </div>
+            </div>
+            <div class="size-row">
+              <div class="sz">
+                48px — <span style="font-family: &quot;Fraunces&quot;, sans-serif">Fraunces</span>
+              </div>
+              <div
+                class="preview-text"
+                contenteditable="true"
+                data-size="48"
+                style="font-family: &quot;Fraunces&quot;, sans-serif; font-size: 48px; line-height: 1.25"
+              >
+                Fraunces — Elegant display serif, soft &amp; wonky axes — 0123456789
+              </div>
+            </div>
+            <div class="size-row">
+              <div class="sz">
+                72px — <span style="font-family: &quot;Fraunces&quot;, sans-serif">Fraunces</span>
+              </div>
+              <div
+                class="preview-text"
+                contenteditable="true"
+                data-size="72"
+                style="font-family: &quot;Fraunces&quot;, sans-serif; font-size: 72px; line-height: 1.25"
+              >
+                Fraunces — Elegant display serif, soft &amp; wonky axes — 0123456789
+              </div>
+            </div>
+          </div>
+          <div
+            style="
+              padding: 10px 14px;
+              background: #0b162c;
+              border-top: 1px solid var(--line);
+              font-size: 10px;
+              opacity: 0.6;
+            "
+          >
+            Click any specimen to type. Global text control above syncs all rows. Each row shows the font at
+            its labelled px.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>WEIGHTS &amp; STYLES — Fraunces</h2>
+          <div class="weights-grid" id="weightsGrid">
+            <div class="w-row">
+              <div class="w-label">100 — variable axis · normal, italic</div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 100;
+                  font-size: 16px;
+                  margin-top: 6px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391
+              </div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 100;
+                  font-style: italic;
+                  font-size: 13px;
+                  opacity: 0.8;
+                  margin-top: 4px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391 — italic
+              </div>
+            </div>
+            <div class="w-row">
+              <div class="w-label">200 — variable axis · normal, italic</div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 200;
+                  font-size: 16px;
+                  margin-top: 6px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391
+              </div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 200;
+                  font-style: italic;
+                  font-size: 13px;
+                  opacity: 0.8;
+                  margin-top: 4px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391 — italic
+              </div>
+            </div>
+            <div class="w-row">
+              <div class="w-label">300 — variable axis · normal, italic</div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 300;
+                  font-size: 16px;
+                  margin-top: 6px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391
+              </div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 300;
+                  font-style: italic;
+                  font-size: 13px;
+                  opacity: 0.8;
+                  margin-top: 4px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391 — italic
+              </div>
+            </div>
+            <div class="w-row">
+              <div class="w-label">400 — variable axis · normal, italic</div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 400;
+                  font-size: 16px;
+                  margin-top: 6px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391
+              </div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 400;
+                  font-style: italic;
+                  font-size: 13px;
+                  opacity: 0.8;
+                  margin-top: 4px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391 — italic
+              </div>
+            </div>
+            <div class="w-row">
+              <div class="w-label">500 — variable axis · normal, italic</div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 500;
+                  font-size: 16px;
+                  margin-top: 6px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391
+              </div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 500;
+                  font-style: italic;
+                  font-size: 13px;
+                  opacity: 0.8;
+                  margin-top: 4px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391 — italic
+              </div>
+            </div>
+            <div class="w-row">
+              <div class="w-label">600 — variable axis · normal, italic</div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 600;
+                  font-size: 16px;
+                  margin-top: 6px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391
+              </div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 600;
+                  font-style: italic;
+                  font-size: 13px;
+                  opacity: 0.8;
+                  margin-top: 4px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391 — italic
+              </div>
+            </div>
+            <div class="w-row">
+              <div class="w-label">700 — variable axis · normal, italic</div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 700;
+                  font-size: 16px;
+                  margin-top: 6px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391
+              </div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 700;
+                  font-style: italic;
+                  font-size: 13px;
+                  opacity: 0.8;
+                  margin-top: 4px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391 — italic
+              </div>
+            </div>
+            <div class="w-row">
+              <div class="w-label">800 — variable axis · normal, italic</div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 800;
+                  font-size: 16px;
+                  margin-top: 6px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391
+              </div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 800;
+                  font-style: italic;
+                  font-size: 13px;
+                  opacity: 0.8;
+                  margin-top: 4px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391 — italic
+              </div>
+            </div>
+            <div class="w-row">
+              <div class="w-label">900 — variable axis · normal, italic</div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 900;
+                  font-size: 16px;
+                  margin-top: 6px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391
+              </div>
+              <div
+                style="
+                  font-family: &quot;Fraunces&quot;, sans-serif;
+                  font-weight: 900;
+                  font-style: italic;
+                  font-size: 13px;
+                  opacity: 0.8;
+                  margin-top: 4px;
+                "
+              >
+                Aa Bb Cc — Fraunces — $42,391 — italic
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>PANGRAM — Fraunces</h2>
+          <div style="padding: 14px">
+            <div
+              contenteditable="true"
+              class="preview-text"
+              style="font-family: &quot;Fraunces&quot;, sans-serif; font-size: 18px; line-height: 1.5"
+            >
+              The quick brown fox jumps over the lazy dog — 0123456789 — Aa Bb Cc Dd Ee Ff Gg
+            </div>
+            <div style="font-size: 10px; letter-spacing: 0.1em; opacity: 0.5; margin-top: 8px">
+              Editable pangram — click to test kerning, letter-spacing, x-height
+            </div>
+          </div>
+        </div>
+
+        <!-- UI preview in that font -->
+        <div class="card">
+          <h2>UI PREVIEW — buttons · card · input · badges (rendered in Fraunces)</h2>
+          <div class="ui-wrap" style="font-family: &quot;Fraunces&quot;, sans-serif">
+            <div class="ui-head">
+              <strong style="font-size: 12px">UI in Fraunces</strong>
+              <span style="font-size: 10px; opacity: 0.6"
+                >font applied via wrapper — all controls inherit</span
+              >
+            </div>
+            <div class="ui-body">
+              <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+                <button
+                  class="btn"
+                  style="background: #00e5ff; color: #0a0e19; border-color: #00e5ff; font-family: inherit"
+                >
+                  Primary CTA
+                </button>
+                <button
+                  class="btn"
+                  style="background: #e2e8f0; color: #0f172a; border: 1px solid #cbd5e1; font-family: inherit"
+                >
+                  Secondary
+                </button>
+                <span class="pill" style="background: #ff6b9d; color: #fff; border-color: #ff6b9d"
+                  >Accent badge</span
+                >
+                <span class="pill" style="background: #22c55e; color: #fff; border-color: #22c55e"
+                  >Success</span
+                >
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+                <div
+                  style="
+                    border: 1px solid #e2e8f0;
+                    background: #fff;
+                    color: #0f172a;
+                    border-radius: 8px;
+                    padding: 12px;
+                    font-family: inherit;
+                  "
+                >
+                  <div style="font-weight: 700; font-size: 13px">Revenue — $42,391</div>
+                  <div style="font-size: 11px; color: #64748b">+12.4% vs last month · set in Fraunces</div>
+                  <div style="height: 4px; background: #00e5ff; border-radius: 999px; margin-top: 8px"></div>
+                </div>
+                <div
+                  style="
+                    border: 1px solid #e2e8f0;
+                    background: #fff;
+                    border-radius: 8px;
+                    padding: 12px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                  "
+                >
+                  <input
+                    placeholder="Search…"
+                    value="Aa Bb Cc — Fraunce"
+                    style="
+                      width: 100%;
+                      padding: 7px 10px;
+                      border-radius: 6px;
+                      border: 1px solid #cbd5e1;
+                      background: #fff;
+                      color: #0f172a;
+                      font-family: inherit;
+                    "
+                  />
+                  <div style="font-size: 10px; color: #64748b; font-family: inherit">
+                    Input — inherits Fraunces
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data-viz text samples in that font -->
+        <div class="card">
+          <h2>DATA-VIZ TEXT — axis labels · ticks · legend (in Fraunces)</h2>
+          <div style="padding: 14px; display: grid; gap: 12px">
+            <div style="font-family: &quot;Fraunces&quot;, sans-serif">
+              <div style="font-size: 11px; letter-spacing: 0.06em; color: #8aa0c0">
+                AXIS + TICK LABELS — 12px/10px
+              </div>
+              <svg
+                viewBox="0 0 320 120"
+                width="100%"
+                height="120"
+                style="
+                  display: block;
+                  border: 1px solid #1e2e4a;
+                  border-radius: 6px;
+                  background: #fff;
+                  margin-top: 8px;
+                "
+              >
+                <rect x="0" y="0" width="320" height="120" fill="#fff" rx="6" />
+                <g stroke="#e2e8f0" stroke-width="0.7">
+                  <line x1="40" y1="20" x2="40" y2="95" />
+                  <line x1="40" y1="95" x2="300" y2="95" />
+                </g>
+                <path
+                  d="M40 78 C 90 62, 140 88, 180 54 S 250 72, 290 34"
+                  fill="none"
+                  stroke="#0B1E3A"
+                  stroke-width="2.2"
+                />
+                <circle cx="290" cy="34" r="4" fill="#00C2A8" />
+                <!-- tick labels in the font -->
+                <text x="40" y="112" font-size="8" font-family="'Fraunces',sans-serif" fill="#64748b">
+                  Jan
+                </text>
+                <text x="120" y="112" font-size="8" font-family="'Fraunces',sans-serif" fill="#64748b">
+                  Jun
+                </text>
+                <text x="260" y="112" font-size="8" font-family="'Fraunces',sans-serif" fill="#64748b">
+                  Dec
+                </text>
+                <text x="8" y="96" font-size="7" font-family="'Fraunces',sans-serif" fill="#64748b">$0</text>
+                <text x="8" y="60" font-size="7" font-family="'Fraunces',sans-serif" fill="#64748b">
+                  $40k
+                </text>
+                <text x="8" y="24" font-size="7" font-family="'Fraunces',sans-serif" fill="#64748b">
+                  $80k
+                </text>
+                <text
+                  x="120"
+                  y="16"
+                  font-size="8"
+                  font-family="'Fraunces',sans-serif"
+                  fill="#0B1E3A"
+                  font-weight="600"
+                >
+                  Revenue — set in Fraunces
+                </text>
+              </svg>
+            </div>
+            <div style="font-family: &quot;Fraunces&quot;, sans-serif; font-size: 12px; line-height: 1.6">
+              <div style="font-size: 10px; letter-spacing: 0.08em; color: #8aa0c0">LEGEND + NUMERALS</div>
+              <div>
+                <span
+                  style="
+                    display: inline-block;
+                    width: 12px;
+                    height: 12px;
+                    background: #0b1e3a;
+                    border-radius: 2px;
+                    vertical-align: middle;
+                  "
+                ></span>
+                Revenue <span style="opacity: 0.6">— solid</span> &nbsp;
+                <span
+                  style="
+                    display: inline-block;
+                    width: 12px;
+                    height: 2px;
+                    background: #00c2a8;
+                    vertical-align: middle;
+                    border-top: 2px dashed #00c2a8;
+                  "
+                ></span>
+                Profit — tabular: 0123456789 · $42,391 · 1,234.56 · +12.4% · Jan Feb Mar
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Lab for one font — refine via dialogue (“make it more condensed”, “add 700 weight”, “use tabular
+      numerals”). After tuning, run font-export to emit CSS Module in
+      <code>workspace/themes/fonts/fraunces/</code> and <code>src/style/fonts/fraunces/</code>. Source at
+      <code></code>.
+    </div>
+
+    <script>
+      const FAMILY = "Fraunces"
+      document.getElementById("globalText")?.addEventListener("input", (e) => {
+        const v = e.target.value
+        document.querySelectorAll(".preview-text").forEach((el) => (el.textContent = v))
+      })
+      document.getElementById("globalColor")?.addEventListener("input", (e) => {
+        const c = e.target.value
+        document.getElementById("colorVal").textContent = c
+        document.querySelectorAll(".preview-text").forEach((el) => (el.style.color = c))
+      })
+      document.getElementById("bgSelect")?.addEventListener("change", (e) => {
+        const bg = e.target.value
+        document.querySelectorAll(".card").forEach((c) => (c.style.background = bg))
+      })
+    </script>
+  </body>
+</html>

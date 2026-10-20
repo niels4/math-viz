@@ -145,6 +145,21 @@
   }
 }
 
+.dev_link {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: var(--weight-strong);
+  line-height: 16px;
+  color: var(--foreground-muted);
+  text-decoration: none;
+  translate: -50%;
+}
+
 .hero {
   position: relative;
   flex: none;

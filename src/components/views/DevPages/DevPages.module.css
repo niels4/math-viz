@@ -1,0 +1,254 @@
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-section);
+  padding: var(--space-section);
+}
+
+.content {
+  justify-self: center;
+  width: min(1200px, 100%);
+  padding: 80px 0 96px;
+
+  & a {
+    color: var(--primary);
+  }
+}
+
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 48px;
+}
+
+.intro {
+  display: grid;
+  flex: 1 1 400px;
+  gap: 16px;
+  max-width: 75ch;
+}
+
+.title {
+  font-size: 50.4px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--foreground-muted);
+}
+
+.hero_image {
+  max-width: 100%;
+  height: auto;
+}
+
+.sections {
+  margin: 64px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.section {
+  display: grid;
+  grid-template-columns: 384px minmax(0, 1fr);
+  gap: 48px;
+  padding: 48px 0;
+  border-top: 1px solid var(--border);
+
+  @media (width < 800px) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+}
+
+.section_heading {
+  display: flex;
+  align-items: start;
+  gap: 12px;
+}
+
+.number {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  font: 600 14px/16px var(--font-mono);
+  color: var(--background);
+  background: var(--phase);
+  border-radius: var(--radius-circle);
+}
+
+.section_title {
+  margin-bottom: 8px;
+  font-size: 24px;
+  line-height: 30px;
+}
+
+.muted {
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--foreground-muted);
+}
+
+.content .card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+
+  &:hover {
+    border-color: var(--phase);
+  }
+}
+
+.card_image {
+  display: block;
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  object-position: top;
+  border-bottom: 1px solid var(--border);
+}
+
+.card_text {
+  display: grid;
+  gap: 8px;
+  padding: 16px 24px 20px;
+}
+
+.card_title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 18px;
+  font-weight: var(--weight-heading);
+  line-height: 1.3;
+}
+
+.card_body {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--foreground-muted);
+}
+
+.label {
+  font-size: var(--text-label);
+  font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--foreground-muted);
+}
+
+.heading {
+  margin: 64px 0 16px;
+  font-size: 24px;
+  line-height: 30px;
+}
+
+.sub {
+  max-width: 75ch;
+  margin-bottom: 16px;
+  color: var(--foreground-muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+  gap: 16px;
+}
+
+.shot,
+.pick {
+  margin: 0;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid var(--border);
+}
+
+.shot[data-retired] img {
+  opacity: 0.55;
+  filter: grayscale(0.4);
+}
+
+.caption {
+  padding: 12px 16px 16px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--foreground-muted);
+}
+
+.caption_title {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 16px;
+  color: var(--foreground);
+}
+
+.tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--foreground-muted);
+  vertical-align: 1px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+}
+
+.pick {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 16px;
+}
+
+.sample {
+  margin: 8px 0;
+  font-size: 30px;
+  line-height: 1.25;
+  color: var(--foreground);
+  overflow-wrap: anywhere;
+}
+
+.quote {
+  margin: 0 0 8px;
+  padding-left: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--foreground-muted);
+  border-left: 2px solid var(--border);
+}
+
+.phase_nav {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  margin-top: 64px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+
+  & :last-child {
+    text-align: end;
+  }
+}

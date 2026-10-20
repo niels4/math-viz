@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Color Sommelier — Gallery — Fintech Dashes Added</title>
+    <style>
+      :root {
+        --bg: #0b0f1a;
+        --panel: #111827;
+        --line: #1e2e4a;
+        --cyan: #00e5ff;
+        --text: #d6eaff;
+        --muted: #8aa0c0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          ui-sans-system,
+          -apple-system,
+          system-ui,
+          Inter,
+          sans-serif;
+      }
+      header {
+        padding: 22px 22px 12px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, #0b1530 0%, var(--bg) 100%);
+      }
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.14em;
+        font-weight: 800;
+        color: var(--cyan);
+        text-shadow: 0 0 18px rgba(0, 229, 255, 0.5);
+      }
+      .sub {
+        opacity: 0.75;
+        font-size: 12px;
+        margin-top: 8px;
+        letter-spacing: 0.04em;
+        line-height: 1.5;
+      }
+      .sub code {
+        color: var(--cyan);
+        background: #0f1e36;
+        padding: 1px 5px;
+        border-radius: 3px;
+      }
+      .controls {
+        padding: 14px 22px;
+        border-bottom: 1px solid var(--line);
+        background: #0c1a30;
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .controls label {
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        color: var(--cyan);
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .controls input[type="text"],
+      .controls select {
+        background: #0a1222;
+        color: var(--text);
+        border: 1px solid var(--line);
+        padding: 6px 8px;
+        font-family: inherit;
+        font-size: 12px;
+        border-radius: 4px;
+      }
+      .controls input[type="text"] {
+        min-width: 260px;
+      }
+      .pill {
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #0a1222;
+      }
+      .pill.good {
+        border-color: rgba(34, 197, 94, 0.4);
+        background: rgba(34, 197, 94, 0.08);
+      }
+      .pill.mid {
+        border-color: rgba(234, 179, 8, 0.35);
+        background: rgba(234, 179, 8, 0.08);
+      }
+      .pill.low {
+        border-color: rgba(239, 68, 68, 0.35);
+        background: rgba(239, 68, 68, 0.08);
+      }
+      main {
+        padding: 22px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 22px;
+      }
+      .palette-card {
+        border: 1px solid var(--line);
+        overflow: hidden;
+        background: #0f172a;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+      .palette-head {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        background: #0c1a30;
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+      .palette-head h2 {
+        margin: 0;
+        font-size: 15px;
+        letter-spacing: 0.06em;
+        color: var(--cyan);
+        font-weight: 800;
+      }
+      .palette-head .vibe {
+        font-size: 11px;
+        opacity: 0.7;
+      }
+      .palette-head .badges {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-left: auto;
+      }
+      .meta {
+        padding: 10px 16px;
+        font-size: 11px;
+        line-height: 1.6;
+        opacity: 0.9;
+        border-bottom: 1px solid var(--line);
+        background: #0b162c;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 8px;
+        padding: 14px 16px;
+        background: #0a1222;
+        border-bottom: 1px solid var(--line);
+      }
+      .swatch {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .swatch-color {
+        height: 56px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+      }
+      .swatch-label {
+        padding: 6px 8px;
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        background: #0f1e36;
+        color: var(--muted);
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .swatch-label strong {
+        color: var(--text);
+        font-size: 11px;
+        letter-spacing: 0.04em;
+      }
+      .swatch-label code {
+        font-size: 10px;
+        color: var(--cyan);
+        word-break: break-all;
+      }
+      .preview-section {
+        padding: 14px 16px;
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 16px;
+      }
+      @media (max-width: 900px) {
+        .preview-section {
+          grid-template-columns: 1fr;
+        }
+      }
+      .text-samples {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .text-samples .label {
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .type-row {
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .type-row .sz {
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+      }
+      .ui-preview {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .ui-preview .label {
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .ui-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .btn {
+        padding: 7px 14px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid transparent;
+        cursor: pointer;
+        letter-spacing: 0.02em;
+      }
+      .btn-primary {
+        border-color: transparent;
+      }
+      .btn-secondary {
+        border: 1px solid;
+      }
+      .card-demo {
+        border: 1px solid;
+        border-radius: 8px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .input-demo {
+        padding: 7px 10px;
+        border-radius: 6px;
+        border: 1px solid;
+        font-size: 12px;
+        width: 100%;
+      }
+      .badge-demo {
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+      .contrast-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 0 16px 12px;
+      }
+      .footer {
+        padding: 12px 22px;
+        font-size: 11px;
+        opacity: 0.5;
+        border-top: 1px solid var(--line);
+      }
+      .empty {
+        padding: 32px;
+        border: 1px dashed var(--line);
+        background: rgba(0, 229, 255, 0.04);
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>◈ Color Sommelier — Gallery — Fintech Dashes Added — 9 PALETTES</h1>
+      <div class="sub">
+        Workspace <code>workspace/color-catalog.json</code> → <code>workspace/color-gallery.html</code>.
+        Served at <code>http://localhost:8787/color-gallery.html</code> and
+        <code>file://…/workspace/color-gallery.html</code>. Each palette shows swatches for every role, live
+        background+foreground text at 12/16/24/36px, and a UI preview (buttons, card, input, badge) rendered
+        in the palette's own colors. Use filters to narrow by app type or mode. Global text is editable.
+        <br />Catalog was 9 palettes when this file was generated —
+        <span id="genTime">9/1/2026, 4:25:40 PM</span>. Gallery is rebuilt on demand by the color sommelier
+        agent (color-gallery tool). Contrast badges show WCAG AA/AAA for each key pairing.
+      </div>
+    </header>
+    <div class="controls">
+      <label
+        >Global text
+        <input
+          id="globalText"
+          type="text"
+          value="Aa Bb Cc — $42,391 — Fintech Dashes"
+          placeholder="Type to preview…"
+      /></label>
+      <label
+        >App type
+        <select id="filterApp">
+          <option value="">All app types</option>
+          <option value="app-shell">app-shell</option>
+          <option value="dashboard">dashboard</option>
+          <option value="editorial">editorial</option>
+          <option value="marketing">marketing</option>
+        </select></label
+      >
+      <label
+        >Mode
+        <select id="filterMode">
+          <option value="">All modes</option>
+          <option value="dark">dark</option>
+          <option value="light">light</option>
+        </select></label
+      >
+      <label
+        >Vibe
+        <select id="filterVibe">
+          <option value="">All vibes</option>
+          <option value="corporate">corporate</option>
+          <option value="editorial">editorial</option>
+          <option value="futuristic">futuristic</option>
+          <option value="minimal">minimal</option>
+          <option value="playful">playful</option>
+        </select></label
+      >
+      <span id="count" style="font-size: 11px; opacity: 0.7"></span>
+    </div>
+    <div class="controls" style="padding-top: 0; border-top: none; background: #0a1222">
+      <span style="font-size: 11px; opacity: 0.7"
+        >SIZES 12 · 16 · 24 · 36 &nbsp;|&nbsp; Roles: background, card, muted, foreground, primary, secondary,
+        border, accent, success, warning, destructive &nbsp;|&nbsp; Contrast = WCAG (L1+0.05)/(L2+0.05)</span
+      >
+      <span id="live" style="font-size: 11px; opacity: 0.6; margin-left: auto"></span>
+    </div>
+    <main id="gallery"></main>
+    <div class="footer">
+      Tip: ask the sommelier “Give me a playful marketing palette for dark mode” or “Show me all corporate
+      light palettes at warm background”. The agent will update <code>color-catalog.json</code> and rebuild
+      this file. Catalog at <code>workspace/color-catalog.json</code> · gallery at
+      <code>workspace/color-gallery.html</code> · static at <code>http://localhost:8787/</code>.
+    </div>
+    <script>
+      const PALETTES = [
+        {
+          id: "corporate-light",
+          slug: "corporate-light",
+          name: "Corporate Light",
+          appTypes: ["dashboard", "app-shell"],
+          modes: ["light"],
+          vibe: "corporate",
+          colors: {
+            background: "#ffffff",
+            backgroundMuted: "#f8fafc",
+            card: "#ffffff",
+            foreground: "#0f172a",
+            foregroundMuted: "#64748b",
+            primary: "#0ea5e9",
+            primaryForeground: "#ffffff",
+            secondary: "#f1f5f9",
+            secondaryForeground: "#0f172a",
+            border: "#e2e8f0",
+            accent: "#06b6d4",
+            accentForeground: "#ffffff",
+            success: "#10b981",
+            warning: "#f59e0b",
+            destructive: "#ef4444",
+          },
+          contrastRatios: {
+            backgroundForeground: 17.85,
+            backgroundMutedForeground: 17.06,
+            cardForeground: 17.85,
+            primaryContrast: 2.77,
+            secondaryContrast: 16.3,
+            accentContrast: 2.43,
+            borderForegroundMuted: 4.76,
+          },
+          scores: { professional: 9, designerFriendly: 8 },
+          licensingCost: "Free — all hex values, no licensing needed",
+          tags: ["clean", "saas", "blue", "workhorse"],
+          notes:
+            "The safe corporate workhorse. Sky-blue primary reads tech-trustworthy, huge contrast on white. Pair with Inter or Geist for UI. Note: primary/accent on white are AA-Large only — use bold/large CTA text or darken primary to #0284c7 for AAA body.",
+          addedAt: "2026-08-27T00:00:00.000Z",
+        },
+        {
+          id: "midnight-dashboard-dark",
+          slug: "midnight-dashboard-dark",
+          name: "Midnight Dashboard Dark",
+          appTypes: ["dashboard"],
+          modes: ["dark"],
+          vibe: "corporate",
+          colors: {
+            background: "#0a0e19",
+            backgroundMuted: "#111827",
+            card: "#121a2e",
+            foreground: "#e2e8f0",
+            foregroundMuted: "#94a3b8",
+            primary: "#00e5ff",
+            primaryForeground: "#0a0e19",
+            secondary: "#1e293b",
+            secondaryForeground: "#e2e8f0",
+            border: "#1e3a5f",
+            accent: "#f59e0b",
+            accentForeground: "#0a0e19",
+            success: "#22c55e",
+            warning: "#facc15",
+            destructive: "#f87171",
+          },
+          contrastRatios: {
+            backgroundForeground: 15.63,
+            backgroundMutedForeground: 14.39,
+            cardForeground: 14.04,
+            primaryContrast: 12.53,
+            secondaryContrast: 11.87,
+            accentContrast: 8.97,
+            borderForegroundMuted: 7.52,
+          },
+          scores: { professional: 9, designerFriendly: 9 },
+          licensingCost: "Free — hex values",
+          tags: ["dark", "data-dense", "neon", "navy"],
+          notes:
+            "Night-shift dashboard. Deep navy reduces eye strain vs pure black, cyan primary glows for affordance. Amber accent pops triadic without clashing — all contrasts AAA.",
+          addedAt: "2026-08-27T00:00:00.000Z",
+        },
+        {
+          id: "editorial-warm-light",
+          slug: "editorial-warm-light",
+          name: "Editorial Warm Light",
+          appTypes: ["editorial", "marketing"],
+          modes: ["light"],
+          vibe: "editorial",
+          colors: {
+            background: "#fdfbf7",
+            backgroundMuted: "#f5f0e8",
+            card: "#ffffff",
+            foreground: "#1c1917",
+            foregroundMuted: "#78716c",
+            primary: "#b45309",
+            primaryForeground: "#ffffff",
+            secondary: "#fef3c7",
+            secondaryForeground: "#92400e",
+            border: "#e7d5b8",
+            accent: "#dc2626",
+            accentForeground: "#ffffff",
+            success: "#059669",
+            warning: "#d97706",
+            destructive: "#dc2626",
+          },
+          contrastRatios: {
+            backgroundForeground: 16.92,
+            backgroundMutedForeground: 15.42,
+            cardForeground: 17.49,
+            primaryContrast: 5.02,
+            secondaryContrast: 6.37,
+            accentContrast: 4.83,
+            borderForegroundMuted: 4.64,
+          },
+          scores: { professional: 8, designerFriendly: 8 },
+          licensingCost: "Free — hex values",
+          tags: ["warm", "paper", "serif-friendly", "cream"],
+          notes:
+            "Warm paper editorial. Amber-brown primary feels print-rooted, cream muted bg prevents stark white fatigue. Best with Fraunces or Instrument Serif. All text AAA.",
+          addedAt: "2026-08-27T00:00:00.000Z",
+        },
+        {
+          id: "playful-saas",
+          slug: "playful-saas",
+          name: "Playful SaaS",
+          appTypes: ["marketing", "app-shell"],
+          modes: ["light"],
+          vibe: "playful",
+          colors: {
+            background: "#ffffff",
+            backgroundMuted: "#fef2f2",
+            card: "#ffffff",
+            foreground: "#1f2937",
+            foregroundMuted: "#6b7280",
+            primary: "#8b5cf6",
+            primaryForeground: "#ffffff",
+            secondary: "#fdf4ff",
+            secondaryForeground: "#7e22ce",
+            border: "#e9d5ff",
+            accent: "#ec4899",
+            accentForeground: "#ffffff",
+            success: "#10b981",
+            warning: "#f59e0b",
+            destructive: "#ef4444",
+          },
+          contrastRatios: {
+            backgroundForeground: 14.68,
+            backgroundMutedForeground: 13.42,
+            cardForeground: 14.68,
+            primaryContrast: 4.23,
+            secondaryContrast: 6.5,
+            accentContrast: 3.53,
+            borderForegroundMuted: 4.83,
+          },
+          scores: { professional: 7, designerFriendly: 9 },
+          licensingCost: "Free — hex values",
+          tags: ["playful", "gradient-ready", "purple-pink", "marketing"],
+          notes:
+            "Playful SaaS with purple→pink range. Violet primary energizes marketing, pink accent for delight. Lavender secondary keeps cards soft. Accent is AA-Large on white — use for large badges/CTAs, not small body.",
+          addedAt: "2026-08-27T00:00:00.000Z",
+        },
+        {
+          id: "minimal-monochrome",
+          slug: "minimal-monochrome",
+          name: "Minimal Monochrome",
+          appTypes: ["app-shell", "marketing"],
+          modes: ["light", "dark"],
+          vibe: "minimal",
+          colors: {
+            background: "#fafafa",
+            backgroundMuted: "#f4f4f5",
+            card: "#ffffff",
+            foreground: "#18181b",
+            foregroundMuted: "#71717a",
+            primary: "#18181b",
+            primaryForeground: "#fafafa",
+            secondary: "#f4f4f5",
+            secondaryForeground: "#18181b",
+            border: "#e4e4e7",
+            accent: "#52525b",
+            accentForeground: "#ffffff",
+            success: "#27272a",
+            warning: "#52525b",
+            destructive: "#18181b",
+          },
+          contrastRatios: {
+            backgroundForeground: 16.97,
+            backgroundMutedForeground: 16.12,
+            cardForeground: 17.72,
+            primaryContrast: 16.97,
+            secondaryContrast: 16.12,
+            accentContrast: 7.73,
+            borderForegroundMuted: 4.63,
+          },
+          scores: { professional: 8, designerFriendly: 6 },
+          licensingCost: "Free — hex values",
+          tags: ["monochrome", "typography-first", "minimal", "zinc"],
+          notes:
+            "Typography-led minimal. No chroma — hierarchy from weight/size/spacing. Zinc neutrals gallery-clean. Add one accent later if you need delight; currently all neutrals AAA.",
+          addedAt: "2026-08-27T00:00:00.000Z",
+        },
+        {
+          id: "high-contrast-accessible",
+          slug: "high-contrast-accessible",
+          name: "High-Contrast Accessible",
+          appTypes: ["dashboard", "editorial", "app-shell"],
+          modes: ["light"],
+          vibe: "minimal",
+          colors: {
+            background: "#ffffff",
+            backgroundMuted: "#f8f9fa",
+            card: "#ffffff",
+            foreground: "#000000",
+            foregroundMuted: "#212529",
+            primary: "#005fcc",
+            primaryForeground: "#ffffff",
+            secondary: "#e9ecef",
+            secondaryForeground: "#000000",
+            border: "#000000",
+            accent: "#ff6b00",
+            accentForeground: "#000000",
+            success: "#006400",
+            warning: "#8b4513",
+            destructive: "#cc0000",
+          },
+          contrastRatios: {
+            backgroundForeground: 21,
+            backgroundMutedForeground: 19.92,
+            cardForeground: 21,
+            primaryContrast: 5.98,
+            secondaryContrast: 17.71,
+            accentContrast: 7.36,
+            borderForegroundMuted: 15.43,
+          },
+          scores: { professional: 9, designerFriendly: 7 },
+          licensingCost: "Free — hex values",
+          tags: ["accessible", "wcag-aaa", "high-contrast", "a11y"],
+          notes:
+            "AAA-first accessible. Black-on-white 21:1, deep blue primary 6:1 on white, orange accent passes on white for AA. True-black border for focus visibility — mandated for gov/enterprise a11y.",
+          addedAt: "2026-08-27T00:00:00.000Z",
+        },
+        {
+          id: "obsidian-pro-dark",
+          slug: "obsidian-pro-dark",
+          name: "Obsidian Pro Dark",
+          appTypes: ["dashboard", "app-shell"],
+          modes: ["dark"],
+          vibe: "minimal",
+          colors: {
+            background: "#0f0f10",
+            backgroundMuted: "#1a1a1d",
+            card: "#1e1e21",
+            foreground: "#f4f4f5",
+            foregroundMuted: "#a1a1aa",
+            primary: "#fafafa",
+            primaryForeground: "#0f0f10",
+            secondary: "#27272a",
+            secondaryForeground: "#fafafa",
+            border: "#3f3f46",
+            accent: "#22c55e",
+            accentForeground: "#0f0f10",
+            success: "#22c55e",
+            warning: "#eab308",
+            destructive: "#ef4444",
+          },
+          contrastRatios: {
+            backgroundForeground: 17.43,
+            backgroundMutedForeground: 15.8,
+            cardForeground: 15.13,
+            primaryContrast: 18.36,
+            secondaryContrast: 14.27,
+            accentContrast: 8.41,
+            borderForegroundMuted: 7.48,
+          },
+          scores: { professional: 9, designerFriendly: 8 },
+          licensingCost: "Free — hex values",
+          tags: ["dark", "pro", "zinc", "oled"],
+          notes:
+            "Pro dark shell. Near-black reduces bloom on OLED, off-white primary is quiet-loud. Green accent for success/CTA — restrained, Linear/Vercel-dark inspired, all AAA.",
+          addedAt: "2026-08-27T00:00:00.000Z",
+        },
+        {
+          id: "neon-noir",
+          slug: "neon-noir",
+          name: "Neon Noir",
+          appTypes: ["dashboard", "app-shell"],
+          modes: ["dark"],
+          vibe: "futuristic",
+          colors: {
+            background: "#0A0F1C",
+            backgroundMuted: "#111827",
+            card: "#121a2e",
+            foreground: "#e2e8f0",
+            foregroundMuted: "#94a3b8",
+            primary: "#00E5FF",
+            primaryForeground: "#0a0e19",
+            secondary: "#1e293b",
+            secondaryForeground: "#e2e8f0",
+            border: "#233a5f",
+            accent: "#ff6b9d",
+            accentForeground: "#0a0e19",
+            success: "#22c55e",
+            warning: "#facc15",
+            destructive: "#f87171",
+          },
+          contrastRatios: {
+            backgroundForeground: 15.51,
+            backgroundMutedForeground: 14.39,
+            cardForeground: 14.04,
+            primaryContrast: 12.53,
+            secondaryContrast: 11.87,
+            accentContrast: 7.2,
+            borderForegroundMuted: 7.46,
+          },
+          scores: { professional: 9, designerFriendly: 9 },
+          licensingCost: "Free — hex values",
+          tags: ["neon", "dark", "cyan", "magenta", "timeseries", "derived-03"],
+          notes:
+            "Refined via sommelier dialogue: softened magenta #FF2E93→#ff6b9d (rose) for less harshness, accentForeground dark for better contrast, border lifted #1e3a5f→#233a5f.",
+          addedAt: "2026-08-31T21:16:52.730Z",
+        },
+        {
+          id: "fintech-dashes",
+          slug: "fintech-dashes",
+          name: "Fintech Dashes",
+          appTypes: ["dashboard"],
+          modes: ["light"],
+          vibe: "corporate",
+          colors: {
+            background: "#ffffff",
+            backgroundMuted: "#f8fafc",
+            card: "#ffffff",
+            foreground: "#0f172a",
+            foregroundMuted: "#64748b",
+            primary: "#0B1E3A",
+            primaryForeground: "#ffffff",
+            secondary: "#f1f5f9",
+            secondaryForeground: "#0f172a",
+            border: "#e2e8f0",
+            accent: "#00C2A8",
+            accentForeground: "#ffffff",
+            success: "#10b981",
+            warning: "#f59e0b",
+            destructive: "#ef4444",
+          },
+          contrastRatios: {
+            backgroundForeground: 17.85,
+            backgroundMutedForeground: 17.06,
+            cardForeground: 17.85,
+            primaryContrast: 16.65,
+            secondaryContrast: 16.3,
+            accentContrast: 2.26,
+            borderForegroundMuted: 4.76,
+          },
+          scores: { professional: 9, designerFriendly: 9 },
+          licensingCost: "Free — hex values",
+          tags: ["fintech", "light", "navy", "teal", "amber", "multi-series", "dashes", "derived-10"],
+          notes:
+            "Derived from 10 — MULTI-SERIES Dashes (light fintech, solid navy Revenue, dashed teal Profit, dotted amber). White card on light grey page, navy primary for main line, teal accent for second series, amber warning for third. Extrapolated muted layers and semantic colors to complete 15-role theme — all AAA except accent on white is AA-Large (use bold for small accent text). For wedges: primary/accent/warning map to three slices; secondary for grid.",
+          addedAt: "2026-08-31T21:51:58.847Z",
+        },
+      ]
+      let globalText = "Aa Bb Cc — $42,391 — Fintech Dashes"
+
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+      }
+      function wcagLabel(r) {
+        if (r >= 7) return "AAA"
+        if (r >= 4.5) return "AA"
+        if (r >= 3) return "AA Large"
+        return "Fail"
+      }
+      function wcagCls(r) {
+        if (r >= 7) return "good"
+        if (r >= 4.5) return "good"
+        if (r >= 3) return "mid"
+        return "low"
+      }
+      function paletteCard(p) {
+        const c = p.colors
+        const ratios = p.contrastRatios || {}
+        const bgFg = ratios.backgroundForeground ?? 0
+        const cardFg = ratios.cardForeground ?? 0
+        const prim = ratios.primaryContrast ?? 0
+        const acc = ratios.accentContrast ?? 0
+        const tags = (p.tags || [])
+          .map((t) => `<span class="pill" style="font-size:10px">${esc(t)}</span>`)
+          .join(" ")
+        const appTypes = (p.appTypes || []).join(", ")
+        const modes = (p.modes || []).join(", ")
+
+        const swatchEntries = [
+          ["background", c.background, "Page bg"],
+          ["backgroundMuted", c.backgroundMuted, "Muted bg"],
+          ["card", c.card, "Card/surface"],
+          ["foreground", c.foreground, "Text"],
+          ["foregroundMuted", c.foregroundMuted, "Muted text"],
+          ["primary", c.primary, "Primary"],
+          ["primaryForeground", c.primaryForeground, "On primary"],
+          ["secondary", c.secondary, "Secondary"],
+          ["secondaryForeground", c.secondaryForeground, "On secondary"],
+          ["border", c.border, "Border"],
+          ["accent", c.accent, "Accent/CTA"],
+          ["accentForeground", c.accentForeground, "On accent"],
+          ["success", c.success, "Success"],
+          ["warning", c.warning, "Warning"],
+          ["destructive", c.destructive, "Destructive"],
+        ]
+
+        const swatches = swatchEntries
+          .map(([key, hex, label]) => {
+            const fg =
+              key.includes("Foreground") || key === "foreground" || key === "foregroundMuted"
+                ? c.background
+                : key === "border"
+                  ? c.foreground
+                  : "#ffffff"
+            // for readability compute contrast-ish: use foreground for label
+            const textColor =
+              key === "background" || key === "backgroundMuted" || key === "card" || key === "secondary"
+                ? c.foreground
+                : key === "primary" ||
+                    key === "accent" ||
+                    key === "success" ||
+                    key === "warning" ||
+                    key === "destructive"
+                  ? key === "warning"
+                    ? "#111827"
+                    : "#ffffff"
+                  : c.foreground
+            // simpler: pick contrasting text for swatch
+            const isLight = (() => {
+              const h = hex.replace("#", "")
+              const r = parseInt(h.slice(0, 2), 16),
+                g = parseInt(h.slice(2, 4), 16),
+                b = parseInt(h.slice(4, 6), 16)
+              return r * 0.299 + g * 0.587 + b * 0.114 > 160
+            })()
+            const swatchFg = isLight ? "#111827" : "#ffffff"
+            return `<div class="swatch">
+      <div class="swatch-color" style="background:${esc(hex)};color:${swatchFg}">${esc(hex)}</div>
+      <div class="swatch-label"><strong>${esc(key)}</strong><span>${esc(label)}</span><code>${esc(hex)}</code></div>
+    </div>`
+          })
+          .join("")
+
+        const typeSizes = [12, 16, 24, 36]
+        const typeRows = typeSizes
+          .map(
+            (sz) => `
+    <div class="type-row" style="background:${esc(c.background)};color:${esc(c.foreground)};border-color:${esc(c.border)}">
+      <div class="sz">${sz}px — ${esc(p.name)} · foreground on background</div>
+      <div class="preview-text" contenteditable="true" style="font-size:${sz}px;line-height:1.35">${esc(globalText)}</div>
+      <div style="font-size:10px;opacity:0.6">Aa Bb Cc 0123456789 — The quick brown fox</div>
+    </div>
+  `,
+          )
+          .join("")
+
+        const cardMutedRow = `
+    <div class="type-row" style="background:${esc(c.card)};color:${esc(c.foreground)};border-color:${esc(c.border)}">
+      <div class="sz">Card surface — foreground on card</div>
+      <div style="font-size:14px">Card text on <code>${esc(c.card)}</code> with border <code>${esc(c.border)}</code></div>
+    </div>
+    <div class="type-row" style="background:${esc(c.backgroundMuted)};color:${esc(c.foregroundMuted)};border-color:${esc(c.border)}">
+      <div class="sz">Muted — foregroundMuted on backgroundMuted</div>
+      <div style="font-size:14px">Muted text sample — secondary information</div>
+    </div>
+  `
+
+        return `
+  <div class="palette-card" data-id="${esc(p.id)}" data-apptypes="${esc((p.appTypes || []).join(" "))}" data-modes="${esc((p.modes || []).join(" "))}" data-vibe="${esc(p.vibe)}">
+    <div class="palette-head">
+      <h2>${esc(p.name)}</h2>
+      <span class="vibe">${esc(p.vibe)} · ${esc(appTypes)} · ${esc(modes)}</span>
+      <div class="badges">
+        <span class="pill ${wcagCls(bgFg)}">bg×fg ${bgFg}:1 ${wcagLabel(bgFg)}</span>
+        <span class="pill ${wcagCls(cardFg)}">card×fg ${cardFg}:1 ${wcagLabel(cardFg)}</span>
+        <span class="pill ${wcagCls(prim)}">primary ${prim}:1 ${wcagLabel(prim)}</span>
+        <span class="pill ${wcagCls(acc)}">accent ${acc}:1 ${wcagLabel(acc)}</span>
+      </div>
+    </div>
+    <div class="meta">
+      <span>Professional <strong>${p.scores.professional}/10</strong></span>
+      <span>Designer <strong>${p.scores.designerFriendly}/10</strong></span>
+      <span>Licensing: ${esc(p.licensingCost || "Free")}</span>
+      ${p.notes ? `<span style="opacity:0.8">${esc(p.notes)}</span>` : ""}
+      ${tags}
+    </div>
+    <div class="swatches">${swatches}</div>
+    <div class="preview-section">
+      <div class="text-samples">
+        <div class="label">Background + foreground text samples — editable</div>
+        ${typeRows}
+        ${cardMutedRow}
+      </div>
+      <div class="ui-preview" style="background:${esc(c.background)};border-color:${esc(c.border)}">
+        <div class="label">UI preview — rendered in palette colors</div>
+        <div class="ui-row">
+          <button class="btn btn-primary" style="background:${esc(c.primary)};color:${esc(c.primaryForeground)};border-color:${esc(c.primary)}">Primary</button>
+          <button class="btn btn-secondary" style="background:${esc(c.secondary)};color:${esc(c.secondaryForeground)};border-color:${esc(c.border)}">Secondary</button>
+          <span class="badge-demo" style="background:${esc(c.accent)};color:${esc(c.accentForeground)}">Accent badge</span>
+        </div>
+        <div class="card-demo" style="background:${esc(c.card)};border-color:${esc(c.border)};color:${esc(c.foreground)}">
+          <div style="font-weight:700;font-size:13px">Card title</div>
+          <div style="font-size:11px;color:${esc(c.foregroundMuted)}">Muted description — ${esc(p.vibe)} · ${esc(modes)}</div>
+          <div style="height:4px;background:${esc(c.primary)};border-radius:999px;margin-top:4px"></div>
+        </div>
+        <input class="input-demo" placeholder="Input placeholder" value="Input text" style="background:${esc(c.card)};border-color:${esc(c.border)};color:${esc(c.foreground)}" />
+        <div class="ui-row">
+          <span class="badge-demo" style="background:${esc(c.success)};color:#ffffff">Success</span>
+          <span class="badge-demo" style="background:${esc(c.warning)};color:#111827">Warning</span>
+          <span class="badge-demo" style="background:${esc(c.destructive)};color:#ffffff">Destructive</span>
+        </div>
+        <div style="font-size:10px;opacity:0.6">Contrast: bg×fg ${bgFg}:1 · primary ${prim}:1 · accent ${acc}:1</div>
+      </div>
+    </div>
+    <div class="contrast-row">
+      <span class="pill ${wcagCls(bgFg)}">background×foreground ${bgFg}:1 — ${wcagLabel(bgFg)}</span>
+      <span class="pill ${wcagCls(cardFg)}">card×foreground ${cardFg}:1 — ${wcagLabel(cardFg)}</span>
+      <span class="pill ${wcagCls(prim)}">primary×on-primary ${prim}:1 — ${wcagLabel(prim)}</span>
+      <span class="pill ${wcagCls(acc)}">accent×on-accent ${acc}:1 — ${wcagLabel(acc)}</span>
+    </div>
+  </div>`
+      }
+
+      function render() {
+        const g = document.getElementById("gallery")
+        const count = document.getElementById("count")
+        const live = document.getElementById("live")
+        if (!PALETTES.length) {
+          g.innerHTML = `<div class="empty"><h3 style="margin:0;color:var(--cyan)">No palettes in catalog yet</h3><p style="opacity:0.8">Ask the sommelier to add some: “Give me a corporate light palette for a dashboard and rebuild the gallery” or use the color-catalog tool directly.</p></div>`
+          count.textContent = "0 palettes"
+          live.textContent = "EMPTY — add palettes via agent"
+          return
+        }
+        g.innerHTML = PALETTES.map(paletteCard).join("")
+        count.textContent = `${PALETTES.length} palettes · ${PALETTES.flatMap((p) => p.appTypes).length} app-type tags`
+        live.textContent = PALETTES.map((p) => p.name).join(", ")
+      }
+
+      function applyFilters() {
+        const app = document.getElementById("filterApp").value.toLowerCase()
+        const mode = document.getElementById("filterMode").value.toLowerCase()
+        const vibe = document.getElementById("filterVibe").value.toLowerCase()
+        document.querySelectorAll(".palette-card").forEach((card) => {
+          const el = card
+          const apptypes = (el.getAttribute("data-apptypes") || "").toLowerCase()
+          const modes = (el.getAttribute("data-modes") || "").toLowerCase()
+          const v = (el.getAttribute("data-vibe") || "").toLowerCase()
+          const show =
+            (!app || apptypes.includes(app)) && (!mode || modes.includes(mode)) && (!vibe || v === vibe)
+          el.style.display = show ? "" : "none"
+        })
+        const visible = [...document.querySelectorAll(".palette-card")].filter(
+          (el) => el.style.display !== "none",
+        ).length
+        document.getElementById("count").textContent = `${visible} / ${PALETTES.length} palettes visible`
+      }
+
+      document.getElementById("globalText")?.addEventListener("input", (e) => {
+        globalText = e.target.value
+        document.querySelectorAll(".preview-text").forEach((el) => (el.textContent = globalText))
+      })
+      document.getElementById("filterApp")?.addEventListener("change", applyFilters)
+      document.getElementById("filterMode")?.addEventListener("change", applyFilters)
+      document.getElementById("filterVibe")?.addEventListener("change", applyFilters)
+
+      render()
+    </script>
+  </body>
+</html>

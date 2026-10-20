@@ -30,6 +30,10 @@
   height: 28px;
 }
 
+.heading {
+  min-width: 0;
+}
+
 .title,
 .subtitle {
   overflow: hidden;

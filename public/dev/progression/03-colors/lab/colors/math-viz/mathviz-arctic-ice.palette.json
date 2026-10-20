@@ -1,0 +1,28 @@
+{
+  "appTypes": ["dashboard", "app-shell"],
+  "colors": {
+    "accent": "#A6DCCE",
+    "accentForeground": "#04080C",
+    "background": "#070D12",
+    "backgroundMuted": "#101921",
+    "border": "#232C35",
+    "card": "#151E26",
+    "destructive": "#F87171",
+    "foreground": "#F2F7F7",
+    "foregroundMuted": "#93A8AD",
+    "primary": "#70C0A0",
+    "primaryForeground": "#04080C",
+    "secondary": "#232C35",
+    "secondaryForeground": "#E8F1F1",
+    "success": "#34D399",
+    "warning": "#FBBF24"
+  },
+  "id": "mathviz-arctic-ice",
+  "modes": ["dark"],
+  "name": "MathViz Arctic Ice",
+  "notes": "Pair Arctic Ice shell with Tron/Violet canvases for contrast: ice chrome outside, neon math inside. Gradient strategy: hairline ice-mesh (pale mint -> white) plus single mint glow, no competing neon stops.",
+  "scores": { "designerFriendly": 8, "professional": 9 },
+  "slug": "mathviz-arctic-ice",
+  "tags": ["math-viz", "arctic", "ice-mint"],
+  "vibe": "futuristic"
+}
