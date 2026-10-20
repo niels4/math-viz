@@ -1,4 +1,6 @@
-import { atom, type Atom } from "jotai"
+import { atom, type Atom, type PrimitiveAtom } from "jotai"
+
+import type { ScrubMode } from "./SideBar/TransformSection/ScrubValue/scrub"
 
 export type TransformParam = "a" | "b" | "h" | "k"
 
@@ -25,12 +27,26 @@ const touch = (by: Touch) =>
 export const hoverAtom = touch("hover")
 export const focusAtom = touch("focus")
 
-export const litAtom = atom((get) => {
+export const scrubModeAtoms: Record<TransformParam, PrimitiveAtom<ScrubMode | null>> = {
+  a: atom<ScrubMode | null>(null),
+  b: atom<ScrubMode | null>(null),
+  h: atom<ScrubMode | null>(null),
+  k: atom<ScrubMode | null>(null),
+}
+
+const params = ["a", "b", "h", "k"] as const
+
+export const litAtom = atom((get): TransformParam[] => {
+  const scrubbed = params.filter((param) => get(scrubModeAtoms[param]) !== null)
+  if (scrubbed.length > 0) {
+    return scrubbed
+  }
   const { hover, focus, lead } = get(touchAtom)
-  return lead === "hover" ? (hover ?? focus) : (focus ?? hover)
+  const touched = lead === "hover" ? (hover ?? focus) : (focus ?? hover)
+  return touched === null ? [] : [touched]
 })
 
-const highlightOf = (param: TransformParam): Atom<boolean> => atom((get) => get(litAtom) === param)
+const highlightOf = (param: TransformParam): Atom<boolean> => atom((get) => get(litAtom).includes(param))
 
 export const highlightAtoms: Record<TransformParam, Atom<boolean>> = {
   a: highlightOf("a"),

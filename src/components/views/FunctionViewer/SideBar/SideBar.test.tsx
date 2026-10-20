@@ -1,7 +1,9 @@
+import { getDefaultStore } from "jotai"
 import { afterEach, describe, expect, it } from "vitest"
 
 import { act, render, toElement, updateLocationHash } from "#test"
 
+import { scrubModeAtoms } from "../state"
 import { SideBar } from "./SideBar"
 
 afterEach(async () => {
@@ -111,5 +113,36 @@ describe("highlighting a parameter", () => {
     point(k, "pointerout")
     expect(lit(k)).toBe(false)
     expect(lit(row)).toBe(true)
+  })
+
+  it("lights h and k together with both rulers out while the shift handle is dragged on the plane", async () => {
+    const screen = await render(<SideBar />)
+    const boxOf = (name: string) => toElement(screen.getByLabelText(name)).parentElement as HTMLElement
+    const [hBox, kBox, aBox] = [boxOf("x shift"), boxOf("y shift"), boxOf("y scale")]
+    const form = toElement(screen.getByTestId("function-form"))
+    const term = (param: string) => toElement(form.querySelector(`[data-param="${param}"]`))
+    const lit = (el: HTMLElement | null) => el?.hasAttribute("data-lit")
+    const ruler = (box: HTMLElement) => box.nextElementSibling
+    const hold = (mode: "coarse" | null) =>
+      act(() => {
+        getDefaultStore().set(scrubModeAtoms.h, mode)
+        getDefaultStore().set(scrubModeAtoms.k, mode)
+      })
+
+    hold("coarse")
+    expect(lit(hBox.closest("[data-param]"))).toBe(true)
+    expect(lit(kBox.closest("[data-param]"))).toBe(true)
+    expect(lit(term("h"))).toBe(true)
+    expect(lit(term("k"))).toBe(true)
+    expect(ruler(hBox)).not.toBeNull()
+    expect(ruler(kBox)).not.toBeNull()
+    expect(lit(aBox.closest("[data-param]"))).toBe(false)
+    expect(ruler(aBox)).toBeNull()
+
+    hold(null)
+    expect(lit(hBox.closest("[data-param]"))).toBe(false)
+    expect(lit(term("k"))).toBe(false)
+    expect(ruler(hBox)).toBeNull()
+    expect(ruler(kBox)).toBeNull()
   })
 })

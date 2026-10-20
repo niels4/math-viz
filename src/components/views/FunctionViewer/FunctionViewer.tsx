@@ -1,4 +1,4 @@
-import { useAtomValue } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { useRef, useState, type ReactNode } from "react"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
@@ -12,7 +12,7 @@ import { baseFunctions, unitX } from "./baseFunctions"
 import style from "./FunctionViewer.module.css"
 import { aParam, bParam, funcParam, hParam, kParam } from "./queryParams"
 import { SideBar } from "./SideBar/SideBar"
-import { litAtom } from "./state"
+import { litAtom, scrubModeAtoms } from "./state"
 import { transformCurves, transformLines, unitPoint } from "./transformCurves"
 import { useShownTransform } from "./useShownTransform"
 
@@ -29,6 +29,10 @@ const Plot = () => {
   const curves = usePlotCurves(baseFunctions[func])
   const shown = useShownTransform({ a, b, h, k })
   const lit = useAtomValue(litAtom)
+  const setAMode = useSetAtom(scrubModeAtoms.a)
+  const setBMode = useSetAtom(scrubModeAtoms.b)
+  const setHMode = useSetAtom(scrubModeAtoms.h)
+  const setKMode = useSetAtom(scrubModeAtoms.k)
   const [hovering, setHovering] = useState(false)
   const [dragging, setDragging] = useState(false)
   const grab = useRef<PlotPoint>({ x: 0, y: 0 })
@@ -45,6 +49,8 @@ const Plot = () => {
       onPointerDown: (_e, point) => {
         grab.current = { x: h - point.x, y: k - point.y }
         setDragging(true)
+        setHMode("coarse")
+        setKMode("coarse")
       },
       onDrag: (_e, point) => {
         setH(point.x + grab.current.x)
@@ -52,6 +58,8 @@ const Plot = () => {
       },
       onPointerUp: () => {
         setDragging(false)
+        setHMode(null)
+        setKMode(null)
         flushH()
         flushK()
       },
@@ -69,6 +77,8 @@ const Plot = () => {
       onPointerDown: (_e, point) => {
         grab.current = { x: unit.x - point.x, y: unit.y - point.y }
         setDragging(true)
+        setAMode("coarse")
+        setBMode("coarse")
       },
       onDrag: (_e, point) => {
         setB((point.x + grab.current.x - h) / unitX[func])
@@ -76,6 +86,8 @@ const Plot = () => {
       },
       onPointerUp: () => {
         setDragging(false)
+        setAMode(null)
+        setBMode(null)
         flushA()
         flushB()
       },

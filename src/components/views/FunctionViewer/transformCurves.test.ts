@@ -68,8 +68,7 @@ describe("unitPoint", () => {
 
 describe("transformLines", () => {
   const vertexAt13 = { a: 2, b: 1, h: 1, k: 3 }
-  const linesOnSquare = (lit: TransformParam | null) =>
-    transformLines(lit, baseFunctions.x2, unitX.x2, vertexAt13)
+  const linesOnSquare = (lit: TransformParam[]) => transformLines(lit, baseFunctions.x2, unitX.x2, vertexAt13)
   const box = [
     { from: { x: 1, y: 3 }, to: { x: 2, y: 3 }, look: "dashed" },
     { from: { x: 2, y: 3 }, to: { x: 2, y: 5 }, look: "dashed" },
@@ -78,28 +77,43 @@ describe("transformLines", () => {
   ]
 
   it("while k is lit on y = 2(x − 1)² + 3, an arrow rises from the x-axis to the shift handle at (1, 3)", () => {
-    expect(linesOnSquare("k")).toEqual([{ from: { x: 1, y: 0 }, to: { x: 1, y: 3 }, look: "arrow" }])
+    expect(linesOnSquare(["k"])).toEqual([{ from: { x: 1, y: 0 }, to: { x: 1, y: 3 }, look: "arrow" }])
   })
 
   it("while h is lit on y = 2(x − 1)² + 3, an arrow runs from the y-axis to the shift handle at (1, 3)", () => {
-    expect(linesOnSquare("h")).toEqual([{ from: { x: 0, y: 3 }, to: { x: 1, y: 3 }, look: "arrow" }])
+    expect(linesOnSquare(["h"])).toEqual([{ from: { x: 0, y: 3 }, to: { x: 1, y: 3 }, look: "arrow" }])
   })
 
   it("while a is lit on y = 2(x − 1)² + 3, a dashed box joins the handles and its right side measures a = 2", () => {
-    expect(linesOnSquare("a")).toEqual([
+    expect(linesOnSquare(["a"])).toEqual([
       ...box,
       { from: { x: 2, y: 3 }, to: { x: 2, y: 5 }, look: "measured" },
     ])
   })
 
   it("while b is lit on y = 2(x − 1)² + 3, a dashed box joins the handles and its bottom side measures b = 1", () => {
-    expect(linesOnSquare("b")).toEqual([
+    expect(linesOnSquare(["b"])).toEqual([
       ...box,
       { from: { x: 1, y: 3 }, to: { x: 2, y: 3 }, look: "measured" },
     ])
   })
 
+  it("while h and k are lit on y = 2(x − 1)² + 3, both arrows meet at the shift handle at (1, 3)", () => {
+    expect(linesOnSquare(["h", "k"])).toEqual([
+      { from: { x: 0, y: 3 }, to: { x: 1, y: 3 }, look: "arrow" },
+      { from: { x: 1, y: 0 }, to: { x: 1, y: 3 }, look: "arrow" },
+    ])
+  })
+
+  it("while a and b are lit on y = 2(x − 1)² + 3, one dashed box shows with both of its measured sides", () => {
+    expect(linesOnSquare(["a", "b"])).toEqual([
+      ...box,
+      { from: { x: 2, y: 3 }, to: { x: 2, y: 5 }, look: "measured" },
+      { from: { x: 1, y: 3 }, to: { x: 2, y: 3 }, look: "measured" },
+    ])
+  })
+
   it("while nothing is lit, no line shows", () => {
-    expect(linesOnSquare(null)).toEqual([])
+    expect(linesOnSquare([])).toEqual([])
   })
 })

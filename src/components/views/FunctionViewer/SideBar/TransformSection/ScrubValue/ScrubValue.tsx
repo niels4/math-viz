@@ -1,11 +1,11 @@
-import { useAtomValue } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 import { useEffect, useEffectEvent, useRef, useState, type PointerEvent } from "react"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
 
 import { transformParams } from "../../../queryParams.ts"
-import { highlightAtoms, type TransformParam } from "../../../state.ts"
+import { highlightAtoms, scrubModeAtoms, type TransformParam } from "../../../state.ts"
 import { Ruler } from "./Ruler.tsx"
 import { nudged, scrubbed, scrubMode, shown, wheelDx, type ScrubMode } from "./scrub.ts"
 import style from "./ScrubValue.module.css"
@@ -33,7 +33,7 @@ export const ScrubValue = ({ id, param }: { id: string; param: TransformParam })
   const lit = useAtomValue(highlightAtoms[param])
   const [draft, setDraft] = useState<string | null>(null)
   const [typingFrom, setTypingFrom] = useState<number | null>(null)
-  const [mode, setMode] = useState<ScrubMode | null>(null)
+  const [mode, setMode] = useAtom(scrubModeAtoms[param])
   const [pointerOn, setPointerOn] = useState(false)
   const [resting, setResting] = useState(false)
   const boxRef = useRef<HTMLDivElement>(null)

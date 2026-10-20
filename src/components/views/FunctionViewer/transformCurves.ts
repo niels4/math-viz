@@ -31,7 +31,7 @@ const dashedBox = (from: PlotPoint, to: PlotPoint): PlotLine[] => {
 }
 
 export const transformLines = (
-  lit: TransformParam | null,
+  lit: readonly TransformParam[],
   g: PlotFunction,
   u: number,
   transform: Transform,
@@ -39,16 +39,20 @@ export const transformLines = (
   const shift = { x: transform.h, y: transform.k }
   const unit = unitPoint(g, u, transform)
   const corner = { x: unit.x, y: shift.y }
-  switch (lit) {
-    case "k":
-      return [{ from: { x: shift.x, y: 0 }, to: shift, look: "arrow" }]
-    case "h":
-      return [{ from: { x: 0, y: shift.y }, to: shift, look: "arrow" }]
-    case "a":
-      return [...dashedBox(shift, unit), { from: corner, to: unit, look: "measured" }]
-    case "b":
-      return [...dashedBox(shift, unit), { from: shift, to: corner, look: "measured" }]
-    case null:
-      return []
-  }
+  const box = lit.includes("a") || lit.includes("b") ? dashedBox(shift, unit) : []
+  return [
+    ...box,
+    ...lit.map((param): PlotLine => {
+      switch (param) {
+        case "k":
+          return { from: { x: shift.x, y: 0 }, to: shift, look: "arrow" }
+        case "h":
+          return { from: { x: 0, y: shift.y }, to: shift, look: "arrow" }
+        case "a":
+          return { from: corner, to: unit, look: "measured" }
+        case "b":
+          return { from: shift, to: corner, look: "measured" }
+      }
+    }),
+  ]
 }
