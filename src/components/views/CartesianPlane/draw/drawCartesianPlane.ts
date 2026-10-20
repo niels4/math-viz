@@ -1,6 +1,6 @@
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
-import { labelLetterFont, labelNumberFont, planeFontSize } from "./constants"
+import { labelLetterFont, labelNumberFont, planeFontSize } from "../constants"
 import { drawScaleLegend } from "./drawScaleLegend"
 import { clamp, layoutLabels, type GridLayout, type GridLine } from "./grid"
 

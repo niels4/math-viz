@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import type { PlotCurve } from "../CartesianPlane/drawCartesianPlane"
+import type { PlotCurve } from "../CartesianPlane/draw/drawCartesianPlane"
 import type { TransformParam } from "./state"
 
 import { baseFunctions, unitX } from "./baseFunctions"

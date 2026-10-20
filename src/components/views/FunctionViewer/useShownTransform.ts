@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 
 import type { Transform } from "./transformCurves"
 
-import { canAnimate } from "../CartesianPlane/usePlotCurves"
+import { canAnimate } from "../CartesianPlane/hooks/usePlotCurves"
 import { jumpsAtom, type TransformParam } from "./state"
 
 const durationMs = 1000

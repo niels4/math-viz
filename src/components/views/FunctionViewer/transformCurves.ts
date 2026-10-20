@@ -1,4 +1,4 @@
-import type { PlotCurve, PlotFunction, PlotLine, PlotPoint } from "../CartesianPlane/drawCartesianPlane"
+import type { PlotCurve, PlotFunction, PlotLine, PlotPoint } from "../CartesianPlane/draw/drawCartesianPlane"
 import type { TransformParam } from "./state"
 
 export type Transform = Record<TransformParam, number>

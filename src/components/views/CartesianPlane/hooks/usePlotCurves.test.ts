@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { act, renderHook } from "#test"
 
-import type { PlotFunction } from "./drawCartesianPlane"
+import type { PlotFunction } from "../draw/drawCartesianPlane"
 
 import { usePlotCurves } from "./usePlotCurves"
 

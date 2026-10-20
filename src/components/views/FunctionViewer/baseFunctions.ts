@@ -1,4 +1,4 @@
-import type { PlotFunction } from "../CartesianPlane/drawCartesianPlane"
+import type { PlotFunction } from "../CartesianPlane/draw/drawCartesianPlane"
 import type { FunctionSlug } from "./queryParams"
 
 export const baseFunctions: Record<FunctionSlug, PlotFunction> = {

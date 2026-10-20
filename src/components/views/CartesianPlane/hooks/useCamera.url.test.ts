@@ -6,7 +6,7 @@ import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 import { getCurrentSearchParams } from "#src/components/router/router-hooks.ts"
 import { act, renderHook, updateLocationHash } from "#test"
 
-import { centerParam, scaleParam } from "./queryParams"
+import { centerParam, scaleParam } from "../queryParams"
 import { useCamera } from "./useCamera"
 
 const usePlaneCamera = (ref: RefObject<HTMLCanvasElement | null>) => {

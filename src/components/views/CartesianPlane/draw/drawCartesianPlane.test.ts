@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
-import { labelMargin, planeFont } from "./constants"
+import { labelMargin, planeFont } from "../constants"
 import {
   drawCartesianPlane,
   type PlotCurve,

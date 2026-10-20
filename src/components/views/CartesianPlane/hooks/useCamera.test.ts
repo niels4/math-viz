@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { renderHook } from "#test"
 
-import { unscaledUnitSize } from "./constants"
+import { unscaledUnitSize } from "../constants"
 import { useCamera } from "./useCamera"
 
 type Center = [number, number]

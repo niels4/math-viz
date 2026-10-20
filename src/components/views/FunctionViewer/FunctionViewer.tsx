@@ -5,10 +5,10 @@ import { useAtom, useAtomValue } from "jotai"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 import { useAppTheme, type ThemeSlug, type ThemeVars } from "#src/state/useAppTheme.ts"
 
-import type { PlotLabel, PlotPoint } from "../CartesianPlane/drawCartesianPlane"
+import type { PlotLabel, PlotPoint } from "../CartesianPlane/draw/drawCartesianPlane"
 
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
-import { usePlotCurves } from "../CartesianPlane/usePlotCurves"
+import { usePlotCurves } from "../CartesianPlane/hooks/usePlotCurves"
 import { TopBar } from "../TopBar/TopBar"
 import { baseFunctions, unitX } from "./baseFunctions"
 import style from "./FunctionViewer.module.css"

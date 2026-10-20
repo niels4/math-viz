@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vite
 
 import { act, render, toElement } from "#test"
 
-import type { PlotFunction, PlotHandle, PlotPoint } from "./drawCartesianPlane"
+import type { PlotFunction, PlotHandle, PlotPoint } from "./draw/drawCartesianPlane"
 
 import { CartesianPlane } from "./CartesianPlane"
 import { planeFont } from "./constants"

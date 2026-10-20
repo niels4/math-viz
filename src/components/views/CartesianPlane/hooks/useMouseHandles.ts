@@ -2,8 +2,8 @@ import type { PointerEvent as ReactPointerEvent, RefObject } from "react"
 
 import { useRef } from "react"
 
-import { fromPx, hitTest, type PlotHandle, type PlotPoint } from "./drawCartesianPlane"
-import { type GridLayout } from "./grid"
+import { fromPx, hitTest, type PlotHandle, type PlotPoint } from "../draw/drawCartesianPlane"
+import { type GridLayout } from "../draw/grid"
 
 export const useMouseHandles = (
   ref: RefObject<HTMLCanvasElement | null>,

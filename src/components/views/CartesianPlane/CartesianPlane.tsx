@@ -17,13 +17,13 @@ import {
   type PlotLine,
   type PlotMarker,
   type PlotPoint,
-} from "./drawCartesianPlane"
-import { layoutGrid, type GridLayout } from "./grid"
+} from "./draw/drawCartesianPlane"
+import { layoutGrid, type GridLayout } from "./draw/grid"
+import { useCamera } from "./hooks/useCamera"
+import { useMouseHandles } from "./hooks/useMouseHandles"
 import { HtmlOverlay } from "./HtmlOverlay"
 import { centerParam, scaleParam } from "./queryParams"
 import { planeSizeAtom } from "./state"
-import { useCamera } from "./useCamera"
-import { useMouseHandles } from "./useMouseHandles"
 
 const ctxOptions: CanvasRenderingContext2DSettings = { colorSpace: "display-p3" } as const
 

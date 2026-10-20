@@ -1,4 +1,4 @@
-import { unscaledUnitSize } from "./constants"
+import { unscaledUnitSize } from "../constants"
 
 const minGridPx = 20
 

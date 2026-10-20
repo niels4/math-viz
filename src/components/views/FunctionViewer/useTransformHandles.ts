@@ -3,7 +3,7 @@ import { useRef, useState } from "react"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
-import type { PlotHandle, PlotPoint } from "../CartesianPlane/drawCartesianPlane"
+import type { PlotHandle, PlotPoint } from "../CartesianPlane/draw/drawCartesianPlane"
 
 import { baseFunctions, unitX } from "./baseFunctions"
 import { aParam, bParam, hParam, kParam, type FunctionSlug } from "./queryParams"

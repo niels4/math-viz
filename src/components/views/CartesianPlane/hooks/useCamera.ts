@@ -2,8 +2,8 @@ import type { RefObject } from "react"
 
 import { useEffect, useRef, useState } from "react"
 
-import { unscaledUnitSize } from "./constants"
-import { maxScale, minScale } from "./queryParams"
+import { unscaledUnitSize } from "../constants"
+import { maxScale, minScale } from "../queryParams"
 
 type Center = [number, number]
 

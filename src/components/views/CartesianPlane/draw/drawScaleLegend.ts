@@ -4,7 +4,7 @@ import { formatFixed } from "#src/util/format.ts"
 
 import type { GridLayout } from "./grid"
 
-import { unscaledUnitSize } from "./constants"
+import { unscaledUnitSize } from "../constants"
 
 const scaleWindowRight = 28
 const scaleWindowBottom = 22

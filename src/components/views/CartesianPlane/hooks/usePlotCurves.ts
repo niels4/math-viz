@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import type { PlotCurve, PlotFunction } from "./drawCartesianPlane"
+import type { PlotCurve, PlotFunction } from "../draw/drawCartesianPlane"
 
 const fadeMs = 160
 const drawMs = 900
