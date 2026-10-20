@@ -2,6 +2,7 @@
 // WARNING: THIS FILE IS AUTO GENERATED, PLEASE DO NOT EDIT IT MANUALLY.
 // prettier-ignore
 declare const styles: {
+  readonly "dev_link": string;
   readonly "light_dark_buttons": string;
   readonly "light_dark_input": string;
   readonly "light_dark_message": string;
