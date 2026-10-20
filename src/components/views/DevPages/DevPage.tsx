@@ -1,5 +1,7 @@
 import type { ReactNode } from "react"
 
+import { ArrowUpRightIcon } from "#src/components/icons/icons.tsx"
+
 import { TopBar } from "../TopBar/TopBar"
 import style from "./DevPages.module.css"
 import { phaseColour, phases, type Phase } from "./phases"
@@ -31,6 +33,11 @@ export const PhasePage = ({ phase, lede, children }: PhasePageProps) => {
         <p className={style.label}>Phase {index + 1}</p>
         <h1 className={style.title}>{phase.name}</h1>
         <p className={style.lede}>{lede}</p>
+        {phase.cta !== undefined && (
+          <CtaLink phase={phase} href={phase.cta.href}>
+            {phase.cta.label}
+          </CtaLink>
+        )}
       </header>
       {children}
       <nav className={style.phase_nav}>
@@ -62,6 +69,21 @@ export const Shot = ({ image, href = image, alt, title, retired = false, childre
         {children}
       </figcaption>
     </figure>
+  )
+}
+
+type CtaLinkProps = {
+  phase: Phase
+  href: string
+  children: ReactNode
+}
+
+export const CtaLink = ({ phase, href, children }: CtaLinkProps) => {
+  return (
+    <a href={href} className={style.cta} style={phaseColour(phase)} target="_blank" rel="noreferrer">
+      {children}
+      <ArrowUpRightIcon />
+    </a>
   )
 }
 

@@ -97,6 +97,36 @@
   color: var(--foreground-muted);
 }
 
+.content .cta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: fit-content;
+  margin-top: 20px;
+  padding: 16px 24px 16px 26px;
+  font-size: 18px;
+  font-weight: var(--weight-strong);
+  line-height: 1.2;
+  color: var(--background);
+  text-decoration: none;
+  background: var(--phase);
+  border-radius: var(--radius-card);
+  transition: background var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    background: color-mix(in oklch, var(--phase) 85%, var(--foreground));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--phase);
+    outline-offset: 3px;
+  }
+}
+
+.intro .cta {
+  margin-top: 8px;
+}
+
 .content .card {
   display: flex;
   flex-direction: column;

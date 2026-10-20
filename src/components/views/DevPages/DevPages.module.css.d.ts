@@ -10,6 +10,7 @@ declare const styles: {
   readonly "card_text": string;
   readonly "card_title": string;
   readonly "content": string;
+  readonly "cta": string;
   readonly "feature": string;
   readonly "grid": string;
   readonly "heading": string;

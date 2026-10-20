@@ -1,6 +1,6 @@
 import { ArrowRightIcon } from "#src/components/icons/icons.tsx"
 
-import { DevPage } from "./DevPage"
+import { CtaLink, DevPage } from "./DevPage"
 import style from "./DevPages.module.css"
 import heroPlane from "./hero_plane.png"
 import { phaseColour, phases } from "./phases"
@@ -29,6 +29,11 @@ export const DevContents = () => {
               <div>
                 <h2 className={style.section_title}>{phase.name}</h2>
                 <p className={style.muted}>{phase.story}</p>
+                {phase.cta !== undefined && (
+                  <CtaLink phase={phase} href={phase.cta.href}>
+                    {phase.cta.label}
+                  </CtaLink>
+                )}
               </div>
             </div>
             <a href={`#${phase.route}`} className={style.card}>

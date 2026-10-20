@@ -52,3 +52,21 @@ export function ArrowRightIcon() {
     </svg>
   )
 }
+
+export function ArrowUpRightIcon() {
+  return (
+    <svg
+      viewBox="0 0 14 14"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3.5 10.5 10.5 3.5M5 3.5h5.5V9" />
+    </svg>
+  )
+}

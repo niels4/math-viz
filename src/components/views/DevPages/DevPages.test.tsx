@@ -4,6 +4,8 @@ import routes from "#generated/routes.ts"
 import { Router } from "#src/components/router/Router.tsx"
 import { isBrowser, render, updateLocationHash } from "#test"
 
+import { figmaPage } from "./phases"
+
 afterEach(async () => {
   await updateLocationHash("")
 })
@@ -35,7 +37,10 @@ describe("Developer pages", () => {
 
     await screen.getByRole("link", { name: "Phase 4 · Prototype →" }).click()
     await expect.element(screen.getByRole("heading", { name: "Prototype", level: 1 })).toBeVisible()
-    await expect.element(screen.getByRole("link", { name: "← Phase 3 · Colors" })).toBeVisible()
+
+    await screen.getByRole("link", { name: "Phase 5 · Figma →" }).click()
+    await expect.element(screen.getByRole("heading", { name: "Figma", level: 1 })).toBeVisible()
+    await expect.element(screen.getByRole("link", { name: "← Phase 4 · Prototype" })).toBeVisible()
 
     await screen.getByRole("link", { name: "All phases" }).click()
     await expect.element(screen.getByRole("heading", { name: "How I built MathViz" })).toBeVisible()
@@ -50,6 +55,28 @@ describe("Developer pages", () => {
 
     await expect.element(screen.getByRole("heading", { name: "Function Transforms" })).toBeVisible()
     expect(window.location.hash).toBe("#dev/prototype")
+  })
+
+  it("links the Figma phase to the Function Viewer page in Figma, at the top and the bottom", async () => {
+    await updateLocationHash("dev/figma")
+    const screen = await render(<Router routes={routes} />)
+
+    await expect.element(screen.getByRole("heading", { name: "Figma", level: 1 })).toBeVisible()
+
+    for (const name of ["Open the design in Figma", "Open Function Viewer v2 in Figma"]) {
+      const link = screen.getByRole("link", { name })
+      await expect.element(link).toHaveAttribute("href", figmaPage)
+      await expect.element(link).toHaveAttribute("target", "_blank")
+    }
+  })
+
+  it("links straight to Figma from the contents page", async () => {
+    await updateLocationHash("dev")
+    const screen = await render(<Router routes={routes} />)
+
+    const link = screen.getByRole("link", { name: "Open the design in Figma" })
+    await expect.element(link).toHaveAttribute("href", figmaPage)
+    await expect.element(link).toHaveAttribute("target", "_blank")
   })
 
   it.runIf(isBrowser())("opens a phase at its top from a card low on the contents page", async () => {

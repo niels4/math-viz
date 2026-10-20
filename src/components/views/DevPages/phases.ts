@@ -8,6 +8,8 @@ export type Phase = {
   colour: string
   story: string
   card: { title: string; text: string; image: string }
+  // A link out of the app, shown as a button on the contents page and the phase page
+  cta?: { label: string; href: string }
 }
 
 export const phaseColour = (phase: Phase) => ({ "--phase": phase.colour }) as CSSProperties
@@ -66,4 +68,21 @@ export const prototype: Phase = {
   },
 }
 
-export const phases = [concept, fonts, colors, prototype]
+// The "260 Function Viewer v2" page of the MathViz-claude Figma file
+export const figmaPage = "https://www.figma.com/design/yj7gdCaBuQw4X2806iUHRc/MathViz-claude?node-id=34-5316"
+
+export const figma: Phase = {
+  route: "dev/figma",
+  name: "Figma",
+  colour: "var(--ordinal-06)",
+  story:
+    "I gave the prototype and the concept art to a UX agent that designs in Figma. Figma works much better than a markdown file or unit tests for visual specs and for checking a design, and it let us try many design ideas quickly before committing any of them to code. The agent built 13 rounds of the Function Viewer, then merged the best ideas into one recommended design.",
+  card: {
+    title: "Designing in Figma",
+    text: "The Function Viewer redesigned in Figma: 13 rounds of ideas, then one design with the specs to build it.",
+    image: progression("05-figma/recommended/r2-pointer.png"),
+  },
+  cta: { label: "Open the design in Figma", href: figmaPage },
+}
+
+export const phases = [concept, fonts, colors, prototype, figma]
