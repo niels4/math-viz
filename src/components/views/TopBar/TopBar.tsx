@@ -6,10 +6,10 @@ import style from "./TopBar.module.css"
 export const TopBar = () => {
   return (
     <div className={style.top_bar}>
-      <div className={style.wordmark}>
+      <a href="#" className={style.wordmark} aria-label="MathViz home">
         <Logo />
         <h2 className={style.wordmark_text}>MathViz</h2>
-      </div>
+      </a>
       <div className={style.divider} />
       <div>
         <h1 className={style.title}>Function Viewer</h1>
