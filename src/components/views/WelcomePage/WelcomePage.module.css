@@ -8,6 +8,7 @@
   align-items: safe center;
   justify-content: safe center;
   min-height: 100dvh;
+  overflow: clip;
 
   &[data-theme="arctic-ice"] {
     --cta: var(--warning);
@@ -157,9 +158,65 @@
 }
 
 .hero {
+  position: relative;
   flex: none;
   width: 840px;
   height: 520px;
+}
+
+.paper_x,
+.paper_y {
+  position: absolute;
+  z-index: -1;
+}
+
+.paper_x {
+  top: -50vh;
+  bottom: -50vh;
+  left: calc(50% - 800px);
+  width: 1600px;
+  background: linear-gradient(to right, var(--chart-grid) 1px, transparent 0) -0.5px 0 / 50px 100%;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    rgb(0 0 0 / 0.08) 50px,
+    rgb(0 0 0 / 0.14) 100px,
+    rgb(0 0 0 / 0.28) 250px,
+    rgb(0 0 0 / 0.31) 300px,
+    rgb(0 0 0 / 0.35) 350px,
+    rgb(0 0 0 / 0.41) 450px,
+    rgb(0 0 0 / 0.47) 600px,
+    rgb(0 0 0 / 0.5) 750px 850px,
+    rgb(0 0 0 / 0.47) 1000px,
+    rgb(0 0 0 / 0.41) 1150px,
+    rgb(0 0 0 / 0.35) 1250px,
+    rgb(0 0 0 / 0.31) 1300px,
+    rgb(0 0 0 / 0.28) 1350px,
+    rgb(0 0 0 / 0.14) 1500px,
+    rgb(0 0 0 / 0.08) 1550px,
+    transparent
+  );
+}
+
+.paper_y {
+  top: calc(50% - 550px);
+  right: -100vw;
+  left: -100vw;
+  height: 1100px;
+  background: linear-gradient(var(--chart-grid) 1px, transparent 0) 0 -0.5px / 100% 50px;
+  mask-image: linear-gradient(
+    transparent,
+    rgb(0 0 0 / 0.1) 50px,
+    rgb(0 0 0 / 0.18) 100px,
+    rgb(0 0 0 / 0.36) 250px,
+    rgb(0 0 0 / 0.44) 350px,
+    rgb(0 0 0 / 0.5) 500px 600px,
+    rgb(0 0 0 / 0.44) 750px,
+    rgb(0 0 0 / 0.36) 850px,
+    rgb(0 0 0 / 0.18) 1000px,
+    rgb(0 0 0 / 0.1) 1050px,
+    transparent
+  );
 }
 
 .hero_plane {
