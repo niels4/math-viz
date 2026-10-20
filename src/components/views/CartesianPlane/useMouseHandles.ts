@@ -2,13 +2,14 @@ import type { PointerEvent as ReactPointerEvent, RefObject } from "react"
 
 import { useRef } from "react"
 
-import { fromPx, hitTest, type PlotHandle } from "./drawCartesianPlane"
+import { fromPx, hitTest, type PlotHandle, type PlotPoint } from "./drawCartesianPlane"
 import { type GridLayout } from "./grid"
 
 export const useMouseHandles = (
   ref: RefObject<HTMLCanvasElement | null>,
   grid: GridLayout,
   handles: readonly PlotHandle[],
+  onHoverPlane: (point: PlotPoint | null) => void,
 ) => {
   const lastHoveredIndex = useRef(-1)
 
@@ -28,6 +29,11 @@ export const useMouseHandles = (
       onHoverEndHandler(e.nativeEvent, plotPoint(e.nativeEvent))
     }
     lastHoveredIndex.current = hoveredHandleIndex
+    onHoverPlane(hoveredHandleIndex === -1 ? plotPoint(e.nativeEvent) : null)
+  }
+
+  const onPointerLeave = () => {
+    onHoverPlane(null)
   }
 
   const onPointerDown = (e: ReactPointerEvent<HTMLCanvasElement>) => {
@@ -66,5 +72,5 @@ export const useMouseHandles = (
     window.addEventListener("pointerup", onDragEnd)
   }
 
-  return { onPointerMove, onPointerDown }
+  return { onPointerMove, onPointerDown, onPointerLeave }
 }

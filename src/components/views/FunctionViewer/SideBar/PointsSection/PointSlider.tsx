@@ -17,20 +17,16 @@ import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
 import { visibleRangeAtom } from "../../../CartesianPlane/state.ts"
 import { pParam } from "../../queryParams.ts"
 import { pDraggingAtom } from "../../state.ts"
-import { formatNumber } from "./format.ts"
+import { formatNumber, QUANTUM, quantize } from "./format.ts"
 import { PointMark } from "./PointMark.tsx"
 import style from "./PointSlider.module.css"
 
-const QUANTUM = 0.01
 const STEP = 0.1
 const STEP_SHIFT = 1
 
 const INSET = 9
 const LINE_Y = 10
 const ZERO_MARK = 10
-
-const quantize = (v: number) =>
-  Number((Math.sign(v) * Math.round(Math.abs(v) / QUANTUM) * QUANTUM).toPrecision(12)) || 0
 
 const inward = (v: number, side: "low" | "high") =>
   quantize((side === "low" ? Math.ceil(v / QUANTUM - 1e-9) : Math.floor(v / QUANTUM + 1e-9)) * QUANTUM)

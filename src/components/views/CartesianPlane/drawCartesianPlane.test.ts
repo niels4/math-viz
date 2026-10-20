@@ -66,7 +66,7 @@ const draw = (
   drawCartesianPlane(
     ctx as unknown as CanvasRenderingContext2D,
     layoutGrid(400, 300, [0, 0], 0.5, labelMargin),
-    { chartLine: "teal", ordinal05: "green" } as ThemeVars,
+    { chartLine: "teal", ordinal05: "green", foreground: "black", foregroundMuted: "gray" } as ThemeVars,
     font,
     curves,
     handles,
@@ -256,5 +256,34 @@ describe("drawCartesianPlane", () => {
     const { strokes } = draw([], [], [], [{ point: { x: 1, y: 1 }, ink: "ordinal05" }])
 
     expect(strokes.filter(({ style }) => style === "green")).toEqual([])
+  })
+
+  it("Q at (1, 1) is a ring in its ink around (250, 100) with a centre in the foreground", () => {
+    const { arcs, strokes } = draw([], [], [], [{ point: { x: 1, y: 1 }, ink: "ordinal05", shape: "ring" }])
+
+    expect(arcs.map(({ x, y, r }) => [x, y, r])).toEqual([
+      [250, 100, 12],
+      [250, 100, 10.5],
+      [250, 100, 3],
+    ])
+    expect(arcs.at(-1)).toMatchObject({ style: "black" })
+    expect(strokes.map(({ style }) => style)).toContain("green")
+  })
+
+  it("Q's guide runs down the plane's full height at its x, even while Q is above the view", () => {
+    const { strokes } = draw([], [], [], [{ point: { x: 1, y: 20 }, ink: "ordinal05", guide: true }])
+
+    expect(strokes.filter(({ style }) => style === "gray").map(({ path }) => path)).toEqual([
+      [
+        [250, 0],
+        [250, 300],
+      ],
+    ])
+  })
+
+  it("Q has no guide while its x lies past the view", () => {
+    const { strokes } = draw([], [], [], [{ point: { x: 20, y: 1 }, ink: "ordinal05", guide: true }])
+
+    expect(strokes.filter(({ style }) => style === "gray")).toEqual([])
   })
 })

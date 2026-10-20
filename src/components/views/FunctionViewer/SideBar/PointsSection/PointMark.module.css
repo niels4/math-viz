@@ -12,6 +12,15 @@
   fill: var(--point-p);
 }
 
+.probe {
+  fill: var(--background);
+  stroke: var(--point-q);
+}
+
+.centre {
+  fill: var(--foreground);
+}
+
 .parked {
   fill: var(--background);
   stroke: var(--point-p);

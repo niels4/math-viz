@@ -2,6 +2,11 @@ import type { VisibleRange } from "../../../CartesianPlane/state.ts"
 
 const MINUS = "−"
 
+export const QUANTUM = 0.01
+
+export const quantize = (v: number) =>
+  Number((Math.sign(v) * Math.round(Math.abs(v) / QUANTUM) * QUANTUM).toPrecision(12)) || 0
+
 export const formatNumber = (v: number): string => {
   const digits = Math.abs(v).toFixed(2)
   return v < 0 && digits !== "0.00" ? MINUS + digits : digits

@@ -6,6 +6,8 @@ export type TransformParam = "a" | "b" | "h" | "k"
 
 export const pDraggingAtom = atom(false)
 
+export const qXAtom = atom<number | null>(null)
+
 export const jumpsAtom = atom<{ param: TransformParam; from: number; to: number }[]>([])
 
 type Touch = "hover" | "focus"

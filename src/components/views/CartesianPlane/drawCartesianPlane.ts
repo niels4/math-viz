@@ -28,7 +28,14 @@ export type PlotLine = { from: PlotPoint; to: PlotPoint; look: "arrow" | "dashed
 
 export type PlotLabel = { name: string; coords: string }
 
-export type PlotMarker = { point: PlotPoint; ink: keyof ThemeVars; label?: PlotLabel; dropLines?: boolean }
+export type PlotMarker = {
+  point: PlotPoint
+  ink: keyof ThemeVars
+  shape?: "bullseye" | "ring"
+  label?: PlotLabel
+  dropLines?: boolean
+  guide?: boolean
+}
 
 type CurveLook = { ink: keyof ThemeVars; width: number; cap: CanvasLineCap; dash: number[]; alpha: number }
 
@@ -279,6 +286,27 @@ const drawHandle = (
   ctx.restore()
 }
 
+const guideWidth = 1
+const guideDash = [4, 6]
+
+const drawGuide = (ctx: CanvasRenderingContext2D, grid: GridLayout, marker: PlotMarker, theme: ThemeVars) => {
+  const [px] = toPx(grid, marker.point)
+  if (px < 0 || px > grid.width) {
+    return
+  }
+  ctx.save()
+  ctx.strokeStyle = theme.foregroundMuted
+  ctx.lineWidth = guideWidth
+  ctx.lineCap = "butt"
+  ctx.setLineDash(guideDash)
+  ctx.lineDashOffset = (guideDash[0] ?? 0) / 2
+  ctx.beginPath()
+  ctx.moveTo(px, 0)
+  ctx.lineTo(px, grid.height)
+  ctx.stroke()
+  ctx.restore()
+}
+
 const dropWidth = 1.5
 const dropDash = [5, 4]
 
@@ -311,8 +339,10 @@ const drawDropLines = (
 }
 
 const markerRadius = 12
-const markerRing = 2.5
-const markerCore = 6
+const markerLooks = {
+  bullseye: { ring: 2.5, core: 6 },
+  ring: { ring: 3, core: 3 },
+} as const
 
 const drawMarker = (
   ctx: CanvasRenderingContext2D,
@@ -321,19 +351,22 @@ const drawMarker = (
   theme: ThemeVars,
 ) => {
   const [x, y] = toPx(grid, marker.point)
+  const look = markerLooks[marker.shape ?? "bullseye"]
+  const ink = theme[marker.ink]
+  const [ringInk, coreInk] = marker.shape === "ring" ? [ink, theme.foreground] : [theme.foreground, ink]
   ctx.save()
   ctx.fillStyle = theme.background
   ctx.beginPath()
   ctx.arc(x, y, markerRadius, 0, Math.PI * 2)
   ctx.fill()
-  ctx.lineWidth = markerRing
-  ctx.strokeStyle = theme.foreground
+  ctx.lineWidth = look.ring
+  ctx.strokeStyle = ringInk
   ctx.beginPath()
-  ctx.arc(x, y, markerRadius - markerRing / 2, 0, Math.PI * 2)
+  ctx.arc(x, y, markerRadius - look.ring / 2, 0, Math.PI * 2)
   ctx.stroke()
-  ctx.fillStyle = theme[marker.ink]
+  ctx.fillStyle = coreInk
   ctx.beginPath()
-  ctx.arc(x, y, markerCore, 0, Math.PI * 2)
+  ctx.arc(x, y, look.core, 0, Math.PI * 2)
   ctx.fill()
   ctx.restore()
 }
@@ -483,6 +516,9 @@ export const drawCartesianPlane = (
   }
   for (const handle of handles) {
     drawHandle(ctx, grid, handle, theme)
+  }
+  for (const marker of markers.filter(({ guide }) => guide === true)) {
+    drawGuide(ctx, grid, marker, theme)
   }
   for (const marker of markers.filter(({ dropLines }) => dropLines === true)) {
     drawDropLines(ctx, grid, marker, theme)

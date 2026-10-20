@@ -1,8 +1,9 @@
+import { atom, getDefaultStore, useAtomValue } from "jotai"
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest"
 
 import { act, render, toElement } from "#test"
 
-import type { PlotFunction } from "./drawCartesianPlane"
+import type { PlotFunction, PlotHandle, PlotPoint } from "./drawCartesianPlane"
 
 import { CartesianPlane } from "./CartesianPlane"
 import { planeFont } from "./constants"
@@ -137,5 +138,95 @@ describe("CartesianPlane", () => {
 
     pointer("pointerup", 240)
     expect(canvas.dataset["cursor"]).toBe("pan")
+  })
+
+  it("reports the point under the pointer, and null once the pointer leaves or pans the plane", async () => {
+    const onHoverPoint = vi.fn<(point: PlotPoint | null) => void>()
+    await render(
+      <CartesianPlane
+        curves={[]}
+        handles={[]}
+        lines={[]}
+        markers={[]}
+        cursorState={notHovering}
+        onHoverPoint={onHoverPoint}
+      />,
+    )
+    const canvas = toElement(document.querySelector("canvas"))
+    const pointer = (type: string, clientX: number) =>
+      act(() =>
+        canvas.dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            pointerId: 1,
+            pointerType: "mouse",
+            button: 0,
+            buttons: type === "pointerdown" ? 1 : 0,
+            clientX,
+            clientY: 150,
+          }),
+        ),
+      )
+    const reported = () => onHoverPoint.mock.lastCall?.[0]
+
+    pointer("pointermove", 200)
+    const first = reported()
+    pointer("pointermove", 240)
+    const second = reported()
+    // The default camera draws 50 px per unit.
+    expect(first).not.toBeNull()
+    expect((second?.x ?? 0) - (first?.x ?? 0)).toBeCloseTo(0.8)
+
+    // React reads a pointer leaving the canvas from its pointerout.
+    pointer("pointerout", 240)
+    expect(reported()).toBeNull()
+
+    pointer("pointermove", 240)
+    expect(reported()).not.toBeNull()
+
+    pointer("pointerdown", 240)
+    pointer("pointermove", 280)
+    expect(reported()).toBeNull()
+  })
+
+  it("reports null while the pointer rests on a handle", async () => {
+    const onHoverPoint = vi.fn<(point: PlotPoint | null) => void>()
+    const handlesAtom = atom<PlotHandle[]>([])
+    const Plane = () => (
+      <CartesianPlane
+        curves={[]}
+        handles={useAtomValue(handlesAtom)}
+        lines={[]}
+        markers={[]}
+        cursorState={notHovering}
+        onHoverPoint={onHoverPoint}
+      />
+    )
+    await render(<Plane />)
+    const canvas = toElement(document.querySelector("canvas"))
+    const move = () =>
+      act(() =>
+        canvas.dispatchEvent(
+          new PointerEvent("pointermove", {
+            bubbles: true,
+            pointerType: "mouse",
+            clientX: 200,
+            clientY: 150,
+          }),
+        ),
+      )
+
+    move()
+    const under = onHoverPoint.mock.lastCall?.[0]
+    if (under == null) {
+      throw new Error("the plane reported no point under the pointer")
+    }
+    act(() =>
+      getDefaultStore().set(handlesAtom, [
+        { point: under, shape: "square", handlers: { onHover: () => {} } },
+      ]),
+    )
+    move()
+    expect(onHoverPoint.mock.lastCall?.[0]).toBeNull()
   })
 })

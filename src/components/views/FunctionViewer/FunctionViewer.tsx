@@ -1,9 +1,11 @@
 import type { ReactNode } from "react"
 
-import { useAtomValue } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 import { useAppTheme, type ThemeSlug, type ThemeVars } from "#src/state/useAppTheme.ts"
+
+import type { PlotLabel, PlotPoint } from "../CartesianPlane/drawCartesianPlane"
 
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
 import { usePlotCurves } from "../CartesianPlane/usePlotCurves"
@@ -11,9 +13,9 @@ import { TopBar } from "../TopBar/TopBar"
 import { baseFunctions, unitX } from "./baseFunctions"
 import style from "./FunctionViewer.module.css"
 import { aParam, bParam, funcParam, hParam, kParam, pParam } from "./queryParams"
-import { formatNumber } from "./SideBar/PointsSection/format"
+import { formatNumber, quantize } from "./SideBar/PointsSection/format"
 import { SideBar } from "./SideBar/SideBar"
-import { litAtom, pDraggingAtom } from "./state"
+import { litAtom, pDraggingAtom, qXAtom } from "./state"
 import { transformCurves, transformed, transformLines } from "./transformCurves"
 import { useShownTransform } from "./useShownTransform"
 import { useTransformHandles } from "./useTransformHandles"
@@ -25,6 +27,19 @@ const Page = ({ children }: { children: ReactNode | ReactNode[] }) => {
 // Matches --point-p in SideBar.module.css.
 const pointPInk = (slug: ThemeSlug): keyof ThemeVars =>
   slug === "midnight-violet" ? "ordinal03" : "ordinal05"
+
+// Matches --point-q in SideBar.module.css.
+const pointQInks: Partial<Record<ThemeSlug, keyof ThemeVars>> = {
+  "clean-teal": "ordinal04",
+  "educational-warm": "ordinal11",
+  "arctic-ice": "ordinal03",
+}
+const pointQInk = (slug: ThemeSlug): keyof ThemeVars => pointQInks[slug] ?? "ordinal02"
+
+const pointLabel = (name: string, { x, y }: PlotPoint): PlotLabel => ({
+  name,
+  coords: `(${formatNumber(x)}, ${formatNumber(y)})`,
+})
 
 const Plot = () => {
   const [func] = useQueryParam(funcParam)
@@ -38,8 +53,11 @@ const Plot = () => {
   const shown = useShownTransform({ a, b, h, k })
   const lit = useAtomValue(litAtom)
   const pDragging = useAtomValue(pDraggingAtom)
+  const [qX, setQX] = useAtom(qXAtom)
   const { handles, cursorState } = useTransformHandles(func, shown)
-  const pY = transformed(baseFunctions[func], shown)(p)
+  const f = transformed(baseFunctions[func], shown)
+  const pPoint = { x: p, y: f(p) }
+  const qPoint = qX === null ? null : { x: qX, y: f(qX) }
 
   return (
     <CartesianPlane
@@ -48,13 +66,26 @@ const Plot = () => {
       lines={transformLines(lit, baseFunctions[func], unitX[func], shown)}
       markers={[
         {
-          point: { x: p, y: pY },
+          point: pPoint,
           ink: pointPInk(themeSlug),
-          label: { name: "P", coords: `(${formatNumber(p)}, ${formatNumber(pY)})` },
+          label: pointLabel("P", pPoint),
           dropLines: pDragging,
         },
+        ...(qPoint === null
+          ? []
+          : [
+              {
+                point: qPoint,
+                ink: pointQInk(themeSlug),
+                shape: "ring" as const,
+                label: pointLabel("Q", qPoint),
+                dropLines: true,
+                guide: true,
+              },
+            ]),
       ]}
       cursorState={cursorState}
+      onHoverPoint={(point) => setQX(point === null ? null : quantize(point.x))}
     />
   )
 }

@@ -16,6 +16,7 @@ import {
   type PlotHandle,
   type PlotLine,
   type PlotMarker,
+  type PlotPoint,
 } from "./drawCartesianPlane"
 import { layoutGrid, type GridLayout } from "./grid"
 import { HtmlOverlay } from "./HtmlOverlay"
@@ -97,12 +98,14 @@ export const CartesianPlane = ({
   lines,
   markers,
   cursorState,
+  onHoverPoint,
 }: {
   curves: readonly PlotCurve[]
   handles: readonly PlotHandle[]
   lines: readonly PlotLine[]
   markers: readonly PlotMarker[]
   cursorState: CursorState
+  onHoverPoint?: (point: PlotPoint | null) => void
 }) => {
   const { hovering, dragging } = cursorState
   const ref = useRef<HTMLCanvasElement | null>(null)
@@ -126,7 +129,9 @@ export const CartesianPlane = ({
   const grid = layoutGrid(width, height, center, scale, labelMargin)
   useUpdateCanvas(ref, grid, themeVars, font, curves, handles, lines, markers)
 
-  const { onPointerMove, onPointerDown } = useMouseHandles(ref, grid, handles)
+  const { onPointerMove, onPointerDown, onPointerLeave } = useMouseHandles(ref, grid, handles, (point) =>
+    onHoverPoint?.(dragging || panning ? null : point),
+  )
 
   return (
     <div className={style.wrapper}>
@@ -136,6 +141,7 @@ export const CartesianPlane = ({
         data-cursor={cursor}
         onPointerMove={onPointerMove}
         onPointerDown={onPointerDown}
+        onPointerLeave={onPointerLeave}
       />
       <HtmlOverlay />
     </div>

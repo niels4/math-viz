@@ -6,6 +6,10 @@
   align-items: center;
   color: var(--foreground);
   white-space: nowrap;
+
+  &[data-empty] {
+    color: var(--foreground-muted);
+  }
 }
 
 .math {
