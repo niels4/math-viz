@@ -4,10 +4,8 @@
   --cta-foreground: var(--accent-foreground);
 
   position: relative;
-  display: flex;
-  align-items: safe center;
-  justify-content: safe center;
-  min-height: 100dvh;
+  width: 100dvw;
+  height: 100dvh;
   overflow: clip;
 
   &[data-theme="arctic-ice"] {
@@ -36,6 +34,17 @@
   }
 }
 
+.frame {
+  position: relative;
+  display: flex;
+  align-items: safe center;
+  justify-content: safe center;
+  width: calc(100% / var(--fit));
+  height: calc(100% / var(--fit));
+  transform: scale(var(--fit));
+  transform-origin: 0 0;
+}
+
 .top_bar {
   position: absolute;
   top: 24px;
@@ -43,35 +52,14 @@
   left: 32px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: 40px;
-}
+  z-index: 1;
+  zoom: var(--fit);
 
-.top_actions {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-left: auto;
-}
-
-.theme_chip {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  font-size: var(--text-control);
-  font-weight: var(--weight-strong);
-  line-height: 16px;
-  color: var(--foreground);
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-}
-
-.theme_dot {
-  width: 8px;
-  height: 8px;
-  background: var(--primary);
-  border-radius: var(--radius-circle);
+  & [popover] {
+    zoom: calc(1 / var(--fit));
+  }
 }
 
 .content {
@@ -173,8 +161,8 @@
 }
 
 .paper_x {
-  top: -50vh;
-  bottom: -50vh;
+  top: calc(-50vh / var(--fit));
+  bottom: calc(-50vh / var(--fit));
   left: calc(50% - 800px);
   width: 1600px;
   background: linear-gradient(to right, var(--chart-grid) 1px, transparent 0) -0.5px 0 / 50px 100%;

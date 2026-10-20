@@ -7,6 +7,7 @@ declare const styles: {
   readonly "content": string;
   readonly "cta": string;
   readonly "description": string;
+  readonly "frame": string;
   readonly "hero": string;
   readonly "hero_plane": string;
   readonly "hint": string;
@@ -16,10 +17,7 @@ declare const styles: {
   readonly "page": string;
   readonly "paper_x": string;
   readonly "paper_y": string;
-  readonly "theme_chip": string;
-  readonly "theme_dot": string;
   readonly "title": string;
-  readonly "top_actions": string;
   readonly "top_bar": string;
 };
 export = styles;
