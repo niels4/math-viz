@@ -14,49 +14,19 @@
   --point-q: var(--ordinal-02);
 
   &[data-theme="clean-teal"] {
-    --param-a: oklch(0.5431 0.1898 337.99);
-    --param-k: oklch(0.5138 0.1368 100.22);
-    --param-b: oklch(0.5575 0.2525 302.32);
-    --param-h: oklch(0.4882 0.2172 264.38);
     --point-q: var(--ordinal-04);
   }
 
   &[data-theme="educational-warm"] {
-    --param-a: oklch(0.5672 0.2039 354.25);
-    --param-k: oklch(0.5322 0.1405 131.59);
-    --param-b: oklch(0.518 0.2258 323.95);
-    --param-h: oklch(0.4165 0.1285 272.19);
     --point-q: var(--ordinal-11);
   }
 
-  &[data-theme="sage-editorial"] {
-    --param-a: oklch(0.5222 0.1809 359.51);
-    --param-k: oklch(0.4383 0.1078 61.05);
-    --param-b: oklch(0.4244 0.1809 265.64);
-    --param-h: oklch(0.5299 0.2222 306.49);
-  }
-
   &[data-theme="arctic-ice"] {
-    --param-a: oklch(0.8291 0.1185 41.18);
-    --param-k: oklch(0.879 0.1534 91.61);
-    --param-b: oklch(0.8112 0.1013 293.57);
-    --param-h: oklch(0.711 0.0835 250.44);
     --point-q: var(--ordinal-03);
   }
 
   &[data-theme="midnight-violet"] {
-    --param-a: oklch(0.7487 0.173 53.99);
-    --param-k: oklch(0.908 0.1757 98.54);
-    --param-b: oklch(0.7729 0.1535 163.22);
-    --param-h: oklch(0.7137 0.1434 254.62);
     --point-p: var(--ordinal-03);
-  }
-
-  &[data-theme="tron-cyan"] {
-    --param-a: oklch(0.6816 0.2415 353.18);
-    --param-k: oklch(0.8788 0.1628 91.08);
-    --param-b: oklch(0.7729 0.1535 163.22);
-    --param-h: oklch(0.6623 0.1786 264.64);
   }
 }
 
