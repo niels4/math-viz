@@ -11,6 +11,8 @@ declare const styles: {
   readonly "hero_plane": string;
   readonly "hint": string;
   readonly "intro": string;
+  readonly "light_body": string;
+  readonly "light_top": string;
   readonly "page": string;
   readonly "paper_x": string;
   readonly "paper_y": string;

@@ -165,7 +165,9 @@
 }
 
 .paper_x,
-.paper_y {
+.paper_y,
+.light_top,
+.light_body {
   position: absolute;
   z-index: -1;
 }
@@ -217,6 +219,31 @@
     rgb(0 0 0 / 0.1) 1050px,
     transparent
   );
+}
+
+.light_top {
+  top: -300px;
+  left: -240px;
+  width: 1320px;
+  height: 640px;
+  background: linear-gradient(
+    to right in srgb,
+    var(--param-a) 180px,
+    var(--param-b) 708px,
+    var(--param-h) 1140px
+  );
+  mask: url("./light_top.svg");
+  opacity: 0.3;
+}
+
+.light_body {
+  top: -300px;
+  left: -380px;
+  width: 1600px;
+  height: 1240px;
+  background: var(--chart-glow);
+  mask: url("./light_body.svg");
+  opacity: 0.35;
 }
 
 .hero_plane {

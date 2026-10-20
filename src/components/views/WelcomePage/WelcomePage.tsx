@@ -50,6 +50,8 @@ export const WelcomePage = () => {
         <div className={style.hero}>
           <div className={style.paper_x} />
           <div className={style.paper_y} />
+          <div className={style.light_top} />
+          <div className={style.light_body} />
           <HeroPlane />
         </div>
       </main>

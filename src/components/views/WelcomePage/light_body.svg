@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1240">
+  <filter id="blur" filterUnits="userSpaceOnUse" x="0" y="0" width="1600" height="1240">
+    <feGaussianBlur stdDeviation="85" />
+  </filter>
+  <ellipse cx="800" cy="620" rx="540" ry="360" filter="url(#blur)" />
+</svg>
