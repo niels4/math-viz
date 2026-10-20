@@ -1,15 +1,13 @@
 import { useSetAtom } from "jotai"
-import { useEffect, useState, type RefObject } from "react"
+import { useEffect } from "react"
 import { useRef } from "react"
 
-import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.ts"
-import { useHotReload } from "#src/components/hooks/useHotReload.ts"
 import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
-import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
+import { useAppTheme } from "#src/state/useAppTheme.ts"
 
 import style from "./CartesianPlain.module.css"
-import { labelLetterFont, labelMargin, labelNumberFont, planeFont } from "./constants"
+import { labelMargin, planeFont } from "./constants"
 import {
   drawCartesianPlane,
   type PlotCurve,
@@ -18,14 +16,14 @@ import {
   type PlotMarker,
   type PlotPoint,
 } from "./draw/drawCartesianPlane"
-import { layoutGrid, type GridLayout } from "./draw/grid"
+import { drawScaleLegend } from "./draw/drawScaleLegend"
+import { layoutGrid } from "./draw/grid"
 import { useCamera } from "./hooks/useCamera"
 import { useMouseHandles } from "./hooks/useMouseHandles"
+import { useCanvasFont, useUpdateCanvas } from "./hooks/useUpdateCanvas"
 import { HtmlOverlay } from "./HtmlOverlay"
 import { centerParam, scaleParam } from "./queryParams"
 import { planeSizeAtom } from "./state"
-
-const ctxOptions: CanvasRenderingContext2DSettings = { colorSpace: "display-p3" } as const
 
 type CursorState = {
   hovering: boolean
@@ -34,62 +32,11 @@ type CursorState = {
 
 type Cursor = "pan" | "grab-hover" | "grab-active"
 
-const useCanvasFont = (font: string): string | null => {
-  const [loaded, setLoaded] = useState<string | null>(null)
-  useEffect(() => {
-    if (!("fonts" in document)) {
-      return
-    }
-    let mounted = true
-    const showText = () => {
-      if (mounted) {
-        setLoaded(font)
-      }
-    }
-    void Promise.allSettled([font, labelLetterFont, labelNumberFont].map((f) => document.fonts.load(f))).then(
-      showText,
-    )
-    return () => {
-      mounted = false
-    }
-  }, [font])
-  return loaded === font ? font : null
-}
-
-const useUpdateCanvas = (
-  ref: RefObject<HTMLCanvasElement | null>,
-  grid: GridLayout,
-  theme: ThemeVars,
-  font: string | null,
-  curves: readonly PlotCurve[],
-  handles: readonly PlotHandle[],
-  lines: readonly PlotLine[],
-  markers: readonly PlotMarker[],
-) => {
-  const draw = useHotReload(drawCartesianPlane)
-  const dpr = useDevicePixelRatio()
-
-  useEffect(() => {
-    const canvas = ref.current
-    if (!canvas) {
-      return
-    }
-
-    canvas.width = Math.max(1, Math.round(grid.width * dpr))
-    canvas.height = Math.max(1, Math.round(grid.height * dpr))
-
-    const ctx = canvas.getContext("2d", ctxOptions)
-
-    if (ctx === null) {
-      console.error("Could not create canvas 2d context.")
-      return
-    }
-
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    ctx.clearRect(0, 0, grid.width, grid.height)
-
-    draw(ctx, grid, theme, font, curves, handles, lines, markers)
-  }, [ref, grid, dpr, theme, font, curves, handles, lines, markers, draw])
+const drawPlaneWithScale: typeof drawCartesianPlane = (ctx, grid, theme, font, ...rest) => {
+  drawCartesianPlane(ctx, grid, theme, font, ...rest)
+  if (font !== null) {
+    drawScaleLegend(ctx, grid, theme, font)
+  }
 }
 
 export const CartesianPlane = ({
@@ -127,7 +74,7 @@ export const CartesianPlane = ({
   const panning = useCamera(ref, center, scale, setCenter, setScale, flushCamera, dragging)
   const cursor: Cursor = dragging || panning ? "grab-active" : hovering ? "grab-hover" : "pan"
   const grid = layoutGrid(width, height, center, scale, labelMargin)
-  useUpdateCanvas(ref, grid, themeVars, font, curves, handles, lines, markers)
+  useUpdateCanvas(ref, drawPlaneWithScale, grid, themeVars, font, curves, handles, lines, markers)
 
   const { onPointerMove, onPointerDown, onPointerLeave } = useMouseHandles(ref, grid, handles, (point) =>
     onHoverPoint?.(dragging || panning ? null : point),
