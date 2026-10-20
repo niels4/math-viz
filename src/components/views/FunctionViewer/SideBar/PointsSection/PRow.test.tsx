@@ -81,6 +81,24 @@ describe("P's head row", () => {
     expect(field).toHaveValue("−5.00")
     expect(row.textContent).toContain("= −5.00")
   })
+
+  it("says when P lies left of the view", async () => {
+    const { row } = await renderRow("#?p=-6&k=6")
+    expect(row.textContent).toContain("left of the view")
+    expect(row.textContent).not.toContain("pinned")
+  })
+
+  it("says when P lies right of the view", async () => {
+    const { row } = await renderRow("#?p=6&k=-6")
+    expect(row.textContent).toContain("right of the view")
+    expect(row.textContent).not.toContain("pinned")
+  })
+
+  it("past a corner, names the side P lies furthest past", async () => {
+    const { row } = await renderRow("#?p=9&k=-4")
+    expect(row.textContent).toContain("right of the view")
+    expect(row.textContent).not.toContain("above the view")
+  })
 })
 
 describe("typing P's x", () => {
