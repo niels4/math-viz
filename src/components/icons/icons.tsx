@@ -34,3 +34,21 @@ export function GearIcon() {
     </svg>
   )
 }
+
+export function ArrowRightIcon() {
+  return (
+    <svg
+      viewBox="0 0 14 14"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M2 7h9.5M8 3.5 11.5 7 8 10.5" />
+    </svg>
+  )
+}

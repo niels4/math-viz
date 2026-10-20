@@ -1,7 +1,13 @@
-import { GearIcon, Logo } from "#src/components/icons/icons.tsx"
+import cn from "classnames"
+
+import { ArrowRightIcon, GearIcon, Logo } from "#src/components/icons/icons.tsx"
+import { useAppTheme } from "#src/state/useAppTheme.ts"
+import { param_colours } from "#src/style/param_colours.module.css"
 
 import { HeroPlane } from "./HeroPlane"
 import style from "./WelcomePage.module.css"
+
+const hintParams = ["a", "k", "b", "h"] as const
 
 const ThemeSwitcher = () => {
   return (
@@ -12,16 +18,39 @@ const ThemeSwitcher = () => {
 }
 
 export const WelcomePage = () => {
+  const { themeSlug } = useAppTheme()
+
   return (
-    <div className={style.page} data-testid="root-view">
+    <div className={cn(style.page, param_colours)} data-theme={themeSlug} data-testid="root-view">
       <div className={style.top_bar}>
         <Logo />
-        <h2 className={style.wordmark}>MathViz</h2>
         <ThemeSwitcher />
       </div>
-      <div className={style.hero}>
-        <HeroPlane />
-      </div>
+      <main className={style.content}>
+        <div className={style.intro}>
+          <h1 className={style.title}>MathViz</h1>
+          <p className={style.description}>
+            Interactive math visualizations for the browser, built with React, TypeScript and Vite.
+          </p>
+          <div className={style.actions}>
+            <a href="#function-viewer" className={style.cta}>
+              Open the Function Viewer
+              <ArrowRightIcon />
+            </a>
+            <p className={style.hint}>
+              Pick a function, then drag
+              {hintParams.map((param) => (
+                <span key={param} className={style.chip} data-param={param}>
+                  <var>{param}</var>
+                </span>
+              ))}
+            </p>
+          </div>
+        </div>
+        <div className={style.hero}>
+          <HeroPlane />
+        </div>
+      </main>
     </div>
   )
 }

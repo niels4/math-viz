@@ -1,23 +1,23 @@
 .page {
-  background: var(--background-muted);
-  margin: var(--space-6);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border);
-  overflow: hidden;
+  --title: var(--primary);
+  --cta: var(--accent);
+  --cta-foreground: var(--accent-foreground);
+
+  position: relative;
+  display: flex;
+  align-items: safe center;
+  justify-content: safe center;
+  min-height: 100dvh;
 }
 
 .top_bar {
-  padding: var(--space-6);
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  left: 32px;
   display: flex;
-  gap: var(--space-4);
-  border-bottom: 1px solid var(--border);
   align-items: center;
-}
-
-.wordmark {
-  font-weight: 700;
-  font-size: 1.6rem;
-  letter-spacing: 0.01em;
+  height: 40px;
 }
 
 .theme_switcher_button {
@@ -34,7 +34,91 @@
   cursor: pointer;
 }
 
+.content {
+  display: flex;
+  align-items: center;
+  gap: 60px;
+}
+
+.intro {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 28px;
+  width: 380px;
+}
+
+.title {
+  font-size: 96px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  color: var(--title);
+}
+
+.description {
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--foreground-muted);
+  text-wrap: wrap;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px 16px 26px;
+  font-size: 18px;
+  font-weight: var(--weight-strong);
+  color: var(--cta-foreground);
+  background: var(--cta);
+  border-radius: var(--radius-card);
+  text-decoration: none;
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  color: var(--foreground-muted);
+}
+
+.chip {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  font: 19px/24px var(--font-serif);
+  color: var(--background);
+  border-radius: var(--radius-card);
+
+  &[data-param="a"] {
+    background: var(--param-a);
+  }
+
+  &[data-param="k"] {
+    background: var(--param-k);
+  }
+
+  &[data-param="b"] {
+    background: var(--param-b);
+  }
+
+  &[data-param="h"] {
+    background: var(--param-h);
+  }
+}
+
 .hero {
+  flex: none;
   width: 840px;
   height: 520px;
 }

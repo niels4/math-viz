@@ -1,11 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-import { isBrowser, render } from "#test"
+import routes from "#generated/routes.ts"
+import { Router } from "#src/components/router/Router.tsx"
+import { isBrowser, render, updateLocationHash } from "#test"
 
 import { WelcomePage } from "./WelcomePage"
 
-afterEach(() => {
+afterEach(async () => {
   vi.restoreAllMocks()
+  await updateLocationHash("")
 })
 
 describe("WelcomePage", () => {
@@ -20,4 +23,17 @@ describe("WelcomePage", () => {
       expect(texts()).not.toContain("0.50 u")
     },
   )
+
+  it("opens the Function Viewer from its button", async () => {
+    await updateLocationHash("")
+    const screen = await render(<Router routes={routes} />)
+
+    await expect.element(screen.getByRole("heading", { name: "MathViz" })).toBeVisible()
+
+    const button = screen.getByRole("link", { name: "Open the Function Viewer" })
+
+    await button.click()
+    await expect.element(screen.getByRole("heading", { name: "Function Viewer" })).toBeVisible()
+    expect(window.location.hash).toBe("#function-viewer")
+  })
 })
