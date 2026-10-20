@@ -4,6 +4,8 @@ import type { ScrubMode } from "./SideBar/TransformSection/ScrubValue/scrub"
 
 export type TransformParam = "a" | "b" | "h" | "k"
 
+export const pDraggingAtom = atom(false)
+
 export const jumpsAtom = atom<{ param: TransformParam; from: number; to: number }[]>([])
 
 type Touch = "hover" | "focus"

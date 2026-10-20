@@ -28,7 +28,7 @@ export type PlotLine = { from: PlotPoint; to: PlotPoint; look: "arrow" | "dashed
 
 export type PlotLabel = { name: string; coords: string }
 
-export type PlotMarker = { point: PlotPoint; ink: keyof ThemeVars; label?: PlotLabel }
+export type PlotMarker = { point: PlotPoint; ink: keyof ThemeVars; label?: PlotLabel; dropLines?: boolean }
 
 type CurveLook = { ink: keyof ThemeVars; width: number; cap: CanvasLineCap; dash: number[]; alpha: number }
 
@@ -279,6 +279,37 @@ const drawHandle = (
   ctx.restore()
 }
 
+const dropWidth = 1.5
+const dropDash = [5, 4]
+
+const drawDropLines = (
+  ctx: CanvasRenderingContext2D,
+  grid: GridLayout,
+  marker: PlotMarker,
+  theme: ThemeVars,
+) => {
+  const { width, height } = grid
+  const [originX, originY] = grid.origin
+  const [px, py] = toPx(grid, marker.point)
+  ctx.save()
+  ctx.strokeStyle = theme[marker.ink]
+  ctx.lineWidth = dropWidth
+  ctx.lineCap = "butt"
+  ctx.setLineDash(dropDash)
+  ctx.lineDashOffset = (dropDash[0] ?? 0) / 2
+  ctx.beginPath()
+  if (px >= 0 && px <= width) {
+    ctx.moveTo(px, clamp(py, 0, height))
+    ctx.lineTo(px, originY)
+  }
+  if (py >= 0 && py <= height) {
+    ctx.moveTo(clamp(px, 0, width), py)
+    ctx.lineTo(originX, py)
+  }
+  ctx.stroke()
+  ctx.restore()
+}
+
 const markerRadius = 12
 const markerRing = 2.5
 const markerCore = 6
@@ -452,6 +483,9 @@ export const drawCartesianPlane = (
   }
   for (const handle of handles) {
     drawHandle(ctx, grid, handle, theme)
+  }
+  for (const marker of markers.filter(({ dropLines }) => dropLines === true)) {
+    drawDropLines(ctx, grid, marker, theme)
   }
   for (const marker of markers) {
     drawMarker(ctx, grid, marker, theme)

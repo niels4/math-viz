@@ -24,6 +24,7 @@ const draw = (
   const rects: [number, number, number, number][] = []
   const texts: { text: string; x: number; y: number }[] = []
   const fills: { style: unknown; path: [number, number][] }[] = []
+  const strokes: { style: unknown; path: [number, number][] }[] = []
   let path: [number, number][] = []
   const ctx = new Proxy<Record<string | symbol, unknown>>(
     {},
@@ -42,6 +43,9 @@ const draw = (
         }
         if (key === "fill") {
           return () => fills.push({ style: target["fillStyle"], path })
+        }
+        if (key === "stroke") {
+          return () => strokes.push({ style: target["strokeStyle"], path })
         }
         if (key === "arc") {
           return (x: number, y: number, r: number) => arcs.push({ x, y, r, style: target["fillStyle"] })
@@ -69,7 +73,7 @@ const draw = (
     lines,
     markers,
   )
-  return { points, arcs, rects, texts, fills }
+  return { points, arcs, rects, texts, fills, strokes }
 }
 
 const drawnPoints = (curves: PlotCurve[], handles: PlotHandle[] = [], lines: PlotLine[] = []) =>
@@ -222,5 +226,35 @@ describe("drawCartesianPlane", () => {
     expect(inView.rects[0]?.[2]).toBe(114)
     expect(above.rects[0]?.[2]).toBe(130)
     expect(above.texts.find(({ text }) => text === "P")?.x).toBe((above.rects[0]?.[0] ?? 0) + 30)
+  })
+
+  it("P's drop lines run in its ink from (1, 1) to each axis", () => {
+    const { strokes } = draw([], [], [], [{ point: { x: 1, y: 1 }, ink: "ordinal05", dropLines: true }])
+
+    expect(strokes.filter(({ style }) => style === "green").map(({ path }) => path)).toEqual([
+      [
+        [250, 100],
+        [250, 150],
+        [250, 100],
+        [200, 100],
+      ],
+    ])
+  })
+
+  it("above the view, P's drop line comes in from the top edge and none runs off the canvas", () => {
+    const { strokes } = draw([], [], [], [{ point: { x: 1, y: 20 }, ink: "ordinal05", dropLines: true }])
+
+    expect(strokes.filter(({ style }) => style === "green").map(({ path }) => path)).toEqual([
+      [
+        [250, 0],
+        [250, 150],
+      ],
+    ])
+  })
+
+  it("P has no drop lines unless asked", () => {
+    const { strokes } = draw([], [], [], [{ point: { x: 1, y: 1 }, ink: "ordinal05" }])
+
+    expect(strokes.filter(({ style }) => style === "green")).toEqual([])
   })
 })

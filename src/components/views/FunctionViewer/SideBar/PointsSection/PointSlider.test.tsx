@@ -5,6 +5,7 @@ import { act, render, selectionMayStart, toElement, updateLocationHash } from "#
 
 import { centerParam, scaleParam } from "../../../CartesianPlane/queryParams"
 import { planeSizeAtom } from "../../../CartesianPlane/state"
+import { pDraggingAtom } from "../../state"
 import { PointSlider } from "./PointSlider"
 
 // A 500 px plane at the default camera shows x from -5 to 5; the track's
@@ -71,6 +72,7 @@ describe("the P slider", () => {
     pointer("pointerdown", track, 169)
     expect(valueOf(track)).toBe(3)
     expect(selectionMayStart()).toBe(false)
+    expect(getDefaultStore().get(pDraggingAtom)).toBe(true)
 
     pointer("pointermove", track, 59)
     expect(valueOf(track)).toBe(-2.5)
@@ -82,6 +84,7 @@ describe("the P slider", () => {
     pointer("pointerup", track, -400)
     expect(urlValue("p")).toBe("-5")
     expect(selectionMayStart()).toBe(true)
+    expect(getDefaultStore().get(pDraggingAtom)).toBe(false)
   })
 
   it("steps 0.1 with the arrow keys and 1 with Shift", async () => {

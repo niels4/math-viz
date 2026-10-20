@@ -1,10 +1,9 @@
-import { useAtomValue } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 import {
   useEffect,
   useEffectEvent,
   useImperativeHandle,
   useRef,
-  useState,
   type CSSProperties,
   type KeyboardEvent,
   type PointerEvent,
@@ -17,6 +16,7 @@ import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
 
 import { visibleRangeAtom } from "../../../CartesianPlane/state.ts"
 import { pParam } from "../../queryParams.ts"
+import { pDraggingAtom } from "../../state.ts"
 import { formatNumber } from "./format.ts"
 import { PointMark } from "./PointMark.tsx"
 import style from "./PointSlider.module.css"
@@ -52,7 +52,7 @@ export const PointSlider = ({
   const maxX = range?.maxX ?? 0
   const trackRef = useRef<HTMLDivElement>(null)
   const { width } = useResizeObserver(trackRef)
-  const [dragging, setDragging] = useState(false)
+  const [dragging, setDragging] = useAtom(pDraggingAtom)
   const pointerId = useRef<number | null>(null)
   useImperativeHandle(ref, () => ({ focus: () => trackRef.current?.focus() }), [])
 

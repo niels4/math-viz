@@ -13,7 +13,7 @@ import style from "./FunctionViewer.module.css"
 import { aParam, bParam, funcParam, hParam, kParam, pParam } from "./queryParams"
 import { formatNumber } from "./SideBar/PointsSection/format"
 import { SideBar } from "./SideBar/SideBar"
-import { litAtom } from "./state"
+import { litAtom, pDraggingAtom } from "./state"
 import { transformCurves, transformed, transformLines } from "./transformCurves"
 import { useShownTransform } from "./useShownTransform"
 import { useTransformHandles } from "./useTransformHandles"
@@ -37,6 +37,7 @@ const Plot = () => {
   const curves = usePlotCurves(baseFunctions[func])
   const shown = useShownTransform({ a, b, h, k })
   const lit = useAtomValue(litAtom)
+  const pDragging = useAtomValue(pDraggingAtom)
   const { handles, cursorState } = useTransformHandles(func, shown)
   const pY = transformed(baseFunctions[func], shown)(p)
 
@@ -50,6 +51,7 @@ const Plot = () => {
           point: { x: p, y: pY },
           ink: pointPInk(themeSlug),
           label: { name: "P", coords: `(${formatNumber(p)}, ${formatNumber(pY)})` },
+          dropLines: pDragging,
         },
       ]}
       cursorState={cursorState}
