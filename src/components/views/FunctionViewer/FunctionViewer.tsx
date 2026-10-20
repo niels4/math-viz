@@ -22,8 +22,8 @@ const Page = ({ children }: { children: ReactNode | ReactNode[] }) => {
 
 const Plot = () => {
   const [func] = useQueryParam(funcParam)
-  const [a] = useQueryParam(aParam)
-  const [b] = useQueryParam(bParam)
+  const [a, setA, flushA] = useQueryParam(aParam)
+  const [b, setB, flushB] = useQueryParam(bParam)
   const [h, setH, flushH] = useQueryParam(hParam)
   const [k, setK, flushK] = useQueryParam(kParam)
   const curves = usePlotCurves(baseFunctions[func])
@@ -35,7 +35,6 @@ const Plot = () => {
 
   const onHover = () => setHovering(true)
   const onHoverEnd = () => setHovering(false)
-  const onPointerUp = () => setDragging(false)
 
   const shiftHandle: PlotHandle = {
     point: { x: h, y: k },
@@ -59,20 +58,27 @@ const Plot = () => {
     },
   }
 
+  const unit = unitPoint(baseFunctions[func], unitX[func], shown)
+
   const scaleHandle: PlotHandle = {
-    point: unitPoint(baseFunctions[func], unitX[func], shown),
+    point: unit,
     shape: "square",
     handlers: {
       onHover,
       onHoverEnd,
-      onPointerDown: () => {
+      onPointerDown: (_e, point) => {
+        grab.current = { x: unit.x - point.x, y: unit.y - point.y }
         setDragging(true)
-        console.log("scale handle clicked")
       },
-      onDrag: () => {
-        console.log("dragging scale handle")
+      onDrag: (_e, point) => {
+        setB((point.x + grab.current.x - h) / unitX[func])
+        setA((point.y + grab.current.y - k) / baseFunctions[func](unitX[func]))
       },
-      onPointerUp,
+      onPointerUp: () => {
+        setDragging(false)
+        flushA()
+        flushB()
+      },
     },
   }
 
