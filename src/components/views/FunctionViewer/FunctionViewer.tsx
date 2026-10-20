@@ -32,12 +32,14 @@ const Plot = () => {
   const [hovering, setHovering] = useState(false)
 
   const onHover = () => setHovering(true)
+  const onHoverEnd = () => setHovering(false)
 
   const shiftHandle: PlotHandle = {
     point: { x: h, y: k },
     shape: "diamond",
     handlers: {
       onHover,
+      onHoverEnd,
       onPointerDown: () => {
         console.log("shift handle clicked")
       },
@@ -55,6 +57,7 @@ const Plot = () => {
     shape: "square",
     handlers: {
       onHover,
+      onHoverEnd,
       onPointerDown: () => {
         console.log("scale handle clicked")
       },
@@ -74,7 +77,7 @@ const Plot = () => {
       curves={transformCurves(curves, shown)}
       handles={transformHandles}
       lines={transformLines(lit, baseFunctions[func], unitX[func], shown)}
-      cursorState={{ hovering, setHovering }}
+      cursorState={{ hovering }}
     />
   )
 }

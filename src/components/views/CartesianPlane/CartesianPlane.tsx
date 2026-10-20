@@ -82,7 +82,6 @@ const useUpdateCanvas = (
 
 type CursorState = {
   hovering: boolean
-  setHovering: (hovering: boolean) => void
 }
 
 export const CartesianPlane = ({
@@ -102,6 +101,7 @@ export const CartesianPlane = ({
   const [scale, setScale, flushScale] = useQueryParam(scaleParam)
   const { themeVars } = useAppTheme()
   const font = useCanvasFont(planeFont)
+  const lastHoveredIndex = useRef(-1)
 
   const flushCamera = () => {
     flushCenter()
@@ -117,18 +117,23 @@ export const CartesianPlane = ({
     const clientX = e.nativeEvent.offsetX
     const clientY = e.nativeEvent.offsetY
     const hoveredHandleIndex = hitTest(grid, handles, [clientX, clientY], "onHover")
-    const handler = handles[hoveredHandleIndex]?.handlers?.onHover
-    if (handler != null) {
-      handler(e.nativeEvent)
-    } else {
-      cursorState.setHovering(false)
+    const onHoverHandler = handles[hoveredHandleIndex]?.handlers?.onHover
+    if (onHoverHandler != null) {
+      onHoverHandler(e.nativeEvent)
     }
+
+    const onHoverEndHandler = handles[lastHoveredIndex.current]?.handlers?.onHoverEnd
+    if (onHoverEndHandler && lastHoveredIndex.current !== hoveredHandleIndex) {
+      onHoverEndHandler(e.nativeEvent)
+    }
+    lastHoveredIndex.current = hoveredHandleIndex
   }
 
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!ref.current) {
       return
     }
+
     const clientX = e.nativeEvent.offsetX
     const clientY = e.nativeEvent.offsetY
     const pressedHandleIndex = hitTest(grid, handles, [clientX, clientY], "onPointerDown")

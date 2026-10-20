@@ -12,7 +12,7 @@ export type PlotPoint = { x: number; y: number }
 
 type PlotHandleShape = "diamond" | "square"
 
-export type PlotMouseHandlerAction = "onHover" | "onPointerDown" | "onDrag" | "onPointerUp"
+export type PlotMouseHandlerAction = "onHover" | "onHoverEnd" | "onPointerDown" | "onDrag" | "onPointerUp"
 
 type HandlerFunc = (e: PointerEvent) => void
 
