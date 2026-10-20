@@ -12,13 +12,16 @@ import { baseFunctions, unitX } from "./baseFunctions"
 import style from "./FunctionViewer.module.css"
 import { aParam, bParam, funcParam, hParam, kParam } from "./queryParams"
 import { SideBar } from "./SideBar/SideBar"
-import { litAtom, scrubModeAtoms } from "./state"
+import { hoverAtom, litAtom, scrubModeAtoms, type TransformParam } from "./state"
 import { transformCurves, transformLines, unitPoint } from "./transformCurves"
 import { useShownTransform } from "./useShownTransform"
 
 const Page = ({ children }: { children: ReactNode | ReactNode[] }) => {
   return <div className={style.page}>{children}</div>
 }
+
+const shiftParams: readonly TransformParam[] = ["h", "k"]
+const scaleParams: readonly TransformParam[] = ["a", "b"]
 
 const Plot = () => {
   const [func] = useQueryParam(funcParam)
@@ -29,6 +32,7 @@ const Plot = () => {
   const curves = usePlotCurves(baseFunctions[func])
   const shown = useShownTransform({ a, b, h, k })
   const lit = useAtomValue(litAtom)
+  const setHover = useSetAtom(hoverAtom)
   const setAMode = useSetAtom(scrubModeAtoms.a)
   const setBMode = useSetAtom(scrubModeAtoms.b)
   const setHMode = useSetAtom(scrubModeAtoms.h)
@@ -37,15 +41,21 @@ const Plot = () => {
   const [dragging, setDragging] = useState(false)
   const grab = useRef<PlotPoint>({ x: 0, y: 0 })
 
-  const onHover = () => setHovering(true)
-  const onHoverEnd = () => setHovering(false)
+  const onHover = (params: readonly TransformParam[]) => () => {
+    setHovering(true)
+    setHover(params, true)
+  }
+  const onHoverEnd = (params: readonly TransformParam[]) => () => {
+    setHovering(false)
+    setHover(params, false)
+  }
 
   const shiftHandle: PlotHandle = {
     point: { x: h, y: k },
     shape: "diamond",
     handlers: {
-      onHover,
-      onHoverEnd,
+      onHover: onHover(shiftParams),
+      onHoverEnd: onHoverEnd(shiftParams),
       onPointerDown: (_e, point) => {
         grab.current = { x: h - point.x, y: k - point.y }
         setDragging(true)
@@ -72,8 +82,8 @@ const Plot = () => {
     point: unit,
     shape: "square",
     handlers: {
-      onHover,
-      onHoverEnd,
+      onHover: onHover(scaleParams),
+      onHoverEnd: onHoverEnd(scaleParams),
       onPointerDown: (_e, point) => {
         grab.current = { x: unit.x - point.x, y: unit.y - point.y }
         setDragging(true)

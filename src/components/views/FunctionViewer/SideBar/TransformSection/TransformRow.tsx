@@ -26,10 +26,10 @@ export const TransformRow = ({ name, param }: { name: string; param: TransformPa
       className={style.row}
       data-param={param}
       data-lit={lit ? "" : undefined}
-      onPointerEnter={() => setHover(param, true)}
-      onPointerLeave={() => setHover(param, false)}
-      onFocus={() => setFocus(param, true)}
-      onBlur={() => setFocus(param, false)}
+      onPointerEnter={() => setHover([param], true)}
+      onPointerLeave={() => setHover([param], false)}
+      onFocus={() => setFocus([param], true)}
+      onBlur={() => setFocus([param], false)}
     >
       <span className={style.chip} aria-hidden="true">
         <var>{param}</var>

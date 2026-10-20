@@ -24,8 +24,8 @@ const Term = ({ param, children }: { param: TransformParam; children: ReactNode 
       className={style.term}
       data-param={param}
       data-lit={lit ? "" : undefined}
-      onPointerEnter={() => setHover(param, true)}
-      onPointerLeave={() => setHover(param, false)}
+      onPointerEnter={() => setHover([param], true)}
+      onPointerLeave={() => setHover([param], false)}
     >
       {children}
     </span>

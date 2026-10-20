@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from "vitest"
 
 import { act, render, toElement, updateLocationHash } from "#test"
 
-import { scrubModeAtoms } from "../state"
+import { hoverAtom, scrubModeAtoms, type TransformParam } from "../state"
 import { SideBar } from "./SideBar"
 
 afterEach(async () => {
@@ -144,5 +144,36 @@ describe("highlighting a parameter", () => {
     expect(lit(term("k"))).toBe(false)
     expect(ruler(hBox)).toBeNull()
     expect(ruler(kBox)).toBeNull()
+  })
+
+  it("lights h and k with the pointer on the shift handle, then a and b once it moves straight onto the scale handle", async () => {
+    const screen = await render(<SideBar />)
+    const row = (name: string) => toElement(screen.getByLabelText(name)).closest<HTMLElement>("[data-param]")
+    const form = toElement(screen.getByTestId("function-form"))
+    const term = (param: string) => toElement(form.querySelector(`[data-param="${param}"]`))
+    const lit = (el: HTMLElement | null) => el?.hasAttribute("data-lit")
+    const ruler = (name: string) => toElement(screen.getByLabelText(name)).parentElement?.nextElementSibling
+    const hover = (params: TransformParam[], on: boolean) =>
+      act(() => getDefaultStore().set(hoverAtom, params, on))
+
+    hover(["h", "k"], true)
+    expect(lit(row("x shift"))).toBe(true)
+    expect(lit(row("y shift"))).toBe(true)
+    expect(lit(term("h"))).toBe(true)
+    expect(lit(term("k"))).toBe(true)
+    expect(lit(row("y scale"))).toBe(false)
+    expect(ruler("x shift")).toBeNull()
+    expect(ruler("y shift")).toBeNull()
+
+    hover(["a", "b"], true)
+    hover(["h", "k"], false)
+    expect(lit(row("x scale"))).toBe(true)
+    expect(lit(term("b"))).toBe(true)
+    expect(lit(row("x shift"))).toBe(false)
+    expect(lit(term("k"))).toBe(false)
+
+    hover(["a", "b"], false)
+    expect(lit(row("x scale"))).toBe(false)
+    expect(lit(term("b"))).toBe(false)
   })
 })

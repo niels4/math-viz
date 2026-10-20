@@ -8,19 +8,22 @@ export const jumpsAtom = atom<{ param: TransformParam; from: number; to: number 
 
 type Touch = "hover" | "focus"
 
-const touchAtom = atom<Record<Touch, TransformParam | null> & { lead: Touch }>({
-  hover: null,
-  focus: null,
+const touchAtom = atom<Record<Touch, readonly TransformParam[]> & { lead: Touch }>({
+  hover: [],
+  focus: [],
   lead: "hover",
 })
 
+const sameParams = (x: readonly TransformParam[], y: readonly TransformParam[]) =>
+  x.length === y.length && x.every((param, i) => param === y[i])
+
 const touch = (by: Touch) =>
-  atom(null, (get, set, param: TransformParam, on: boolean) => {
+  atom(null, (get, set, params: readonly TransformParam[], on: boolean) => {
     const touched = get(touchAtom)
     if (on) {
-      set(touchAtom, { ...touched, [by]: param, lead: by })
-    } else if (touched[by] === param) {
-      set(touchAtom, { ...touched, [by]: null })
+      set(touchAtom, { ...touched, [by]: params, lead: by })
+    } else if (sameParams(touched[by], params)) {
+      set(touchAtom, { ...touched, [by]: [] })
     }
   })
 
@@ -36,14 +39,14 @@ export const scrubModeAtoms: Record<TransformParam, PrimitiveAtom<ScrubMode | nu
 
 const params = ["a", "b", "h", "k"] as const
 
-export const litAtom = atom((get): TransformParam[] => {
+export const litAtom = atom((get): readonly TransformParam[] => {
   const scrubbed = params.filter((param) => get(scrubModeAtoms[param]) !== null)
   if (scrubbed.length > 0) {
     return scrubbed
   }
   const { hover, focus, lead } = get(touchAtom)
-  const touched = lead === "hover" ? (hover ?? focus) : (focus ?? hover)
-  return touched === null ? [] : [touched]
+  const [first, second] = lead === "hover" ? [hover, focus] : [focus, hover]
+  return first.length > 0 ? first : second
 })
 
 const highlightOf = (param: TransformParam): Atom<boolean> => atom((get) => get(litAtom).includes(param))
