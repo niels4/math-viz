@@ -11,6 +11,7 @@ import { TopBar } from "../TopBar/TopBar"
 import { baseFunctions, unitX } from "./baseFunctions"
 import style from "./FunctionViewer.module.css"
 import { aParam, bParam, funcParam, hParam, kParam, pParam } from "./queryParams"
+import { formatNumber } from "./SideBar/PointsSection/format"
 import { SideBar } from "./SideBar/SideBar"
 import { litAtom } from "./state"
 import { transformCurves, transformed, transformLines } from "./transformCurves"
@@ -37,6 +38,7 @@ const Plot = () => {
   const shown = useShownTransform({ a, b, h, k })
   const lit = useAtomValue(litAtom)
   const { handles, cursorState } = useTransformHandles(func, shown)
+  const pY = transformed(baseFunctions[func], shown)(p)
 
   return (
     <CartesianPlane
@@ -44,7 +46,11 @@ const Plot = () => {
       handles={handles}
       lines={transformLines(lit, baseFunctions[func], unitX[func], shown)}
       markers={[
-        { point: { x: p, y: transformed(baseFunctions[func], shown)(p) }, ink: pointPInk(themeSlug) },
+        {
+          point: { x: p, y: pY },
+          ink: pointPInk(themeSlug),
+          label: { name: "P", coords: `(${formatNumber(p)}, ${formatNumber(pY)})` },
+        },
       ]}
       cursorState={cursorState}
     />

@@ -9,7 +9,7 @@ import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 
 import style from "./CartesianPlain.module.css"
-import { labelMargin, planeFont } from "./constants"
+import { labelLetterFont, labelMargin, labelNumberFont, planeFont } from "./constants"
 import {
   drawCartesianPlane,
   type PlotCurve,
@@ -45,7 +45,9 @@ const useCanvasFont = (font: string): string | null => {
         setLoaded(font)
       }
     }
-    void document.fonts.load(font).then(showText, showText)
+    void Promise.allSettled([font, labelLetterFont, labelNumberFont].map((f) => document.fonts.load(f))).then(
+      showText,
+    )
     return () => {
       mounted = false
     }

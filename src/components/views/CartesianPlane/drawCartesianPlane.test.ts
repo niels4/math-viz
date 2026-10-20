@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
-import { labelMargin } from "./constants"
+import { labelMargin, planeFont } from "./constants"
 import {
   drawCartesianPlane,
   type PlotCurve,
@@ -17,9 +17,12 @@ const draw = (
   handles: PlotHandle[] = [],
   lines: PlotLine[] = [],
   markers: PlotMarker[] = [],
+  font: string | null = null,
 ) => {
   const points: [number, number][] = []
   const arcs: { x: number; y: number; r: number; style: unknown }[] = []
+  const rects: [number, number, number, number][] = []
+  const texts: { text: string; x: number; y: number }[] = []
   const ctx = new Proxy<Record<string | symbol, unknown>>(
     {},
     {
@@ -30,6 +33,15 @@ const draw = (
         if (key === "arc") {
           return (x: number, y: number, r: number) => arcs.push({ x, y, r, style: target["fillStyle"] })
         }
+        if (key === "roundRect") {
+          return (x: number, y: number, w: number, h: number) => rects.push([x, y, w, h])
+        }
+        if (key === "fillText") {
+          return (text: string, x: number, y: number) => texts.push({ text, x, y })
+        }
+        if (key === "measureText") {
+          return () => ({ width: 40 })
+        }
         return key in target ? target[key] : () => {}
       },
     },
@@ -38,13 +50,13 @@ const draw = (
     ctx as unknown as CanvasRenderingContext2D,
     layoutGrid(400, 300, [0, 0], 0.5, labelMargin),
     { chartLine: "teal", ordinal05: "green" } as ThemeVars,
-    null,
+    font,
     curves,
     handles,
     lines,
     markers,
   )
-  return { points, arcs }
+  return { points, arcs, rects, texts }
 }
 
 const drawnPoints = (curves: PlotCurve[], handles: PlotHandle[] = [], lines: PlotLine[] = []) =>
@@ -115,5 +127,29 @@ describe("drawCartesianPlane", () => {
       [250, 100],
     ])
     expect(arcs.at(-1)).toMatchObject({ r: 6, style: "green" })
+  })
+
+  it("P's label sits 22 px right of the point, its bottom 13.2 px above it", () => {
+    const label = { name: "P", coords: "(1.00, 1.00)" }
+    const { rects, texts } = draw([], [], [], [{ point: { x: 1, y: 1 }, ink: "ordinal05", label }], planeFont)
+
+    const [x, y, w, h] = rects[0] ?? []
+    expect(x).toBe(272)
+    expect(y).toBeCloseTo(45.8)
+    expect(w).toBe(114)
+    expect(h).toBe(41)
+    const labelTexts = texts.filter(({ text }) => text === label.name || text === label.coords)
+    expect(labelTexts.map(({ text, x }) => [text, x])).toEqual([
+      ["P", 286],
+      ["(1.00, 1.00)", 332],
+    ])
+  })
+
+  it("no label shows until the plane's fonts have loaded", () => {
+    const label = { name: "P", coords: "(1.00, 1.00)" }
+    const { rects, texts } = draw([], [], [], [{ point: { x: 1, y: 1 }, ink: "ordinal05", label }])
+
+    expect(rects).toEqual([])
+    expect(texts).toEqual([])
   })
 })

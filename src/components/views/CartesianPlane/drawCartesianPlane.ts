@@ -1,6 +1,6 @@
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
-import { planeFontSize } from "./constants"
+import { labelLetterFont, labelNumberFont, planeFontSize } from "./constants"
 import { drawScaleLegend } from "./drawScaleLegend"
 import { layoutLabels, type GridLayout, type GridLine } from "./grid"
 
@@ -26,7 +26,9 @@ export type PlotHandle = {
 
 export type PlotLine = { from: PlotPoint; to: PlotPoint; look: "arrow" | "dashed" | "measured" }
 
-export type PlotMarker = { point: PlotPoint; ink: keyof ThemeVars }
+export type PlotLabel = { name: string; coords: string }
+
+export type PlotMarker = { point: PlotPoint; ink: keyof ThemeVars; label?: PlotLabel }
 
 type CurveLook = { ink: keyof ThemeVars; width: number; cap: CanvasLineCap; dash: number[]; alpha: number }
 
@@ -305,6 +307,59 @@ const drawMarker = (
   ctx.restore()
 }
 
+// Each face's line box and baseline as Figma lays them out (ascent + descent + line gap).
+const labelLetter = { font: labelLetterFont, height: 25, baseline: 17.74 }
+const labelNumber = { font: labelNumberFont, height: 22, baseline: 17.81 }
+const labelRow = Math.max(labelLetter.height, labelNumber.height)
+const labelPadX = 12
+const labelPadY = 6
+const labelBorder = 2
+const labelRunGap = 6
+const labelGap = 22
+const labelRise = 0.6
+
+const drawLabel = (
+  ctx: CanvasRenderingContext2D,
+  grid: GridLayout,
+  marker: PlotMarker,
+  label: PlotLabel,
+  theme: ThemeVars,
+) => {
+  const [px, py] = toPx(grid, marker.point)
+  ctx.save()
+  ctx.font = labelLetter.font
+  const nameWidth = Math.ceil(ctx.measureText(label.name).width)
+  ctx.font = labelNumber.font
+  const coordsWidth = Math.ceil(ctx.measureText(label.coords).width)
+  const inset = labelBorder + labelPadX
+  const w = inset * 2 + nameWidth + labelRunGap + coordsWidth
+  const h = (labelBorder + labelPadY) * 2 + labelRow
+  const x = px + labelGap
+  const y = py - labelGap * labelRise - h
+  const rowTop = y + labelBorder + labelPadY
+  const baseline = (face: typeof labelLetter) => rowTop + (labelRow - face.height) / 2 + face.baseline
+
+  ctx.fillStyle = theme.card
+  ctx.beginPath()
+  ctx.roundRect(x, y, w, h, h / 2)
+  ctx.fill()
+  const half = labelBorder / 2
+  ctx.lineWidth = labelBorder
+  ctx.strokeStyle = theme[marker.ink]
+  ctx.beginPath()
+  ctx.roundRect(x + half, y + half, w - labelBorder, h - labelBorder, h / 2 - half)
+  ctx.stroke()
+
+  ctx.fillStyle = theme.foreground
+  ctx.textAlign = "left"
+  ctx.textBaseline = "alphabetic"
+  ctx.font = labelLetter.font
+  ctx.fillText(label.name, x + inset, baseline(labelLetter))
+  ctx.font = labelNumber.font
+  ctx.fillText(label.coords, x + inset + nameWidth + labelRunGap, baseline(labelNumber))
+  ctx.restore()
+}
+
 export const hitTest = (
   grid: GridLayout,
   handles: readonly PlotHandle[],
@@ -346,6 +401,9 @@ export const drawCartesianPlane = (
   }
   for (const marker of markers) {
     drawMarker(ctx, grid, marker, theme)
+    if (font !== null && marker.label !== undefined) {
+      drawLabel(ctx, grid, marker, marker.label, theme)
+    }
   }
   if (font !== null) {
     drawScaleLegend(ctx, grid, theme, font)
