@@ -12,9 +12,9 @@ export type PlotPoint = { x: number; y: number }
 
 type PlotHandleShape = "diamond" | "square"
 
-export type PlotMouseHandlerAction = "onHover" | "onPointerDown"
+export type PlotMouseHandlerAction = "onHover" | "onPointerDown" | "onDrag" | "onPointerUp"
 
-type HandlerFunc = () => void
+type HandlerFunc = (e: PointerEvent) => void
 
 type PlotHandleMouseHandlers = Partial<Record<PlotMouseHandlerAction, HandlerFunc>>
 

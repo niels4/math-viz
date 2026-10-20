@@ -41,6 +41,12 @@ const Plot = () => {
       onPointerDown: () => {
         console.log("shift handle clicked")
       },
+      onDrag: () => {
+        console.log("dragging shfit handle")
+      },
+      onPointerUp: () => {
+        console.log("shift drag end")
+      },
     },
   }
 
@@ -51,6 +57,12 @@ const Plot = () => {
       onHover,
       onPointerDown: () => {
         console.log("scale handle clicked")
+      },
+      onDrag: () => {
+        console.log("dragging scale handle")
+      },
+      onPointerUp: () => {
+        console.log("scale drag end")
       },
     },
   }

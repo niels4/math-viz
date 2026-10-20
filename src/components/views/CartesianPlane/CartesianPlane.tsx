@@ -1,4 +1,4 @@
-import { useEffect, useState, type PointerEvent, type RefObject } from "react"
+import React, { useEffect, useState, type RefObject } from "react"
 import { useRef } from "react"
 
 import { useDevicePixelRatio } from "#src/components/hooks/useDevicePixelRatio.ts"
@@ -113,26 +113,51 @@ export const CartesianPlane = ({
   const grid = layoutGrid(width, height, center, scale, labelMargin)
   useUpdateCanvas(ref, grid, themeVars, font, curves, handles, lines)
 
-  const onPointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
+  const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const clientX = e.nativeEvent.offsetX
     const clientY = e.nativeEvent.offsetY
     const hoveredHandleIndex = hitTest(grid, handles, [clientX, clientY], "onHover")
     const handler = handles[hoveredHandleIndex]?.handlers?.onHover
     if (handler != null) {
-      handler()
+      handler(e.nativeEvent)
     } else {
       cursorState.setHovering(false)
     }
   }
 
-  const onPointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
+  const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!ref.current) {
+      return
+    }
     const clientX = e.nativeEvent.offsetX
     const clientY = e.nativeEvent.offsetY
     const pressedHandleIndex = hitTest(grid, handles, [clientX, clientY], "onPointerDown")
-    const handler = handles[pressedHandleIndex]?.handlers?.onPointerDown
-    if (handler != null) {
-      handler()
+    const handle = handles[pressedHandleIndex]
+    const pointerDownHandler = handle?.handlers?.onPointerDown
+    if (pointerDownHandler == null) {
+      return
     }
+    pointerDownHandler(e.nativeEvent)
+    const onDragHandler = handle?.handlers?.onDrag
+    if (onDragHandler == null) {
+      return
+    }
+
+    const onDrag = (e: PointerEvent) => {
+      onDragHandler(e)
+    }
+
+    const onDragEnd = (e: PointerEvent) => {
+      ref.current?.removeEventListener("pointermove", onDrag)
+      window.removeEventListener("pointerup", onDragEnd)
+      const pointerUpHandler = handle?.handlers?.onPointerUp
+      if (pointerUpHandler) {
+        pointerUpHandler(e)
+      }
+    }
+
+    ref.current.addEventListener("pointermove", onDrag)
+    window.addEventListener("pointerup", onDragEnd)
   }
 
   return (
