@@ -2,7 +2,7 @@ import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
 import { labelLetterFont, labelNumberFont, planeFontSize } from "./constants"
 import { drawScaleLegend } from "./drawScaleLegend"
-import { layoutLabels, type GridLayout, type GridLine } from "./grid"
+import { clamp, layoutLabels, type GridLayout, type GridLine } from "./grid"
 
 export type PlotFunction = (x: number) => number
 
@@ -317,6 +317,7 @@ const labelBorder = 2
 const labelRunGap = 6
 const labelGap = 22
 const labelRise = 0.6
+const labelEdgeMargin = 12
 
 const drawLabel = (
   ctx: CanvasRenderingContext2D,
@@ -334,8 +335,8 @@ const drawLabel = (
   const inset = labelBorder + labelPadX
   const w = inset * 2 + nameWidth + labelRunGap + coordsWidth
   const h = (labelBorder + labelPadY) * 2 + labelRow
-  const x = px + labelGap
-  const y = py - labelGap * labelRise - h
+  const x = clamp(px + labelGap, labelEdgeMargin, grid.width - labelEdgeMargin - w)
+  const y = clamp(py - labelGap * labelRise - h, labelEdgeMargin, grid.height - labelEdgeMargin - h)
   const rowTop = y + labelBorder + labelPadY
   const baseline = (face: typeof labelLetter) => rowTop + (labelRow - face.height) / 2 + face.baseline
 

@@ -152,4 +152,20 @@ describe("drawCartesianPlane", () => {
     expect(rects).toEqual([])
     expect(texts).toEqual([])
   })
+
+  it("P's label stays 12 px inside the frame on each side, keeping its place along that side", () => {
+    const labelAt = (x: number, y: number) => {
+      const label = { name: "P", coords: "(0.00, 0.00)" }
+      const { rects } = draw([], [], [], [{ point: { x, y }, ink: "ordinal05", label }], planeFont)
+      const [left, top] = rects[0] ?? []
+      return [left, top]
+    }
+
+    expect(labelAt(-1, 20)).toEqual([172, 12])
+    expect(labelAt(-1, -20)).toEqual([172, 247])
+    expect(labelAt(-20, 1)[0]).toBe(12)
+    expect(labelAt(-20, 1)[1]).toBeCloseTo(45.8)
+    expect(labelAt(20, 1)[0]).toBe(274)
+    expect(labelAt(20, 1)[1]).toBeCloseTo(45.8)
+  })
 })

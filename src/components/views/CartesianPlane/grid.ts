@@ -68,7 +68,7 @@ const onStep = (u: number, step: number): boolean => Math.abs(u / step - Math.ro
 
 const inRange = (v: number, lo: number, hi: number): number | null => (v >= lo && v <= hi ? v : null)
 
-const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v))
+export const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v))
 
 export const layoutGrid = (
   width: number,
