@@ -1,6 +1,6 @@
 import type { PointerEvent as ReactPointerEvent, RefObject } from "react"
 
-import { useRef } from "react"
+import { useRef, useState } from "react"
 
 import { fromPx, hitTest, type PlotHandle, type PlotPoint } from "../draw/drawCartesianPlane"
 import { type GridLayout } from "../draw/grid"
@@ -12,6 +12,8 @@ export const useMouseHandles = (
   onHoverPlane: (point: PlotPoint | null) => void,
 ) => {
   const lastHoveredIndex = useRef(-1)
+  const [hovering, setHovering] = useState(false)
+  const [dragging, setDragging] = useState(false)
 
   const plotPoint = (e: PointerEvent) => fromPx(grid, [e.offsetX, e.offsetY])
 
@@ -29,7 +31,8 @@ export const useMouseHandles = (
       onHoverEndHandler(e.nativeEvent, plotPoint(e.nativeEvent))
     }
     lastHoveredIndex.current = hoveredHandleIndex
-    onHoverPlane(hoveredHandleIndex === -1 ? plotPoint(e.nativeEvent) : null)
+    setHovering(hoveredHandleIndex !== -1)
+    onHoverPlane(dragging || hoveredHandleIndex !== -1 ? null : plotPoint(e.nativeEvent))
   }
 
   const onPointerLeave = () => {
@@ -54,6 +57,7 @@ export const useMouseHandles = (
     if (onDragHandler == null) {
       return
     }
+    setDragging(true)
 
     const onDrag = (e: PointerEvent) => {
       onDragHandler(e, plotPoint(e))
@@ -62,6 +66,7 @@ export const useMouseHandles = (
     const onDragEnd = (e: PointerEvent) => {
       ref.current?.removeEventListener("pointermove", onDrag)
       window.removeEventListener("pointerup", onDragEnd)
+      setDragging(false)
       const pointerUpHandler = handle?.handlers?.onPointerUp
       if (pointerUpHandler) {
         pointerUpHandler(e, plotPoint(e))
@@ -72,5 +77,5 @@ export const useMouseHandles = (
     window.addEventListener("pointerup", onDragEnd)
   }
 
-  return { onPointerMove, onPointerDown, onPointerLeave }
+  return { hovering, dragging, onPointerMove, onPointerDown, onPointerLeave }
 }

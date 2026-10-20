@@ -54,7 +54,7 @@ const Plot = () => {
   const lit = useAtomValue(litAtom)
   const pDragging = useAtomValue(pDraggingAtom)
   const [qX, setQX] = useAtom(qXAtom)
-  const { handles, cursorState } = useTransformHandles(func, shown)
+  const handles = useTransformHandles(func, shown)
   const f = transformed(baseFunctions[func], shown)
   const pPoint = { x: p, y: f(p) }
   const qPoint = qX === null ? null : { x: qX, y: f(qX) }
@@ -84,7 +84,6 @@ const Plot = () => {
               },
             ]),
       ]}
-      cursorState={cursorState}
       onHoverPoint={(point) => setQX(point === null ? null : quantize(point.x))}
     />
   )

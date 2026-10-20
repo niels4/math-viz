@@ -1,5 +1,5 @@
 import { useSetAtom } from "jotai"
-import { useRef, useState } from "react"
+import { useRef } from "react"
 
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
@@ -23,16 +23,12 @@ export const useTransformHandles = (func: FunctionSlug, shown: Transform) => {
   const setBMode = useSetAtom(scrubModeAtoms.b)
   const setHMode = useSetAtom(scrubModeAtoms.h)
   const setKMode = useSetAtom(scrubModeAtoms.k)
-  const [hovering, setHovering] = useState(false)
-  const [dragging, setDragging] = useState(false)
   const grab = useRef<PlotPoint>({ x: 0, y: 0 })
 
   const onHover = (params: readonly TransformParam[]) => () => {
-    setHovering(true)
     setHover(params, true)
   }
   const onHoverEnd = (params: readonly TransformParam[]) => () => {
-    setHovering(false)
     setHover(params, false)
   }
 
@@ -44,7 +40,6 @@ export const useTransformHandles = (func: FunctionSlug, shown: Transform) => {
       onHoverEnd: onHoverEnd(shiftParams),
       onPointerDown: (_e, point) => {
         grab.current = { x: h - point.x, y: k - point.y }
-        setDragging(true)
         setHMode("coarse")
         setKMode("coarse")
       },
@@ -53,7 +48,6 @@ export const useTransformHandles = (func: FunctionSlug, shown: Transform) => {
         setK(point.y + grab.current.y)
       },
       onPointerUp: () => {
-        setDragging(false)
         setHMode(null)
         setKMode(null)
         flushH()
@@ -72,7 +66,6 @@ export const useTransformHandles = (func: FunctionSlug, shown: Transform) => {
       onHoverEnd: onHoverEnd(scaleParams),
       onPointerDown: (_e, point) => {
         grab.current = { x: unit.x - point.x, y: unit.y - point.y }
-        setDragging(true)
         setAMode("coarse")
         setBMode("coarse")
       },
@@ -81,7 +74,6 @@ export const useTransformHandles = (func: FunctionSlug, shown: Transform) => {
         setA((point.y + grab.current.y - k) / baseFunctions[func](unitX[func]))
       },
       onPointerUp: () => {
-        setDragging(false)
         setAMode(null)
         setBMode(null)
         flushA()
@@ -90,7 +82,5 @@ export const useTransformHandles = (func: FunctionSlug, shown: Transform) => {
     },
   }
 
-  const handles = [shiftHandle, scaleHandle] as const
-
-  return { handles, cursorState: { hovering, dragging } }
+  return [shiftHandle, scaleHandle] as const
 }

@@ -25,11 +25,6 @@ import { HtmlOverlay } from "./HtmlOverlay"
 import { centerParam, scaleParam } from "./queryParams"
 import { planeSizeAtom } from "./state"
 
-type CursorState = {
-  hovering: boolean
-  dragging: boolean
-}
-
 type Cursor = "pan" | "grab-hover" | "grab-active"
 
 const drawPlaneWithScale: typeof drawCartesianPlane = (ctx, grid, theme, font, ...rest) => {
@@ -44,17 +39,14 @@ export const CartesianPlane = ({
   handles,
   lines,
   markers,
-  cursorState,
   onHoverPoint,
 }: {
   curves: readonly PlotCurve[]
   handles: readonly PlotHandle[]
   lines: readonly PlotLine[]
   markers: readonly PlotMarker[]
-  cursorState: CursorState
   onHoverPoint?: (point: PlotPoint | null) => void
 }) => {
-  const { hovering, dragging } = cursorState
   const ref = useRef<HTMLCanvasElement | null>(null)
   const { width, height } = useResizeObserver(ref)
   const setPlaneSize = useSetAtom(planeSizeAtom)
@@ -71,14 +63,17 @@ export const CartesianPlane = ({
     flushScale()
   }
 
-  const panning = useCamera(ref, center, scale, setCenter, setScale, flushCamera, dragging)
-  const cursor: Cursor = dragging || panning ? "grab-active" : hovering ? "grab-hover" : "pan"
   const grid = layoutGrid(width, height, center, scale, labelMargin)
   useUpdateCanvas(ref, drawPlaneWithScale, grid, themeVars, font, curves, handles, lines, markers)
 
-  const { onPointerMove, onPointerDown, onPointerLeave } = useMouseHandles(ref, grid, handles, (point) =>
-    onHoverPoint?.(dragging || panning ? null : point),
+  const { hovering, dragging, onPointerMove, onPointerDown, onPointerLeave } = useMouseHandles(
+    ref,
+    grid,
+    handles,
+    (point) => onHoverPoint?.(panning ? null : point),
   )
+  const panning = useCamera(ref, center, scale, setCenter, setScale, flushCamera, dragging)
+  const cursor: Cursor = dragging || panning ? "grab-active" : hovering ? "grab-hover" : "pan"
 
   return (
     <div className={style.wrapper}>

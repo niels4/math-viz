@@ -9,7 +9,6 @@ import { CartesianPlane } from "./CartesianPlane"
 import { planeFont } from "./constants"
 
 const identity: PlotFunction = (x) => x
-const notHovering = { hovering: false, dragging: false }
 
 type Draw = { calls: string[]; texts: { text: string; font: string }[] }
 let draws: Draw[]
@@ -66,7 +65,6 @@ describe("CartesianPlane", () => {
         handles={[]}
         lines={[]}
         markers={[]}
-        cursorState={notHovering}
       />,
     )
 
@@ -93,7 +91,6 @@ describe("CartesianPlane", () => {
         handles={[]}
         lines={[]}
         markers={[]}
-        cursorState={notHovering}
       />,
     )
     expect(lastDraw().texts).toEqual([])
@@ -111,7 +108,6 @@ describe("CartesianPlane", () => {
         handles={[]}
         lines={[]}
         markers={[]}
-        cursorState={notHovering}
       />,
     )
     const canvas = toElement(document.querySelector("canvas"))
@@ -143,14 +139,7 @@ describe("CartesianPlane", () => {
   it("reports the point under the pointer, and null once the pointer leaves or pans the plane", async () => {
     const onHoverPoint = vi.fn<(point: PlotPoint | null) => void>()
     await render(
-      <CartesianPlane
-        curves={[]}
-        handles={[]}
-        lines={[]}
-        markers={[]}
-        cursorState={notHovering}
-        onHoverPoint={onHoverPoint}
-      />,
+      <CartesianPlane curves={[]} handles={[]} lines={[]} markers={[]} onHoverPoint={onHoverPoint} />,
     )
     const canvas = toElement(document.querySelector("canvas"))
     const pointer = (type: string, clientX: number) =>
@@ -198,7 +187,6 @@ describe("CartesianPlane", () => {
         handles={useAtomValue(handlesAtom)}
         lines={[]}
         markers={[]}
-        cursorState={notHovering}
         onHoverPoint={onHoverPoint}
       />
     )
