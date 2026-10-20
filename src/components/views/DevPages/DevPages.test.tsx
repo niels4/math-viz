@@ -42,15 +42,14 @@ describe("Developer pages", () => {
     expect(window.location.hash).toBe("#dev")
   })
 
-  it("opens the first prototype from the prototype phase", async () => {
+  it("runs the first prototype inside the prototype phase", async () => {
     await updateLocationHash("dev/prototype")
     const screen = await render(<Router routes={routes} />)
 
     await expect.element(screen.getByRole("heading", { name: "Prototype", level: 1 })).toBeVisible()
 
-    await screen.getByRole("link", { name: "Open the prototype" }).click()
     await expect.element(screen.getByRole("heading", { name: "Function Transforms" })).toBeVisible()
-    expect(window.location.hash).toBe("#dev/function-viewer-alpha")
+    expect(window.location.hash).toBe("#dev/prototype")
   })
 
   it.runIf(isBrowser())("opens a phase at its top from a card low on the contents page", async () => {

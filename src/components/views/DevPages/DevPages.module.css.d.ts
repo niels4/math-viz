@@ -23,6 +23,7 @@ declare const styles: {
   readonly "page": string;
   readonly "phase_nav": string;
   readonly "pick": string;
+  readonly "prototype": string;
   readonly "sample": string;
   readonly "section": string;
   readonly "section_heading": string;

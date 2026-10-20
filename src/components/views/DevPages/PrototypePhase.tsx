@@ -1,5 +1,6 @@
-import { PhasePage, Shot } from "./DevPage"
+import { PhasePage } from "./DevPage"
 import style from "./DevPages.module.css"
+import { FunctionViewerAlpha } from "./FunctionViewerAlpha/FunctionViewerAlpha"
 import { prototype } from "./phases"
 
 export const PrototypePhase = () => {
@@ -20,18 +21,16 @@ export const PrototypePhase = () => {
         Figma in phase 5.
       </p>
       <h2 className={style.heading}>Try it</h2>
-      <div className={style.feature}>
-        <Shot
-          image={prototype.card.image}
-          href="#dev/function-viewer-alpha"
-          alt="The first prototype: controls on the left and a graph of a curve on the right"
-          title="The first prototype"
-        >
+      <figure className={`${style.feature} ${style.shot}`}>
+        <div className={style.prototype}>
+          <FunctionViewerAlpha />
+        </div>
+        <figcaption className={style.caption}>
+          <b className={style.caption_title}>The first prototype</b>
           Pick a function, then scrub the strips in the sidebar to scale and offset it. Drag the plane to pan,
-          scroll to zoom, and hover to place a second point.{" "}
-          <a href="#dev/function-viewer-alpha">Open the prototype</a>
-        </Shot>
-      </div>
+          scroll to zoom, and hover to place a second point.
+        </figcaption>
+      </figure>
     </PhasePage>
   )
 }

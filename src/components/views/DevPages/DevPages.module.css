@@ -191,6 +191,14 @@
   border-bottom: 1px solid var(--border);
 }
 
+.prototype {
+  --page-height: 100%;
+
+  aspect-ratio: 4 / 3;
+  overflow: auto;
+  border-bottom: 1px solid var(--border);
+}
+
 .shot[data-retired] img {
   opacity: 0.55;
   filter: grayscale(0.4);
