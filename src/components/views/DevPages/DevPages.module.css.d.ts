@@ -22,7 +22,6 @@ declare const styles: {
   readonly "page": string;
   readonly "phase_nav": string;
   readonly "pick": string;
-  readonly "quote": string;
   readonly "sample": string;
   readonly "section": string;
   readonly "section_heading": string;
@@ -32,5 +31,6 @@ declare const styles: {
   readonly "sub": string;
   readonly "tag": string;
   readonly "title": string;
+  readonly "why": string;
 };
 export = styles;

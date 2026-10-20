@@ -11,11 +11,11 @@ type PickProps = {
   name: string
   font: string
   sample: ReactNode
-  quote: string
+  why: string
   page: string
 }
 
-const Pick = ({ job, name, font, sample, quote, page }: PickProps) => {
+const Pick = ({ job, name, font, sample, why, page }: PickProps) => {
   return (
     <div className={style.pick}>
       <span className={style.label}>{job}</span>
@@ -23,8 +23,8 @@ const Pick = ({ job, name, font, sample, quote, page }: PickProps) => {
       <div className={style.sample} style={{ fontFamily: font }}>
         {sample}
       </div>
-      <blockquote className={style.quote}>“{quote}”</blockquote>
-      <a href={lab(`lab/fonts/labs/${page}.html`)}>Lab page</a>
+      <p className={style.why}>{why}</p>
+      <a href={lab(`lab/fonts/labs/${page}.html`)}>See its test page</a>
     </div>
   )
 }
@@ -33,12 +33,12 @@ export const FontsPhase = () => {
   return (
     <PhasePage
       phase={fonts}
-      lede="After the concept art came the typefaces. The font lab sets each candidate in live, editable specimens. Its MathViz gallery tests 15 of them on the app's own strings: P(2,4), m = 4, y = x², f′(x) = 2x, ∫x² dx and X: 2.00 Y: 4.00, the look-alikes 0O and 1lI, and digits that hold their place on a live counter, at sizes from 12 to 72 px. Three fonts came out of it, one job each, and the app uses them today."
+      lede="Next came the fonts. A math app shows a lot of numbers, so its fonts have to keep look-alikes apart, like 0 and O, or 1, l and I. Numbers also shouldn't jump around when they change. I had AI build test pages that show each font with the app's own numbers and formulas, from small to large. I compared 15 fonts this way and picked three, each with one job."
     >
-      <h2 className={style.heading}>The picks</h2>
+      <h2 className={style.heading}>The three fonts</h2>
       <div className={style.grid}>
         <Pick
-          job="UI"
+          job="Words and buttons"
           name="Work Sans"
           font="var(--font-sans)"
           sample={
@@ -46,19 +46,19 @@ export const FontsPhase = () => {
               Function Viewer · <span style={{ fontWeight: 600 }}>Reset all</span>
             </>
           }
-          quote="Optimized for on-screen body at card/table sizes; clean low-contrast editorial numerals."
+          why="Easy to read on a screen, even small, with clean, calm numbers."
           page="work-sans"
         />
         <Pick
-          job="Numbers and readouts"
+          job="Numbers"
           name="Roboto Mono"
           font="var(--font-mono)"
           sample="X: 2.00 Y: 4.00 · 0O 1lI"
-          quote="Hero-metric mono: fixed-width digits hold position on live counters (X: 2.00 Y: 4.00, CURSOR: (2,4))."
+          why="Every digit is the same width, so numbers stay in place while they change."
           page="roboto-mono"
         />
         <Pick
-          job="Maths only"
+          job="Math"
           name="STIX Two Text"
           font="var(--font-serif)"
           sample={
@@ -66,37 +66,36 @@ export const FontsPhase = () => {
               <i>f</i>(<i>x</i>) = 2(<i>x</i> − 2)² + 1
             </>
           }
-          quote="Equations face: proper ∫ √ ² ¹ ³ glyphs drawn by type designers (not scaled-down 2). Use ONLY for y=x², f'(x)=2x, ∫x² dx panel — never axis ticks."
+          why="Made for math, with real symbols like ∫, √ and ². I use it for equations only, never for the numbers along the graph."
           page="stix-two-text"
         />
       </div>
-      <h2 className={style.heading}>The lab</h2>
+      <h2 className={style.heading}>The test pages</h2>
       <div className={style.grid}>
         <Shot
           image={lab("thumbs/mathviz-numerals.jpg")}
           href={lab("lab/fonts/galleries/mathviz-numerals.html")}
-          alt="Numerals and maths legibility gallery"
-          title="Numerals and maths legibility · 15 fonts"
+          alt="A page comparing fonts on numbers and formulas"
+          title="Numbers and math · 15 fonts"
         >
-          The MathViz test: nine sans, five monos and one serif, each with the app's strings at six sizes,
-          colour and background chips, and a size slider.
+          The test I picked from. Each font shows the app's own numbers and formulas at six sizes, and a
+          slider changes the size.
         </Shot>
         <Shot
           image={lab("thumbs/font-gallery.jpg")}
           href={lab("lab/fonts/gallery.html")}
-          alt="Font gallery of 23 fonts"
-          title="Font gallery · 23 fonts"
+          alt="A page showing 23 fonts side by side"
+          title="All the fonts · 23 fonts"
         >
-          The general catalogue, display faces to monos, with editable specimens and shared text, size and
-          colour controls.
+          A wider mix, from bold headline fonts to fonts for code. You can type your own text into each one.
         </Shot>
         <Shot
           image={lab("thumbs/font-labs-index.jpg")}
           href={lab("lab/fonts/labs/index.html")}
-          alt="Index of per-font lab pages"
-          title="Font labs · 32 pages"
+          alt="A list of pages, one per font"
+          title="One page per font · 32 pages"
         >
-          One page per font. The index lists the first 23.
+          A closer look at each font. The list links the first 23.
         </Shot>
       </div>
     </PhasePage>

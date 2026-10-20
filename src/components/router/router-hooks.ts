@@ -23,6 +23,7 @@ const updateRoute = (route: string) => {
   }
 
   currentRoute = trimmedRoute
+  window.scrollTo(0, 0)
 
   for (const listener of routeListeners) {
     listener(currentRoute)

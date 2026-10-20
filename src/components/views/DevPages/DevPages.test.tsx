@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "vitest"
 
 import routes from "#generated/routes.ts"
 import { Router } from "#src/components/router/Router.tsx"
-import { render, updateLocationHash } from "#test"
+import { isBrowser, render, updateLocationHash } from "#test"
 
 afterEach(async () => {
   await updateLocationHash("")
@@ -13,10 +13,10 @@ describe("Developer pages", () => {
     await updateLocationHash("dev")
     const screen = await render(<Router routes={routes} />)
 
-    await expect.element(screen.getByRole("heading", { name: "How MathViz is designed" })).toBeVisible()
+    await expect.element(screen.getByRole("heading", { name: "How I design MathViz" })).toBeVisible()
     await expect.element(screen.getByRole("heading", { name: "Fonts", level: 2 })).toBeVisible()
 
-    await screen.getByRole("link", { name: /^The picks and the font lab/ }).click()
+    await screen.getByRole("link", { name: /^Choosing the fonts/ }).click()
     await expect.element(screen.getByRole("heading", { name: "Fonts", level: 1 })).toBeVisible()
     expect(window.location.hash).toBe("#dev/fonts")
   })
@@ -35,7 +35,22 @@ describe("Developer pages", () => {
     await expect.element(screen.getByRole("link", { name: "← Phase 2 · Fonts" })).toBeVisible()
 
     await screen.getByRole("link", { name: "All phases" }).click()
-    await expect.element(screen.getByRole("heading", { name: "How MathViz is designed" })).toBeVisible()
+    await expect.element(screen.getByRole("heading", { name: "How I design MathViz" })).toBeVisible()
     expect(window.location.hash).toBe("#dev")
+  })
+  it.runIf(isBrowser())("opens a phase at its top from a card low on the contents page", async () => {
+    const { page } = await import("vitest/browser")
+    await page.viewport(1440, 900)
+    await updateLocationHash("dev")
+    const screen = await render(<Router routes={routes} />)
+
+    const card = screen.getByRole("link", { name: /^Choosing the colors/ })
+    await expect.element(card).toBeVisible()
+    card.element().scrollIntoView()
+    expect(window.scrollY).toBeGreaterThan(0)
+
+    await card.click()
+    await expect.element(screen.getByRole("heading", { name: "Colors", level: 1 })).toBeVisible()
+    expect(window.scrollY).toBe(0)
   })
 })

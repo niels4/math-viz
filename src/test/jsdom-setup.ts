@@ -14,6 +14,8 @@ HTMLCanvasElement.prototype.setPointerCapture = () => {}
 HTMLCanvasElement.prototype.releasePointerCapture = () => {}
 HTMLCanvasElement.prototype.hasPointerCapture = () => false
 
+window.scrollTo = () => {}
+
 if (typeof window.matchMedia !== "function") {
   const stubQuery = (query: string): MediaQueryList =>
     ({

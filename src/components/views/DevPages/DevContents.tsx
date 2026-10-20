@@ -10,10 +10,11 @@ export const DevContents = () => {
     <DevPage subtitle="Contents">
       <header className={style.hero}>
         <div className={style.intro}>
-          <h1 className={style.title}>How MathViz is designed</h1>
+          <h1 className={style.title}>How I design MathViz</h1>
           <p className={style.lede}>
-            I prototype, and AI tools speed up each step. Each phase shows what the tools made and what I
-            chose from it, from the first concept art to the fonts and colours the app ships with.
+            I build MathViz by pairing my own prototyping with AI tools. The AI gives me lots of options fast,
+            and I pick what works. These pages walk through each step, from the first pictures to the fonts
+            and colors you see in the app.
           </p>
         </div>
         <img className={style.hero_image} src={heroPlane} alt="" width={512} height={236} />

@@ -17,10 +17,10 @@ export const concept: Phase = {
   name: "Concept",
   colour: "var(--ordinal-03)",
   story:
-    "Before any design work, image generation sketched what MathViz could look like, in a light and a dark scheme.",
+    "I started by asking an AI image tool to imagine what MathViz could look like. Its pictures gave me a direction before I designed anything.",
   card: {
-    title: "Concept stills",
-    text: "Six screens, three light and three dark: an overview, a tangent close-up, and shapes and points.",
+    title: "The first pictures",
+    text: "Six pictures of a math app, three light and three dark.",
     image: progression("01-concept/04-dark-overview.jpg"),
   },
 }
@@ -30,10 +30,10 @@ export const fonts: Phase = {
   name: "Fonts",
   colour: "var(--ordinal-05)",
   story:
-    "A font lab set each candidate in live specimens on the app's own strings. Three fonts came out of it.",
+    "A math app shows a lot of numbers and formulas, so I needed fonts that keep them easy to read. AI built test pages to compare them, and I picked three.",
   card: {
-    title: "The picks and the font lab",
-    text: "Work Sans for UI, Roboto Mono for numbers and STIX Two Text for maths, and the galleries that picked them.",
+    title: "Choosing the fonts",
+    text: "The three fonts I picked, and the pages I used to compare them.",
     image: progression("02-fonts/thumbs/mathviz-numerals.jpg"),
   },
 }
@@ -43,10 +43,10 @@ export const colors: Phase = {
   name: "Colors",
   colour: "var(--ordinal-01)",
   story:
-    "A colour lab built each palette as a full set of UI tokens and checked its contrast. Six themes shipped.",
+    "AI built complete color themes so I could compare them on the same screen. I kept six, three light and three dark.",
   card: {
-    title: "Six themes and the colour lab",
-    text: "Three light and three dark themes on one calculus screen, one retired theme, and 12 series colours each.",
+    title: "Choosing the colors",
+    text: "The six themes in the app, the one I dropped, and the pages I used to compare them.",
     image: progression("03-colors/thumbs/math-viz-themes.jpg"),
   },
 }

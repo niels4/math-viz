@@ -8,60 +8,55 @@ export const ConceptPhase = () => {
   return (
     <PhasePage
       phase={concept}
-      lede="The six concept stills the first MathViz designs grew from, made on 2026-09-30. Each scheme, light and dark, shows the same three screens: an overview of y = x² with a tangent at P(2, 4), a close-up of that tangent, and a view with shapes and points. The plots are the image model's drawing, not computed, so some curves and readouts are wrong. Click an image for full size."
+      lede="MathViz grew from these six pictures. I asked an AI image tool for a math app in a light style and a dark style, each with three screens: a curve with a line touching it at one point, a close-up of that point, and a screen with shapes and points. The AI drew the graphs by eye, so some of the math is wrong. That was fine: I wanted ideas for the look, not correct answers. Click a picture to see it full size."
     >
       <h2 className={style.heading}>Light</h2>
       <div className={style.grid}>
         <Shot
           image={still("01-light-overview.jpg")}
-          alt="Light overview: MathViz with an equations sidebar and a Cartesian plane"
-          title="01 Overview"
+          alt="A light math app with a list of equations beside a graph"
+          title="The whole screen"
         >
-          White cards on warm paper, indigo and orange. An equations sidebar lists y = x², the tangent and
-          points A and B; the plane sits in a card with zoom, grid and settings controls and a legend.
+          White cards on warm paper. A list of equations on the left, and the graph on the right.
         </Shot>
         <Shot
           image={still("02-light-tangent-detail.jpg")}
-          alt="Light tangent detail: the derivative worked step by step beside the plot"
-          title="02 Tangent detail"
+          alt="A light math app working out a slope step by step beside a zoomed-in graph"
+          title="A close-up of one point"
         >
-          The sidebar works the slope step by step (f′(x) = 2x, f′(2) = 4, the tangent's equation); the plot
-          marks rise and run with a slope triangle at P.
+          The steps to find how steep the curve is at one point, next to a zoomed-in graph.
         </Shot>
         <Shot
           image={still("03-light-shapes-points.jpg")}
-          alt="Light shapes and points: parabola, circle and triangle on the plane"
-          title="03 Shapes and points"
+          alt="A light math app with a curve, a circle and a triangle on a graph"
+          title="Shapes and points"
         >
-          A top navigation (Explore, Shapes, Graph, Quiz, Learn); objects listed as cards in their own colours
-          (indigo parabola, teal circle, amber triangle) and a readout bar along the bottom.
+          A curve, a circle and a triangle, each listed in its own color, with a menu across the top.
         </Shot>
       </div>
       <h2 className={style.heading}>Dark</h2>
       <div className={style.grid}>
         <Shot
           image={still("04-dark-overview.jpg")}
-          alt="Dark overview: cyan HUD with equations panel and canvas"
-          title="04 Overview"
+          alt="A dark math app in glowing cyan, with panels around a graph"
+          title="The whole screen"
         >
-          A cyan HUD on near-black: monospace caps, corner brackets on the canvas, panels for the active
-          equation, parameters and points, and a cursor and tangent readout strip.
+          Glowing cyan lines on black, like a control screen in a sci-fi film, with panels for the equation
+          and its points.
         </Shot>
         <Shot
           image={still("05-dark-tangent-detail.jpg")}
-          alt="Dark tangent detail: glowing curve with a targeting reticle at P"
-          title="05 Tangent detail"
+          alt="A dark math app with a glowing curve and an orange line touching it"
+          title="A close-up of one point"
         >
-          A glowing cyan curve and an amber tangent, with a targeting reticle on P(2, 4) and the derivative
-          analysis in large amber type on the left.
+          A glowing curve and an orange line touching it, with the math worked out in large orange text.
         </Shot>
         <Shot
           image={still("06-dark-shapes-points.jpg")}
-          alt="Dark shapes and points: controls and layers panel with toggles"
-          title="06 Shapes and points"
+          alt="A dark math app with switches beside a graph of shapes and points"
+          title="Shapes and points"
         >
-          A controls and layers panel with toggles for grid, axes and parabola; points as diamonds with
-          bracketed labels; measurements and a two-line readout below.
+          Switches to show or hide the grid and the curve, with points drawn as small diamonds.
         </Shot>
       </div>
     </PhasePage>
