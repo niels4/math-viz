@@ -40,9 +40,23 @@ describe("Developer pages", () => {
 
     await screen.getByRole("link", { name: "Phase 5 · Figma →" }).click()
     await expect.element(screen.getByRole("heading", { name: "Figma", level: 1 })).toBeVisible()
-    await expect.element(screen.getByRole("link", { name: "← Phase 4 · Prototype" })).toBeVisible()
+
+    await screen.getByRole("link", { name: "Phase 6 · Development →" }).click()
+    await expect.element(screen.getByRole("heading", { name: "Development", level: 1 })).toBeVisible()
+    await expect.element(screen.getByRole("link", { name: "← Phase 5 · Figma" })).toBeVisible()
 
     await screen.getByRole("link", { name: "All phases" }).click()
+    await expect.element(screen.getByRole("heading", { name: "How I built MathViz" })).toBeVisible()
+    expect(window.location.hash).toBe("#dev")
+  })
+
+  it("returns to the contents from the Developer pages title on a phase", async () => {
+    await updateLocationHash("dev/colors")
+    const screen = await render(<Router routes={routes} />)
+
+    await expect.element(screen.getByRole("heading", { name: "Colors", level: 1 })).toBeVisible()
+
+    await screen.getByRole("link", { name: "Developer pages" }).click()
     await expect.element(screen.getByRole("heading", { name: "How I built MathViz" })).toBeVisible()
     expect(window.location.hash).toBe("#dev")
   })
@@ -77,6 +91,17 @@ describe("Developer pages", () => {
     const link = screen.getByRole("link", { name: "Open the design in Figma" })
     await expect.element(link).toHaveAttribute("href", figmaPage)
     await expect.element(link).toHaveAttribute("target", "_blank")
+  })
+
+  it("opens the Function Viewer from the development phase", async () => {
+    await updateLocationHash("dev/development")
+    const screen = await render(<Router routes={routes} />)
+
+    await expect.element(screen.getByRole("heading", { name: "Development", level: 1 })).toBeVisible()
+
+    await screen.getByRole("link", { name: "Open the Function Viewer" }).click()
+    await expect.element(screen.getByRole("heading", { name: "Function Viewer", level: 1 })).toBeVisible()
+    expect(window.location.hash).toBe("#function-viewer")
   })
 
   it.runIf(isBrowser())("opens a phase at its top from a card low on the contents page", async () => {

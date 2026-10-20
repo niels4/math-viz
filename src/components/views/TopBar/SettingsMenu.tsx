@@ -89,7 +89,7 @@ export const SettingsMenu = () => {
 
   return (
     <>
-      <button className={style.settings_menu_button} popoverTarget={menuId}>
+      <button className={style.settings_menu_button} popoverTarget={menuId} aria-label="Settings">
         <GearIcon />
       </button>
 
@@ -127,6 +127,9 @@ export const SettingsMenu = () => {
             })}
           </fieldset>
         </div>
+        <a href="#dev" className={style.dev_link}>
+          Developer pages
+        </a>
       </div>
     </>
   )

@@ -6,9 +6,10 @@ import style from "./TopBar.module.css"
 type Props = {
   title: string
   subtitle: string
+  href?: string
 }
 
-export const TopBar = ({ title, subtitle }: Props) => {
+export const TopBar = ({ title, subtitle, href }: Props) => {
   return (
     <div className={style.top_bar}>
       <a href="#" className={style.wordmark} aria-label="MathViz home">
@@ -17,7 +18,15 @@ export const TopBar = ({ title, subtitle }: Props) => {
       </a>
       <div className={style.divider} />
       <div className={style.heading}>
-        <h1 className={style.title}>{title}</h1>
+        <h1 className={style.title}>
+          {href === undefined ? (
+            title
+          ) : (
+            <a href={href} className={style.title_link}>
+              {title}
+            </a>
+          )}
+        </h1>
         <div className={style.subtitle}>{subtitle}</div>
       </div>
       <SettingsMenu />

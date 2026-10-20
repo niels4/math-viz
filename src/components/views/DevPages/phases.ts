@@ -85,4 +85,17 @@ export const figma: Phase = {
   cta: { label: "Open the design in Figma", href: figmaPage },
 }
 
-export const phases = [concept, fonts, colors, prototype, figma]
+export const development: Phase = {
+  route: "dev/development",
+  name: "Development",
+  colour: "var(--ordinal-02)",
+  story:
+    "I architected the project's organization and file layout, and made sure data and state flow through the app in a way that is simple to reason about. Then I offloaded the tedious work of matching styles from Figma to an AI coding agent. As we built, I looked for janky behavior that LLMs tend to miss when they evaluate a UI.",
+  card: {
+    title: "Building the app",
+    text: "How I split the work with an AI coding agent, and the jank I caught along the way.",
+    image: progression("06-development/function-viewer.jpg"),
+  },
+}
+
+export const phases = [concept, fonts, colors, prototype, figma, development]

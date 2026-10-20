@@ -6,6 +6,7 @@ declare const styles: {
   readonly "heading": string;
   readonly "subtitle": string;
   readonly "title": string;
+  readonly "title_link": string;
   readonly "top_bar": string;
   readonly "wordmark": string;
   readonly "wordmark_text": string;
