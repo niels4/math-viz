@@ -42,6 +42,17 @@ describe("Developer pages", () => {
     expect(window.location.hash).toBe("#dev")
   })
 
+  it("returns to the contents from the Developer pages title on a phase", async () => {
+    await updateLocationHash("dev/colors")
+    const screen = await render(<Router routes={routes} />)
+
+    await expect.element(screen.getByRole("heading", { name: "Colors", level: 1 })).toBeVisible()
+
+    await screen.getByRole("link", { name: "Developer pages" }).click()
+    await expect.element(screen.getByRole("heading", { name: "How I built MathViz" })).toBeVisible()
+    expect(window.location.hash).toBe("#dev")
+  })
+
   it("runs the first prototype inside the prototype phase", async () => {
     await updateLocationHash("dev/prototype")
     const screen = await render(<Router routes={routes} />)
@@ -50,6 +61,17 @@ describe("Developer pages", () => {
 
     await expect.element(screen.getByRole("heading", { name: "Function Transforms" })).toBeVisible()
     expect(window.location.hash).toBe("#dev/prototype")
+  })
+
+  it("opens the Function Viewer from the development phase", async () => {
+    await updateLocationHash("dev/development")
+    const screen = await render(<Router routes={routes} />)
+
+    await expect.element(screen.getByRole("heading", { name: "Development", level: 1 })).toBeVisible()
+
+    await screen.getByRole("link", { name: "Open the Function Viewer" }).click()
+    await expect.element(screen.getByRole("heading", { name: "Function Viewer", level: 1 })).toBeVisible()
+    expect(window.location.hash).toBe("#function-viewer")
   })
 
   it.runIf(isBrowser())("opens a phase at its top from a card low on the contents page", async () => {

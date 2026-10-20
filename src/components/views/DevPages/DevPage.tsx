@@ -7,7 +7,7 @@ import { phaseColour, phases, type Phase } from "./phases"
 export const DevPage = ({ subtitle, children }: { subtitle: string; children: ReactNode }) => {
   return (
     <div className={style.page}>
-      <TopBar title="Developer pages" subtitle={subtitle} />
+      <TopBar title="Developer pages" subtitle={subtitle} href="#dev" />
       <main className={style.content}>{children}</main>
     </div>
   )
