@@ -8,7 +8,7 @@ export const ConceptPhase = () => {
   return (
     <PhasePage
       phase={concept}
-      lede="MathViz grew from these six pictures. I asked an AI image tool for a math app in a light style and a dark style, each with three screens: a curve with a line touching it at one point, a close-up of that point, and a screen with shapes and points. The AI drew the graphs by eye, so some of the math is wrong. That was fine: I wanted ideas for the look, not correct answers. Click a picture to see it full size."
+      lede="I set out to build a demo with many synchronized interactive elements, to demonstrate that I can build UIs that feel fluid and responsive, with no jank. To explore the look, I worked with a UX agent that drove an image model to generate galleries of concept art, and picked these six images, made on 2026-09-30, as the visual direction. Each scheme, light and dark, shows the same three screens: an overview of y = x² with a tangent at P(2, 4), a close-up of that tangent, and a view with shapes and points. The image model drew the plots rather than computing them, so some curves and readouts are wrong; the images set the look, not the math. Click an image for full size."
     >
       <h2 className={style.heading}>Light</h2>
       <div className={style.grid}>

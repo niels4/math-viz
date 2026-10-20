@@ -1,0 +1,67 @@
+@layer components {
+  .strip {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 2.5rem;
+    align-self: stretch;
+    background: color-mix(in oklch, var(--primary) 12%, transparent);
+    border: 1px dashed color-mix(in oklch, var(--primary) 45%, transparent);
+    border-radius: var(--radius);
+    cursor: ew-resize;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .strip:hover {
+    background: color-mix(in oklch, var(--primary) 20%, transparent);
+    border-style: solid;
+  }
+
+  .strip:focus-visible {
+    border-style: solid;
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+  }
+
+  .strip_fine {
+    border-style: solid;
+    border-color: var(--accent);
+  }
+
+  .strip_snap {
+    border-style: solid;
+    border-color: var(--warning);
+  }
+
+  /* Floats just outside the strip, above its top-right corner. The row
+  makes room via padding so it never overlaps the field label. */
+  .strip_help {
+    position: absolute;
+    top: -26px;
+    right: 0;
+  }
+
+  .strip_detent {
+    width: 2px;
+    align-self: stretch;
+    margin: 6px 0;
+    background: color-mix(in oklch, var(--foreground) 40%, transparent);
+    border-radius: 999px;
+  }
+
+  .strip_badge {
+    position: absolute;
+    top: 2px;
+    right: 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--foreground-muted);
+    pointer-events: none;
+  }
+}

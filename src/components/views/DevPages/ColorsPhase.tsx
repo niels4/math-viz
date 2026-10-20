@@ -25,7 +25,7 @@ export const ColorsPhase = () => {
   return (
     <PhasePage
       phase={colors}
-      lede="Then the colors. I had AI build complete color themes, with every color the app needs, and check that text stays easy to read on each background. It started from ten general color sets, then made six themes for MathViz, three light and three dark, all shown on the same screen. I dropped one dark theme, Carbon Amber, and had Arctic Ice made to replace it. Last, each theme got 12 extra colors for drawing many lines on one graph. These are the six themes the app uses today."
+      lede="Next, the color themes. I used an AI agent to generate each theme as a complete set of UI colors and check its contrast. I started from ten general palettes, then generated six MathViz themes, three light and three dark, and compared them on the same calculus screen. I retired Carbon Amber and replaced it with Arctic Ice. Finally, each theme got 12 series colors for plotting several lines on one graph. These are the six themes the app ships today."
     >
       <h2 className={style.heading}>The six themes</h2>
       <p className={style.sub}>The same screen in each theme. Click a picture to see it full size.</p>

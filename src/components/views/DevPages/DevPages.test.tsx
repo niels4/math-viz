@@ -13,7 +13,7 @@ describe("Developer pages", () => {
     await updateLocationHash("dev")
     const screen = await render(<Router routes={routes} />)
 
-    await expect.element(screen.getByRole("heading", { name: "How I design MathViz" })).toBeVisible()
+    await expect.element(screen.getByRole("heading", { name: "How I built MathViz" })).toBeVisible()
     await expect.element(screen.getByRole("heading", { name: "Fonts", level: 2 })).toBeVisible()
 
     await screen.getByRole("link", { name: /^Choosing the fonts/ }).click()
@@ -32,12 +32,27 @@ describe("Developer pages", () => {
 
     await screen.getByRole("link", { name: "Phase 3 · Colors →" }).click()
     await expect.element(screen.getByRole("heading", { name: "Colors", level: 1 })).toBeVisible()
-    await expect.element(screen.getByRole("link", { name: "← Phase 2 · Fonts" })).toBeVisible()
+
+    await screen.getByRole("link", { name: "Phase 4 · Prototype →" }).click()
+    await expect.element(screen.getByRole("heading", { name: "Prototype", level: 1 })).toBeVisible()
+    await expect.element(screen.getByRole("link", { name: "← Phase 3 · Colors" })).toBeVisible()
 
     await screen.getByRole("link", { name: "All phases" }).click()
-    await expect.element(screen.getByRole("heading", { name: "How I design MathViz" })).toBeVisible()
+    await expect.element(screen.getByRole("heading", { name: "How I built MathViz" })).toBeVisible()
     expect(window.location.hash).toBe("#dev")
   })
+
+  it("opens the first prototype from the prototype phase", async () => {
+    await updateLocationHash("dev/prototype")
+    const screen = await render(<Router routes={routes} />)
+
+    await expect.element(screen.getByRole("heading", { name: "Prototype", level: 1 })).toBeVisible()
+
+    await screen.getByRole("link", { name: "Open the prototype" }).click()
+    await expect.element(screen.getByRole("heading", { name: "Function Transforms" })).toBeVisible()
+    expect(window.location.hash).toBe("#dev/function-viewer-alpha")
+  })
+
   it.runIf(isBrowser())("opens a phase at its top from a card low on the contents page", async () => {
     const { page } = await import("vitest/browser")
     await page.viewport(1440, 900)

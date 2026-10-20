@@ -114,7 +114,7 @@ describe("WelcomePage", () => {
     await expect.element(screen.getByRole("heading", { name: "MathViz" })).toBeVisible()
 
     await screen.getByRole("link", { name: "Developer pages" }).click()
-    await expect.element(screen.getByRole("heading", { name: "How I design MathViz" })).toBeVisible()
+    await expect.element(screen.getByRole("heading", { name: "How I built MathViz" })).toBeVisible()
     expect(window.location.hash).toBe("#dev")
   })
 

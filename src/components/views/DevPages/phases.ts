@@ -1,5 +1,7 @@
 import type { CSSProperties } from "react"
 
+import prototypeShot from "./prototype.jpg"
+
 export type Phase = {
   route: string
   name: string
@@ -17,7 +19,7 @@ export const concept: Phase = {
   name: "Concept",
   colour: "var(--ordinal-03)",
   story:
-    "I started by asking an AI image tool to imagine what MathViz could look like. Its pictures gave me a direction before I designed anything.",
+    "I set out to build a demo with many synchronized interactive elements, to demonstrate that I can build UIs that feel fluid and responsive, with no jank. I worked with a UX agent that drove an image model to generate galleries of concept art, and picked six images, three light and three dark, as the visual direction.",
   card: {
     title: "The first pictures",
     text: "Six pictures of a math app, three light and three dark.",
@@ -30,7 +32,7 @@ export const fonts: Phase = {
   name: "Fonts",
   colour: "var(--ordinal-05)",
   story:
-    "A math app shows a lot of numbers and formulas, so I needed fonts that keep them easy to read. AI built test pages to compare them, and I picked three.",
+    "A math app is mostly numbers and formulas, so legibility drove the choice. I used an AI agent to build test pages that set each candidate in the app's own strings, and picked three.",
   card: {
     title: "Choosing the fonts",
     text: "The three fonts I picked, and the pages I used to compare them.",
@@ -43,7 +45,7 @@ export const colors: Phase = {
   name: "Colors",
   colour: "var(--ordinal-01)",
   story:
-    "AI built complete color themes so I could compare them on the same screen. I kept six, three light and three dark.",
+    "I used an AI agent to generate complete color themes and check their contrast, compared them on the same calculus screen, and kept six: three light and three dark.",
   card: {
     title: "Choosing the colors",
     text: "The six themes in the app, the one I dropped, and the pages I used to compare them.",
@@ -51,4 +53,17 @@ export const colors: Phase = {
   },
 }
 
-export const phases = [concept, fonts, colors]
+export const prototype: Phase = {
+  route: "dev/prototype",
+  name: "Prototype",
+  colour: "var(--ordinal-04)",
+  story:
+    "With the fonts and colors chosen, I generated the project with AI tooling: a Vite app with the latest dependencies, my fonts converted to the right format and loaded, and CSS variables generated for each color theme. I used it to prototype behavior that is difficult to describe in a markdown file but fast and easy to build in React.",
+  card: {
+    title: "The first prototype",
+    text: "The first Function Viewer prototype: pick a function, scrub its transforms, and pan and zoom the plane.",
+    image: prototypeShot,
+  },
+}
+
+export const phases = [concept, fonts, colors, prototype]

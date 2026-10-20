@@ -49,7 +49,7 @@ HTMLElement.prototype.click = async function () {
   const key = Object.keys(this).find((k) => k.includes("Fiber"))!
   // @ts-expect-error - this is a little hack to fix clicking on links in jsdom
   const element = this[key]
-  if (element.elementType === "a" && element.pendingProps.href?.startsWith("#")) {
+  if (element?.elementType === "a" && element.pendingProps.href?.startsWith("#")) {
     await updateLocationHash(element.pendingProps.href)
   }
 }

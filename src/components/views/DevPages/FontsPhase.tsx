@@ -33,7 +33,7 @@ export const FontsPhase = () => {
   return (
     <PhasePage
       phase={fonts}
-      lede="Next came the fonts. A math app shows a lot of numbers, so its fonts have to keep look-alikes apart, like 0 and O, or 1, l and I. Numbers also shouldn't jump around when they change. I had AI build test pages that show each font with the app's own numbers and formulas, from small to large. I compared 15 fonts this way and picked three, each with one job."
+      lede="Next, the typefaces. A math app is mostly numbers and formulas, so its fonts have to keep look-alikes apart (0 and O; 1, l and I) and hold digits in place as values change. I used an AI agent to build test pages that set each candidate in the app's own strings, such as P(2, 4), y = x², f′(x) = 2x and X: 2.00 Y: 4.00, at sizes from 12 to 72 px. After comparing 15 fonts, I picked three, each with one job."
     >
       <h2 className={style.heading}>The three fonts</h2>
       <div className={style.grid}>
