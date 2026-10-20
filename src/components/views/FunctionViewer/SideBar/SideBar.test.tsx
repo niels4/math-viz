@@ -44,6 +44,13 @@ describe("the transform card", () => {
   })
 })
 
+describe("the points card", () => {
+  it("shows its title", async () => {
+    const screen = await render(<SideBar />)
+    await expect.element(screen.getByRole("region", { name: "Points" })).toBeVisible()
+  })
+})
+
 const point = (el: HTMLElement, type: "pointerover" | "pointerout") =>
   act(() => el.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerType: "mouse" })))
 

@@ -1,0 +1,109 @@
+.track {
+  position: relative;
+  height: 20px;
+  outline: none;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.marks {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.line {
+  fill: none;
+  stroke: var(--foreground-muted);
+  stroke-width: 2px;
+}
+
+.zero {
+  fill: none;
+  stroke: var(--foreground-muted);
+  stroke-width: 1.5px;
+}
+
+.thumb {
+  position: absolute;
+  top: 10px;
+  display: grid;
+  border-radius: 50%;
+  translate: -50% -50%;
+  pointer-events: none;
+
+  svg {
+    display: block;
+  }
+}
+
+.ring {
+  fill: var(--background);
+  stroke: var(--foreground);
+}
+
+.core {
+  fill: var(--point-p);
+}
+
+.parked {
+  fill: var(--background);
+  stroke: var(--point-p);
+  stroke-dasharray: 3 2;
+}
+
+.track:hover .thumb {
+  scale: 1.12;
+}
+
+.track:focus-visible .thumb {
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+}
+
+.track[data-dragging] .thumb {
+  scale: none;
+
+  &::before {
+    position: absolute;
+    inset: -8px;
+    z-index: -1;
+    content: "";
+    background: color-mix(in oklch, var(--primary) 26%, transparent);
+    border-radius: 50%;
+  }
+}
+
+.tip {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: var(--x);
+  z-index: 1;
+  display: none;
+  gap: 4px;
+  align-items: center;
+  height: 22px;
+  padding: 2px 7px;
+  color: var(--background);
+  white-space: nowrap;
+  background: var(--foreground);
+  border-radius: 5px;
+  translate: clamp(calc(-1 * var(--x)), -50%, calc(var(--w) - var(--x) - 100%)) 0;
+  pointer-events: none;
+
+  var {
+    font: italic 14px/18px var(--font-serif);
+  }
+}
+
+.track:hover .tip,
+.track:focus-visible .tip,
+.track[data-dragging] .tip {
+  display: flex;
+}
+
+.tip_value {
+  font: 500 13px/17px var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}

@@ -10,6 +10,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-inset);
+  --point-p: var(--ordinal-05);
 
   &[data-theme="clean-teal"] {
     --param-a: oklch(0.5431 0.1898 337.99);
@@ -44,6 +45,7 @@
     --param-k: oklch(0.908 0.1757 98.54);
     --param-b: oklch(0.7729 0.1535 163.22);
     --param-h: oklch(0.7137 0.1434 254.62);
+    --point-p: var(--ordinal-03);
   }
 
   &[data-theme="tron-cyan"] {
