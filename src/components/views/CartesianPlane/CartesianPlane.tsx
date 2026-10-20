@@ -14,7 +14,7 @@ import { drawCartesianPlane, type PlotCurve, type PlotHandle, type PlotLine } fr
 import { layoutGrid, type GridLayout } from "./grid"
 import { HtmlOverlay } from "./HtmlOverlay"
 import { centerParam, scaleParam } from "./queryParams"
-import { planeWidthAtom } from "./state"
+import { planeSizeAtom } from "./state"
 import { useCamera } from "./useCamera"
 import { useMouseHandles } from "./useMouseHandles"
 
@@ -96,10 +96,10 @@ export const CartesianPlane = ({
   const { hovering, dragging } = cursorState
   const ref = useRef<HTMLCanvasElement | null>(null)
   const { width, height } = useResizeObserver(ref)
-  const setPlaneWidth = useSetAtom(planeWidthAtom)
+  const setPlaneSize = useSetAtom(planeSizeAtom)
   useEffect(() => {
-    setPlaneWidth(width)
-  }, [width, setPlaneWidth])
+    setPlaneSize({ width, height })
+  }, [width, height, setPlaneSize])
   const [center, setCenter, flushCenter] = useQueryParam(centerParam)
   const [scale, setScale, flushScale] = useQueryParam(scaleParam)
   const { themeVars } = useAppTheme()

@@ -33,25 +33,6 @@
   border-radius: 50%;
   translate: -50% -50%;
   pointer-events: none;
-
-  svg {
-    display: block;
-  }
-}
-
-.ring {
-  fill: var(--background);
-  stroke: var(--foreground);
-}
-
-.core {
-  fill: var(--point-p);
-}
-
-.parked {
-  fill: var(--background);
-  stroke: var(--point-p);
-  stroke-dasharray: 3 2;
 }
 
 .track:hover .thumb {

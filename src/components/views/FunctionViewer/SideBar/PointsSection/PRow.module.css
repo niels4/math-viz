@@ -1,0 +1,53 @@
+.point {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  height: 30px;
+}
+
+.letter {
+  flex: none;
+  font: italic 20px/25px var(--font-serif);
+  color: var(--foreground);
+}
+
+/* A role too wide for the room left wraps to a clipped second line, so it shows whole or not at all. */
+.role_slot {
+  display: flex;
+  flex: 1 1 0;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: center;
+  min-width: 0;
+  height: 30px;
+  overflow: hidden;
+
+  &::before {
+    height: 30px;
+    content: "";
+  }
+}
+
+.role {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 15px;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+
+  &[data-off] {
+    color: var(--foreground);
+  }
+}
+
+.off_mark {
+  display: grid;
+  flex: none;
+  color: var(--warning);
+}

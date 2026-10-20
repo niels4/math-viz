@@ -4,18 +4,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { act, render, selectionMayStart, toElement, updateLocationHash } from "#test"
 
 import { centerParam, scaleParam } from "../../../CartesianPlane/queryParams"
-import { planeWidthAtom } from "../../../CartesianPlane/state"
+import { planeSizeAtom } from "../../../CartesianPlane/state"
 import { PointSlider } from "./PointSlider"
 
 // A 500 px plane at the default camera shows x from -5 to 5; the track's
 // 218 px leave a 200 px run between its 9 px insets, 20 px per unit.
 beforeEach(() => {
-  getDefaultStore().set(planeWidthAtom, 500)
+  getDefaultStore().set(planeSizeAtom, { width: 500, height: 400 })
 })
 
 afterEach(async () => {
   const store = getDefaultStore()
-  store.set(planeWidthAtom, 0)
+  store.set(planeSizeAtom, { width: 0, height: 0 })
   store.set(centerParam.atom, centerParam.defaultValue)
   store.set(scaleParam.atom, scaleParam.defaultValue)
   await updateLocationHash("")

@@ -1,7 +1,7 @@
 import { useId } from "react"
 
 import sidebarStyle from "../SideBar.module.css"
-import { PointSlider } from "./PointSlider"
+import { PRow } from "./PRow"
 
 export const PointsSection = () => {
   const titleId = useId()
@@ -11,7 +11,7 @@ export const PointsSection = () => {
       <h2 id={titleId} className={sidebarStyle.card_title}>
         Points
       </h2>
-      <PointSlider />
+      <PRow />
     </section>
   )
 }

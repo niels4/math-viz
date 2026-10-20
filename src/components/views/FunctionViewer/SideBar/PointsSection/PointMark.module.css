@@ -1,0 +1,19 @@
+.mark {
+  display: block;
+  flex: none;
+}
+
+.ring {
+  fill: var(--background);
+  stroke: var(--foreground);
+}
+
+.core {
+  fill: var(--point-p);
+}
+
+.parked {
+  fill: var(--background);
+  stroke: var(--point-p);
+  stroke-dasharray: 3 2;
+}

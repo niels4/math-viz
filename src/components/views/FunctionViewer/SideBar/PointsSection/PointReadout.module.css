@@ -1,0 +1,46 @@
+.readout {
+  --math-size: 20px;
+
+  display: flex;
+  flex: none;
+  align-items: center;
+  color: var(--foreground);
+  white-space: nowrap;
+}
+
+.math {
+  font: 400 var(--math-size) / 25px var(--font-serif);
+}
+
+.open {
+  width: round(up, 0.634em, 1px);
+}
+
+.close {
+  width: round(up, 0.343em, 1px);
+}
+
+.rel {
+  box-sizing: content-box;
+  width: round(up, 0.72em, 1px);
+  padding: 0 7px;
+}
+
+.number {
+  min-width: round(up, calc(var(--chars, 0) * 1ch), 1px);
+  font: 500 18px/24px var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.lead {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: calc(round(up, calc(0.634 * var(--math-size)), 1px) + round(up, calc(var(--chars) * 1ch), 1px));
+  font: 500 18px/24px var(--font-mono);
+
+  .number {
+    min-width: 0;
+  }
+}

@@ -13,8 +13,10 @@ import { useResizeObserver } from "#src/components/hooks/useResizeObserver.ts"
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 import { selectNothingUntilRelease } from "#src/util/pointer/selectNothing.ts"
 
-import { visibleXAtom } from "../../../CartesianPlane/state.ts"
+import { visibleRangeAtom } from "../../../CartesianPlane/state.ts"
 import { pParam } from "../../queryParams.ts"
+import { formatNumber } from "./format.ts"
+import { PointMark } from "./PointMark.tsx"
 import style from "./PointSlider.module.css"
 
 const QUANTUM = 0.01
@@ -24,7 +26,6 @@ const STEP_SHIFT = 1
 const INSET = 9
 const LINE_Y = 10
 const ZERO_MARK = 10
-const THUMB_SIZE = 18
 
 const quantize = (v: number) =>
   Number((Math.sign(v) * Math.round(Math.abs(v) / QUANTUM) * QUANTUM).toPrecision(12)) || 0
@@ -34,11 +35,11 @@ const inward = (v: number, side: "low" | "high") =>
 
 const px = (v: number) => Math.round(v * 100) / 100
 
-const format = (v: number) => v.toFixed(2)
-
 export const PointSlider = () => {
   const [value, setValue, flushValue] = useQueryParam(pParam)
-  const { minX, maxX } = useAtomValue(visibleXAtom)
+  const range = useAtomValue(visibleRangeAtom)
+  const minX = range?.minX ?? 0
+  const maxX = range?.maxX ?? 0
   const trackRef = useRef<HTMLDivElement>(null)
   const { width } = useResizeObserver(trackRef)
   const [dragging, setDragging] = useState(false)
@@ -120,7 +121,7 @@ export const PointSlider = () => {
       aria-valuemin={low}
       aria-valuemax={high}
       aria-valuenow={value}
-      aria-valuetext={format(value)}
+      aria-valuetext={formatNumber(value)}
       className={style.track}
       data-dragging={dragging ? "" : undefined}
       data-parked={parked ?? undefined}
@@ -178,27 +179,12 @@ export const PointSlider = () => {
           >
             {parked === "left" && <Triangle dir="left" />}
             <var>x</var>
-            <span className={style.tip_value}>= {format(value)}</span>
+            <span className={style.tip_value}>= {formatNumber(value)}</span>
             {parked === "right" && <Triangle dir="right" />}
           </span>
         </>
       )}
     </div>
-  )
-}
-
-const PointMark = ({ parked }: { parked: boolean }) => {
-  const c = THUMB_SIZE / 2
-  return (
-    <svg
-      width={THUMB_SIZE}
-      height={THUMB_SIZE}
-      viewBox={`0 0 ${THUMB_SIZE} ${THUMB_SIZE}`}
-      aria-hidden="true"
-    >
-      <circle className={parked ? style.parked : style.ring} cx={c} cy={c} r={c - 1} strokeWidth={2} />
-      {!parked && <circle className={style.core} cx={c} cy={c} r={THUMB_SIZE / 4} />}
-    </svg>
   )
 }
 

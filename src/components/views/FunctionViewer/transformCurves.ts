@@ -5,7 +5,7 @@ export type Transform = Record<TransformParam, number>
 
 const isIdentity = ({ a, b, h, k }: Transform) => a === 1 && b === 1 && h === 0 && k === 0
 
-const transformed =
+export const transformed =
   (g: PlotFunction, { a, b, h, k }: Transform): PlotFunction =>
   (x) =>
     a * g((x - h) / b) + k
