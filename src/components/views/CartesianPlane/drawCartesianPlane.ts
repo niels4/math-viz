@@ -318,6 +318,50 @@ const labelRunGap = 6
 const labelGap = 22
 const labelRise = 0.6
 const labelEdgeMargin = 12
+const arrowBox = 12
+const arrowSize = 10
+const arrowPadLeft = 8
+const arrowGap = 8
+
+type Direction = "up" | "down" | "left" | "right"
+
+const offEdge = ({ width, height }: GridLayout, px: number, py: number): Direction | null => {
+  const overX = px < 0 ? -px : px > width ? px - width : 0
+  const overY = py < 0 ? -py : py > height ? py - height : 0
+  if (overX === 0 && overY === 0) {
+    return null
+  }
+  return overY >= overX ? (py < 0 ? "up" : "down") : px < 0 ? "left" : "right"
+}
+
+const drawArrow = (ctx: CanvasRenderingContext2D, dir: Direction, x: number, y: number) => {
+  const s = arrowSize
+  ctx.beginPath()
+  switch (dir) {
+    case "up":
+      ctx.moveTo(x + s / 2, y)
+      ctx.lineTo(x + s, y + s)
+      ctx.lineTo(x, y + s)
+      break
+    case "down":
+      ctx.moveTo(x, y)
+      ctx.lineTo(x + s, y)
+      ctx.lineTo(x + s / 2, y + s)
+      break
+    case "left":
+      ctx.moveTo(x + s, y)
+      ctx.lineTo(x + s, y + s)
+      ctx.lineTo(x, y + s / 2)
+      break
+    case "right":
+      ctx.moveTo(x, y)
+      ctx.lineTo(x + s, y + s / 2)
+      ctx.lineTo(x, y + s)
+      break
+  }
+  ctx.closePath()
+  ctx.fill()
+}
 
 const drawLabel = (
   ctx: CanvasRenderingContext2D,
@@ -327,13 +371,15 @@ const drawLabel = (
   theme: ThemeVars,
 ) => {
   const [px, py] = toPx(grid, marker.point)
+  const dir = offEdge(grid, px, py)
   ctx.save()
   ctx.font = labelLetter.font
   const nameWidth = Math.ceil(ctx.measureText(label.name).width)
   ctx.font = labelNumber.font
   const coordsWidth = Math.ceil(ctx.measureText(label.coords).width)
   const inset = labelBorder + labelPadX
-  const w = inset * 2 + nameWidth + labelRunGap + coordsWidth
+  const lead = dir === null ? 0 : arrowPadLeft - labelPadX + arrowBox + arrowGap
+  const w = inset * 2 + lead + nameWidth + labelRunGap + coordsWidth
   const h = (labelBorder + labelPadY) * 2 + labelRow
   const x = clamp(px + labelGap, labelEdgeMargin, grid.width - labelEdgeMargin - w)
   const y = clamp(py - labelGap * labelRise - h, labelEdgeMargin, grid.height - labelEdgeMargin - h)
@@ -351,13 +397,20 @@ const drawLabel = (
   ctx.roundRect(x + half, y + half, w - labelBorder, h - labelBorder, h / 2 - half)
   ctx.stroke()
 
+  if (dir !== null) {
+    const inBox = (arrowBox - arrowSize) / 2
+    ctx.fillStyle = theme[marker.ink]
+    drawArrow(ctx, dir, x + labelBorder + arrowPadLeft + inBox, rowTop + (labelRow - arrowBox) / 2 + inBox)
+  }
+
+  const textLeft = x + inset + lead
   ctx.fillStyle = theme.foreground
   ctx.textAlign = "left"
   ctx.textBaseline = "alphabetic"
   ctx.font = labelLetter.font
-  ctx.fillText(label.name, x + inset, baseline(labelLetter))
+  ctx.fillText(label.name, textLeft, baseline(labelLetter))
   ctx.font = labelNumber.font
-  ctx.fillText(label.coords, x + inset + nameWidth + labelRunGap, baseline(labelNumber))
+  ctx.fillText(label.coords, textLeft + nameWidth + labelRunGap, baseline(labelNumber))
   ctx.restore()
 }
 

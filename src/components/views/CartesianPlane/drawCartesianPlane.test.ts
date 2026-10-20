@@ -23,12 +23,25 @@ const draw = (
   const arcs: { x: number; y: number; r: number; style: unknown }[] = []
   const rects: [number, number, number, number][] = []
   const texts: { text: string; x: number; y: number }[] = []
+  const fills: { style: unknown; path: [number, number][] }[] = []
+  let path: [number, number][] = []
   const ctx = new Proxy<Record<string | symbol, unknown>>(
     {},
     {
       get: (target, key) => {
+        if (key === "beginPath") {
+          return () => {
+            path = []
+          }
+        }
         if (key === "moveTo" || key === "lineTo") {
-          return (x: number, y: number) => points.push([x, y])
+          return (x: number, y: number) => {
+            points.push([x, y])
+            path.push([x, y])
+          }
+        }
+        if (key === "fill") {
+          return () => fills.push({ style: target["fillStyle"], path })
         }
         if (key === "arc") {
           return (x: number, y: number, r: number) => arcs.push({ x, y, r, style: target["fillStyle"] })
@@ -56,7 +69,7 @@ const draw = (
     lines,
     markers,
   )
-  return { points, arcs, rects, texts }
+  return { points, arcs, rects, texts, fills }
 }
 
 const drawnPoints = (curves: PlotCurve[], handles: PlotHandle[] = [], lines: PlotLine[] = []) =>
@@ -165,7 +178,49 @@ describe("drawCartesianPlane", () => {
     expect(labelAt(-1, -20)).toEqual([172, 247])
     expect(labelAt(-20, 1)[0]).toBe(12)
     expect(labelAt(-20, 1)[1]).toBeCloseTo(45.8)
-    expect(labelAt(20, 1)[0]).toBe(274)
+    expect(labelAt(20, 1)[0]).toBe(258)
     expect(labelAt(20, 1)[1]).toBeCloseTo(45.8)
+  })
+
+  it("P's label leads with a triangle pointing the way P lies furthest past the view", () => {
+    const arrowOf = (x: number, y: number) => {
+      const label = { name: "P", coords: "(0.00, 0.00)" }
+      const { fills, rects } = draw([], [], [], [{ point: { x, y }, ink: "ordinal05", label }], planeFont)
+      const [left = 0, top = 0] = rects[0] ?? []
+      const arrow = fills.find(({ style, path }) => style === "green" && path.length > 0)
+      return arrow?.path.map(([px, py]) => [px - left, py - top])
+    }
+
+    expect(arrowOf(-1, 20)).toEqual([
+      [16, 15.5],
+      [21, 25.5],
+      [11, 25.5],
+    ])
+    expect(arrowOf(-1, -20)).toEqual([
+      [11, 15.5],
+      [21, 15.5],
+      [16, 25.5],
+    ])
+    expect(arrowOf(-20, 1)).toEqual([
+      [21, 15.5],
+      [21, 25.5],
+      [11, 20.5],
+    ])
+    expect(arrowOf(20, 1)).toEqual([
+      [11, 15.5],
+      [21, 20.5],
+      [11, 25.5],
+    ])
+    expect(arrowOf(20, 30)).toEqual(arrowOf(-1, 20))
+  })
+
+  it("P's label has no triangle while P is in view, and makes room for it when P is not", () => {
+    const label = { name: "P", coords: "(0.00, 0.00)" }
+    const inView = draw([], [], [], [{ point: { x: 1, y: 1 }, ink: "ordinal05", label }], planeFont)
+    const above = draw([], [], [], [{ point: { x: 1, y: 20 }, ink: "ordinal05", label }], planeFont)
+
+    expect(inView.rects[0]?.[2]).toBe(114)
+    expect(above.rects[0]?.[2]).toBe(130)
+    expect(above.texts.find(({ text }) => text === "P")?.x).toBe((above.rects[0]?.[0] ?? 0) + 30)
   })
 })
