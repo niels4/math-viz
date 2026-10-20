@@ -26,6 +26,8 @@ export type PlotHandle = {
 
 export type PlotLine = { from: PlotPoint; to: PlotPoint; look: "arrow" | "dashed" | "measured" }
 
+export type PlotMarker = { point: PlotPoint; ink: keyof ThemeVars }
+
 type CurveLook = { ink: keyof ThemeVars; width: number; cap: CanvasLineCap; dash: number[]; alpha: number }
 
 const solidLook: CurveLook = { ink: "chartLine", width: 3, cap: "butt", dash: [], alpha: 1 }
@@ -275,6 +277,34 @@ const drawHandle = (
   ctx.restore()
 }
 
+const markerRadius = 12
+const markerRing = 2.5
+const markerCore = 6
+
+const drawMarker = (
+  ctx: CanvasRenderingContext2D,
+  grid: GridLayout,
+  marker: PlotMarker,
+  theme: ThemeVars,
+) => {
+  const [x, y] = toPx(grid, marker.point)
+  ctx.save()
+  ctx.fillStyle = theme.background
+  ctx.beginPath()
+  ctx.arc(x, y, markerRadius, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.lineWidth = markerRing
+  ctx.strokeStyle = theme.foreground
+  ctx.beginPath()
+  ctx.arc(x, y, markerRadius - markerRing / 2, 0, Math.PI * 2)
+  ctx.stroke()
+  ctx.fillStyle = theme[marker.ink]
+  ctx.beginPath()
+  ctx.arc(x, y, markerCore, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.restore()
+}
+
 export const hitTest = (
   grid: GridLayout,
   handles: readonly PlotHandle[],
@@ -299,6 +329,7 @@ export const drawCartesianPlane = (
   curves: readonly PlotCurve[],
   handles: readonly PlotHandle[],
   lines: readonly PlotLine[],
+  markers: readonly PlotMarker[],
 ) => {
   drawGrid(ctx, grid, theme, font)
   for (const curve of curves.filter(({ dashed }) => dashed === true)) {
@@ -312,6 +343,9 @@ export const drawCartesianPlane = (
   }
   for (const handle of handles) {
     drawHandle(ctx, grid, handle, theme)
+  }
+  for (const marker of markers) {
+    drawMarker(ctx, grid, marker, theme)
   }
   if (font !== null) {
     drawScaleLegend(ctx, grid, theme, font)

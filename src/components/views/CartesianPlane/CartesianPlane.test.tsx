@@ -64,6 +64,7 @@ describe("CartesianPlane", () => {
         curves={[{ fn: identity, alpha: 1, drawTo: 1 }]}
         handles={[]}
         lines={[]}
+        markers={[]}
         cursorState={notHovering}
       />,
     )
@@ -90,6 +91,7 @@ describe("CartesianPlane", () => {
         curves={[{ fn: identity, alpha: 1, drawTo: 1 }]}
         handles={[]}
         lines={[]}
+        markers={[]}
         cursorState={notHovering}
       />,
     )
@@ -107,6 +109,7 @@ describe("CartesianPlane", () => {
         curves={[{ fn: identity, alpha: 1, drawTo: 1 }]}
         handles={[]}
         lines={[]}
+        markers={[]}
         cursorState={notHovering}
       />,
     )

@@ -3,21 +3,32 @@ import { describe, expect, it } from "vitest"
 import type { ThemeVars } from "#src/state/useAppTheme.ts"
 
 import { labelMargin } from "./constants"
-import { drawCartesianPlane, type PlotCurve, type PlotHandle, type PlotLine } from "./drawCartesianPlane"
+import {
+  drawCartesianPlane,
+  type PlotCurve,
+  type PlotHandle,
+  type PlotLine,
+  type PlotMarker,
+} from "./drawCartesianPlane"
 import { layoutGrid } from "./grid"
 
-const drawnPoints = (
+const draw = (
   curves: PlotCurve[],
   handles: PlotHandle[] = [],
   lines: PlotLine[] = [],
-): [number, number][] => {
+  markers: PlotMarker[] = [],
+) => {
   const points: [number, number][] = []
+  const arcs: { x: number; y: number; r: number; style: unknown }[] = []
   const ctx = new Proxy<Record<string | symbol, unknown>>(
     {},
     {
       get: (target, key) => {
         if (key === "moveTo" || key === "lineTo") {
           return (x: number, y: number) => points.push([x, y])
+        }
+        if (key === "arc") {
+          return (x: number, y: number, r: number) => arcs.push({ x, y, r, style: target["fillStyle"] })
         }
         return key in target ? target[key] : () => {}
       },
@@ -26,14 +37,18 @@ const drawnPoints = (
   drawCartesianPlane(
     ctx as unknown as CanvasRenderingContext2D,
     layoutGrid(400, 300, [0, 0], 0.5, labelMargin),
-    { chartLine: "teal" } as ThemeVars,
+    { chartLine: "teal", ordinal05: "green" } as ThemeVars,
     null,
     curves,
     handles,
     lines,
+    markers,
   )
-  return points
+  return { points, arcs }
 }
+
+const drawnPoints = (curves: PlotCurve[], handles: PlotHandle[] = [], lines: PlotLine[] = []) =>
+  draw(curves, handles, lines).points
 
 describe("drawCartesianPlane", () => {
   it("graphs y = x² through (0.5, 0.25) and (1, 1)", () => {
@@ -89,5 +104,16 @@ describe("drawCartesianPlane", () => {
       [193, 100],
       [207, 100],
     ])
+  })
+
+  it("P at (1, 1) is a bullseye around (250, 100) with a core in its ink", () => {
+    const { arcs } = draw([], [], [], [{ point: { x: 1, y: 1 }, ink: "ordinal05" }])
+
+    expect(arcs.map(({ x, y }) => [x, y])).toEqual([
+      [250, 100],
+      [250, 100],
+      [250, 100],
+    ])
+    expect(arcs.at(-1)).toMatchObject({ r: 6, style: "green" })
   })
 })

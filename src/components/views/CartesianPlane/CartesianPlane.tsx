@@ -10,7 +10,13 @@ import { useAppTheme, type ThemeVars } from "#src/state/useAppTheme.ts"
 
 import style from "./CartesianPlain.module.css"
 import { labelMargin, planeFont } from "./constants"
-import { drawCartesianPlane, type PlotCurve, type PlotHandle, type PlotLine } from "./drawCartesianPlane"
+import {
+  drawCartesianPlane,
+  type PlotCurve,
+  type PlotHandle,
+  type PlotLine,
+  type PlotMarker,
+} from "./drawCartesianPlane"
 import { layoutGrid, type GridLayout } from "./grid"
 import { HtmlOverlay } from "./HtmlOverlay"
 import { centerParam, scaleParam } from "./queryParams"
@@ -55,6 +61,7 @@ const useUpdateCanvas = (
   curves: readonly PlotCurve[],
   handles: readonly PlotHandle[],
   lines: readonly PlotLine[],
+  markers: readonly PlotMarker[],
 ) => {
   const draw = useHotReload(drawCartesianPlane)
   const dpr = useDevicePixelRatio()
@@ -78,19 +85,21 @@ const useUpdateCanvas = (
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, grid.width, grid.height)
 
-    draw(ctx, grid, theme, font, curves, handles, lines)
-  }, [ref, grid, dpr, theme, font, curves, handles, lines, draw])
+    draw(ctx, grid, theme, font, curves, handles, lines, markers)
+  }, [ref, grid, dpr, theme, font, curves, handles, lines, markers, draw])
 }
 
 export const CartesianPlane = ({
   curves,
   handles,
   lines,
+  markers,
   cursorState,
 }: {
   curves: readonly PlotCurve[]
   handles: readonly PlotHandle[]
   lines: readonly PlotLine[]
+  markers: readonly PlotMarker[]
   cursorState: CursorState
 }) => {
   const { hovering, dragging } = cursorState
@@ -113,7 +122,7 @@ export const CartesianPlane = ({
   const panning = useCamera(ref, center, scale, setCenter, setScale, flushCamera, dragging)
   const cursor: Cursor = dragging || panning ? "grab-active" : hovering ? "grab-hover" : "pan"
   const grid = layoutGrid(width, height, center, scale, labelMargin)
-  useUpdateCanvas(ref, grid, themeVars, font, curves, handles, lines)
+  useUpdateCanvas(ref, grid, themeVars, font, curves, handles, lines, markers)
 
   const { onPointerMove, onPointerDown } = useMouseHandles(ref, grid, handles)
 
