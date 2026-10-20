@@ -33,3 +33,17 @@
   border-radius: 100%;
   cursor: pointer;
 }
+
+.hero {
+  width: 840px;
+  height: 520px;
+}
+
+.hero_plane {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}

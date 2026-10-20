@@ -1,5 +1,6 @@
 import { GearIcon, Logo } from "#src/components/icons/icons.tsx"
 
+import { HeroPlane } from "./HeroPlane"
 import style from "./WelcomePage.module.css"
 
 const ThemeSwitcher = () => {
@@ -17,6 +18,9 @@ export const WelcomePage = () => {
         <Logo />
         <h2 className={style.wordmark}>MathViz</h2>
         <ThemeSwitcher />
+      </div>
+      <div className={style.hero}>
+        <HeroPlane />
       </div>
     </div>
   )
