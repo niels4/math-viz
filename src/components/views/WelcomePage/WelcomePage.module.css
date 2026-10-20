@@ -8,6 +8,31 @@
   align-items: safe center;
   justify-content: safe center;
   min-height: 100dvh;
+
+  &[data-theme="arctic-ice"] {
+    --cta: var(--warning);
+    --cta-foreground: var(--primary-foreground);
+  }
+
+  &[data-theme="tron-cyan"] {
+    --title: color-mix(in srgb, var(--primary) 65%, transparent);
+  }
+
+  &[data-theme="clean-teal"] {
+    --title: color-mix(in srgb, var(--primary) 85%, transparent);
+    --cta: var(--warning);
+    --cta-foreground: var(--primary-foreground);
+  }
+
+  &[data-theme="educational-warm"] {
+    --title: color-mix(in srgb, var(--primary) 85%, transparent);
+    --cta: var(--warning);
+    --cta-foreground: var(--foreground);
+  }
+
+  &[data-theme="sage-editorial"] {
+    --title: color-mix(in srgb, var(--primary) 85%, transparent);
+  }
 }
 
 .top_bar {
