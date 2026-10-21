@@ -1,6 +1,7 @@
 import { Logo } from "#src/components/icons/icons.tsx"
 
 import { TopBarActions } from "../TopBar/TopBarActions"
+import { HelpButton } from "./Help/HelpButton"
 import style from "./TopBar.module.css"
 
 export const TopBar = () => {
@@ -15,7 +16,9 @@ export const TopBar = () => {
         <h1 className={style.title}>Function Viewer</h1>
         <div className={style.subtitle}>Functions · Transformations</div>
       </div>
-      <TopBarActions />
+      <TopBarActions>
+        <HelpButton />
+      </TopBarActions>
     </div>
   )
 }

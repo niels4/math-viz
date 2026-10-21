@@ -4,6 +4,8 @@ import type { ScrubMode } from "./SideBar/TransformSection/ScrubValue/scrub"
 
 export type TransformParam = "a" | "b" | "h" | "k"
 
+export const helpShownAtom = atom(false)
+
 export const pDraggingAtom = atom(false)
 
 export const qXAtom = atom<number | null>(null)

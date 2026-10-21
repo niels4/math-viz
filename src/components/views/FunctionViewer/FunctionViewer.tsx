@@ -11,6 +11,7 @@ import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
 import { usePlotCurves } from "../CartesianPlane/hooks/usePlotCurves"
 import { baseFunctions, unitX } from "./baseFunctions"
 import style from "./FunctionViewer.module.css"
+import { HelpOverlay } from "./Help/HelpOverlay"
 import { LandscapeHint } from "./LandscapeHint"
 import { aParam, bParam, funcParam, hParam, kParam, pParam } from "./queryParams"
 import { formatNumber, quantize } from "./SideBar/PointsSection/format"
@@ -102,6 +103,7 @@ export const FunctionViewer = () => {
       </div>
       <SideBar />
       <Plot />
+      <HelpOverlay />
     </Page>
   )
 }

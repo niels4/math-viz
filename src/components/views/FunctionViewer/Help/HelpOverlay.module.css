@@ -1,0 +1,18 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-tooltip);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.hello {
+  padding: var(--space-card);
+  font-size: var(--text-body);
+  color: var(--foreground);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
