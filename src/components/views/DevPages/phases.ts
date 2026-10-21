@@ -98,4 +98,22 @@ export const development: Phase = {
   },
 }
 
-export const phases = [concept, fonts, colors, prototype, figma, development]
+export const rustRepo = "https://github.com/niels4/math-viz-rust"
+
+export const rustApp = "https://niels4.github.io/math-viz-rust/"
+
+export const rust: Phase = {
+  route: "dev/rust",
+  name: "Rust",
+  colour: "var(--ordinal-07)",
+  story:
+    "The obligatory AI port to Rust. A team of AI agents rebuilt the Function Viewer in Rust, following the original's git history milestone by milestone. One codebase builds a native app for macOS, Windows and Linux and a WebAssembly app for the browser.",
+  card: {
+    title: "Porting to Rust",
+    text: "The Function Viewer rebuilt in Rust by AI agents, as a native app and in the browser.",
+    image: progression("07-rust/function-viewer.jpg"),
+  },
+  cta: { label: "Open the repo on GitHub", href: rustRepo },
+}
+
+export const phases = [concept, fonts, colors, prototype, figma, development, rust]

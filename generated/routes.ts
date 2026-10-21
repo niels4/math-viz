@@ -7,8 +7,9 @@ import figma$5 from "#src/pages/dev/figma.page.tsx"
 import fonts$6 from "#src/pages/dev/fonts.page.tsx"
 import function_viewer_alpha$7 from "#src/pages/dev/function-viewer-alpha.page.tsx"
 import prototype$8 from "#src/pages/dev/prototype.page.tsx"
-import dev$9 from "#src/pages/dev.page.tsx"
-import function_viewer$10 from "#src/pages/function-viewer.page.tsx"
+import rust$9 from "#src/pages/dev/rust.page.tsx"
+import dev$10 from "#src/pages/dev.page.tsx"
+import function_viewer$11 from "#src/pages/function-viewer.page.tsx"
 
 const routes = {
   "_not_found": _not_found$0,
@@ -20,8 +21,9 @@ const routes = {
   "dev/fonts": fonts$6,
   "dev/function-viewer-alpha": function_viewer_alpha$7,
   "dev/prototype": prototype$8,
-  "dev": dev$9,
-  "function-viewer": function_viewer$10
+  "dev/rust": rust$9,
+  "dev": dev$10,
+  "function-viewer": function_viewer$11
 } as const
 
 export default routes

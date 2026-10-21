@@ -4,7 +4,7 @@ import routes from "#generated/routes.ts"
 import { Router } from "#src/components/router/Router.tsx"
 import { isBrowser, render, updateLocationHash } from "#test"
 
-import { figmaPage } from "./phases"
+import { figmaPage, rustRepo } from "./phases"
 
 afterEach(async () => {
   await updateLocationHash("")
@@ -43,7 +43,10 @@ describe("Developer pages", () => {
 
     await screen.getByRole("link", { name: "Phase 6 · Development →" }).click()
     await expect.element(screen.getByRole("heading", { name: "Development", level: 1 })).toBeVisible()
-    await expect.element(screen.getByRole("link", { name: "← Phase 5 · Figma" })).toBeVisible()
+
+    await screen.getByRole("link", { name: "Phase 7 · Rust →" }).click()
+    await expect.element(screen.getByRole("heading", { name: "Rust", level: 1 })).toBeVisible()
+    await expect.element(screen.getByRole("link", { name: "← Phase 6 · Development" })).toBeVisible()
 
     await screen.getByRole("link", { name: "All phases" }).click()
     await expect.element(screen.getByRole("heading", { name: "How I built MathViz" })).toBeVisible()
@@ -90,6 +93,28 @@ describe("Developer pages", () => {
 
     const link = screen.getByRole("link", { name: "Open the design in Figma" })
     await expect.element(link).toHaveAttribute("href", figmaPage)
+    await expect.element(link).toHaveAttribute("target", "_blank")
+  })
+
+  it("links the Rust phase to its repo on GitHub, at the top and the bottom", async () => {
+    await updateLocationHash("dev/rust")
+    const screen = await render(<Router routes={routes} />)
+
+    await expect.element(screen.getByRole("heading", { name: "Rust", level: 1 })).toBeVisible()
+
+    for (const name of ["Open the repo on GitHub", "Open math-viz-rust on GitHub"]) {
+      const link = screen.getByRole("link", { name })
+      await expect.element(link).toHaveAttribute("href", rustRepo)
+      await expect.element(link).toHaveAttribute("target", "_blank")
+    }
+  })
+
+  it("links straight to the Rust repo from the contents page", async () => {
+    await updateLocationHash("dev")
+    const screen = await render(<Router routes={routes} />)
+
+    const link = screen.getByRole("link", { name: "Open the repo on GitHub" })
+    await expect.element(link).toHaveAttribute("href", rustRepo)
     await expect.element(link).toHaveAttribute("target", "_blank")
   })
 
