@@ -7,7 +7,7 @@ Interactive math visualizations for the browser, built with React, TypeScript an
 <a href="https://niels4.github.io/math-viz/">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/welcome-dark.png">
-    <img alt="The MathViz welcome screen: the title, an Open the Function Viewer button, and a stretched sine curve over its dashed original" src=".github/readme/welcome-light.png">
+    <img alt="The MathViz welcome screen: the title, an Open the Function Viewer button, and a plane where curves stretch and shift over their dashed originals" src=".github/readme/welcome-light.png">
   </picture>
 </a>
 
