@@ -50,7 +50,7 @@ describe("WelcomePage", () => {
       gear: screen.getByRole("button").element(),
       title,
       button: screen.getByRole("link", { name: "Open the Function Viewer" }).element(),
-      hint: screen.getByText(/^Pick a function, then drag/).element(),
+      hint: screen.getByText(/^Pick a function, then change/).element(),
       plane: screen.container.querySelector("canvas"),
       devLink: screen.getByRole("link", { name: "Developer pages" }).element(),
     }

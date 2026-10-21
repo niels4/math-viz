@@ -113,10 +113,15 @@
 
 .hint {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   font-size: 16px;
   color: var(--foreground-muted);
+}
+
+.hint_end {
+  flex-basis: 100%;
 }
 
 .chip {
