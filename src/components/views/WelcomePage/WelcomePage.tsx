@@ -41,7 +41,7 @@ export const WelcomePage = () => {
           <div className={style.intro}>
             <h1 className={style.title}>MathViz</h1>
             <p className={style.description}>
-              Interactive math visualizations for the browser, built with React, TypeScript and Vite.
+              A demonstration of interactive UI elements with plotted functions that you can drag and stretch.
             </p>
             <div className={style.actions}>
               <a href="#function-viewer" className={style.cta}>
@@ -49,12 +49,13 @@ export const WelcomePage = () => {
                 <ArrowRightIcon />
               </a>
               <p className={style.hint}>
-                Pick a function, then drag
+                Pick a function, then change
                 {hintParams.map((param) => (
                   <span key={param} className={style.chip} data-param={param}>
                     <var>{param}</var>
                   </span>
                 ))}
+                <span className={style.hint_end}>to apply shifting and scaling transforms</span>
               </p>
             </div>
           </div>
