@@ -1,18 +1,35 @@
-.overlay {
+.tip {
   position: fixed;
-  inset: 0;
+  position-area: top;
   z-index: var(--z-tooltip);
-  display: grid;
-  place-items: center;
-  pointer-events: none;
-}
-
-.hello {
-  padding: var(--space-card);
-  font-size: var(--text-body);
+  width: anchor-size(width);
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  padding: var(--space-inset) var(--space-section);
+  font-size: var(--text-help);
+  line-height: 1.45;
   color: var(--foreground);
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
+  pointer-events: none;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    translate: -50% -50%;
+    rotate: 45deg;
+    background: var(--card);
+    border: solid var(--border);
+    border-width: 0 1px 1px 0;
+  }
+}
+
+.function_tip {
+  position-anchor: --function-section;
 }

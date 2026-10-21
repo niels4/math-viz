@@ -41,7 +41,12 @@
   gap: var(--space-inline);
   padding: 0 var(--space-section) 0 var(--space-inset);
   font: var(--weight-strong) var(--text-control) var(--font-sans);
+  white-space: nowrap;
   border-radius: var(--radius-pill);
+
+  @media (width < 680px) {
+    display: none;
+  }
 
   &[aria-pressed="true"] {
     color: var(--primary-foreground);

@@ -1,3 +1,4 @@
+import cn from "classnames"
 import { useAtomValue } from "jotai"
 
 import { helpShownAtom } from "../state"
@@ -10,8 +11,9 @@ export const HelpOverlay = () => {
     return null
   }
   return (
-    <div className={style.overlay}>
-      <div className={style.hello}>Hello</div>
+    <div className={cn(style.tip, style.function_tip)}>
+      Pick a function with these buttons. The readout below shows its equation with your transform values, and
+      the general form under it.
     </div>
   )
 }

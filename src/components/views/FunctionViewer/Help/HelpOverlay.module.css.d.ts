@@ -2,7 +2,7 @@
 // WARNING: THIS FILE IS AUTO GENERATED, PLEASE DO NOT EDIT IT MANUALLY.
 // prettier-ignore
 declare const styles: {
-  readonly "hello": string;
-  readonly "overlay": string;
+  readonly "function_tip": string;
+  readonly "tip": string;
 };
 export = styles;
