@@ -1,7 +1,9 @@
 import { useLayoutEffect, useState, type RefObject } from "react"
 
-export const useFitScale = (ref: RefObject<HTMLElement | null>, width: number, height: number) => {
-  const [fit, setFit] = useState(1)
+export type Size = { width: number; height: number }
+
+export const useFitScale = (ref: RefObject<HTMLElement | null>, wide: Size, stacked: Size) => {
+  const [layout, setLayout] = useState({ fit: 1, stacked: false })
 
   useLayoutEffect(() => {
     const el = ref.current
@@ -9,8 +11,11 @@ export const useFitScale = (ref: RefObject<HTMLElement | null>, width: number, h
       return
     }
     const measure = () => {
-      if (el.clientWidth > 0 && el.clientHeight > 0) {
-        setFit(Math.min(1, el.clientWidth / width, el.clientHeight / height))
+      const { clientWidth: width, clientHeight: height } = el
+      if (width > 0 && height > 0) {
+        const isStacked = height > width && width < wide.width
+        const design = isStacked ? stacked : wide
+        setLayout({ fit: Math.min(1, width / design.width, height / design.height), stacked: isStacked })
       }
     }
     measure()
@@ -20,7 +25,7 @@ export const useFitScale = (ref: RefObject<HTMLElement | null>, width: number, h
     const observer = new ResizeObserver(measure)
     observer.observe(el)
     return () => observer.disconnect()
-  }, [ref, width, height])
+  }, [ref, wide, stacked])
 
-  return fit
+  return layout
 }
