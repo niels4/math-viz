@@ -5,4 +5,18 @@
   grid-template-rows: max-content minmax(0, 1fr);
   grid-template-columns: 400px minmax(0, 1fr);
   height: 100dvh;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 350px minmax(0, 1fr);
+  }
+
+  @media (orientation: landscape) and (max-height: 500px) {
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
+
+.top_bar {
+  @media (orientation: landscape) and (max-height: 500px) {
+    display: none;
+  }
 }

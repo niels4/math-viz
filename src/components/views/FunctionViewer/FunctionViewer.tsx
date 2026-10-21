@@ -95,7 +95,7 @@ const Plot = () => {
 export const FunctionViewer = () => {
   return (
     <Page>
-      <TopBar title="Function Viewer" subtitle="Functions · Transformations" />
+      <TopBar className={style.top_bar} title="Function Viewer" subtitle="Functions · Transformations" />
       <SideBar />
       <Plot />
     </Page>

@@ -3,5 +3,6 @@
 // prettier-ignore
 declare const styles: {
   readonly "page": string;
+  readonly "top_bar": string;
 };
 export = styles;

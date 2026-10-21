@@ -1,3 +1,5 @@
+import cn from "classnames"
+
 import { Logo } from "#src/components/icons/icons.tsx"
 
 import { SettingsMenu } from "./SettingsMenu"
@@ -7,11 +9,12 @@ type Props = {
   title: string
   subtitle: string
   href?: string
+  className?: string
 }
 
-export const TopBar = ({ title, subtitle, href }: Props) => {
+export const TopBar = ({ title, subtitle, href, className }: Props) => {
   return (
-    <div className={style.top_bar}>
+    <div className={cn(style.top_bar, className)}>
       <a href="#" className={style.wordmark} aria-label="MathViz home">
         <Logo />
         <h2 className={style.wordmark_text}>MathViz</h2>
