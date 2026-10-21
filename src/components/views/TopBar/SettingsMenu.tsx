@@ -18,6 +18,7 @@ import { withViewTransition } from "#src/util/viewTransition.ts"
 
 import { CheckIcon, DarkIcon, LightIcon, SystemIcon } from "./icons"
 import style from "./SettingsMenu.module.css"
+import actionsStyle from "./TopBarActions.module.css"
 
 const lightDarkOptions: Record<LightDarkOptionSlug, React.ComponentType> = {
   system: SystemIcon,
@@ -89,7 +90,11 @@ export const SettingsMenu = () => {
 
   return (
     <>
-      <button className={style.settings_menu_button} popoverTarget={menuId} aria-label="Settings">
+      <button
+        className={cn(actionsStyle.round_button, style.settings_menu_button)}
+        popoverTarget={menuId}
+        aria-label="Settings"
+      >
         <GearIcon />
       </button>
 

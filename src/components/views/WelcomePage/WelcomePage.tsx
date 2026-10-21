@@ -6,7 +6,7 @@ import { ArrowRightIcon, Logo } from "#src/components/icons/icons.tsx"
 import { useAppTheme } from "#src/state/useAppTheme.ts"
 import { param_colours } from "#src/style/param_colours.module.css"
 
-import { SettingsMenu } from "../TopBar/SettingsMenu"
+import { TopBarActions } from "../TopBar/TopBarActions"
 import { HeroPlane } from "./HeroPlane"
 import { useFitScale } from "./useFitScale"
 import style from "./WelcomePage.module.css"
@@ -34,7 +34,7 @@ export const WelcomePage = () => {
     >
       <div className={style.top_bar}>
         <Logo />
-        <SettingsMenu />
+        <TopBarActions />
       </div>
       <div className={style.frame}>
         <main className={style.content}>

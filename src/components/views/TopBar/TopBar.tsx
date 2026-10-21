@@ -1,7 +1,7 @@
 import { Logo } from "#src/components/icons/icons.tsx"
 
-import { SettingsMenu } from "./SettingsMenu"
 import style from "./TopBar.module.css"
+import { TopBarActions } from "./TopBarActions"
 
 type Props = {
   title: string
@@ -29,7 +29,7 @@ export const TopBar = ({ title, subtitle, href }: Props) => {
         </h1>
         <div className={style.subtitle}>{subtitle}</div>
       </div>
-      <SettingsMenu />
+      <TopBarActions />
     </div>
   )
 }

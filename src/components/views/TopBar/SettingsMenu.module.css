@@ -1,35 +1,5 @@
 .settings_menu_button {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  color: var(--foreground);
-  background: var(--secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-circle);
-  cursor: pointer;
   anchor-name: --settings-menu;
-  transition:
-    border-color var(--duration-fast) var(--ease-out),
-    background var(--duration-fast) var(--ease-out),
-    transform var(--duration-fast) var(--ease-out);
-
-  &:hover {
-    border-color: var(--primary);
-  }
-
-  &:active {
-    border-color: var(--primary);
-    transform: scale(0.94);
-  }
-
-  &:focus-visible {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
-  }
 }
 
 .settings_menu {
