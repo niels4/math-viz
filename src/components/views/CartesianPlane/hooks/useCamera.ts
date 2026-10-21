@@ -40,15 +40,17 @@ const releaseVelocity = (samples: Sample[], now: number): Center => {
   return [(last.at[0] - first.at[0]) / dt, (last.at[1] - first.at[1]) / dt]
 }
 
-const offsetFromCenter = (canvas: HTMLCanvasElement, e: MouseEvent): Center => {
+const offsetFromCenter = (canvas: HTMLCanvasElement, [clientX, clientY]: Center): Center => {
   const rect = canvas.getBoundingClientRect()
   const width = rect.width - canvas.clientLeft * 2
   const height = rect.height - canvas.clientTop * 2
   return [
-    e.clientX - rect.left - canvas.clientLeft - Math.floor(width / 2),
-    e.clientY - rect.top - canvas.clientTop - Math.floor(height / 2),
+    clientX - rect.left - canvas.clientLeft - Math.floor(width / 2),
+    clientY - rect.top - canvas.clientTop - Math.floor(height / 2),
   ]
 }
+
+const midpoint = (a: Center, b: Center): Center => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]
 
 export const useCamera = (
   ref: RefObject<HTMLCanvasElement | null>,
@@ -76,16 +78,36 @@ export const useCamera = (
     let targetScale = cur.scale
     let anchor: Center = [0, 0]
     let glide: Center | null = null
-    let pointer: { id: number; last: Center; samples: Sample[] } | null = null
+    const pointers = new Map<number, Center>()
+    let samples: Sample[] = []
     let frame = 0
     let lastFrameTime: number | null = null
 
     const zooming = () => targetScale !== cur.scale
-    const idle = () => pointer === null && glide === null && !zooming()
+    const idle = () => pointers.size === 0 && glide === null && !zooming()
 
     const panBy = (dx: number, dy: number) => {
       const unit = unscaledUnitSize / cur.scale
       cur.center = [cur.center[0] - dx / unit, cur.center[1] + dy / unit]
+    }
+
+    const pinch = ([a0, b0]: Center[], [a1, b1]: Center[]) => {
+      if (a0 === undefined || b0 === undefined || a1 === undefined || b1 === undefined) {
+        return
+      }
+      const spread = Math.hypot(b1[0] - a1[0], b1[1] - a1[1])
+      if (spread === 0) {
+        return
+      }
+      const scale = clampScale((cur.scale * Math.hypot(b0[0] - a0[0], b0[1] - a0[1])) / spread)
+      const [x0, y0] = offsetFromCenter(canvas, midpoint(a0, b0))
+      const [x1, y1] = offsetFromCenter(canvas, midpoint(a1, b1))
+      cur.center = [
+        cur.center[0] + (x0 * cur.scale - x1 * scale) / unscaledUnitSize,
+        cur.center[1] - (y0 * cur.scale - y1 * scale) / unscaledUnitSize,
+      ]
+      cur.scale = scale
+      targetScale = scale
     }
 
     const adoptIfIdle = () => {
@@ -157,7 +179,7 @@ export const useCamera = (
 
     const onWheel = (e: WheelEvent) => {
       adoptIfIdle()
-      anchor = offsetFromCenter(canvas, e)
+      anchor = offsetFromCenter(canvas, [e.clientX, e.clientY])
       targetScale = clampScale(targetScale * Math.exp(e.deltaY * scaleSpeed))
       if (targetScale === cur.scale) {
         return
@@ -166,16 +188,14 @@ export const useCamera = (
     }
 
     const onPointerDown = (e: PointerEvent) => {
-      if (pointer !== null) {
-        return
-      }
       if (e.pointerType === "mouse" && e.button !== 0) {
         return
       }
       adoptIfIdle()
       glide = null
       const at: Center = [e.clientX, e.clientY]
-      pointer = { id: e.pointerId, last: at, samples: [{ time: e.timeStamp, at }] }
+      pointers.set(e.pointerId, at)
+      samples = [{ time: e.timeStamp, at }]
       setPanning(true)
       try {
         canvas.setPointerCapture(e.pointerId)
@@ -183,26 +203,34 @@ export const useCamera = (
     }
 
     const onPointerMove = (e: PointerEvent) => {
-      if (pointer === null || e.pointerId !== pointer.id || dragging) {
+      const last = pointers.get(e.pointerId)
+      if (last === undefined || dragging) {
         return
       }
+      const before = [...pointers.values()]
       const at: Center = [e.clientX, e.clientY]
-      const dx = at[0] - pointer.last[0]
-      const dy = at[1] - pointer.last[1]
-      pointer.last = at
-      pointer.samples.push({ time: e.timeStamp, at })
-      trimSamples(pointer.samples, e.timeStamp)
-      panBy(dx, dy)
+      pointers.set(e.pointerId, at)
+      if (pointers.size > 1) {
+        pinch(before, [...pointers.values()])
+      } else {
+        samples.push({ time: e.timeStamp, at })
+        trimSamples(samples, e.timeStamp)
+        panBy(at[0] - last[0], at[1] - last[1])
+      }
       ensureLoop()
     }
 
     const onPointerUp = (e: PointerEvent) => {
-      setPanning(false)
-      if (pointer === null || e.pointerId !== pointer.id) {
+      const tracked = pointers.delete(e.pointerId)
+      if (pointers.size > 0) {
+        samples = []
         return
       }
-      const velocity = releaseVelocity(pointer.samples, e.timeStamp)
-      pointer = null
+      setPanning(false)
+      if (!tracked) {
+        return
+      }
+      const velocity = releaseVelocity(samples, e.timeStamp)
       if (Math.hypot(velocity[0], velocity[1]) >= minFlickSpeed) {
         glide = velocity
       }
@@ -224,7 +252,7 @@ export const useCamera = (
       cancelAnimationFrame(frame)
       frame = 0
       glide = null
-      pointer = null
+      pointers.clear()
     }
   }, [ref, dragging])
 
