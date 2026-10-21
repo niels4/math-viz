@@ -1,0 +1,35 @@
+.landscape_hint {
+  display: none;
+  align-items: center;
+  gap: var(--space-inline);
+  padding: var(--space-text) var(--space-text) var(--space-text) var(--space-inset);
+  font-size: var(--text-control);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+
+  @media (orientation: portrait) and (max-width: 500px) and (pointer: coarse) {
+    display: flex;
+  }
+}
+
+.dismiss {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-card);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 32%, transparent);
+  }
+}

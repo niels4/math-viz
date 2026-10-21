@@ -12,6 +12,7 @@ import { usePlotCurves } from "../CartesianPlane/hooks/usePlotCurves"
 import { TopBar } from "../TopBar/TopBar"
 import { baseFunctions, unitX } from "./baseFunctions"
 import style from "./FunctionViewer.module.css"
+import { LandscapeHint } from "./LandscapeHint"
 import { aParam, bParam, funcParam, hParam, kParam, pParam } from "./queryParams"
 import { formatNumber, quantize } from "./SideBar/PointsSection/format"
 import { SideBar } from "./SideBar/SideBar"
@@ -95,7 +96,10 @@ const Plot = () => {
 export const FunctionViewer = () => {
   return (
     <Page>
-      <TopBar className={style.top_bar} title="Function Viewer" subtitle="Functions · Transformations" />
+      <div className={style.header}>
+        <LandscapeHint />
+        <TopBar title="Function Viewer" subtitle="Functions · Transformations" />
+      </div>
       <SideBar />
       <Plot />
     </Page>
