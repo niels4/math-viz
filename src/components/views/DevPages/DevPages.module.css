@@ -6,6 +6,67 @@
   padding: var(--space-section);
 }
 
+.top_bar {
+  background: var(--background-muted);
+  border: 1px solid var(--border);
+  height: 64px;
+  padding: 0 var(--space-card);
+  display: flex;
+  gap: var(--space-card);
+  align-items: center;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: var(--space-inline);
+  color: inherit;
+  text-decoration: none;
+}
+
+.wordmark_text {
+  font-weight: var(--weight-heading);
+  font-size: var(--text-wordmark);
+  letter-spacing: 0.01em;
+}
+
+.divider {
+  border-left: 1px solid var(--border);
+  height: 28px;
+}
+
+.top_bar_heading {
+  min-width: 0;
+}
+
+.top_bar_title,
+.top_bar_subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top_bar_title {
+  font-size: var(--text-title);
+  font-weight: var(--weight-heading);
+  margin-bottom: var(--space-text);
+
+  & a {
+    color: var(--foreground);
+    text-decoration: none;
+  }
+}
+
+.top_bar_subtitle {
+  font-size: var(--text-label);
+  font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--foreground-muted);
+}
+
 .content {
   justify-self: center;
   width: min(1200px, 100%);

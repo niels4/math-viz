@@ -11,6 +11,7 @@ declare const styles: {
   readonly "card_title": string;
   readonly "content": string;
   readonly "cta": string;
+  readonly "divider": string;
   readonly "feature": string;
   readonly "grid": string;
   readonly "heading": string;
@@ -34,6 +35,12 @@ declare const styles: {
   readonly "sub": string;
   readonly "tag": string;
   readonly "title": string;
+  readonly "top_bar": string;
+  readonly "top_bar_heading": string;
+  readonly "top_bar_subtitle": string;
+  readonly "top_bar_title": string;
   readonly "why": string;
+  readonly "wordmark": string;
+  readonly "wordmark_text": string;
 };
 export = styles;
