@@ -13,14 +13,14 @@ import style from "./WelcomePage.module.css"
 
 const hintParams = ["a", "k", "b", "h"] as const
 
-const designWidth = 1440
-const designHeight = 900
+const wideDesign = { width: 1440, height: 900 }
+const stackedDesign = { width: 920, height: 1500 }
 const paperStep = 50
 
 export const WelcomePage = () => {
   const { themeSlug } = useAppTheme()
   const ref = useRef<HTMLDivElement | null>(null)
-  const fitted = useFitScale(ref, designWidth, designHeight)
+  const { fit: fitted, stacked } = useFitScale(ref, wideDesign, stackedDesign)
   const stepPixels = paperStep * useDevicePixelRatio()
   const fit = fitted < 1 ? Math.floor(fitted * stepPixels + 1e-9) / stepPixels : 1
 
@@ -29,6 +29,7 @@ export const WelcomePage = () => {
       ref={ref}
       className={cn(style.page, param_colours)}
       data-theme={themeSlug}
+      data-stacked={stacked || undefined}
       data-testid="root-view"
       style={{ "--fit": fit } as CSSProperties}
     >

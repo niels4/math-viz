@@ -50,6 +50,12 @@ const down = (clientX: number, clientY: number) => pointer("pointerdown", client
 const move = (clientX: number, clientY: number) => pointer("pointermove", clientX, clientY)
 const up = (clientX: number, clientY: number) => pointer("pointerup", clientX, clientY)
 
+const finger = (type: string, pointerId: number, [clientX, clientY]: Center) => {
+  const event = new PointerEvent(type, { pointerId, pointerType: "touch", clientX, clientY })
+  Object.defineProperty(event, "timeStamp", { value: frameTime })
+  canvas.dispatchEvent(event)
+}
+
 const flickRight = () => {
   down(canvasCenterX, canvasCenterY)
   for (let i = 1; i <= 5; i++) {
@@ -63,6 +69,12 @@ const flickRight = () => {
 const planePointAt = ({ center, scale }: Camera, clientX: number, clientY: number): Center => {
   const unit = unscaledUnitSize / scale
   return [center[0] + (clientX - canvasCenterX) / unit, center[1] - (clientY - canvasCenterY) / unit]
+}
+
+const expectPlanePointAt = (camera: Camera, [clientX, clientY]: Center, [px, py]: Center) => {
+  const [x, y] = planePointAt(camera, clientX, clientY)
+  expect(x).toBeCloseTo(px, 9)
+  expect(y).toBeCloseTo(py, 9)
 }
 
 const pagePointOf = ({ center, scale }: Camera, [px, py]: Center): Center => {
@@ -501,5 +513,109 @@ describe("useCamera pan and glide", () => {
     expect(frames.size).toBe(0)
     expect(setCenter).not.toHaveBeenCalled()
     expect(onSettle).not.toHaveBeenCalled()
+  })
+})
+
+describe("useCamera pinch", () => {
+  it("keeps the plane under both fingers as they spread apart and drift", async () => {
+    const start: Camera = { center: [1, 2], scale: 1 }
+    const { latest, unmount } = await renderCamera(start)
+
+    let left: Center = [250, 220]
+    let right: Center = [330, 180]
+    const underLeft = planePointAt(start, ...left)
+    const underRight = planePointAt(start, ...right)
+    finger("pointerdown", 1, left)
+    runFrame()
+    finger("pointerdown", 2, right)
+
+    for (let i = 1; i <= 5; i++) {
+      runFrame()
+      left = [left[0] - 8 + 5, left[1] + 4 + 7]
+      right = [right[0] + 12 + 5, right[1] - 6 + 7]
+      finger("pointermove", 1, left)
+      finger("pointermove", 2, right)
+      runFrame()
+      expectPlanePointAt(latest(), left, underLeft)
+      expectPlanePointAt(latest(), right, underRight)
+    }
+    expect(latest().scale).toBeCloseTo(Math.hypot(80, 40) / Math.hypot(180, 90), 12)
+
+    await unmount()
+  })
+
+  it("pans with the finger left on the plane after a pinch, and settles once both let go", async () => {
+    const start: Camera = { center: [0, 0], scale: 1 }
+    const { onSettle, latest, unmount } = await renderCamera(start)
+
+    let left: Center = [260, 200]
+    let right: Center = [340, 200]
+    const underLeft = planePointAt(start, ...left)
+    finger("pointerdown", 1, left)
+    finger("pointerdown", 2, right)
+    for (let i = 1; i <= 3; i++) {
+      runFrame()
+      left = [left[0] - 10, left[1]]
+      right = [right[0] + 10, right[1]]
+      finger("pointermove", 1, left)
+      finger("pointermove", 2, right)
+    }
+    runFrame()
+    const pinched = latest().scale
+    expect(pinched).toBeCloseTo(80 / 140, 12)
+    expectPlanePointAt(latest(), left, underLeft)
+
+    finger("pointerup", 2, right)
+    runUntilStill()
+    expect(onSettle).not.toHaveBeenCalled()
+
+    for (let i = 1; i <= 3; i++) {
+      runFrame()
+      left = [left[0] + 15, left[1] + 5]
+      finger("pointermove", 1, left)
+      runFrame()
+      expectPlanePointAt(latest(), left, underLeft)
+    }
+    expect(latest().scale).toBe(pinched)
+
+    for (let i = 0; i < 6; i++) {
+      runFrame()
+    }
+    finger("pointerup", 1, left)
+    runUntilStill()
+    expectPlanePointAt(latest(), left, underLeft)
+    expect(onSettle).toHaveBeenCalledTimes(1)
+
+    await unmount()
+  })
+
+  it("stops without a glide when the fingers let go a frame apart while still spreading", async () => {
+    const { onSettle, latest, unmount } = await renderCamera({ center: [0, 0], scale: 1 })
+
+    let left: Center = [280, 200]
+    let right: Center = [320, 200]
+    finger("pointerdown", 1, left)
+    finger("pointerdown", 2, right)
+    for (let i = 1; i <= 4; i++) {
+      runFrame()
+      left = [left[0] - 20, left[1]]
+      right = [right[0] + 20, right[1]]
+      finger("pointermove", 1, left)
+      finger("pointermove", 2, right)
+    }
+    runFrame()
+    finger("pointerup", 2, right)
+
+    left = [left[0] - 20, left[1]]
+    finger("pointermove", 1, left)
+    runFrame()
+    const lifted = latest()
+    finger("pointerup", 1, left)
+
+    runUntilStill()
+    expect(latest()).toEqual(lifted)
+    expect(onSettle).toHaveBeenCalledTimes(1)
+
+    await unmount()
   })
 })

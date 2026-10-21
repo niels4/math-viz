@@ -66,6 +66,10 @@
   display: flex;
   align-items: center;
   gap: 60px;
+
+  [data-stacked] & {
+    flex-direction: column;
+  }
 }
 
 .intro {
@@ -74,6 +78,11 @@
   flex-direction: column;
   gap: 28px;
   width: 380px;
+
+  [data-stacked] & {
+    width: calc(840px / 1.8);
+    zoom: 1.8;
+  }
 }
 
 .title {
@@ -181,8 +190,8 @@
 }
 
 .paper_x {
-  top: calc(-50vh / var(--fit));
-  bottom: calc(-50vh / var(--fit));
+  top: calc(-100vh / var(--fit));
+  bottom: calc(-100vh / var(--fit));
   left: calc(50% - 800px);
   width: 1600px;
   background: linear-gradient(to right, var(--chart-grid) 1px, transparent 0) -0.5px 0 / 50px 100%;

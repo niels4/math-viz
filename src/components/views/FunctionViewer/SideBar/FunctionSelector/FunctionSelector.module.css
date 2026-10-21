@@ -22,7 +22,7 @@
 .function_input {
   position: relative;
   display: flex;
-  padding: 0 var(--space-section);
+  padding: 0 var(--space-inline);
   align-items: center;
   justify-content: center;
 
