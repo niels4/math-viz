@@ -1,7 +1,5 @@
 import type { ReactNode } from "react"
 
-import cn from "classnames"
-
 import { useQueryParam } from "#src/components/router/queryParamAtom.ts"
 
 import { funcParam } from "../../queryParams"
@@ -33,7 +31,7 @@ export const FunctionSelector = () => {
   const [func, setFunc] = useQueryParam(funcParam)
 
   return (
-    <div className={cn(sidebarStyle.card, style.card)}>
+    <div className={sidebarStyle.card}>
       <fieldset className={style.function_selector}>
         <legend className={sidebarStyle.card_title}>Function</legend>
 

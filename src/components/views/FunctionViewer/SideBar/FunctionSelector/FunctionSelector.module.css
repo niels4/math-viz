@@ -1,7 +1,3 @@
-.card {
-  anchor-name: --function-section;
-}
-
 .function_selector {
   border: 0;
   margin: 0;
@@ -9,6 +5,7 @@
 }
 
 .function_buttons {
+  anchor-name: --function-selector;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   height: 36px;
