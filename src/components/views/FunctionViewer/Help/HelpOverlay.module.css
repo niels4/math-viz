@@ -1,10 +1,7 @@
 .tip {
   position: fixed;
-  position-area: right;
   z-index: var(--z-tooltip);
-  width: 320px;
   box-sizing: border-box;
-  margin-left: 12px;
   padding: var(--space-inset) var(--space-section);
   font-size: var(--text-help);
   line-height: 1.45;
@@ -14,6 +11,12 @@
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   pointer-events: none;
+}
+
+.beside {
+  position-area: right;
+  width: 320px;
+  margin-left: 12px;
 
   &::after {
     content: "";
@@ -30,6 +33,7 @@
 
 .function_tip {
   position-anchor: --function-selector;
+  anchor-name: --function-tip;
 }
 
 .transform_tip {
@@ -38,4 +42,15 @@
 
 .points_tip {
   position-anchor: --point-rows;
+}
+
+.grid_tip {
+  top: anchor(--function-tip top);
+  right: calc(anchor(--plane right) + var(--space-section));
+  left: calc(anchor(--function-tip right) + var(--space-section));
+  min-width: 260px;
+  max-width: 320px;
+  justify-self: end;
+  position-try-fallbacks: flip-block;
+  position-visibility: no-overflow;
 }
