@@ -4,6 +4,7 @@
 declare const styles: {
   readonly "actions": string;
   readonly "github_link": string;
+  readonly "help_button": string;
   readonly "round_button": string;
   readonly "tip": string;
 };

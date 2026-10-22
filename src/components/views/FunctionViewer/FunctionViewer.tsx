@@ -9,14 +9,15 @@ import type { PlotLabel, PlotPoint } from "../CartesianPlane/draw/drawCartesianP
 
 import { CartesianPlane } from "../CartesianPlane/CartesianPlane"
 import { usePlotCurves } from "../CartesianPlane/hooks/usePlotCurves"
-import { TopBar } from "../TopBar/TopBar"
 import { baseFunctions, unitX } from "./baseFunctions"
 import style from "./FunctionViewer.module.css"
+import { HelpOverlay } from "./Help/HelpOverlay"
 import { LandscapeHint } from "./LandscapeHint"
 import { aParam, bParam, funcParam, hParam, kParam, pParam } from "./queryParams"
 import { formatNumber, quantize } from "./SideBar/PointsSection/format"
 import { SideBar } from "./SideBar/SideBar"
 import { litAtom, pDraggingAtom, qXAtom } from "./state"
+import { TopBar } from "./TopBar"
 import { transformCurves, transformed, transformLines } from "./transformCurves"
 import { usePointHandle } from "./usePointHandle"
 import { useShownTransform } from "./useShownTransform"
@@ -98,10 +99,11 @@ export const FunctionViewer = () => {
     <Page>
       <div className={style.header}>
         <LandscapeHint />
-        <TopBar title="Function Viewer" subtitle="Functions · Transformations" />
+        <TopBar />
       </div>
       <SideBar />
       <Plot />
+      <HelpOverlay />
     </Page>
   )
 }

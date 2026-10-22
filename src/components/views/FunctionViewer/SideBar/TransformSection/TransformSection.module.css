@@ -1,3 +1,7 @@
+.rows {
+  anchor-name: --transform-rows;
+}
+
 .rule {
   height: 1px;
   margin: 8px;

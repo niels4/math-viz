@@ -1,15 +1,28 @@
 import type { ReactNode } from "react"
 
-import { ArrowUpRightIcon } from "#src/components/icons/icons.tsx"
+import { ArrowUpRightIcon, Logo } from "#src/components/icons/icons.tsx"
 
-import { TopBar } from "../TopBar/TopBar"
+import { TopBarActions } from "../TopBar/TopBarActions"
 import style from "./DevPages.module.css"
 import { phaseColour, phases, type Phase } from "./phases"
 
 export const DevPage = ({ subtitle, children }: { subtitle: string; children: ReactNode }) => {
   return (
     <div className={style.page}>
-      <TopBar title="Developer pages" subtitle={subtitle} href="#dev" />
+      <div className={style.top_bar}>
+        <a href="#" className={style.wordmark} aria-label="MathViz home">
+          <Logo />
+          <h2 className={style.wordmark_text}>MathViz</h2>
+        </a>
+        <div className={style.divider} />
+        <div className={style.top_bar_heading}>
+          <h1 className={style.top_bar_title}>
+            <a href="#dev">Developer pages</a>
+          </h1>
+          <div className={style.top_bar_subtitle}>{subtitle}</div>
+        </div>
+        <TopBarActions />
+      </div>
       <main className={style.content}>{children}</main>
     </div>
   )

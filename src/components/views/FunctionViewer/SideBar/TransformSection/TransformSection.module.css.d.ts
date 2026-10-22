@@ -4,6 +4,7 @@
 declare const styles: {
   readonly "head": string;
   readonly "reset_all": string;
+  readonly "rows": string;
   readonly "rule": string;
 };
 export = styles;

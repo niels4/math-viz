@@ -36,6 +36,25 @@
   }
 }
 
+.help_button {
+  width: auto;
+  gap: var(--space-inline);
+  padding: 0 var(--space-section) 0 var(--space-inset);
+  font: var(--weight-strong) var(--text-control) var(--font-sans);
+  white-space: nowrap;
+  border-radius: var(--radius-pill);
+
+  @media (width < 680px) {
+    display: none;
+  }
+
+  &[aria-pressed="true"] {
+    color: var(--primary-foreground);
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+}
+
 .github_link {
   position: relative;
 

@@ -1,0 +1,56 @@
+.tip {
+  position: fixed;
+  z-index: var(--z-tooltip);
+  box-sizing: border-box;
+  padding: var(--space-inset) var(--space-section);
+  font-size: var(--text-help);
+  line-height: 1.45;
+  color: var(--foreground);
+  background: var(--card);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  pointer-events: none;
+}
+
+.beside {
+  position-area: right;
+  width: 320px;
+  margin-left: 12px;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    width: 10px;
+    height: 18px;
+    translate: 0 -50%;
+    background: var(--primary);
+    clip-path: polygon(100% 0, 0 50%, 100% 100%);
+  }
+}
+
+.function_tip {
+  position-anchor: --function-selector;
+  anchor-name: --function-tip;
+}
+
+.transform_tip {
+  position-anchor: --transform-rows;
+}
+
+.points_tip {
+  position-anchor: --point-rows;
+}
+
+.grid_tip {
+  top: anchor(--function-tip top);
+  right: calc(anchor(--plane right) + var(--space-section));
+  left: calc(anchor(--function-tip right) + var(--space-section));
+  min-width: 260px;
+  max-width: 320px;
+  justify-self: end;
+  position-try-fallbacks: flip-block;
+  position-visibility: no-overflow;
+}

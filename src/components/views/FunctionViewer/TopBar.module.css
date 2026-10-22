@@ -8,7 +8,6 @@
   align-items: center;
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  grid-column: 1 / -1;
 }
 
 .wordmark {
@@ -54,9 +53,4 @@
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--foreground-muted);
-}
-
-.title_link {
-  color: inherit;
-  text-decoration: none;
 }

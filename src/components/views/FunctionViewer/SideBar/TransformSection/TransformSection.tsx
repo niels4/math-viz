@@ -33,11 +33,13 @@ export const TransformSection = () => {
           </button>
         )}
       </div>
-      <TransformRow name="y scale" param="a" />
-      <TransformRow name="y shift" param="k" />
-      <div className={style.rule} aria-hidden="true" />
-      <TransformRow name="x scale" param="b" />
-      <TransformRow name="x shift" param="h" />
+      <div className={style.rows}>
+        <TransformRow name="y scale" param="a" />
+        <TransformRow name="y shift" param="k" />
+        <div className={style.rule} aria-hidden="true" />
+        <TransformRow name="x scale" param="b" />
+        <TransformRow name="x shift" param="h" />
+      </div>
     </section>
   )
 }
