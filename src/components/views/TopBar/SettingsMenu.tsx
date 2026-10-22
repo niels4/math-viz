@@ -1,6 +1,6 @@
 import cn from "classnames"
 import { useAtom, useAtomValue } from "jotai"
-import { useId } from "react"
+import { useEffect, useId } from "react"
 
 import { GearIcon } from "#src/components/icons/icons.tsx"
 import {
@@ -85,6 +85,15 @@ export const SettingsMenu = () => {
 
   const id = useId()
   const menuId = `settings-menu-${id}`
+
+  useEffect(() => {
+    if (window.top === window) {
+      return
+    }
+    const close = () => document.getElementById(menuId)?.hidePopover()
+    window.addEventListener("blur", close)
+    return () => window.removeEventListener("blur", close)
+  }, [menuId])
 
   const themeSlugs = resolvedLightDark === "dark" ? DARK_THEME_SLUGS : LIGHT_THEME_SLUGS
 
