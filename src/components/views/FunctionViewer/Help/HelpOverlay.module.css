@@ -31,3 +31,11 @@
 .function_tip {
   position-anchor: --function-selector;
 }
+
+.transform_tip {
+  position-anchor: --transform-rows;
+}
+
+.points_tip {
+  position-anchor: --point-rows;
+}

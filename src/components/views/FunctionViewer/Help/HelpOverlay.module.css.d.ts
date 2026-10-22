@@ -3,6 +3,8 @@
 // prettier-ignore
 declare const styles: {
   readonly "function_tip": string;
+  readonly "points_tip": string;
   readonly "tip": string;
+  readonly "transform_tip": string;
 };
 export = styles;
